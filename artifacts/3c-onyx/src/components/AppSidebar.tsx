@@ -6,6 +6,7 @@ import {
   Wallet,
   Shield,
   ChevronRight,
+  ShoppingBag,
 } from "lucide-react";
 
 const navItems = [
@@ -20,6 +21,12 @@ const navItems = [
     path: "/inventory",
     icon: Car,
     description: "Vehicle catalog",
+  },
+  {
+    label: "Marketplace",
+    path: "/marketplace",
+    icon: ShoppingBag,
+    description: "Live listings",
   },
   {
     label: "Logistics",
