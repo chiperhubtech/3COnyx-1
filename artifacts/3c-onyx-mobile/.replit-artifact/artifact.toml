@@ -1,0 +1,27 @@
+kind = "mobile"
+previewPath = "/3c-onyx-mobile/"
+title = "3C Onyx Mobile"
+version = "1.0.0"
+id = "artifacts/3c-onyx-mobile"
+router = "expo-domain"
+
+[[integratedSkills]]
+name = "expo"
+version = "1.0.0"
+
+[[services]]
+ensurePreviewReachable = "/status"
+name = "expo"
+paths = [ "/3c-onyx-mobile/" ]
+localPort = 22562
+
+[services.development]
+run = "pnpm --filter @workspace/3c-onyx-mobile run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/3c-onyx-mobile", "run", "build" ]
+run = [ "pnpm", "--filter", "@workspace/3c-onyx-mobile", "run", "serve" ]
+
+[services.env]
+PORT = "22562"
+BASE_PATH = "/3c-onyx-mobile/"
