@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Wallet, TrendingUp, Users, DollarSign, ArrowUpRight, Copy, CheckCircle2, ChevronRight, Clock } from "lucide-react";
+import { Wallet, TrendingUp, Users, DollarSign, ArrowUpRight, Copy, CheckCircle2, ChevronRight, Clock, Share2 } from "lucide-react";
 import { maskBankAccount } from "@/lib/piiMask";
+import { PageHeader } from "@/components/PageHeader";
 
 const payouts = [
   { id: "P-0041", referral: "Alexander Harrington", date: "Mar 18, 2026", vehicle: "Rolls-Royce Ghost Extended", amount: 5890, bankAccount: "4532123456789012", status: "Paid" },
@@ -33,21 +34,29 @@ export default function ReferralWallet() {
   const paid = payouts.filter((p) => p.status === "Paid");
 
   return (
-    <div className="p-8 h-full overflow-y-auto">
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
-            <Wallet className="w-5 h-5 text-amber-400" />
-          </div>
-          <h1 className="text-2xl font-semibold text-white tracking-tight">Referral Wallet</h1>
-        </div>
-        <p className="text-white/40 text-sm ml-[52px]">Commission earnings, payout history, and your referral link</p>
-      </div>
+    <div className="h-full overflow-y-auto page-bg">
+      <PageHeader
+        icon={Wallet}
+        accent="#C9A227"
+        title="REFERRAL REWARDS"
+        subtitle="1% commission on every closed deal you refer"
+        badge={<span className="neural-badge neural-badge-gold">STRIPE CONNECT</span>}
+        actions={
+          <button
+            onClick={copyCode}
+            className="ai-btn-ghost"
+          >
+            <Share2 className="w-4 h-4" />
+            Share Code
+          </button>
+        }
+      />
+      <div className="p-6">
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 mb-6">
         {stats.map((s) => (
-          <div key={s.label} className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+          <div key={s.label} className="ai-stat-card">
             <div className="flex items-center justify-between mb-3">
               <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
                 <s.icon className="w-4 h-4 text-amber-400" />
@@ -58,13 +67,13 @@ export default function ReferralWallet() {
               </div>
             </div>
             <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
-            <p className="text-xs text-white/30 mt-0.5">{s.label}</p>
+            <p className="text-[10px] text-white/30 mt-0.5 uppercase tracking-wider">{s.label}</p>
           </div>
         ))}
       </div>
 
       {/* Referral code */}
-      <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 mb-6">
+      <div className="ai-insight-card mb-6" style={{ borderColor: "rgba(201,162,39,0.3)" }}>
         <p className="text-xs text-amber-400/70 uppercase tracking-wider font-medium mb-2">Your Referral Code</p>
         <div className="flex items-center gap-3">
           <p className="font-mono text-lg text-white font-semibold tracking-widest flex-1">{REFERRAL_CODE}</p>
@@ -161,6 +170,7 @@ export default function ReferralWallet() {
             </div>
           ))}
         </div>
+      </div>
       </div>
     </div>
   );

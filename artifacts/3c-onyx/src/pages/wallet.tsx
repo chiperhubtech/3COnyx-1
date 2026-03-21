@@ -5,6 +5,7 @@ import {
   RefreshCw, Loader2, ArrowUpRight, Shield, Percent,
   ArrowDownLeft, X, BadgeCheck,
 } from "lucide-react";
+import { PageHeader } from "@/components/PageHeader";
 
 interface Member {
   id: string;
@@ -563,30 +564,25 @@ export default function WalletPage() {
   };
 
   return (
-    <div className="p-8 h-full overflow-y-auto">
-      {/* Header */}
-      <div className="mb-6 flex items-start justify-between">
-        <div>
-          <div className="flex items-center gap-3 mb-1">
-            <div className="w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
-              <CreditCard className="w-5 h-5 text-amber-400" />
-            </div>
-            <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "28px", fontWeight: 800, color: "#FFFFFF", letterSpacing: "0.04em", textTransform: "uppercase", lineHeight: 1 }}>Member Wallet</h1>
-            <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-medium ${
-              stripeMode === "live"
-                ? "border-emerald-500/25 bg-emerald-500/10 text-emerald-400"
-                : "border-amber-500/25 bg-amber-500/10 text-amber-400"
-            }`}>
-              <div className={`w-1.5 h-1.5 rounded-full ${stripeMode === "live" ? "bg-emerald-400" : "bg-amber-400"} animate-pulse`} />
-              {stripeMode === "live" ? "Stripe Live" : "Demo Mode"}
-            </div>
-          </div>
-          <p className="text-white/40 text-sm ml-[52px]">5% Member Slice — instant Stripe Connect payouts on every completed GigTask</p>
-        </div>
-        <button onClick={fetchAll} className="text-white/25 hover:text-white/50 transition-colors">
-          <RefreshCw className="w-4 h-4" />
-        </button>
-      </div>
+    <div className="h-full overflow-y-auto page-bg">
+      <PageHeader
+        icon={CreditCard}
+        accent="#34D399"
+        title="MEMBER WALLET"
+        subtitle="5% Member Slice — instant Stripe Connect payouts on every GigTask"
+        badge={
+          <span className={`neural-badge ${stripeMode === "live" ? "neural-badge-green" : "neural-badge-gold"}`}>
+            <span className={`${stripeMode === "live" ? "ai-live-dot" : "ai-live-dot-gold"} mr-1`} />
+            {stripeMode === "live" ? "STRIPE LIVE" : "DEMO MODE"}
+          </span>
+        }
+        actions={
+          <button onClick={fetchAll} className="ai-btn-ghost">
+            <RefreshCw className="w-4 h-4" />
+          </button>
+        }
+      />
+      <div className="p-6">
 
       {/* Info banner — demo mode */}
       {stripeMode === "demo" && (
@@ -633,6 +629,7 @@ export default function WalletPage() {
           )}
         </div>
       )}
+      </div>
     </div>
   );
 }

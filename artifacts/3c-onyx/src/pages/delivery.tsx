@@ -2,8 +2,9 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import {
   QrCode, Shield, CheckCircle2, Clock, Truck, ChevronRight,
   RefreshCw, Loader2, X, Copy, AlertTriangle, Scan, FileCheck,
-  Hash, MapPin, DollarSign, User,
+  Hash, MapPin, DollarSign, User, Fingerprint,
 } from "lucide-react";
+import { PageHeader } from "@/components/PageHeader";
 import { maskVin } from "@/lib/piiMask";
 
 interface DeliveryTask {
@@ -506,17 +507,15 @@ export default function Delivery() {
   const completedTasks = tasks.filter((t) => t.status === "COMPLETED");
 
   return (
-    <div className="p-8 h-full overflow-y-auto">
-      {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
-            <QrCode className="w-5 h-5 text-amber-400" />
-          </div>
-          <h1 className="text-2xl font-semibold text-white tracking-tight">Proof of Delivery</h1>
-        </div>
-        <p className="text-white/40 text-sm ml-[52px]">Digital handshake — QR-coded delivery confirmation with SOC2 audit trail</p>
-      </div>
+    <div className="h-full overflow-y-auto page-bg">
+      <PageHeader
+        icon={QrCode}
+        accent="#C9A227"
+        title="PROOF OF DELIVERY"
+        subtitle="QR handshake with SOC2 cryptographic audit trail"
+        badge={<span className="neural-badge neural-badge-green"><Fingerprint className="w-3 h-3 inline mr-1" />SECURE</span>}
+      />
+      <div className="p-6">
 
       {/* Mode tabs */}
       <div className="flex gap-1 p-1 rounded-xl bg-white/[0.03] border border-white/8 mb-6 w-fit">
@@ -637,6 +636,7 @@ export default function Delivery() {
           <DealerScanView />
         </div>
       )}
+      </div>
     </div>
   );
 }

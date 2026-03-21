@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Bookmark, Trash2, TrendingDown, Bell, Car, Plus, X, CheckCircle2, Loader2 } from "lucide-react";
+import { Bookmark, Trash2, TrendingDown, Bell, Car, Plus, X, CheckCircle2, Loader2, BrainCircuit } from "lucide-react";
+import { PageHeader } from "@/components/PageHeader";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -95,16 +96,15 @@ export default function Watchlist() {
   const belowTarget = items.filter((i) => i.listedPrice && i.targetPrice && i.listedPrice <= i.targetPrice).length;
 
   return (
-    <div className="p-8 h-full overflow-y-auto">
-      <div className="mb-6">
-        <div className="flex items-center gap-3 mb-1">
-          <div className="w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
-            <Bookmark className="w-5 h-5 text-amber-400" />
-          </div>
-          <h1 className="text-2xl font-semibold text-white tracking-tight">Watchlist</h1>
-        </div>
-        <p className="text-white/35 text-sm ml-[52px]">Track vehicles and set price alert thresholds</p>
-      </div>
+    <div className="h-full overflow-y-auto page-bg">
+      <PageHeader
+        icon={Bookmark}
+        accent="#C9A227"
+        title="WATCHLIST"
+        subtitle="AI price tracking across luxury markets"
+        badge={<span className="neural-badge neural-badge-gold">LIVE ALERTS</span>}
+      />
+      <div className="p-6 space-y-5">
 
       {belowTarget > 0 && (
         <div className="mb-5 flex items-center gap-3 px-4 py-3 rounded-xl border border-emerald-500/30 bg-emerald-500/5">
@@ -137,11 +137,12 @@ export default function Watchlist() {
             return (
               <div
                 key={item.id}
-                className={`rounded-xl border p-5 flex flex-col gap-4 transition-all ${
+                className={`p-5 flex flex-col gap-4 transition-all ${
                   belowPrice
-                    ? "border-emerald-500/30 bg-emerald-500/5"
-                    : "border-white/10 bg-white/[0.03] hover:bg-white/[0.05]"
+                    ? "ai-card"
+                    : "ai-card"
                 }`}
+                style={belowPrice ? { borderColor: "rgba(52,211,153,0.3)", background: "linear-gradient(135deg, rgba(52,211,153,0.05) 0%, rgba(6,6,10,0.95) 100%)" } : {}}
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
@@ -168,8 +169,8 @@ export default function Watchlist() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-lg bg-white/5 p-3">
-                    <p className="text-[10px] text-white/30 mb-0.5">Listed Price</p>
+                  <div className="rounded-xl bg-white/[0.04] border border-white/[0.06] p-3">
+                    <p className="text-[10px] text-white/30 mb-0.5 uppercase tracking-wider">Listed Price</p>
                     <p className="text-base font-bold text-white">
                       {item.listedPrice ? `$${item.listedPrice.toLocaleString()}` : "N/A"}
                     </p>
@@ -247,6 +248,7 @@ export default function Watchlist() {
           })}
         </div>
       )}
+      </div>
     </div>
   );
 }

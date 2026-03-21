@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import {
   BarChart3, Star, TrendingUp, CheckCircle2, Clock, DollarSign,
-  BadgeCheck, Truck, Award, ChevronRight, AlertCircle,
+  BadgeCheck, Truck, Award, ChevronRight, AlertCircle, BrainCircuit, Zap,
 } from "lucide-react";
+import { PageHeader } from "@/components/PageHeader";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -28,15 +29,14 @@ function StatCard({ label, value, sub, icon: Icon, accent = false }: {
   accent?: boolean;
 }) {
   return (
-    <div className={`rounded-xl border p-5 flex flex-col gap-3 ${
-      accent
-        ? "border-amber-500/30 bg-amber-500/5"
-        : "border-white/10 bg-white/[0.03]"
-    }`}>
+    <div
+      className="ai-stat-card flex flex-col gap-3"
+      style={accent ? { borderColor: "rgba(201,162,39,0.25)", background: "linear-gradient(135deg, rgba(201,162,39,0.06) 0%, rgba(6,6,10,0.98) 100%)" } : {}}
+    >
       <div className="flex items-center justify-between">
-        <p className="text-xs text-white/35 uppercase tracking-wider">{label}</p>
+        <p className="text-[10px] text-white/35 uppercase tracking-widest">{label}</p>
         <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-          accent ? "bg-amber-500/20" : "bg-white/5"
+          accent ? "bg-amber-500/15 border border-amber-500/20" : "bg-white/[0.04] border border-white/[0.06]"
         }`}>
           <Icon size={15} className={accent ? "text-amber-400" : "text-white/40"} />
         </div>
@@ -71,19 +71,14 @@ export default function SpecialistDashboard() {
   const completionRate = Math.round((completedCount / DEMO_DELIVERIES.length) * 100);
 
   return (
-    <div className="p-8 h-full overflow-y-auto">
-      <div className="mb-6">
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <div className="flex items-center gap-3 mb-1">
-              <div className="w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
-                <BarChart3 className="w-5 h-5 text-amber-400" />
-              </div>
-              <h1 className="text-2xl font-semibold text-white tracking-tight">Specialist Dashboard</h1>
-            </div>
-            <p className="text-white/35 text-sm ml-[52px]">Your performance, earnings & delivery history</p>
-          </div>
-
+    <div className="h-full overflow-y-auto page-bg">
+      <PageHeader
+        icon={BarChart3}
+        accent="#C9A227"
+        title="MY DASHBOARD"
+        subtitle="Performance analytics, earnings & delivery history"
+        badge={<span className="neural-badge neural-badge-green"><span className="ai-live-dot mr-1" />CHECKR VERIFIED</span>}
+        actions={
           <div className="flex flex-wrap gap-2">
             {STAT_BADGES.map(({ label, icon: Icon, color, bg }) => (
               <div key={label} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium ${bg} ${color}`}>
@@ -92,8 +87,9 @@ export default function SpecialistDashboard() {
               </div>
             ))}
           </div>
-        </div>
-      </div>
+        }
+      />
+      <div className="p-6">
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <StatCard label="Total Earned" value={`$${totalEarnings.toLocaleString()}`} sub="After 5% Member Slice" icon={DollarSign} accent />
@@ -103,7 +99,7 @@ export default function SpecialistDashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 rounded-xl border border-white/10 bg-white/[0.03] overflow-hidden">
+        <div className="lg:col-span-2 ai-panel overflow-hidden">
           <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Truck size={15} className="text-amber-400" />
@@ -135,7 +131,7 @@ export default function SpecialistDashboard() {
         </div>
 
         <div className="flex flex-col gap-4">
-          <div className="rounded-xl border border-white/10 bg-white/[0.03] p-5">
+          <div className="ai-stat-card">
             <div className="flex items-center gap-2 mb-4">
               <TrendingUp size={15} className="text-amber-400" />
               <h2 className="text-sm font-semibold text-white">Performance Score</h2>
@@ -184,6 +180,7 @@ export default function SpecialistDashboard() {
             <p className="text-[10px] text-white/25 mt-1.5 text-right">7 / 10 deliveries</p>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

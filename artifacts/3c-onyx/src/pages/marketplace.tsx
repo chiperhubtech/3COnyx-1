@@ -2,8 +2,9 @@ import { useState, useEffect, useCallback } from "react";
 import {
   ShoppingBag, BadgeCheck, Fuel, Gauge, Calendar, MapPin,
   SlidersHorizontal, Loader2, Car, X, CheckCircle2,
-  ChevronDown, Zap, Bookmark, BookmarkCheck,
+  ChevronDown, Zap, Bookmark, BookmarkCheck, BrainCircuit,
 } from "lucide-react";
+import { PageHeader } from "@/components/PageHeader";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -347,40 +348,34 @@ export default function Marketplace() {
   const activeFilterCount = Object.values(filters).filter(Boolean).length;
 
   return (
-    <div className="p-8 h-full overflow-y-auto">
-      {/* Header */}
-      <div className="mb-6 flex items-start justify-between">
-        <div>
-          <div className="flex items-center gap-3 mb-1">
-            <div className="w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
-              <ShoppingBag className="w-5 h-5 text-amber-400" />
-            </div>
-            <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "28px", fontWeight: 800, color: "#FFFFFF", letterSpacing: "0.04em", textTransform: "uppercase", lineHeight: 1 }}>Marketplace</h1>
-          </div>
-          <p className="text-white/35 text-sm ml-[52px]">
-            Live luxury listings — every vehicle is{" "}
-            <span className="text-amber-400/70 font-medium">3C Certified</span>
-          </p>
-        </div>
-
-        <button
-          onClick={() => setShowFilters((v) => !v)}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
-            activeFilterCount > 0
-              ? "border-amber-500/40 bg-amber-500/10 text-amber-300"
-              : "border-white/10 bg-white/5 text-white/60 hover:text-white"
-          }`}
-        >
-          <SlidersHorizontal className="w-4 h-4" />
-          Filter
-          {activeFilterCount > 0 && (
-            <span className="w-5 h-5 rounded-full bg-amber-500 text-black text-xs font-bold flex items-center justify-center">
-              {activeFilterCount}
-            </span>
-          )}
-          <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showFilters ? "rotate-180" : ""}`} />
-        </button>
-      </div>
+    <div className="h-full overflow-y-auto page-bg">
+      <PageHeader
+        icon={ShoppingBag}
+        accent="#C9A227"
+        title="MARKETPLACE"
+        subtitle="Live luxury inventory — every vehicle 3C Certified"
+        badge={<span className="neural-badge neural-badge-gold"><span className="ai-live-dot-gold mr-1" />MARKETCHECK</span>}
+        actions={
+          <button
+            onClick={() => setShowFilters((v) => !v)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
+              activeFilterCount > 0
+                ? "border-amber-500/40 bg-amber-500/10 text-amber-300"
+                : "border-white/10 bg-white/5 text-white/60 hover:text-white"
+            }`}
+          >
+            <SlidersHorizontal className="w-4 h-4" />
+            Filter
+            {activeFilterCount > 0 && (
+              <span className="w-5 h-5 rounded-full bg-amber-500 text-black text-xs font-bold flex items-center justify-center">
+                {activeFilterCount}
+              </span>
+            )}
+            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showFilters ? "rotate-180" : ""}`} />
+          </button>
+        }
+      />
+      <div className="p-6">
 
       {/* Filter panel */}
       {showFilters && (
@@ -498,6 +493,7 @@ export default function Marketplace() {
       )}
 
       {selectedCar && <ConciergeModal car={selectedCar} onClose={() => setSelectedCar(null)} />}
+      </div>
     </div>
   );
 }

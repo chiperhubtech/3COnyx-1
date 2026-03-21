@@ -2,8 +2,9 @@ import { useState, useEffect, useCallback } from "react";
 import {
   Car, Gauge, Droplets, Zap, AlertTriangle, CheckCircle2,
   Plus, Loader2, RefreshCw, Trash2, X, Wrench, Clock,
-  Wifi, Shield, ChevronDown,
+  Wifi, Shield, ChevronDown, Activity,
 } from "lucide-react";
+import { PageHeader } from "@/components/PageHeader";
 import { maskVin } from "@/lib/piiMask";
 
 interface Vehicle {
@@ -492,26 +493,24 @@ export default function Garage() {
   };
 
   return (
-    <div className="p-8 h-full overflow-y-auto">
-      {/* Header */}
-      <div className="mb-8 flex items-start justify-between">
-        <div>
-          <div className="flex items-center gap-3 mb-1">
-            <div className="w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
-              <Car className="w-5 h-5 text-amber-400" />
-            </div>
-            <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "28px", fontWeight: 800, color: "#FFFFFF", letterSpacing: "0.04em", textTransform: "uppercase", lineHeight: 1 }}>My Garage</h1>
-          </div>
-          <p className="text-white/40 text-sm ml-[52px]">Live telematics via Smartcar Connect</p>
-        </div>
-        <button
-          onClick={() => setConnectModal(true)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-black font-semibold text-sm transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          Connect Vehicle
-        </button>
-      </div>
+    <div className="h-full overflow-y-auto page-bg">
+      <PageHeader
+        icon={Car}
+        accent="#C9A227"
+        title="MY GARAGE"
+        subtitle="Live telematics via Smartcar Connect"
+        badge={<span className="neural-badge"><span className="ai-live-dot mr-1" />SMARTCAR</span>}
+        actions={
+          <button
+            onClick={() => setConnectModal(true)}
+            className="ai-btn-primary"
+          >
+            <Plus className="w-4 h-4" />
+            Connect Vehicle
+          </button>
+        }
+      />
+      <div className="p-6">
 
       {/* Vehicle grid */}
       {loading ? (
@@ -555,6 +554,7 @@ export default function Garage() {
       {connectModal && (
         <ConnectModal onClose={() => setConnectModal(false)} onConnected={handleConnected} />
       )}
+      </div>
     </div>
   );
 }
