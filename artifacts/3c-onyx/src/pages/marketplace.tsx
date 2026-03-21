@@ -304,7 +304,7 @@ export default function Marketplace() {
   const activeFilterCount = Object.values(filters).filter(Boolean).length;
 
   return (
-    <div className="p-8">
+    <div className="p-8 h-full overflow-y-auto">
       {/* Header */}
       <div className="mb-6 flex items-start justify-between">
         <div>

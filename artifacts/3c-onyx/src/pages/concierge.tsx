@@ -176,7 +176,7 @@ export default function Concierge() {
   const [modal, setModal] = useState<ActionModal>(null);
 
   return (
-    <div className="p-8">
+    <div className="p-8 h-full overflow-y-auto">
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
           <div className="w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">

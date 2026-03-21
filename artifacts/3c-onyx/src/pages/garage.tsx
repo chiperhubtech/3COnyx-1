@@ -492,7 +492,7 @@ export default function Garage() {
   };
 
   return (
-    <div className="p-8">
+    <div className="p-8 h-full overflow-y-auto">
       {/* Header */}
       <div className="mb-8 flex items-start justify-between">
         <div>

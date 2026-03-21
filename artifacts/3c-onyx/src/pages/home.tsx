@@ -3,7 +3,7 @@ import { Link } from "wouter";
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-8 text-center">
+    <div className="h-full flex flex-col items-center justify-center p-8 text-center overflow-y-auto">
       <div className="mb-6 w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
         <Shield className="w-8 h-8 text-black" />
       </div>
