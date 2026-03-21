@@ -7,6 +7,7 @@ import Home from "@/pages/home";
 import Concierge from "@/pages/concierge";
 import Inventory from "@/pages/inventory";
 import Marketplace from "@/pages/marketplace";
+import Garage from "@/pages/garage";
 import Logistics from "@/pages/logistics";
 import ReferralWallet from "@/pages/referral-wallet";
 import NotFound from "@/pages/not-found";
@@ -20,6 +21,7 @@ function Router() {
       <Route path="/concierge" component={Concierge} />
       <Route path="/inventory" component={Inventory} />
       <Route path="/marketplace" component={Marketplace} />
+      <Route path="/garage" component={Garage} />
       <Route path="/logistics" component={Logistics} />
       <Route path="/referral-wallet" component={ReferralWallet} />
       <Route component={NotFound} />

@@ -7,6 +7,7 @@ import {
   Shield,
   ChevronRight,
   ShoppingBag,
+  Gauge,
 } from "lucide-react";
 
 const navItems = [
@@ -27,6 +28,12 @@ const navItems = [
     path: "/marketplace",
     icon: ShoppingBag,
     description: "Live listings",
+  },
+  {
+    label: "My Garage",
+    path: "/garage",
+    icon: Gauge,
+    description: "Telematics & service",
   },
   {
     label: "Logistics",
