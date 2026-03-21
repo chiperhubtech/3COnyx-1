@@ -20,6 +20,10 @@ import Inspection from "@/pages/inspection";
 import Watchlist from "@/pages/watchlist";
 import Analytics from "@/pages/analytics";
 import CiCd from "@/pages/ci-cd";
+import Finance from "@/pages/finance";
+import Insurance from "@/pages/insurance";
+import VehicleHistory from "@/pages/vehicle-history";
+import AIHub from "@/pages/ai-hub";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -43,6 +47,10 @@ function Router() {
       <Route path="/watchlist" component={Watchlist} />
       <Route path="/analytics" component={Analytics} />
       <Route path="/ci-cd" component={CiCd} />
+      <Route path="/finance" component={Finance} />
+      <Route path="/insurance" component={Insurance} />
+      <Route path="/vehicle-history" component={VehicleHistory} />
+      <Route path="/ai-hub" component={AIHub} />
       <Route component={NotFound} />
     </Switch>
   );

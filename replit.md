@@ -73,6 +73,41 @@ Express 5 API server. Routes live in `src/routes/` and use `@workspace/api-zod` 
 - **PageHeader component**: `src/components/PageHeader.tsx` — reusable header with accent icon box + Barlow Condensed title + optional badge/actions.
 - **Stat cards**: Translucent glassmorphism `rgba(255,255,255,0.04)` with accent-colored big numbers.
 
+## New Integrations (Backend Routes)
+
+| Integration | Route Prefix | Description | API Key Env Var | Fallback |
+|---|---|---|---|---|
+| **Plaid** | `/api/plaid/` | Financial linking — link-token, exchange, accounts, transactions, net-worth | `PLAID_CLIENT_ID` + `PLAID_SECRET` + `PLAID_ENV` | Full simulation |
+| **Insuremo** | `/api/insuremo/` | Insurance quotes by VIN across 4 carriers; active policy management | `INSUREMO_API_KEY` | Full simulation |
+| **Motor.com** | `/api/motor/` | VIN vehicle history reports + market value | `MOTOR_API_KEY` | SHA-256 seeded simulation |
+| **Browserbase** | `/api/browserbase/` | Remote browser automation tasks (dealer verify, price check, VIN decode) | `BROWSERBASE_API_KEY` + `BROWSERBASE_PROJECT_ID` | In-memory task simulation |
+| **Gumloop** | `/api/gumloop/` | AI workflow engine — 6 pre-built workflows with run/poll loop | `GUMLOOP_API_KEY` | Timed simulation with realistic outputs |
+
+## New Frontend Pages
+
+| Page | Route | Integration | Accent |
+|---|---|---|---|
+| Finance Hub | `/finance` | Plaid | #4FC3F7 (cyan) |
+| Insurance Hub | `/insurance` | Insuremo | #34D399 (emerald) |
+| Vehicle History | `/vehicle-history` | Motor.com | #F97316 (orange) |
+| AI Automation Hub | `/ai-hub` | Gumloop + Browserbase | #818CF8 (violet) |
+
+## AI-Native Design System (index.css additions)
+
+Global CSS classes for the futuristic look:
+- `.ai-card` — glassmorphism base card (backdrop-filter, dark bg, rounded-2xl)
+- `.holographic-card` — shimmer overlay animation on ::before
+- `.neural-grid-overlay` — subtle dot/grid pattern
+- `.scan-line-overlay` — animated scan line sweep on ::after
+- `.neural-glow-blue/green/gold/violet` — colored box-shadow glow
+- `.neural-badge` + `.neural-badge-green/gold/violet/orange` — blinking status badges
+- `.gradient-border-card` — animated gradient border via ::before
+- `.section-label` — 10px uppercase spaced label style
+- `.hero-mesh` — multi-radial gradient home background
+- `.hero-grid` — gold grid overlay with mask-image fade
+- `.neon-underline` — animated holographic underline on ::after
+- Keyframes: `scan-line`, `neural-pulse`, `gradient-shift`, `data-stream`, `hologram-shimmer`, `border-flow`, `float-up`, `glitch`, `status-blink`
+
 ## Platform Features (3C Onyx)
 
 1. **Marketplace** — MarketCheck live luxury inventory (Rolls-Royce, Ferrari, Lamborghini etc.) with filters, Bookmark/Watch button, Concierge purchase modal

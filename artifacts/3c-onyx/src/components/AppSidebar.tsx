@@ -20,6 +20,10 @@ import {
   UserCheck,
   Car,
   Settings,
+  Landmark,
+  ShieldPlus,
+  FileSearch,
+  Cpu,
 } from "lucide-react";
 import { NotificationBell } from "./NotificationBell";
 
@@ -73,6 +77,27 @@ const CUSTOMER_NAV = [
     description: "Refer & earn",
     accent: "#818CF8",
   },
+  {
+    label: "Finance Hub",
+    path: "/finance",
+    icon: Landmark,
+    description: "Plaid · net worth",
+    accent: "#4FC3F7",
+  },
+  {
+    label: "Insurance Hub",
+    path: "/insurance",
+    icon: ShieldPlus,
+    description: "Insuremo · coverage",
+    accent: "#34D399",
+  },
+  {
+    label: "Vehicle History",
+    path: "/vehicle-history",
+    icon: FileSearch,
+    description: "Motor.com · VIN report",
+    accent: "#F97316",
+  },
 ];
 
 const SPECIALIST_NAV = [
@@ -86,6 +111,7 @@ const ADMIN_NAV = [
   { label: "Inventory", path: "/inventory", icon: Car, description: "Vehicle catalog" },
   { label: "Analytics", path: "/analytics", icon: BarChart3, description: "Revenue & GMV" },
   { label: "Audit Vault", path: "/audit-vault", icon: ShieldCheck, description: "SOC2 log" },
+  { label: "AI Hub", path: "/ai-hub", icon: Cpu, description: "Gumloop · Browserbase", accent: "#818CF8" },
   { label: "CI / CD", path: "/ci-cd", icon: GitBranch, description: "Pipeline & MCP" },
 ];
 

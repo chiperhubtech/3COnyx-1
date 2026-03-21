@@ -112,48 +112,65 @@ export default function Home() {
   const dateStr = time.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
 
   return (
-    <div className="h-full overflow-y-auto" style={{ background: "linear-gradient(160deg, #060608 0%, #0d0a14 40%, #080a0d 100%)" }}>
+    <div className="h-full overflow-y-auto hero-mesh">
 
       {/* Hero Section */}
       <div className="relative overflow-hidden">
-        {/* Ambient glow */}
+        {/* Neural grid */}
+        <div className="hero-grid pointer-events-none" />
+
+        {/* Ambient glow orbs */}
         <div className="absolute inset-0 pointer-events-none">
-          <div style={{ position: "absolute", top: "-60px", left: "30%", width: "500px", height: "300px", background: "radial-gradient(ellipse, rgba(201,162,39,0.08) 0%, transparent 70%)", filter: "blur(40px)" }} />
-          <div style={{ position: "absolute", top: "20px", right: "10%", width: "300px", height: "200px", background: "radial-gradient(ellipse, rgba(79,195,247,0.05) 0%, transparent 70%)", filter: "blur(30px)" }} />
+          <div style={{ position: "absolute", top: "-80px", left: "25%", width: "600px", height: "360px", background: "radial-gradient(ellipse, rgba(201,162,39,0.09) 0%, transparent 70%)", filter: "blur(60px)" }} />
+          <div style={{ position: "absolute", top: "10px", right: "5%", width: "350px", height: "250px", background: "radial-gradient(ellipse, rgba(79,195,247,0.06) 0%, transparent 70%)", filter: "blur(40px)" }} />
+          <div style={{ position: "absolute", bottom: "0", left: "60%", width: "250px", height: "150px", background: "radial-gradient(ellipse, rgba(129,140,248,0.05) 0%, transparent 70%)", filter: "blur(30px)" }} />
         </div>
 
         <div className="relative px-8 pt-10 pb-6">
-          {/* Time bar */}
+          {/* Status bar */}
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "11px", letterSpacing: "0.2em", color: "rgba(255,255,255,0.35)", fontWeight: 700 }}>
-                SECURITY ACTIVE · PII MASKED
-              </span>
+              <span className="neural-badge neural-badge-green">SECURITY ACTIVE · PII MASKED</span>
             </div>
             <div className="text-right">
-              <p style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "24px", fontWeight: 700, color: "rgba(255,255,255,0.9)", lineHeight: 1 }}>{timeStr}</p>
+              <p style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "26px", fontWeight: 700, color: "rgba(255,255,255,0.9)", lineHeight: 1, letterSpacing: "0.04em" }}>{timeStr}</p>
               <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.3)", letterSpacing: "0.05em" }}>{dateStr}</p>
             </div>
           </div>
 
           {/* Main hero text */}
           <div className="mb-2">
-            <p style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "13px", letterSpacing: "0.3em", color: "#C9A227", fontWeight: 700, marginBottom: "4px" }}>
+            <p style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "13px", letterSpacing: "0.3em", color: "#C9A227", fontWeight: 700, marginBottom: "8px" }}>
               {greeting.toUpperCase()}, MEMBER
             </p>
-            <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "clamp(52px, 7vw, 84px)", fontWeight: 900, lineHeight: 0.9, letterSpacing: "-0.01em", color: "#FFFFFF", textTransform: "uppercase" }}>
+            <h1 className="neon-underline" style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "clamp(52px, 7vw, 88px)", fontWeight: 900, lineHeight: 0.88, letterSpacing: "-0.01em", color: "#FFFFFF", textTransform: "uppercase", display: "inline-block" }}>
               YOUR FLEET,<br />
-              <span style={{ WebkitTextStroke: "1px rgba(201,162,39,0.6)", color: "transparent" }}>YOUR RULES.</span>
+              <span style={{ WebkitTextStroke: "1.5px rgba(201,162,39,0.7)", color: "transparent" }}>YOUR RULES.</span>
             </h1>
           </div>
 
           {/* Gold divider */}
-          <div style={{ width: "80px", height: "2px", background: "linear-gradient(90deg, #C9A227, transparent)", marginBottom: "12px", marginTop: "16px" }} />
+          <div style={{ width: "80px", height: "2px", background: "linear-gradient(90deg, #C9A227, rgba(79,195,247,0.5), transparent)", marginBottom: "14px", marginTop: "20px" }} />
 
-          <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.45)", maxWidth: "380px", lineHeight: 1.6 }}>
+          <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.4)", maxWidth: "380px", lineHeight: 1.65 }}>
             White-glove automotive services, certified luxury vehicles, and real-time delivery — all in one secure platform.
           </p>
+
+          {/* AI integrations pill row */}
+          <div className="flex flex-wrap gap-2 mt-5">
+            {[
+              { label: "Plaid", color: "#4FC3F7" },
+              { label: "Insuremo", color: "#34D399" },
+              { label: "Motor.com", color: "#F97316" },
+              { label: "Browserbase", color: "#818CF8" },
+              { label: "Gumloop", color: "#C9A227" },
+              { label: "Gemini AI", color: "#F87171" },
+            ].map((p) => (
+              <span key={p.label} className="px-2.5 py-1 rounded-full text-xs font-semibold" style={{ background: `${p.color}10`, border: `1px solid ${p.color}25`, color: p.color, letterSpacing: "0.06em" }}>
+                {p.label}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -161,19 +178,10 @@ export default function Home() {
       <div className="px-8 pb-6">
         <div className="grid grid-cols-4 gap-3">
           {stats.map((stat) => (
-            <div
-              key={stat.label}
-              style={{
-                background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(255,255,255,0.07)",
-                borderRadius: "12px",
-                padding: "16px",
-                backdropFilter: "blur(10px)",
-              }}
-            >
-              <p style={{ fontSize: "9px", letterSpacing: "0.2em", color: "rgba(255,255,255,0.3)", fontWeight: 700, marginBottom: "6px" }}>{stat.label}</p>
+            <div key={stat.label} className="ai-card holographic-card p-4">
+              <p style={{ fontSize: "9px", letterSpacing: "0.2em", color: "rgba(255,255,255,0.28)", fontWeight: 700, marginBottom: "6px" }}>{stat.label}</p>
               <p style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "32px", fontWeight: 800, color: stat.color, lineHeight: 1 }}>{stat.value}</p>
-              <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.3)", marginTop: "4px" }}>{stat.sub}</p>
+              <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.28)", marginTop: "4px" }}>{stat.sub}</p>
             </div>
           ))}
         </div>
@@ -182,7 +190,7 @@ export default function Home() {
       {/* Quick Actions */}
       <div className="px-8 pb-6">
         <div className="flex items-center justify-between mb-4">
-          <p style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "11px", letterSpacing: "0.25em", color: "rgba(255,255,255,0.3)", fontWeight: 700 }}>QUICK ACCESS</p>
+          <p className="section-label">QUICK ACCESS</p>
           <Link href="/marketplace">
             <span style={{ fontSize: "12px", color: "#C9A227", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px" }}>
               All services <ArrowRight size={12} />
@@ -194,33 +202,22 @@ export default function Home() {
           {QUICK_ACTIONS.map((action) => (
             <Link key={action.href} href={action.href}>
               <div
-                className="group cursor-pointer transition-all duration-200"
-                style={{
-                  background: `linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.02) 100%)`,
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  borderRadius: "14px",
-                  padding: "20px",
-                  position: "relative",
-                  overflow: "hidden",
-                }}
+                className="ai-card holographic-card group cursor-pointer transition-all duration-200 p-5"
                 onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.borderColor = `${action.accent}40`;
-                  (e.currentTarget as HTMLDivElement).style.background = `linear-gradient(135deg, ${action.glow} 0%, rgba(255,255,255,0.02) 100%)`;
+                  (e.currentTarget as HTMLDivElement).style.borderColor = `${action.accent}35`;
+                  (e.currentTarget as HTMLDivElement).style.boxShadow = `0 0 0 1px ${action.accent}20, 0 8px 24px ${action.accent}08`;
                 }}
                 onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,0.08)";
-                  (e.currentTarget as HTMLDivElement).style.background = "linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.02) 100%)";
+                  (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,0.07)";
+                  (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
                 }}
               >
-                <div style={{ width: "36px", height: "36px", borderRadius: "10px", background: `${action.glow}`, border: `1px solid ${action.accent}30`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "12px" }}>
+                <div style={{ width: "38px", height: "38px", borderRadius: "12px", background: `${action.glow}`, border: `1px solid ${action.accent}28`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "14px" }}>
                   <action.icon size={18} style={{ color: action.accent }} />
                 </div>
-                <p style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "16px", fontWeight: 700, color: "#FFFFFF", letterSpacing: "0.02em", marginBottom: "4px" }}>{action.label}</p>
-                <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.35)", lineHeight: 1.4 }}>{action.description}</p>
-                <ArrowRight
-                  size={14}
-                  style={{ position: "absolute", bottom: "16px", right: "16px", color: action.accent, opacity: 0.5 }}
-                />
+                <p style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "17px", fontWeight: 700, color: "#FFFFFF", letterSpacing: "0.02em", marginBottom: "4px" }}>{action.label}</p>
+                <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.32)", lineHeight: 1.4 }}>{action.description}</p>
+                <ArrowRight size={13} style={{ marginTop: "12px", color: action.accent, opacity: 0.5 }} />
               </div>
             </Link>
           ))}
@@ -229,29 +226,17 @@ export default function Home() {
 
       {/* Bottom Feature Strip */}
       <div className="px-8 pb-8">
-        <div
-          style={{
-            background: "linear-gradient(135deg, rgba(201,162,39,0.06) 0%, rgba(79,195,247,0.04) 100%)",
-            border: "1px solid rgba(201,162,39,0.15)",
-            borderRadius: "16px",
-            padding: "20px 24px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: "16px",
-          }}
-        >
+        <div className="ai-card neural-glow-gold p-5 flex items-center justify-between flex-wrap gap-4">
           {[
             { icon: Shield, text: "SOC2 Compliant", color: "#34D399" },
             { icon: Zap, text: "Real-Time Tracking", color: "#C9A227" },
-            { icon: Star, text: "Checkr Verified Runners", color: "#4FC3F7" },
+            { icon: Star, text: "Checkr Verified", color: "#4FC3F7" },
             { icon: TrendingUp, text: "5% Member Slice", color: "#A78BFA" },
             { icon: Bell, text: "Live Alerts", color: "#F87171" },
           ].map((f) => (
             <div key={f.text} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <f.icon size={14} style={{ color: f.color }} />
-              <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)", fontWeight: 500 }}>{f.text}</span>
+              <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.45)", fontWeight: 500 }}>{f.text}</span>
             </div>
           ))}
         </div>

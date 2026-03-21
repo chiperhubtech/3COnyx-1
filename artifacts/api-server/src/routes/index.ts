@@ -14,6 +14,11 @@ import watchlistRouter from "./watchlist";
 import analyticsRouter from "./analytics";
 import mcpRouter from "./mcp/index";
 import ciRouter from "./ci";
+import plaidRouter from "./plaid";
+import insuremoRouter from "./insuremo";
+import motorRouter from "./motor";
+import browserbaseRouter from "./browserbase";
+import gumloopRouter from "./gumloop";
 
 const router: IRouter = Router();
 
@@ -32,5 +37,10 @@ router.use(watchlistRouter);
 router.use(analyticsRouter);
 router.use(mcpRouter);
 router.use(ciRouter);
+router.use(plaidRouter);
+router.use(insuremoRouter);
+router.use(motorRouter);
+router.use(browserbaseRouter);
+router.use(gumloopRouter);
 
 export default router;
