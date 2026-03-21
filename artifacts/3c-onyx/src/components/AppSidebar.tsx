@@ -11,6 +11,7 @@ import {
   QrCode,
   CreditCard,
   ShieldCheck,
+  BadgeCheck,
 } from "lucide-react";
 
 const navItems = [
@@ -61,6 +62,12 @@ const navItems = [
     path: "/referral-wallet",
     icon: Wallet,
     description: "Earnings & rewards",
+  },
+  {
+    label: "Apply as Specialist",
+    path: "/apply",
+    icon: BadgeCheck,
+    description: "Gig-workforce portal",
   },
   {
     label: "Audit Vault",
