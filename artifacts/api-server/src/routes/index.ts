@@ -4,6 +4,7 @@ import marketcheckRouter from "./marketcheck";
 import garageRouter from "./garage";
 import logisticsRouter from "./logistics";
 import deliveryRouter from "./delivery";
+import walletRouter from "./wallet";
 
 const router: IRouter = Router();
 
@@ -12,5 +13,6 @@ router.use(marketcheckRouter);
 router.use(garageRouter);
 router.use(logisticsRouter);
 router.use(deliveryRouter);
+router.use(walletRouter);
 
 export default router;

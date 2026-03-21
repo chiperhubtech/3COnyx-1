@@ -9,6 +9,7 @@ import {
   ShoppingBag,
   Gauge,
   QrCode,
+  CreditCard,
 } from "lucide-react";
 
 const navItems = [
@@ -47,6 +48,12 @@ const navItems = [
     path: "/delivery",
     icon: QrCode,
     description: "Digital handshake",
+  },
+  {
+    label: "Member Wallet",
+    path: "/wallet",
+    icon: CreditCard,
+    description: "Stripe Connect payouts",
   },
   {
     label: "Referral Wallet",
