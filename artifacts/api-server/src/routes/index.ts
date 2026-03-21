@@ -5,6 +5,7 @@ import garageRouter from "./garage";
 import logisticsRouter from "./logistics";
 import deliveryRouter from "./delivery";
 import walletRouter from "./wallet";
+import auditRouter from "./audit";
 
 const router: IRouter = Router();
 
@@ -14,5 +15,6 @@ router.use(garageRouter);
 router.use(logisticsRouter);
 router.use(deliveryRouter);
 router.use(walletRouter);
+router.use(auditRouter);
 
 export default router;

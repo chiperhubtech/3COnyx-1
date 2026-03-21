@@ -11,6 +11,7 @@ import Garage from "@/pages/garage";
 import Logistics from "@/pages/logistics";
 import Delivery from "@/pages/delivery";
 import Wallet from "@/pages/wallet";
+import AuditVault from "@/pages/audit-vault";
 import ReferralWallet from "@/pages/referral-wallet";
 import NotFound from "@/pages/not-found";
 
@@ -28,6 +29,7 @@ function Router() {
       <Route path="/delivery" component={Delivery} />
       <Route path="/wallet" component={Wallet} />
       <Route path="/referral-wallet" component={ReferralWallet} />
+      <Route path="/audit-vault" component={AuditVault} />
       <Route component={NotFound} />
     </Switch>
   );

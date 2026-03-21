@@ -10,6 +10,7 @@ import {
   Gauge,
   QrCode,
   CreditCard,
+  ShieldCheck,
 } from "lucide-react";
 
 const navItems = [
@@ -60,6 +61,12 @@ const navItems = [
     path: "/referral-wallet",
     icon: Wallet,
     description: "Earnings & rewards",
+  },
+  {
+    label: "Audit Vault",
+    path: "/audit-vault",
+    icon: ShieldCheck,
+    description: "SOC2 compliance log",
   },
 ];
 
