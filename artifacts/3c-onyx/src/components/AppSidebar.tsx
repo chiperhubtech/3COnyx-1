@@ -8,6 +8,7 @@ import {
   ChevronRight,
   ShoppingBag,
   Gauge,
+  QrCode,
 } from "lucide-react";
 
 const navItems = [
@@ -40,6 +41,12 @@ const navItems = [
     path: "/logistics",
     icon: Truck,
     description: "Delivery & transport",
+  },
+  {
+    label: "Proof of Delivery",
+    path: "/delivery",
+    icon: QrCode,
+    description: "Digital handshake",
   },
   {
     label: "Referral Wallet",

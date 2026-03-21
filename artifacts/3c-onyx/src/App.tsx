@@ -9,6 +9,7 @@ import Inventory from "@/pages/inventory";
 import Marketplace from "@/pages/marketplace";
 import Garage from "@/pages/garage";
 import Logistics from "@/pages/logistics";
+import Delivery from "@/pages/delivery";
 import ReferralWallet from "@/pages/referral-wallet";
 import NotFound from "@/pages/not-found";
 
@@ -23,6 +24,7 @@ function Router() {
       <Route path="/marketplace" component={Marketplace} />
       <Route path="/garage" component={Garage} />
       <Route path="/logistics" component={Logistics} />
+      <Route path="/delivery" component={Delivery} />
       <Route path="/referral-wallet" component={ReferralWallet} />
       <Route component={NotFound} />
     </Switch>
