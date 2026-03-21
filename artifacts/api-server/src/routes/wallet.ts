@@ -1,6 +1,6 @@
 import { Router, type IRouter, type Request, type Response } from "express";
 import crypto from "crypto";
-import { getStripeClient, MEMBER_SLICE_PCT } from "../lib/stripeClient";
+import { getUncachableStripeClient, MEMBER_SLICE_PCT } from "../lib/stripeClient";
 
 const router: IRouter = Router();
 
@@ -167,7 +167,7 @@ router.post("/wallet/payout", async (req: Request, res: Response) => {
 
   const memberSlice = Math.round(taskPayout * MEMBER_SLICE_PCT * 100) / 100;
   const amountCents = Math.round(memberSlice * 100);
-  const stripe = getStripeClient();
+  const stripe = await getUncachableStripeClient();
 
   let stripeTransferId: string | null = null;
   let status: SliceTransaction["status"] = "pending";
@@ -234,7 +234,7 @@ router.post("/wallet/connect/onboard", async (req: Request, res: Response) => {
   const member = members.find((m) => m.id === memberId);
   if (!member) { res.status(404).json({ error: "Member not found" }); return; }
 
-  const stripe = getStripeClient();
+  const stripe = await getUncachableStripeClient();
 
   if (stripe) {
     try {
@@ -288,8 +288,8 @@ router.post("/wallet/connect/simulate", (req: Request, res: Response) => {
 });
 
 // ─── GET /api/wallet/stripe/status ───────────────────────────────────────────
-router.get("/wallet/stripe/status", (_req: Request, res: Response) => {
-  const stripe = getStripeClient();
+router.get("/wallet/stripe/status", async (_req: Request, res: Response) => {
+  const stripe = await getUncachableStripeClient();
   res.json({ configured: !!stripe, mode: stripe ? "live" : "demo" });
 });
 
