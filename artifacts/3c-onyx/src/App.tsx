@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Layout } from "@/components/Layout";
+import { AIConcierge } from "@/components/AIConcierge";
 import Home from "@/pages/home";
 import Concierge from "@/pages/concierge";
 import Inventory from "@/pages/inventory";
@@ -45,6 +46,7 @@ function App() {
           <Layout>
             <Router />
           </Layout>
+          <AIConcierge />
         </WouterRouter>
         <Toaster />
       </TooltipProvider>

@@ -7,6 +7,7 @@ import deliveryRouter from "./delivery";
 import walletRouter from "./wallet";
 import auditRouter from "./audit";
 import specialistsRouter from "./specialists";
+import geminiRouter from "./gemini/index";
 
 const router: IRouter = Router();
 
@@ -18,5 +19,6 @@ router.use(deliveryRouter);
 router.use(walletRouter);
 router.use(auditRouter);
 router.use(specialistsRouter);
+router.use(geminiRouter);
 
 export default router;
