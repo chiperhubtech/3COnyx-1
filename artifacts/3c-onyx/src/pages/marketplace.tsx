@@ -2,8 +2,10 @@ import { useState, useEffect, useCallback } from "react";
 import {
   ShoppingBag, BadgeCheck, Fuel, Gauge, Calendar, MapPin,
   SlidersHorizontal, Loader2, Car, X, CheckCircle2,
-  ChevronDown, Zap,
+  ChevronDown, Zap, Bookmark, BookmarkCheck,
 } from "lucide-react";
+
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 interface MarketListing {
   id: string;
@@ -44,7 +46,12 @@ const MAKES = [
   { value: "BMW", label: "BMW" },
 ];
 
-function CarCard({ car, onConcierge }: { car: MarketListing; onConcierge: (c: MarketListing) => void }) {
+function CarCard({ car, onConcierge, onWatch, watched }: {
+  car: MarketListing;
+  onConcierge: (c: MarketListing) => void;
+  onWatch: (c: MarketListing) => void;
+  watched: boolean;
+}) {
   const photo = car.media?.photo_links?.[0];
   const location = [car.city, car.state].filter(Boolean).join(", ");
   const maskedVin = car.vin
@@ -132,13 +139,26 @@ function CarCard({ car, onConcierge }: { car: MarketListing; onConcierge: (c: Ma
           <p className="text-lg font-bold text-white">
             {car.price != null ? `$${car.price.toLocaleString()}` : "Call"}
           </p>
-          <button
-            onClick={() => onConcierge(car)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 active:scale-95 text-black text-xs font-bold transition-all cursor-pointer shrink-0"
-          >
-            <ShoppingBag className="w-3.5 h-3.5" />
-            Buy via Concierge
-          </button>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => onWatch(car)}
+              title={watched ? "On watchlist" : "Add to watchlist"}
+              className={`p-2 rounded-lg border transition-all ${
+                watched
+                  ? "border-amber-500/40 bg-amber-500/10 text-amber-400"
+                  : "border-white/10 bg-white/5 text-white/30 hover:text-amber-400 hover:border-amber-500/30"
+              }`}
+            >
+              {watched ? <BookmarkCheck className="w-3.5 h-3.5" /> : <Bookmark className="w-3.5 h-3.5" />}
+            </button>
+            <button
+              onClick={() => onConcierge(car)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 active:scale-95 text-black text-xs font-bold transition-all cursor-pointer shrink-0"
+            >
+              <ShoppingBag className="w-3.5 h-3.5" />
+              Buy via Concierge
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -270,6 +290,29 @@ export default function Marketplace() {
   const [total, setTotal] = useState(0);
   const [selectedCar, setSelectedCar] = useState<MarketListing | null>(null);
   const [showFilters, setShowFilters] = useState(false);
+  const [watchedVins, setWatchedVins] = useState<Set<string>>(new Set());
+  const [watchSuccess, setWatchSuccess] = useState<string | null>(null);
+
+  const handleWatch = useCallback(async (car: MarketListing) => {
+    if (watchedVins.has(car.id)) return;
+    const maskedVin = car.vin ? "•".repeat(Math.max(0, car.vin.length - 4)) + car.vin.slice(-4) : "N/A";
+    await fetch(`${BASE}/api/watchlist`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        vinMasked: maskedVin,
+        heading: car.heading,
+        make: car.make,
+        model: car.model,
+        year: car.year,
+        listedPrice: car.price ?? null,
+        targetPrice: car.price ? Math.round(car.price * 0.95) : null,
+      }),
+    });
+    setWatchedVins((prev) => new Set([...prev, car.id]));
+    setWatchSuccess(car.id);
+    setTimeout(() => setWatchSuccess(null), 2000);
+  }, [watchedVins]);
 
   const fetchListings = useCallback(async (f: SearchFilters) => {
     setLoading(true);
@@ -449,7 +492,7 @@ export default function Marketplace() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {listings.map((car) => (
-            <CarCard key={car.id} car={car} onConcierge={setSelectedCar} />
+            <CarCard key={car.id} car={car} onConcierge={setSelectedCar} onWatch={handleWatch} watched={watchedVins.has(car.id)} />
           ))}
         </div>
       )}

@@ -6,3 +6,6 @@ export * from "./audit-logs";
 export * from "./specialist-applications";
 export * from "./conversations";
 export * from "./messages";
+export * from "./notifications";
+export * from "./inspections";
+export * from "./watchlist";

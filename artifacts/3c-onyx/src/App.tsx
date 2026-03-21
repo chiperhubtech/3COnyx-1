@@ -15,6 +15,10 @@ import Wallet from "@/pages/wallet";
 import AuditVault from "@/pages/audit-vault";
 import Apply from "@/pages/apply";
 import ReferralWallet from "@/pages/referral-wallet";
+import SpecialistDashboard from "@/pages/specialist-dashboard";
+import Inspection from "@/pages/inspection";
+import Watchlist from "@/pages/watchlist";
+import Analytics from "@/pages/analytics";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -33,6 +37,10 @@ function Router() {
       <Route path="/referral-wallet" component={ReferralWallet} />
       <Route path="/audit-vault" component={AuditVault} />
       <Route path="/apply" component={Apply} />
+      <Route path="/specialist-dashboard" component={SpecialistDashboard} />
+      <Route path="/inspection" component={Inspection} />
+      <Route path="/watchlist" component={Watchlist} />
+      <Route path="/analytics" component={Analytics} />
       <Route component={NotFound} />
     </Switch>
   );

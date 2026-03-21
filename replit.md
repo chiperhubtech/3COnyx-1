@@ -62,6 +62,22 @@ Express 5 API server. Routes live in `src/routes/` and use `@workspace/api-zod` 
 - `pnpm --filter @workspace/api-server run build` — production esbuild bundle (`dist/index.cjs`)
 - Build bundles an allowlist of deps (express, cors, pg, drizzle-orm, zod, etc.) and externalizes the rest
 
+## Platform Features (3C Onyx)
+
+1. **Marketplace** — MarketCheck live luxury inventory (Rolls-Royce, Ferrari, Lamborghini etc.) with filters, Bookmark/Watch button, Concierge purchase modal
+2. **Watchlist** — Track vehicles with target price alerts, gap tracking, "Alert me" action
+3. **My Garage** — Smartcar telematics with odometer, fuel/battery, demo vehicles
+4. **Logistics** — HyperTrack Runner delivery map, live task tracking
+5. **Pre-Pickup Inspection** — 3-step form (vehicle → condition sliders → sign-off), saves to DB with SHA-256 audit trail
+6. **Proof of Delivery** — QR digital handshake with SHA-256 tamper hashing
+7. **Member Wallet** — Stripe Connect with 5% Member Slice transfers, payout history
+8. **AI Concierge** — Floating Gemini chat (garage context injection, SSE streaming, quick chips)
+9. **Specialist Onboarding** — 4-step BGC portal (SSN → Checkr only, never stored), Checkr simulation fallback
+10. **Specialist Dashboard** — Delivery history, star ratings, performance scores, milestone tracker
+11. **Analytics** — Admin-only revenue dashboard with Recharts charts: GMV, Member Slice, task breakdown, BGC pie chart
+12. **Live Notifications** — Notification bell in sidebar header (polls every 15s), mark read/all read, 12 seed events
+13. **SOC2 Audit Vault** — Admin-only, SHA-256 tamper hashing, filterable table, CSV export, 80 seed records
+
 ## Database Schema
 
 ### Tables (SOC2 audit-trail compliant — all have `created_at` / `updated_at`)
@@ -72,6 +88,13 @@ Express 5 API server. Routes live in `src/routes/` and use `@workspace/api-zod` 
 | `vehicles` | `id`, `vin` (unique), `year`, `make`, `model`, `color`, `price_usd`, `status`, `dealer_id` |
 | `gig_tasks` | `id`, `title`, `task_type`, `status`, `vehicle_id`, `assigned_runner_id`, `posted_by_dealer_id`, `payout_usd` |
 | `commission_ledger` | `id`, `entry_type`, `status`, `recipient_id`, `amount_usd`, `vehicle_id`, `gig_task_id`, `referred_by_user_id`, `paid_at` |
+| `audit_logs` | `id`, `event_type`, `action`, `actor_id`, `actor_role`, `severity`, `sha256_hash`, `metadata` |
+| `specialist_applications` | `id`, `applicant_name`, `email`, `dl_state`, `checkr_candidate_id`, `bgc_status`, `simulated` |
+| `conversations` | `id`, `title`, `created_at` (Gemini AI chat sessions) |
+| `messages` | `id`, `conversation_id`, `role`, `content`, `created_at` |
+| `notifications` | `id`, `type`, `title`, `body`, `read`, `created_at` |
+| `inspections` | `id`, `vehicle_label`, `inspector_name`, `condition_front/rear/driver/passenger/interior`, `odometer_confirmed`, `signed` |
+| `watchlist` | `id`, `session_id`, `vin_masked`, `heading`, `make`, `model`, `year`, `listed_price`, `target_price` |
 
 ### Enums
 - `user_role`: Member | Dealer | Runner
