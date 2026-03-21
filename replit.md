@@ -77,6 +77,8 @@ Express 5 API server. Routes live in `src/routes/` and use `@workspace/api-zod` 
 11. **Analytics** — Admin-only revenue dashboard with Recharts charts: GMV, Member Slice, task breakdown, BGC pie chart
 12. **Live Notifications** — Notification bell in sidebar header (polls every 15s), mark read/all read, 12 seed events
 13. **SOC2 Audit Vault** — Admin-only, SHA-256 tamper hashing, filterable table, CSV export, 80 seed records
+14. **MCP Server** — `@modelcontextprotocol/sdk` StreamableHTTP server at `/api/mcp` with 8 tools: `search_vehicles`, `get_garage`, `get_watchlist`, `get_notifications`, `get_gig_tasks`, `book_runner`, `get_analytics`, `get_inspections`. Gemini Concierge uses Gemini function calling to invoke MCP tools with real DB data.
+15. **CI/CD Pipeline** — `/ci-cd` dashboard; 3 steps (TypeScript Check, Build API Server, Build Web App) run via `/api/ci/run` endpoint; live status polling every 2s; deployment config: autoscale, us-east-1, `pnpm run build`. Validation commands also registered as Replit workflows (typecheck, build-api, build-web).
 
 ## Database Schema
 

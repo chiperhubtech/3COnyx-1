@@ -12,6 +12,8 @@ import notificationsRouter from "./notifications";
 import inspectionsRouter from "./inspections";
 import watchlistRouter from "./watchlist";
 import analyticsRouter from "./analytics";
+import mcpRouter from "./mcp/index";
+import ciRouter from "./ci";
 
 const router: IRouter = Router();
 
@@ -28,5 +30,7 @@ router.use(notificationsRouter);
 router.use(inspectionsRouter);
 router.use(watchlistRouter);
 router.use(analyticsRouter);
+router.use(mcpRouter);
+router.use(ciRouter);
 
 export default router;

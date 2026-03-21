@@ -16,6 +16,7 @@ import {
   ClipboardCheck,
   Bookmark,
   LayoutDashboard,
+  GitBranch,
 } from "lucide-react";
 import { NotificationBell } from "./NotificationBell";
 
@@ -103,6 +104,12 @@ const navItems = [
     path: "/audit-vault",
     icon: ShieldCheck,
     description: "SOC2 compliance log",
+  },
+  {
+    label: "CI / CD",
+    path: "/ci-cd",
+    icon: GitBranch,
+    description: "Pipeline & MCP server",
   },
 ];
 

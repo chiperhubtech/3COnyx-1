@@ -19,6 +19,7 @@ import SpecialistDashboard from "@/pages/specialist-dashboard";
 import Inspection from "@/pages/inspection";
 import Watchlist from "@/pages/watchlist";
 import Analytics from "@/pages/analytics";
+import CiCd from "@/pages/ci-cd";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -41,6 +42,7 @@ function Router() {
       <Route path="/inspection" component={Inspection} />
       <Route path="/watchlist" component={Watchlist} />
       <Route path="/analytics" component={Analytics} />
+      <Route path="/ci-cd" component={CiCd} />
       <Route component={NotFound} />
     </Switch>
   );
