@@ -500,7 +500,7 @@ export default function Garage() {
             <div className="w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
               <Car className="w-5 h-5 text-amber-400" />
             </div>
-            <h1 className="text-2xl font-semibold text-white tracking-tight">My Garage</h1>
+            <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "28px", fontWeight: 800, color: "#FFFFFF", letterSpacing: "0.04em", textTransform: "uppercase", lineHeight: 1 }}>My Garage</h1>
           </div>
           <p className="text-white/40 text-sm ml-[52px]">Live telematics via Smartcar Connect</p>
         </div>

@@ -62,6 +62,17 @@ Express 5 API server. Routes live in `src/routes/` and use `@workspace/api-zod` 
 - `pnpm --filter @workspace/api-server run build` — production esbuild bundle (`dist/index.cjs`)
 - Build bundles an allowlist of deps (express, cors, pg, drizzle-orm, zod, etc.) and externalizes the rest
 
+## Design System (3C Onyx)
+
+**Visual Language**: Apple × GTA — cinematic dark mode, deep black (#0A0A0A) + gold (#C9A227) + neon accents.
+
+- **Fonts**: Barlow Condensed (900/800/700/600, uppercase, letterSpacing 0.04em) for all H1/display headings; Inter for body/UI text. Loaded via Google Fonts in `index.html`.
+- **Home hero**: "YOUR FLEET, YOUR RULES." — solid white + gold outlined text in massive Barlow Condensed, ambient radial gradient background.
+- **Page headers**: All key customer pages (Marketplace, My Garage, Live Tracking, Member Wallet) use Barlow Condensed 800 uppercase h1, amber-500/10 icon box.
+- **Sidebar**: `AppSidebar.tsx` — "3C ONYX / SECURE PLATFORM" brand; sections: MY ACCOUNT (customer nav), SPECIALIST (runner nav), PLATFORM (collapsed admin tools: Concierge, Inventory, Analytics, Audit Vault, CI/CD).
+- **PageHeader component**: `src/components/PageHeader.tsx` — reusable header with accent icon box + Barlow Condensed title + optional badge/actions.
+- **Stat cards**: Translucent glassmorphism `rgba(255,255,255,0.04)` with accent-colored big numbers.
+
 ## Platform Features (3C Onyx)
 
 1. **Marketplace** — MarketCheck live luxury inventory (Rolls-Royce, Ferrari, Lamborghini etc.) with filters, Bookmark/Watch button, Concierge purchase modal

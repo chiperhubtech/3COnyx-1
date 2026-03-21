@@ -571,7 +571,7 @@ export default function WalletPage() {
             <div className="w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
               <CreditCard className="w-5 h-5 text-amber-400" />
             </div>
-            <h1 className="text-2xl font-semibold text-white tracking-tight">Member Wallet</h1>
+            <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "28px", fontWeight: 800, color: "#FFFFFF", letterSpacing: "0.04em", textTransform: "uppercase", lineHeight: 1 }}>Member Wallet</h1>
             <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-medium ${
               stripeMode === "live"
                 ? "border-emerald-500/25 bg-emerald-500/10 text-emerald-400"
