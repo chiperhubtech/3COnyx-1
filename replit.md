@@ -62,6 +62,27 @@ Express 5 API server. Routes live in `src/routes/` and use `@workspace/api-zod` 
 - `pnpm --filter @workspace/api-server run build` — production esbuild bundle (`dist/index.cjs`)
 - Build bundles an allowlist of deps (express, cors, pg, drizzle-orm, zod, etc.) and externalizes the rest
 
+## Database Schema
+
+### Tables (SOC2 audit-trail compliant — all have `created_at` / `updated_at`)
+
+| Table | Key Fields |
+|---|---|
+| `users` | `id`, `name`, `email`, `role` (Member/Dealer/Runner), `phone`, `avatar_url` |
+| `vehicles` | `id`, `vin` (unique), `year`, `make`, `model`, `color`, `price_usd`, `status`, `dealer_id` |
+| `gig_tasks` | `id`, `title`, `task_type`, `status`, `vehicle_id`, `assigned_runner_id`, `posted_by_dealer_id`, `payout_usd` |
+| `commission_ledger` | `id`, `entry_type`, `status`, `recipient_id`, `amount_usd`, `vehicle_id`, `gig_task_id`, `referred_by_user_id`, `paid_at` |
+
+### Enums
+- `user_role`: Member | Dealer | Runner
+- `vehicle_status`: Available | Reserved | In Transit | Sold | Maintenance
+- `gig_task_type`: Delivery | Inspection | Photography | Detailing | Transport | Concierge | Other
+- `gig_task_status`: Open | Claimed | In Progress | Completed | Cancelled | Disputed
+- `ledger_entry_type`: Referral | GigCompletion | Bonus | Clawback | Adjustment
+- `ledger_entry_status`: Pending | Approved | Paid | Failed | Voided
+
+---
+
 ### `lib/db` (`@workspace/db`)
 
 Database layer using Drizzle ORM with PostgreSQL. Exports a Drizzle client instance and schema models.
