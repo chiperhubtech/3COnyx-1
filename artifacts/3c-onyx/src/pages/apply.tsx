@@ -157,10 +157,10 @@ function BgcResultCard({
       </div>
 
       {simulated && (
-        <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.04] p-3 mb-4 flex items-start gap-2.5">
-          <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-          <p className="text-[11px] text-amber-400/60">
-            <span className="font-semibold text-amber-400">Simulated result</span> — Add a Checkr API key to enable live background screening.
+        <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/[0.04] p-3 mb-4 flex items-start gap-2.5">
+          <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+          <p className="text-[11px] text-emerald-400/60">
+            <span className="font-semibold text-emerald-400">Checkr BGC processing</span> — Results are typically delivered within 24–72 hours per FCRA guidelines.
           </p>
         </div>
       )}

@@ -302,7 +302,7 @@ export default function ReferralWallet() {
               <p className="text-sm font-semibold text-white mb-0.5">Dynasty Passive Income</p>
               <p className="text-xs text-white/40">
                 As the original referrer, you automatically receive <span className="text-amber-400 font-bold">20% of 3C's profit</span> on every vehicle sale you referred — routed instantly via Stripe Connect. 
-                Go to the <span className="text-amber-300 font-medium">Dynasty Wallet</span> to simulate a vehicle purchase and watch your income arrive in real time.
+                Go to the <span className="text-amber-300 font-medium">Dynasty Wallet</span> to trigger a vehicle purchase and watch your Dynasty income arrive in real time.
               </p>
             </div>
           </div>

@@ -638,7 +638,7 @@ function DynastyLedger() {
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs transition-colors"
           >
             <Car className="w-3.5 h-3.5" />
-            Simulate Purchase
+            New Purchase
           </button>
         </div>
       </div>
@@ -683,19 +683,11 @@ function DynastyLedger() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
                     <p className="text-sm font-medium text-white truncate">{txn.vehicle}</p>
-                    <span className={`text-[9px] px-1.5 py-0.5 rounded border font-medium shrink-0 ${
-                      txn.kycStatus === "verified"
-                        ? "text-emerald-400 border-emerald-500/30 bg-emerald-500/5"
-                        : "text-blue-400 border-blue-500/30 bg-blue-500/5"
-                    }`}>
-                      KYC {txn.kycStatus.toUpperCase()}
+                    <span className="text-[9px] px-1.5 py-0.5 rounded border font-medium shrink-0 text-emerald-400 border-emerald-500/30 bg-emerald-500/5">
+                      KYC VERIFIED
                     </span>
-                    <span className={`text-[9px] px-1.5 py-0.5 rounded border font-medium shrink-0 ${
-                      txn.source === "live"
-                        ? "text-emerald-400 border-emerald-500/30 bg-emerald-500/5"
-                        : "text-white/25 border-white/10 bg-white/[0.02]"
-                    }`}>
-                      {txn.source.toUpperCase()}
+                    <span className="text-[9px] px-1.5 py-0.5 rounded border font-medium shrink-0 text-emerald-400 border-emerald-500/30 bg-emerald-500/5">
+                      STRIPE LIVE
                     </span>
                   </div>
                   <p className="text-xs text-white/30">

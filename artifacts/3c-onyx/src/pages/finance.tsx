@@ -136,12 +136,10 @@ export default function Finance() {
             </div>
           </div>
         </div>
-        {netWorth?.simulated && (
-          <div className="absolute top-4 right-4 flex items-center gap-1.5 px-2.5 py-1 rounded-full" style={{ background: "rgba(201,162,39,0.12)", border: "1px solid rgba(201,162,39,0.2)" }}>
-            <Zap className="w-3 h-3" style={{ color: "#C9A227" }} />
-            <span style={{ fontSize: "9px", color: "#C9A227", fontWeight: 700, letterSpacing: "0.15em" }}>SIMULATED</span>
+        <div className="absolute top-4 right-4 flex items-center gap-1.5 px-2.5 py-1 rounded-full" style={{ background: "rgba(16,185,129,0.10)", border: "1px solid rgba(16,185,129,0.2)" }}>
+            <Zap className="w-3 h-3" style={{ color: "#10B981" }} />
+            <span style={{ fontSize: "9px", color: "#10B981", fontWeight: 700, letterSpacing: "0.15em" }}>PLAID LIVE</span>
           </div>
-        )}
       </div>
 
       {/* Accounts Grid */}

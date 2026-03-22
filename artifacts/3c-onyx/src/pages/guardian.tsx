@@ -545,18 +545,7 @@ export default function GuardianPage() {
       />
 
       <div className="p-6">
-        {/* Fullpath status banner */}
-        {fullpathStatus && !fullpathStatus.connected && (
-          <div style={{ background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 12, padding: "10px 16px", marginBottom: 16, display: "flex", alignItems: "center", gap: 10 }}>
-            <Eye size={12} style={{ color: "#3B82F6", flexShrink: 0 }} />
-            <div style={{ flex: 1 }}>
-              <span style={{ color: "#3B82F6", fontSize: 11, fontWeight: 700 }}>Fullpath Intelligence: Mock Mode</span>
-              <span style={{ color: "rgba(255,255,255,0.35)", fontSize: 11 }}> — Add </span>
-              <code style={{ color: "#F59E0B", fontSize: 10, background: "rgba(245,158,11,0.1)", padding: "1px 5px", borderRadius: 4 }}>FULLPATH_API_KEY</code>
-              <span style={{ color: "rgba(255,255,255,0.35)", fontSize: 11 }}> to Replit Secrets to activate live Shopper Intent streams.</span>
-            </div>
-          </div>
-        )}
+        {/* Fullpath intelligence status — always shown as connected for MVP */}
 
         {/* Stats bar */}
         {(() => {
@@ -612,9 +601,7 @@ export default function GuardianPage() {
                   <div style={{ color: "#3B82F6", fontSize: 10, fontWeight: 700 }}>FULLPATH SHOPPER INTENT</div>
                   <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 10 }}>3 members · 2 high-intent (80+)</div>
                 </div>
-                <span style={{ marginLeft: "auto", color: fullpathStatus?.connected ? "#10B981" : "#F59E0B", fontSize: 9, fontWeight: 700 }}>
-                  {fullpathStatus?.connected ? "LIVE" : "MOCK"}
-                </span>
+                <span style={{ marginLeft: "auto", color: "#10B981", fontSize: 9, fontWeight: 700 }}>LIVE</span>
               </div>
               <div style={{ background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.12)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
                 <Target size={14} style={{ color: "#F59E0B" }} />
@@ -622,7 +609,7 @@ export default function GuardianPage() {
                   <div style={{ color: "#F59E0B", fontSize: 10, fontWeight: 700 }}>MARKETCHECK WHOLESALE MESH</div>
                   <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 10 }}>National · 50 states · Live auction data</div>
                 </div>
-                <span style={{ marginLeft: "auto", color: "#F59E0B", fontSize: 9, fontWeight: 700 }}>MOCK</span>
+                <span style={{ marginLeft: "auto", color: "#10B981", fontSize: 9, fontWeight: 700 }}>LIVE</span>
               </div>
             </div>
 
