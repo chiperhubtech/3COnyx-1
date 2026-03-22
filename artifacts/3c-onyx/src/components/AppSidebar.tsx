@@ -25,6 +25,7 @@ import {
   FileSearch,
   Cpu,
   Package,
+  Lock,
 } from "lucide-react";
 import { NotificationBell } from "./NotificationBell";
 
@@ -119,6 +120,7 @@ const ADMIN_NAV = [
   { label: "Inventory", path: "/inventory", icon: Car, description: "Vehicle catalog" },
   { label: "Analytics", path: "/analytics", icon: BarChart3, description: "Revenue & GMV" },
   { label: "Audit Vault", path: "/audit-vault", icon: ShieldCheck, description: "SOC2 log" },
+  { label: "Security Layer", path: "/security", icon: Lock, description: "AES-256 · Transient Access · AI Audit", accent: "#10B981" },
   { label: "AI Hub", path: "/ai-hub", icon: Cpu, description: "Gumloop · Browserbase", accent: "#818CF8" },
   { label: "CI / CD", path: "/ci-cd", icon: GitBranch, description: "Pipeline & MCP" },
 ];

@@ -198,6 +198,7 @@ Utility scripts package. Each script is a `.ts` file in `src/` with a correspond
 | 11 | SOC2 Audit Vault, CI/CD, AI Hub (Gumloop, Browserbase), Finance Hub (Plaid), Insurance (Insuremo), Vehicle History (Motor.com) | ✅ Live | Various routes |
 | 12 | Dynasty Wallet (KYC/AML via Stripe Identity, Triple-Split: 85%/2.5%/20% referrer, passive income polling) | ✅ Live | `routes/dynasty.ts`, `pages/wallet.tsx`, `pages/referral-wallet.tsx` |
 | 13 | Dropship Coordinator (Ship.cars + RunBuggy bridge, Digital BOL + SHA-256 tamper seal + QR, 360° scan viewer, AR Preview via WebRTC camera + CSS 3D, mobile Runner scanner) | ✅ Live | `routes/dropship.ts`, `pages/dropship.tsx`, mobile `app/scanner.tsx` |
+| 14 | NIST-MCP 2026 Security Layer (AES-256-GCM encryption, PII masking, Transient Agent Tokens 15-min TTL, Immutable Agent Audit Trail hash chain, Decision Transparency ledger) | ✅ Live | `lib/cipher.ts`, `routes/security.ts`, `pages/security.tsx` |
 
 ### Dropship Coordinator (Prompt 13) Architecture
 - **Backend** (`routes/dropship.ts`): 7 endpoints — carriers, claim, BOL fetch, shipments, status update, scan submit (per-position), scan retrieve. SHA-256 tamper hash generated at BOL creation. Scan sessions auto-created on claim.

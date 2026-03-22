@@ -21,6 +21,7 @@ import browserbaseRouter from "./browserbase";
 import gumloopRouter from "./gumloop";
 import dynastyRouter from "./dynasty";
 import dropshipRouter from "./dropship";
+import securityRouter from "./security";
 
 const router: IRouter = Router();
 
@@ -46,5 +47,6 @@ router.use(browserbaseRouter);
 router.use(gumloopRouter);
 router.use(dynastyRouter);
 router.use(dropshipRouter);
+router.use(securityRouter);
 
 export default router;
