@@ -25,6 +25,7 @@ import securityRouter from "./security";
 import commandRouter from "./command";
 import guardianRouter from "./guardian";
 import subscriptionRouter from "./subscription";
+import fullpathRouter from "./fullpath";
 
 const router: IRouter = Router();
 
@@ -54,5 +55,6 @@ router.use(securityRouter);
 router.use(commandRouter);
 router.use("/guardian", guardianRouter);
 router.use("/subscription", subscriptionRouter);
+router.use("/fullpath", fullpathRouter);
 
 export default router;

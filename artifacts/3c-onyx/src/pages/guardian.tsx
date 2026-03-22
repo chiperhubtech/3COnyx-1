@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Shield, Zap, AlertTriangle, CheckCircle, XCircle, Activity,
-  Bot, ShoppingCart, Truck, Lock, Bell, ChevronDown, ChevronUp, Cpu } from "lucide-react";
+  Bot, ShoppingCart, Truck, Lock, Bell, ChevronDown, ChevronUp, Cpu,
+  Target, TrendingUp, DollarSign, Eye, Rocket } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -30,6 +31,34 @@ interface Telemetry {
     tirePressFr: number; tirePressRl: number; transmissionTemp: number;
     coolantLevel: string; dtcCodes: string[]; throttlePosition: number;
   };
+}
+
+interface HighValueStrike {
+  id: string;
+  status: "live" | "locked" | "deployed" | "expired";
+  tier: "S" | "A" | "B";
+  strikeScore: number;
+  vehicle: {
+    vinMasked: string; year: number; make: string; model: string;
+    trim: string; mileage: number; color: string;
+    wholesalePrice: number; estimatedRetail: number; gap: number;
+  };
+  fullpathSignals: {
+    matchedMembers: number; topMemberId: string; topMemberName: string;
+    topIntentScore: number; inventoryDemandScore: number;
+    avgDaysOnMarket: number; searchVolume7d: number;
+  };
+  conciergeAlert: string;
+  stripeHoldId: string | null;
+  missionId: string | null;
+  vaultHash: string | null;
+  detectedAt: string;
+  deployedAt: string | null;
+  agentDecisions: AgentDecision[];
+}
+
+interface StrikeStats {
+  total: number; live: number; deployed: number; locked: number; tierS: number;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -105,6 +134,187 @@ function AgentStep({ decision, isLast }: { decision: AgentDecision; isLast: bool
         <p style={{ color: "rgba(255,255,255,0.25)", fontSize: 10, marginBottom: 3, lineHeight: 1.5 }}>{decision.action}</p>
         <p style={{ color, fontSize: 10, fontWeight: 600, lineHeight: 1.5 }}>{decision.result}</p>
       </div>
+    </div>
+  );
+}
+
+// ─── Strike Score Ring ────────────────────────────────────────────────────────
+function StrikeRing({ score, tier }: { score: number; tier: string }) {
+  const tierColor = tier === "S" ? "#F59E0B" : tier === "A" ? "#10B981" : "#3B82F6";
+  const r = 28; const circ = 2 * Math.PI * r;
+  const fill = circ - (score / 100) * circ;
+  return (
+    <div className="relative" style={{ width: 72, height: 72 }}>
+      <svg width={72} height={72} style={{ transform: "rotate(-90deg)" }}>
+        <circle cx={36} cy={36} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={6} />
+        <circle cx={36} cy={36} r={r} fill="none" stroke={tierColor} strokeWidth={6}
+          strokeDasharray={circ} strokeDashoffset={fill} strokeLinecap="round"
+          style={{ transition: "stroke-dashoffset 1s ease" }} />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span style={{ color: tierColor, fontSize: 11, fontWeight: 900, lineHeight: 1 }}>T-{tier}</span>
+        <span style={{ color: "rgba(255,255,255,0.3)", fontSize: 8, fontWeight: 700, letterSpacing: 0.5 }}>{score}</span>
+      </div>
+    </div>
+  );
+}
+
+// ─── StrikeCard ───────────────────────────────────────────────────────────────
+function StrikeCard({ strike, onDeploy }: { strike: HighValueStrike; onDeploy: (id: string) => void }) {
+  const [expanded, setExpanded] = useState(false);
+  const tierColor = strike.tier === "S" ? "#F59E0B" : strike.tier === "A" ? "#10B981" : "#3B82F6";
+  const isLive = strike.status === "live";
+  const isDeployed = strike.status === "deployed" || strike.status === "locked";
+
+  return (
+    <div style={{
+      background: isDeployed ? "rgba(16,185,129,0.04)" : isLive ? "rgba(245,158,11,0.04)" : "rgba(255,255,255,0.02)",
+      border: `1px solid ${isDeployed ? "rgba(16,185,129,0.2)" : isLive ? "rgba(245,158,11,0.15)" : "rgba(255,255,255,0.06)"}`,
+      borderRadius: 16, overflow: "hidden",
+    }}>
+      {/* Header */}
+      <div style={{ padding: "16px 20px", display: "flex", gap: 16, alignItems: "flex-start" }}>
+        <StrikeRing score={strike.strikeScore} tier={strike.tier} />
+        <div style={{ flex: 1 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4, flexWrap: "wrap" }}>
+            <span style={{
+              background: isDeployed ? "rgba(16,185,129,0.15)" : `${tierColor}18`,
+              color: isDeployed ? "#10B981" : tierColor,
+              border: `1px solid ${isDeployed ? "rgba(16,185,129,0.3)" : `${tierColor}30`}`,
+              padding: "2px 8px", borderRadius: 6, fontSize: 9, fontWeight: 800, letterSpacing: 1,
+            }}>
+              {isDeployed ? "MESH DEPLOYED" : isLive ? "HIGH-VALUE STRIKE" : strike.status.toUpperCase()}
+            </span>
+            <span style={{ background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.4)", padding: "2px 6px", borderRadius: 4, fontSize: 9, fontWeight: 700 }}>
+              Fullpath Intent Score: {strike.fullpathSignals.topIntentScore}/100
+            </span>
+            <span style={{ color: "rgba(255,255,255,0.2)", fontSize: 9 }}>{timeAgo(strike.detectedAt)}</span>
+          </div>
+
+          <h3 style={{ color: "#fff", fontSize: 14, fontWeight: 800, marginBottom: 2 }}>
+            {strike.vehicle.year} {strike.vehicle.make} {strike.vehicle.model} {strike.vehicle.trim}
+          </h3>
+          <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 11, marginBottom: 6 }}>
+            {strike.vehicle.color} · {strike.vehicle.mileage.toLocaleString()} mi · VIN: {strike.vehicle.vinMasked}
+          </p>
+
+          {/* Price row */}
+          <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+            <div>
+              <span style={{ color: "rgba(255,255,255,0.2)", fontSize: 9 }}>WHOLESALE</span>
+              <div style={{ color: "#F59E0B", fontSize: 14, fontWeight: 900 }}>{fmt(strike.vehicle.wholesalePrice)}</div>
+            </div>
+            <div>
+              <span style={{ color: "rgba(255,255,255,0.2)", fontSize: 9 }}>RETAIL EST.</span>
+              <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, fontWeight: 700 }}>{fmt(strike.vehicle.estimatedRetail)}</div>
+            </div>
+            <div>
+              <span style={{ color: "rgba(255,255,255,0.2)", fontSize: 9 }}>GAP</span>
+              <div style={{ color: "#10B981", fontSize: 14, fontWeight: 900 }}>+{fmt(strike.vehicle.gap)}</div>
+            </div>
+            <div>
+              <span style={{ color: "rgba(255,255,255,0.2)", fontSize: 9 }}>DEMAND</span>
+              <div style={{ color: "#3B82F6", fontSize: 13, fontWeight: 800 }}>{strike.fullpathSignals.inventoryDemandScore}/100</div>
+            </div>
+          </div>
+        </div>
+
+        <button onClick={() => setExpanded(v => !v)} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.3)", padding: 4 }}>
+          {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+        </button>
+      </div>
+
+      {/* Expanded detail */}
+      {expanded && (
+        <div style={{ padding: "0 20px 20px" }}>
+          {/* Concierge Alert */}
+          <div style={{ background: "rgba(139,92,246,0.06)", border: "1px solid rgba(139,92,246,0.15)", borderRadius: 12, padding: 14, marginBottom: 14 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
+              <Bot size={12} style={{ color: "#8B5CF6" }} />
+              <span style={{ color: "#8B5CF6", fontSize: 9, fontWeight: 700, letterSpacing: 1 }}>ONYX CONCIERGE — TIER-1 ALERT</span>
+            </div>
+            <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 12, lineHeight: 1.7, fontStyle: "italic" }}>
+              "{strike.conciergeAlert}"
+            </p>
+          </div>
+
+          {/* Fullpath signals */}
+          <div style={{ background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.12)", borderRadius: 12, padding: 14, marginBottom: 14 }}>
+            <p style={{ color: "#3B82F6", fontSize: 9, fontWeight: 700, letterSpacing: 1, marginBottom: 10 }}>FULLPATH INTELLIGENCE SIGNALS</p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+              {[
+                { label: "Matched Members", val: strike.fullpathSignals.matchedMembers.toString() },
+                { label: "Top Intent", val: `${strike.fullpathSignals.topIntentScore}/100` },
+                { label: "Demand Score", val: `${strike.fullpathSignals.inventoryDemandScore}/100` },
+                { label: "Avg Days on Mkt", val: `${strike.fullpathSignals.avgDaysOnMarket}d` },
+                { label: "Search Vol 7d", val: strike.fullpathSignals.searchVolume7d.toLocaleString() },
+                { label: "Top Member", val: strike.fullpathSignals.topMemberName },
+              ].map(s => (
+                <div key={s.label} style={{ background: "rgba(255,255,255,0.02)", borderRadius: 8, padding: "8px 10px" }}>
+                  <div style={{ color: "rgba(255,255,255,0.25)", fontSize: 9, fontWeight: 700 }}>{s.label}</div>
+                  <div style={{ color: "#fff", fontSize: 13, fontWeight: 800 }}>{s.val}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Agent decisions (post-deploy) */}
+          {isDeployed && strike.agentDecisions.length > 0 && (
+            <div style={{ background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 12, padding: 16, marginBottom: 14 }}>
+              <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 9, fontWeight: 700, letterSpacing: 1, marginBottom: 12 }}>7-AGENT MESH LOG</p>
+              {strike.agentDecisions.map((d, i) => {
+                const Icon = AGENT_ICONS[i % AGENT_ICONS.length];
+                const color = AGENT_COLORS[i % AGENT_COLORS.length];
+                return (
+                  <div key={i} style={{ display: "flex", gap: 10, marginBottom: i < strike.agentDecisions.length - 1 ? 12 : 0 }}>
+                    <div style={{ width: 28, height: 28, borderRadius: "50%", background: `${color}18`, border: `1px solid ${color}40`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <Icon size={12} style={{ color }} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <span style={{ color: "#fff", fontSize: 11, fontWeight: 700 }}>{d.agent}</span>
+                      <p style={{ color: color, fontSize: 10, marginTop: 2 }}>{d.decision ?? d.action}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Deploy status or action */}
+          {isDeployed ? (
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {strike.stripeHoldId && (
+                <span style={{ background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.2)", color: "#10B981", padding: "5px 10px", borderRadius: 8, fontSize: 10, fontWeight: 700 }}>
+                  $500 Hold · {strike.stripeHoldId.slice(0, 20)}…
+                </span>
+              )}
+              {strike.missionId && (
+                <span style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)", color: "#F59E0B", padding: "5px 10px", borderRadius: 8, fontSize: 10, fontWeight: 700 }}>
+                  Mission: {strike.missionId}
+                </span>
+              )}
+              {strike.vaultHash && (
+                <span style={{ background: "rgba(107,114,128,0.08)", border: "1px solid rgba(107,114,128,0.2)", color: "rgba(255,255,255,0.4)", padding: "5px 10px", borderRadius: 8, fontSize: 10, fontWeight: 700 }}>
+                  Vault: {strike.vaultHash.slice(0, 14)}…
+                </span>
+              )}
+            </div>
+          ) : isLive ? (
+            <button
+              onClick={() => onDeploy(strike.id)}
+              style={{
+                display: "flex", alignItems: "center", gap: 8, padding: "10px 20px",
+                background: "linear-gradient(135deg, rgba(245,158,11,0.2), rgba(245,158,11,0.08))",
+                border: "1px solid rgba(245,158,11,0.4)", borderRadius: 10, cursor: "pointer",
+                color: "#F59E0B", fontSize: 12, fontWeight: 800, letterSpacing: 0.3,
+              }}
+            >
+              <Rocket size={14} />
+              Deploy 7-Agent Mesh — Lock Vehicle · $500 Hold · Mission
+            </button>
+          ) : null}
+        </div>
+      )}
     </div>
   );
 }
@@ -253,7 +463,7 @@ const VEHICLE_IDS = ["veh-001", "veh-002", "veh-003"];
 
 export default function GuardianPage() {
   const qc = useQueryClient();
-  const [activeTab, setActiveTab] = useState<"alerts" | "telemetry" | "mesh">("alerts");
+  const [activeTab, setActiveTab] = useState<"alerts" | "telemetry" | "mesh" | "strikes">("strikes");
   const [selectedVehicle, setSelectedVehicle] = useState(VEHICLE_IDS[0]);
 
   const { data: alertData, isLoading: alertLoading } = useQuery({
@@ -274,6 +484,17 @@ export default function GuardianPage() {
     enabled: activeTab === "mesh",
   });
 
+  const { data: strikeData, isLoading: strikeLoading } = useQuery({
+    queryKey: ["guardian-strikes"],
+    queryFn: () => fetch("/api/guardian/strikes").then(r => r.json()),
+    refetchInterval: 20_000,
+  });
+
+  const { data: fullpathStatus } = useQuery({
+    queryKey: ["fullpath-status"],
+    queryFn: () => fetch("/api/fullpath/status").then(r => r.json()),
+  });
+
   const approveMutation = useMutation({
     mutationFn: (id: string) =>
       fetch(`/api/guardian/alerts/${id}/approve`, { method: "POST" }).then(r => r.json()),
@@ -286,11 +507,20 @@ export default function GuardianPage() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["guardian-alerts"] }),
   });
 
+  const deployStrikeMutation = useMutation({
+    mutationFn: (id: string) =>
+      fetch(`/api/guardian/strikes/${id}/deploy`, { method: "POST" }).then(r => r.json()),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["guardian-strikes"] }),
+  });
+
   const alerts: PredictiveAlert[] = alertData?.alerts ?? [];
   const stats = alertData?.stats ?? { total: 0, critical: 0, pending: 0, approved: 0 };
   const tel: Telemetry | null = telData ?? null;
+  const strikes: HighValueStrike[] = strikeData?.strikes ?? [];
+  const strikeStats: StrikeStats = strikeData?.stats ?? { total: 0, live: 0, deployed: 0, locked: 0, tierS: 0 };
 
   const TABS = [
+    { id: "strikes" as const, label: "High-Value Strikes", badge: strikeStats.live },
     { id: "alerts" as const, label: "Predictive Alerts", badge: stats.pending },
     { id: "telemetry" as const, label: "V2X Telemetry" },
     { id: "mesh" as const, label: "Mesh Log", badge: meshData?.total },
@@ -315,20 +545,43 @@ export default function GuardianPage() {
       />
 
       <div className="p-6">
+        {/* Fullpath status banner */}
+        {fullpathStatus && !fullpathStatus.connected && (
+          <div style={{ background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 12, padding: "10px 16px", marginBottom: 16, display: "flex", alignItems: "center", gap: 10 }}>
+            <Eye size={12} style={{ color: "#3B82F6", flexShrink: 0 }} />
+            <div style={{ flex: 1 }}>
+              <span style={{ color: "#3B82F6", fontSize: 11, fontWeight: 700 }}>Fullpath Intelligence: Mock Mode</span>
+              <span style={{ color: "rgba(255,255,255,0.35)", fontSize: 11 }}> — Add </span>
+              <code style={{ color: "#F59E0B", fontSize: 10, background: "rgba(245,158,11,0.1)", padding: "1px 5px", borderRadius: 4 }}>FULLPATH_API_KEY</code>
+              <span style={{ color: "rgba(255,255,255,0.35)", fontSize: 11 }}> to Replit Secrets to activate live Shopper Intent streams.</span>
+            </div>
+          </div>
+        )}
+
         {/* Stats bar */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 24 }}>
-          {[
+        {(() => {
+          const statItems = activeTab === "strikes" ? [
+            { label: "LIVE STRIKES", value: strikeStats.live, color: "#F59E0B" },
+            { label: "TIER-S ASSETS", value: strikeStats.tierS, color: "#FBBF24" },
+            { label: "DEPLOYED", value: strikeStats.deployed, color: "#10B981" },
+            { label: "TOTAL FLAGGED", value: strikeStats.total, color: "#fff" },
+          ] : [
             { label: "TOTAL ALERTS", value: stats.total, color: "#fff" },
             { label: "CRITICAL", value: stats.critical, color: "#EF4444" },
             { label: "PENDING ACTION", value: stats.pending, color: "#FBBF24" },
             { label: "MESH DEPLOYED", value: stats.approved, color: "#10B981" },
-          ].map(s => (
-            <div key={s.label} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 12, padding: "14px 16px", textAlign: "center" }}>
-              <div style={{ color: s.color, fontSize: 28, fontWeight: 900, lineHeight: 1 }}>{s.value}</div>
-              <div style={{ color: "rgba(255,255,255,0.25)", fontSize: 9, fontWeight: 700, letterSpacing: 1, marginTop: 4 }}>{s.label}</div>
+          ];
+          return (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 24 }}>
+              {statItems.map(s => (
+                <div key={s.label} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 12, padding: "14px 16px", textAlign: "center" }}>
+                  <div style={{ color: s.color, fontSize: 28, fontWeight: 900, lineHeight: 1 }}>{s.value}</div>
+                  <div style={{ color: "rgba(255,255,255,0.25)", fontSize: 9, fontWeight: 700, letterSpacing: 1, marginTop: 4 }}>{s.label}</div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          );
+        })()}
 
         {/* Tabs */}
         <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
@@ -347,6 +600,52 @@ export default function GuardianPage() {
             </button>
           ))}
         </div>
+
+        {/* ── STRIKES TAB ────────────────────────────────────────────────── */}
+        {activeTab === "strikes" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {/* Intelligence source row */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 4 }}>
+              <div style={{ background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.12)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
+                <TrendingUp size={14} style={{ color: "#3B82F6" }} />
+                <div>
+                  <div style={{ color: "#3B82F6", fontSize: 10, fontWeight: 700 }}>FULLPATH SHOPPER INTENT</div>
+                  <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 10 }}>3 members · 2 high-intent (80+)</div>
+                </div>
+                <span style={{ marginLeft: "auto", color: fullpathStatus?.connected ? "#10B981" : "#F59E0B", fontSize: 9, fontWeight: 700 }}>
+                  {fullpathStatus?.connected ? "LIVE" : "MOCK"}
+                </span>
+              </div>
+              <div style={{ background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.12)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
+                <Target size={14} style={{ color: "#F59E0B" }} />
+                <div>
+                  <div style={{ color: "#F59E0B", fontSize: 10, fontWeight: 700 }}>MARKETCHECK WHOLESALE MESH</div>
+                  <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 10 }}>National · 50 states · Live auction data</div>
+                </div>
+                <span style={{ marginLeft: "auto", color: "#F59E0B", fontSize: 9, fontWeight: 700 }}>MOCK</span>
+              </div>
+            </div>
+
+            {strikeLoading ? (
+              <div style={{ textAlign: "center", color: "rgba(255,255,255,0.3)", padding: 40, fontSize: 13 }}>
+                Scanning wholesale mesh for high-value opportunities…
+              </div>
+            ) : strikes.length === 0 ? (
+              <div style={{ textAlign: "center", padding: 60 }}>
+                <Target size={32} style={{ color: "rgba(245,158,11,0.4)", margin: "0 auto 12px" }} />
+                <p style={{ color: "#F59E0B", fontWeight: 700 }}>No Active Strikes</p>
+                <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 12 }}>The Mesh is scanning. High-value opportunities will surface here.</p>
+              </div>
+            ) : (
+              strikes.map(s => (
+                <StrikeCard
+                  key={s.id} strike={s}
+                  onDeploy={(id) => deployStrikeMutation.mutate(id)}
+                />
+              ))
+            )}
+          </div>
+        )}
 
         {/* ── ALERTS TAB ─────────────────────────────────────────────────── */}
         {activeTab === "alerts" && (
