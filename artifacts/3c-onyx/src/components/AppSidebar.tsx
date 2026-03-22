@@ -28,6 +28,7 @@ import {
   Lock,
   Radio,
   Users,
+  Sparkles,
 } from "lucide-react";
 import { NotificationBell } from "./NotificationBell";
 
@@ -121,6 +122,7 @@ const ADMIN_NAV = [
   { label: "Command Center", path: "/command", icon: Radio, description: "K-Factor · Hectocorn · Kill-Switch", accent: "#EF4444" },
   { label: "Guardian", path: "/guardian", icon: ShieldPlus, description: "V2X Predictive · 7-Agent Mesh", accent: "#10B981" },
   { label: "Partner Network", path: "/partners", icon: Users, description: "I-95 Spine · Reputation Mesh", accent: "#E5E7EB" },
+  { label: "Unity Demo", path: "/unity", icon: Sparkles, description: "Investor Demo · Full Corridor", accent: "#C9A227" },
   { label: "Membership", path: "/subscribe", icon: Settings, description: "$99/mo · All Features", accent: "#C9A227" },
   { label: "Concierge", path: "/concierge", icon: UserCheck, description: "Client management" },
   { label: "Inventory", path: "/inventory", icon: Car, description: "Vehicle catalog" },

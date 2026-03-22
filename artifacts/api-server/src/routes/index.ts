@@ -27,6 +27,7 @@ import guardianRouter from "./guardian";
 import subscriptionRouter from "./subscription";
 import fullpathRouter from "./fullpath";
 import reputationRouter from "./reputation";
+import unityRouter from "./unity";
 
 const router: IRouter = Router();
 
@@ -58,5 +59,6 @@ router.use("/guardian", guardianRouter);
 router.use("/subscription", subscriptionRouter);
 router.use("/fullpath", fullpathRouter);
 router.use("/reputation", reputationRouter);
+router.use("/unity", unityRouter);
 
 export default router;
