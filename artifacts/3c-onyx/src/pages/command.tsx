@@ -727,7 +727,7 @@ export default function CommandCenter() {
                 {/* Hero summary */}
                 <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5 mb-5">
                   <div className="flex items-center gap-2 mb-4">
-                    <span className="text-[9px] font-black tracking-[1.5px] text-amber-400">HECTOCORN STRESS TEST — FIRST 100 TRANSACTIONS</span>
+                    <span className="text-[9px] font-black tracking-[1.5px] text-amber-400">HECTOCORN — UNITY TRANSACTIONS · HUNTS POINT → SEAPORT CORRIDOR</span>
                   </div>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {[

@@ -29,6 +29,7 @@ import Security from "@/pages/security";
 import Command from "@/pages/command";
 import Guardian from "@/pages/guardian";
 import Subscription from "@/pages/subscription";
+import Partners from "@/pages/partners";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -61,6 +62,7 @@ function Router() {
       <Route path="/command" component={Command} />
       <Route path="/guardian" component={Guardian} />
       <Route path="/subscribe" component={Subscription} />
+      <Route path="/partners" component={Partners} />
       <Route component={NotFound} />
     </Switch>
   );

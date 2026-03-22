@@ -23,6 +23,7 @@ import { getUncachableStripeClient } from "../lib/stripeClient";
 import { maskPii } from "../lib/cipher";
 import { ai } from "@workspace/integrations-gemini-ai";
 import { MOCK_SHOPPER_INTENTS, MOCK_VELOCITY, type ShopperIntent, type InventoryVelocity } from "./fullpath";
+import { matchProfessional } from "./reputation";
 
 const router = Router();
 
@@ -358,15 +359,22 @@ router.post("/alerts/:id/approve", async (req: Request, res: Response) => {
     },
   ));
 
-  // ── Agent 4: Mission Agent ──────────────────────────────────────────────
+  // ── Agent 4: Mission Agent (Match + Dispatch) ────────────────────────────
   const t4 = Date.now();
   const missionId = `GDN-${meshId}-M`;
   const tel = Object.values(V2X_DATA).find(v => v.vehicleId === alert.vehicleId);
   const pickup = tel?.location ?? "Member Location";
+  // Reputation-based matching: find best-rated professional for the vehicle make
+  const vehicleMake = alert.vehicle?.split(" ")?.[1] ?? "Porsche";
+  const proMatch = matchProfessional({ make: vehicleMake, state: "NY" });
+  const matchedPro = proMatch?.professional;
+  const routingNote = proMatch?.priorityBoost ? "Priority Runner routing applied" : "";
   log.push(agentEntry(
     "Mission Agent", 4,
-    `Create Runner Mission ${missionId}`,
-    `Runner dispatched. Pickup: ${pickup}. Vehicle: ${alert.vehicle}. ETA to service center: 2h.`,
+    `Match Professional & Create Runner Mission ${missionId}`,
+    matchedPro
+      ? `Matched: ${matchedPro.name} (${matchedPro.shop}, ${matchedPro.city}) · Score ${matchedPro.reputationScore}/100 · AI Accuracy ${matchedPro.aiAccuracyScore}% · Routing weight ${matchedPro.routingWeight}${routingNote ? " · " + routingNote : ""}. Runner dispatched. ETA 2h.`
+      : `Runner dispatched. Pickup: ${pickup}. Vehicle: ${alert.vehicle}. ETA to service center: 2h.`,
     Date.now() - t4,
     {
       missionId,
@@ -374,6 +382,16 @@ router.post("/alerts/:id/approve", async (req: Request, res: Response) => {
       vehicleId: alert.vehicleId,
       type: "guardian_service",
       guardianActive: true,
+      matchedProfessional: matchedPro ? {
+        id: matchedPro.id,
+        name: matchedPro.name,
+        shop: matchedPro.shop,
+        city: matchedPro.city + ", " + matchedPro.state,
+        reputationScore: matchedPro.reputationScore,
+        aiAccuracyScore: matchedPro.aiAccuracyScore,
+        badgeLevel: matchedPro.badgeLevel,
+        routingWeight: matchedPro.routingWeight,
+      } : null,
     },
   ));
 
