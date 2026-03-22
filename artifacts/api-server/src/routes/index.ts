@@ -22,6 +22,7 @@ import gumloopRouter from "./gumloop";
 import dynastyRouter from "./dynasty";
 import dropshipRouter from "./dropship";
 import securityRouter from "./security";
+import commandRouter from "./command";
 
 const router: IRouter = Router();
 
@@ -48,5 +49,6 @@ router.use(gumloopRouter);
 router.use(dynastyRouter);
 router.use(dropshipRouter);
 router.use(securityRouter);
+router.use(commandRouter);
 
 export default router;

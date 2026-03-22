@@ -26,6 +26,7 @@ import {
   Cpu,
   Package,
   Lock,
+  Radio,
 } from "lucide-react";
 import { NotificationBell } from "./NotificationBell";
 
@@ -116,6 +117,7 @@ const SPECIALIST_NAV = [
 ];
 
 const ADMIN_NAV = [
+  { label: "Command Center", path: "/command", icon: Radio, description: "K-Factor · Missions · Kill-Switch", accent: "#EF4444" },
   { label: "Concierge", path: "/concierge", icon: UserCheck, description: "Client management" },
   { label: "Inventory", path: "/inventory", icon: Car, description: "Vehicle catalog" },
   { label: "Analytics", path: "/analytics", icon: BarChart3, description: "Revenue & GMV" },

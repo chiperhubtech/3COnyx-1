@@ -74,6 +74,14 @@ export default function TabLayout() {
             ),
         }}
       />
+      <Tabs.Screen
+        name="command"
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="radar" size={size} color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
