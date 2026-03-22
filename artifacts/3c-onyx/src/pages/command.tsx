@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   Shield, Zap, Truck, AlertTriangle, CheckCircle2, XCircle,
   RefreshCw, ChevronRight, Globe, Wifi, Clock, DollarSign,
@@ -335,7 +336,7 @@ function AlertsPanel({ alerts, onAck }: { alerts: Alert[]; onAck: (id: string) =
 }
 
 // ─── Main Page ─────────────────────────────────────────────────────────────────
-type Tab = "overview" | "missions" | "killswitch" | "alerts";
+type Tab = "overview" | "missions" | "killswitch" | "alerts" | "hectocorn";
 
 export default function CommandCenter() {
   const [pulse, setPulse] = useState<Pulse | null>(null);
@@ -401,11 +402,19 @@ export default function CommandCenter() {
   const unresolvedFlagged = flagged.filter((t) => !t.resolvedAt);
   const unackedAlerts = alerts.filter((a) => !a.acked);
 
+  const { data: hectocornData } = useQuery({
+    queryKey: ["hectocorn"],
+    queryFn: () => fetch("/api/command/hectocorn").then(r => r.json()),
+    enabled: tab === "hectocorn",
+    refetchInterval: 60_000,
+  });
+
   const TABS: { id: Tab; label: string; badge?: number }[] = [
-    { id: "overview",   label: "Overview" },
-    { id: "missions",   label: "Missions",    badge: missions.filter(m => m.status !== "delivered").length },
-    { id: "killswitch", label: "Kill-Switch", badge: unresolvedFlagged.length },
-    { id: "alerts",     label: "Alerts",      badge: unackedAlerts.length },
+    { id: "overview",    label: "Overview" },
+    { id: "missions",    label: "Missions",    badge: missions.filter(m => m.status !== "delivered").length },
+    { id: "killswitch",  label: "Kill-Switch", badge: unresolvedFlagged.length },
+    { id: "alerts",      label: "Alerts",      badge: unackedAlerts.length },
+    { id: "hectocorn",   label: "Hectocorn" },
   ];
 
   const kColor = pulse
@@ -705,6 +714,98 @@ export default function CommandCenter() {
               </button>
             </div>
             <AlertsPanel alerts={alerts} onAck={ackAlert} />
+          </div>
+        )}
+
+        {/* ── HECTOCORN TICKER ──────────────────────────────────────────── */}
+        {tab === "hectocorn" && (
+          <div>
+            {!hectocornData ? (
+              <p className="text-center text-white/30 py-16 text-sm">Loading Hectocorn data…</p>
+            ) : (
+              <div>
+                {/* Hero summary */}
+                <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5 mb-5">
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="text-[9px] font-black tracking-[1.5px] text-amber-400">HECTOCORN STRESS TEST — FIRST 100 TRANSACTIONS</span>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {[
+                      { label: "TOTAL GMV", value: `$${(hectocornData.summary.totalGMV / 1_000_000).toFixed(2)}M`, color: "#C9A227" },
+                      { label: "NET PLATFORM", value: `$${(hectocornData.summary.netPlatformRevenue / 1_000).toFixed(0)}K`, color: "#10B981" },
+                      { label: "AVG DEAL SIZE", value: `$${(hectocornData.summary.avgDealSize / 1_000).toFixed(0)}K`, color: "#fff" },
+                      { label: "SUCCESS RATE", value: hectocornData.summary.successRate, color: "#10B981" },
+                    ].map((s: { label: string; value: string; color: string }) => (
+                      <div key={s.label}>
+                        <div className="text-[9px] text-white/25 font-bold tracking-wider mb-1">{s.label}</div>
+                        <div className="text-2xl font-black" style={{ color: s.color }}>{s.value}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4 pt-4 border-t border-white/6">
+                    {[
+                      { label: "SETTLED", value: hectocornData.summary.settled, color: "#10B981" },
+                      { label: "PROCESSING", value: hectocornData.summary.processing, color: "#FBBF24" },
+                      { label: "PENDING", value: hectocornData.summary.pending, color: "rgba(255,255,255,0.4)" },
+                      { label: "AVG LATENCY", value: `${hectocornData.summary.avgLatencyMs}ms`, color: "#fff" },
+                    ].map((s: { label: string; value: number | string; color: string }) => (
+                      <div key={s.label}>
+                        <div className="text-[9px] text-white/25 font-bold tracking-wider mb-1">{s.label}</div>
+                        <div className="text-lg font-black" style={{ color: s.color }}>{s.value}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Projection */}
+                <div className="rounded-xl border border-amber-400/15 bg-amber-400/5 p-4 mb-5">
+                  <p className="text-[9px] font-bold text-amber-400/60 tracking-wider mb-2">ANNUALISED PROJECTIONS (×52 WEEKS)</p>
+                  <div className="flex gap-8">
+                    <div>
+                      <div className="text-[9px] text-white/25 mb-1">Projected GMV</div>
+                      <div className="text-2xl font-black text-amber-400">${(hectocornData.summary.projectedAnnualGMV / 1_000_000).toFixed(1)}M</div>
+                    </div>
+                    <div>
+                      <div className="text-[9px] text-white/25 mb-1">Projected Profit</div>
+                      <div className="text-2xl font-black text-emerald-400">${(hectocornData.summary.projectedAnnualProfit / 1_000).toFixed(0)}K</div>
+                    </div>
+                    <div>
+                      <div className="text-[9px] text-white/25 mb-1">Txns/Day</div>
+                      <div className="text-2xl font-black text-white">{hectocornData.velocity.txnsPerDay}</div>
+                    </div>
+                    <div>
+                      <div className="text-[9px] text-white/25 mb-1">Peak Region</div>
+                      <div className="text-2xl font-black text-white">{hectocornData.velocity.peakRegion}</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Recent transactions */}
+                <p className="text-[9px] font-bold text-white/25 tracking-wider mb-3">RECENT TRANSACTIONS</p>
+                <div className="flex flex-col gap-2">
+                  {(hectocornData.transactions as any[]).map((txn: any) => (
+                    <div key={txn.txnId} className="flex items-center justify-between rounded-xl border border-white/6 bg-white/[0.02] px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        <span className="text-[9px] font-black text-white/20">{txn.txnId}</span>
+                        <span className="text-xs font-semibold text-white/70">{txn.vehicle}</span>
+                        <span className="text-[9px] text-white/30">{txn.region}</span>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="text-right">
+                          <div className="text-xs font-black text-white">${(txn.amount / 1_000).toFixed(0)}K</div>
+                          <div className="text-[9px] text-emerald-400/70">+${(txn.splits.netPlatform / 1_000).toFixed(1)}K net</div>
+                        </div>
+                        <span className={`text-[9px] font-black px-2 py-0.5 rounded-md ${
+                          txn.status === "settled" ? "bg-emerald-400/10 text-emerald-400" :
+                          txn.status === "processing" ? "bg-amber-400/10 text-amber-400" :
+                          "bg-white/5 text-white/30"
+                        }`}>{txn.status.toUpperCase()}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

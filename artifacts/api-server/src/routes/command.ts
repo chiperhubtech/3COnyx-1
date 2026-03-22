@@ -362,4 +362,72 @@ router.get("/command/mesh/stats", (_req: Request, res: Response) => {
   });
 });
 
+// ─── GET /api/command/hectocorn ───────────────────────────────────────────────
+const HECTOCORN_VEHICLES = [
+  "Rolls-Royce Ghost", "Bentley Flying Spur", "Ferrari Roma", "Lamborghini Urus",
+  "McLaren 720S", "Porsche 911 Turbo S", "Aston Martin DB11", "Mercedes G63 AMG",
+  "BMW M8 Competition", "Lexus LC 500",
+];
+
+router.get("/command/hectocorn", (_req: Request, res: Response) => {
+  const now = Date.now();
+  const transactions = Array.from({ length: 100 }, (_, i) => {
+    const daysAgo = Math.floor((100 - i) / 8);
+    const ts = new Date(now - daysAgo * 24 * 60 * 60 * 1000 - ((i * 1234567) % (8 * 60 * 60 * 1000)));
+    const amount = 45_000 + ((i * 28_317 + 7_823) % 280_000);
+    const platformFee = Math.round(amount * 0.125);
+    const referrerSlice = Math.round(platformFee * 0.20);
+    return {
+      txnId: `TXN-${(i + 1).toString().padStart(3, "0")}`,
+      index: i + 1,
+      timestamp: ts.toISOString(),
+      amount,
+      splits: {
+        dealer: Math.round(amount * 0.85),
+        transport: Math.round(amount * 0.025),
+        platformFee,
+        referrerSlice,
+        netPlatform: platformFee - referrerSlice,
+      },
+      status: i < 95 ? "settled" : i < 98 ? "processing" : "pending",
+      vehicle: HECTOCORN_VEHICLES[i % HECTOCORN_VEHICLES.length],
+      region: ["West", "Northeast", "South", "Midwest"][i % 4],
+      latencyMs: 80 + ((i * 43) % 340),
+    };
+  });
+
+  const settled = transactions.filter(t => t.status === "settled");
+  const totalGMV = settled.reduce((s, t) => s + t.amount, 0);
+  const totalPlatformFee = settled.reduce((s, t) => s + t.splits.platformFee, 0);
+  const totalReferrerSlice = settled.reduce((s, t) => s + t.splits.referrerSlice, 0);
+  const avgLatency = Math.round(settled.reduce((s, t) => s + t.latencyMs, 0) / settled.length);
+
+  res.json({
+    title: "Hectocorn Stress Test — First 100 Transactions",
+    transactions: transactions.slice(-10).reverse(), // last 10 for display
+    allTransactions: transactions,
+    summary: {
+      total: 100,
+      settled: settled.length,
+      processing: transactions.filter(t => t.status === "processing").length,
+      pending: transactions.filter(t => t.status === "pending").length,
+      totalGMV,
+      totalPlatformFee,
+      totalReferrerSlice,
+      netPlatformRevenue: totalPlatformFee - totalReferrerSlice,
+      avgDealSize: Math.round(totalGMV / settled.length),
+      avgLatencyMs: avgLatency,
+      successRate: ((settled.length / 100) * 100).toFixed(1) + "%",
+      projectedAnnualGMV: Math.round(totalGMV * 52),
+      projectedAnnualProfit: Math.round((totalPlatformFee - totalReferrerSlice) * 52),
+    },
+    velocity: {
+      txnsPerDay: 8,
+      gmvPerDay: Math.round(totalGMV / 12.5),
+      peakRegion: "West",
+      peakDay: "Friday",
+    },
+  });
+});
+
 export default router;

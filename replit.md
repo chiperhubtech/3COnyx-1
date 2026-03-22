@@ -200,6 +200,7 @@ Utility scripts package. Each script is a `.ts` file in `src/` with a correspond
 | 13 | Dropship Coordinator (Ship.cars + RunBuggy bridge, Digital BOL + SHA-256 tamper seal + QR, 360° scan viewer, AR Preview via WebRTC camera + CSS 3D, mobile Runner scanner) | ✅ Live | `routes/dropship.ts`, `pages/dropship.tsx`, mobile `app/scanner.tsx` |
 | 14 | NIST-MCP 2026 Security Layer (AES-256-GCM encryption, PII masking, Transient Agent Tokens 15-min TTL, Immutable Agent Audit Trail hash chain, Decision Transparency ledger) | ✅ Live | `lib/cipher.ts`, `routes/security.ts`, `pages/security.tsx` |
 | 15 | Founder's Command Center (Live K-Factor sparkline, Member Slices telemetry, Active Missions mesh, Kill-Switch override queue, National Mesh stats, System alerts, Mobile Expo tab) | ✅ Live | `routes/command.ts`, `pages/command.tsx`, mobile `app/(tabs)/command.tsx` |
+| 16 | Dynasty Final Orchestration — Triple-Threat AI (Guardian V2X Predictive Layer, 7-Agent Mesh with Gemini+MarketCheck+Stripe, $99/mo Revenue Gate, Hectocorn Stress Test Ticker, Subscription paywall with Founding Member access) | ✅ Live | `routes/guardian.ts`, `routes/subscription.ts`, `pages/guardian.tsx`, `pages/subscription.tsx`, `command.tsx` Hectocorn tab |
 
 ### Dropship Coordinator (Prompt 13) Architecture
 - **Backend** (`routes/dropship.ts`): 7 endpoints — carriers, claim, BOL fetch, shipments, status update, scan submit (per-position), scan retrieve. SHA-256 tamper hash generated at BOL creation. Scan sessions auto-created on claim.

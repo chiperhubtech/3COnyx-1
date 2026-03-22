@@ -27,6 +27,8 @@ import AIHub from "@/pages/ai-hub";
 import Dropship from "@/pages/dropship";
 import Security from "@/pages/security";
 import Command from "@/pages/command";
+import Guardian from "@/pages/guardian";
+import Subscription from "@/pages/subscription";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -57,6 +59,8 @@ function Router() {
       <Route path="/dropship" component={Dropship} />
       <Route path="/security" component={Security} />
       <Route path="/command" component={Command} />
+      <Route path="/guardian" component={Guardian} />
+      <Route path="/subscribe" component={Subscription} />
       <Route component={NotFound} />
     </Switch>
   );

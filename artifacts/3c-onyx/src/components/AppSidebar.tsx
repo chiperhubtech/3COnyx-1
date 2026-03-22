@@ -117,7 +117,9 @@ const SPECIALIST_NAV = [
 ];
 
 const ADMIN_NAV = [
-  { label: "Command Center", path: "/command", icon: Radio, description: "K-Factor · Missions · Kill-Switch", accent: "#EF4444" },
+  { label: "Command Center", path: "/command", icon: Radio, description: "K-Factor · Hectocorn · Kill-Switch", accent: "#EF4444" },
+  { label: "Guardian", path: "/guardian", icon: ShieldPlus, description: "V2X Predictive · 7-Agent Mesh", accent: "#10B981" },
+  { label: "Membership", path: "/subscribe", icon: Settings, description: "$99/mo · All Features", accent: "#C9A227" },
   { label: "Concierge", path: "/concierge", icon: UserCheck, description: "Client management" },
   { label: "Inventory", path: "/inventory", icon: Car, description: "Vehicle catalog" },
   { label: "Analytics", path: "/analytics", icon: BarChart3, description: "Revenue & GMV" },

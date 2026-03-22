@@ -23,6 +23,8 @@ import dynastyRouter from "./dynasty";
 import dropshipRouter from "./dropship";
 import securityRouter from "./security";
 import commandRouter from "./command";
+import guardianRouter from "./guardian";
+import subscriptionRouter from "./subscription";
 
 const router: IRouter = Router();
 
@@ -50,5 +52,7 @@ router.use(dynastyRouter);
 router.use(dropshipRouter);
 router.use(securityRouter);
 router.use(commandRouter);
+router.use("/guardian", guardianRouter);
+router.use("/subscription", subscriptionRouter);
 
 export default router;
