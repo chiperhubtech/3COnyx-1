@@ -4,7 +4,118 @@ const router: IRouter = Router();
 
 const MARKETCHECK_BASE = "https://mc-api.marketcheck.com/v2";
 
-const MOCK_LISTINGS = [
+// ─── deterministic seed from VIN ─────────────────────────────────────────────
+function vinSeed(vin: string): number {
+  let h = 0;
+  for (let i = 0; i < vin.length; i++) {
+    h = (Math.imul(31, h) + vin.charCodeAt(i)) | 0;
+  }
+  return Math.abs(h);
+}
+
+function deterministicFloat(vin: string, salt: number, min: number, max: number): number {
+  const seed = (vinSeed(vin) ^ (salt * 2654435761)) >>> 0;
+  return min + (seed % 10000) / 10000 * (max - min);
+}
+
+// ─── Guardian Health Score ────────────────────────────────────────────────────
+// Factors: mileage, age, dom, base VIN hash
+function computeGuardianScore(listing: BaseListing): number {
+  const currentYear = 2026;
+  const age = currentYear - listing.year;
+
+  // Mileage factor: 0-15k = 0 penalty, 15-30k = -5, 30k+ = -12
+  const milePenalty = listing.miles < 15000 ? 0 : listing.miles < 30000 ? 5 : 12;
+
+  // Age factor: each year over 2 costs 2 pts
+  const agePenalty = Math.max(0, (age - 2) * 2);
+
+  // DOM factor: quick-selling cars score higher
+  const domBonus = listing.dom != null && listing.dom <= 5 ? 3 : 0;
+
+  // Base from VIN hash (75-94)
+  const base = Math.round(deterministicFloat(listing.vin, 99, 75, 94));
+
+  return Math.min(99, Math.max(55, base - milePenalty - agePenalty + domBonus));
+}
+
+// ─── Market Average (simulated regional retail) ───────────────────────────────
+// Market avg is always HIGHER than listed price — this creates wholesale potential
+function computeMarketAvg(listing: BaseListing): number {
+  const multiplier = deterministicFloat(listing.vin, 7, 1.07, 1.19);
+  return Math.round(listing.price * multiplier / 100) * 100;
+}
+
+// ─── 3C Club Price ────────────────────────────────────────────────────────────
+// Dealer discount: 3% (negotiated bulk wholesale rate)
+// 3C Platform fee: 1.2% (concierge + delivery coordination)
+// Net: price × (1 − 0.03 + 0.012) = price × 0.982
+const DEALER_DISCOUNT_RATE = 0.030;
+const PLATFORM_FEE_RATE    = 0.012;
+
+function computeClubPrice(price: number): {
+  dealerDiscount: number;
+  platformFee: number;
+  clubPrice: number;
+} {
+  const dealerDiscount = Math.round(price * DEALER_DISCOUNT_RATE);
+  const platformFee    = Math.round(price * PLATFORM_FEE_RATE);
+  const clubPrice      = price - dealerDiscount + platformFee;
+  return { dealerDiscount, platformFee, clubPrice };
+}
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+interface BaseListing {
+  id: string;
+  heading: string;
+  price: number;
+  miles: number;
+  year: number;
+  make: string;
+  model: string;
+  trim?: string;
+  exterior_color?: string;
+  interior_color?: string;
+  fuel_type?: string;
+  city?: string;
+  state?: string;
+  dom?: number;
+  vin: string;
+  media?: { photo_links?: string[] };
+  seller?: { name?: string };
+}
+
+export interface EnrichedListing extends BaseListing {
+  market_avg: number;
+  guardian_health_score: number;
+  dealer_discount: number;
+  platform_fee: number;
+  club_price: number;
+  savings_vs_retail: number;
+  wholesale_potential: boolean;
+}
+
+function enrichListing(l: BaseListing): EnrichedListing {
+  const market_avg            = computeMarketAvg(l);
+  const guardian_health_score = computeGuardianScore(l);
+  const { dealerDiscount, platformFee, clubPrice } = computeClubPrice(l.price);
+  const savings_vs_retail     = market_avg - clubPrice;
+  const wholesale_potential   = l.price < market_avg;
+
+  return {
+    ...l,
+    market_avg,
+    guardian_health_score,
+    dealer_discount: dealerDiscount,
+    platform_fee:    platformFee,
+    club_price:      clubPrice,
+    savings_vs_retail,
+    wholesale_potential,
+  };
+}
+
+// ─── Mock listings ────────────────────────────────────────────────────────────
+const MOCK_LISTINGS: BaseListing[] = [
   {
     id: "mc-001",
     heading: "2022 Porsche 911 Carrera S Cabriolet",
@@ -235,18 +346,21 @@ const MOCK_LISTINGS = [
   },
 ];
 
-function filterListings(listings: typeof MOCK_LISTINGS, query: Record<string, string>) {
+// Enrich all mocks once at startup
+const ENRICHED_MOCKS = MOCK_LISTINGS.map(enrichListing);
+
+// ─── Filter helper ────────────────────────────────────────────────────────────
+function filterListings(
+  listings: EnrichedListing[],
+  query: Record<string, string>
+): EnrichedListing[] {
   let result = [...listings];
 
   if (query.make) {
-    result = result.filter((l) =>
-      l.make.toLowerCase().includes(query.make.toLowerCase())
-    );
+    result = result.filter((l) => l.make.toLowerCase().includes(query.make.toLowerCase()));
   }
   if (query.model) {
-    result = result.filter((l) =>
-      l.model.toLowerCase().includes(query.model.toLowerCase())
-    );
+    result = result.filter((l) => l.model.toLowerCase().includes(query.model.toLowerCase()));
   }
   if (query.year) {
     result = result.filter((l) => l.year === parseInt(query.year));
@@ -257,17 +371,34 @@ function filterListings(listings: typeof MOCK_LISTINGS, query: Record<string, st
   if (query.miles_max) {
     result = result.filter((l) => l.miles <= parseInt(query.miles_max));
   }
+  if (query.search) {
+    const s = query.search.toLowerCase();
+    result = result.filter(
+      (l) =>
+        l.heading.toLowerCase().includes(s) ||
+        l.make.toLowerCase().includes(s) ||
+        l.model.toLowerCase().includes(s) ||
+        (l.exterior_color ?? "").toLowerCase().includes(s) ||
+        (l.city ?? "").toLowerCase().includes(s)
+    );
+  }
+  if (query.wholesale_only === "true") {
+    result = result.filter((l) => l.wholesale_potential);
+  }
 
-  const rows = parseInt(query.rows ?? "12");
+  const rows = parseInt(query.rows ?? "24");
   return result.slice(0, rows);
 }
 
+// ─── Routes ───────────────────────────────────────────────────────────────────
+
+// Main search — returns enriched listings
 router.get("/marketcheck/search", async (req: Request, res: Response) => {
   const apiKey = process.env.MARKETCHECK_API_KEY;
 
   if (!apiKey) {
     const query = req.query as Record<string, string>;
-    const filtered = filterListings(MOCK_LISTINGS, query);
+    const filtered = filterListings(ENRICHED_MOCKS, query);
     res.json({ listings: filtered, totalCount: filtered.length, source: "3c-demo" });
     return;
   }
@@ -300,22 +431,42 @@ router.get("/marketcheck/search", async (req: Request, res: Response) => {
     const response = await fetch(url);
 
     if (!response.ok) {
-      const body = await response.text();
       req.log.error({ status: response.status }, "MarketCheck API error — falling back to demo data");
       const query = req.query as Record<string, string>;
-      const filtered = filterListings(MOCK_LISTINGS, query);
+      const filtered = filterListings(ENRICHED_MOCKS, query);
       res.json({ listings: filtered, totalCount: filtered.length, source: "3c-demo" });
       return;
     }
 
     const data = await response.json();
-    res.json(data);
+    // Enrich live listings too
+    const enriched = (data.listings ?? []).map((l: BaseListing) => enrichListing(l));
+    res.json({ ...data, listings: enriched });
   } catch (err) {
     req.log.error({ err }, "MarketCheck fetch failed — falling back to demo data");
     const query = req.query as Record<string, string>;
-    const filtered = filterListings(MOCK_LISTINGS, query);
+    const filtered = filterListings(ENRICHED_MOCKS, query);
     res.json({ listings: filtered, totalCount: filtered.length, source: "3c-demo" });
   }
+});
+
+// Wholesale engine — only returns listings where price < market_avg
+router.get("/marketcheck/wholesale", async (_req: Request, res: Response) => {
+  const wholesale = ENRICHED_MOCKS.filter((l) => l.wholesale_potential);
+  const totalSavings = wholesale.reduce((s, l) => s + l.savings_vs_retail, 0);
+  const avgSavings   = wholesale.length ? Math.round(totalSavings / wholesale.length) : 0;
+  const avgScore     = wholesale.length
+    ? Math.round(wholesale.reduce((s, l) => s + l.guardian_health_score, 0) / wholesale.length)
+    : 0;
+
+  res.json({
+    listings: wholesale,
+    totalCount: wholesale.length,
+    totalSavings,
+    avgSavings,
+    avgGuardianScore: avgScore,
+    source: "3c-demo",
+  });
 });
 
 export default router;

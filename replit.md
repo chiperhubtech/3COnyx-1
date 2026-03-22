@@ -110,7 +110,7 @@ Global CSS classes for the futuristic look:
 
 ## Platform Features (3C Onyx)
 
-1. **Marketplace** — MarketCheck live luxury inventory (Rolls-Royce, Ferrari, Lamborghini etc.) with filters, Bookmark/Watch button, Concierge purchase modal
+1. **Marketplace / National Wholesale Engine** — Two-tab UI: "All Inventory" + "Wholesale Engine". Every listing is AI-enriched server-side with: `market_avg` (deterministic regional retail estimate), `guardian_health_score` (VIN + mileage + age + DOM algorithm, 55-99), `club_price` (listed − 3% dealer discount + 1.2% platform fee), `savings_vs_retail`, and `wholesale_potential` flag. Cards show: gold SAVE $X badge, Guardian Health Score ring (SVG, color-coded EXCELLENT/GOOD/FAIR), 3C Club Price with strikethrough retail avg, "X% below retail" gold progress bar, green WHOLESALE pill, "Claim Club Price" CTA. Wholesale stats bar: deal count, total savings, avg savings, avg guardian score. Inline price breakdown tooltip. API routes: `GET /api/marketcheck/search` (enriched, filterable) + `GET /api/marketcheck/wholesale` (wholesale-only stats). Search bar with 350ms debounce. Filter panel (make/price/miles/year). Count bar with clickable wholesale shortcut link.
 2. **Watchlist** — Track vehicles with target price alerts, gap tracking, "Alert me" action
 3. **My Garage** — Smartcar telematics with odometer, fuel/battery, demo vehicles
 4. **Logistics** — HyperTrack Runner delivery map, live task tracking
