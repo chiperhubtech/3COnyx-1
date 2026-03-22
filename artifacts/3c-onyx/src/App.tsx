@@ -24,6 +24,7 @@ import Finance from "@/pages/finance";
 import Insurance from "@/pages/insurance";
 import VehicleHistory from "@/pages/vehicle-history";
 import AIHub from "@/pages/ai-hub";
+import Dropship from "@/pages/dropship";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -51,6 +52,7 @@ function Router() {
       <Route path="/insurance" component={Insurance} />
       <Route path="/vehicle-history" component={VehicleHistory} />
       <Route path="/ai-hub" component={AIHub} />
+      <Route path="/dropship" component={Dropship} />
       <Route component={NotFound} />
     </Switch>
   );

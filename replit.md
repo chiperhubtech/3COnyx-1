@@ -186,3 +186,20 @@ Generated React Query hooks and fetch client from the OpenAPI spec (e.g. `useHea
 ### `scripts` (`@workspace/scripts`)
 
 Utility scripts package. Each script is a `.ts` file in `src/` with a corresponding npm script in `package.json`. Run scripts via `pnpm --filter @workspace/scripts run <script>`. Scripts can import any workspace package (e.g., `@workspace/db`) by adding it as a dependency in `scripts/package.json`.
+
+---
+
+## Feature Registry (Prompts 1–13)
+
+| Prompt | Feature | Status | Key Files |
+|--------|---------|--------|-----------|
+| 1-9 | Core platform (marketplace, garage, logistics, delivery, AI concierge, MCP, inspection, watchlist, analytics) | ✅ Live | Various |
+| 10 | National Wholesale Engine (MarketCheck, Guardian Health Score, 3C Club Price, SAVE badges) | ✅ Live | `routes/marketcheck.ts`, `pages/marketplace.tsx` |
+| 11 | SOC2 Audit Vault, CI/CD, AI Hub (Gumloop, Browserbase), Finance Hub (Plaid), Insurance (Insuremo), Vehicle History (Motor.com) | ✅ Live | Various routes |
+| 12 | Dynasty Wallet (KYC/AML via Stripe Identity, Triple-Split: 85%/2.5%/20% referrer, passive income polling) | ✅ Live | `routes/dynasty.ts`, `pages/wallet.tsx`, `pages/referral-wallet.tsx` |
+| 13 | Dropship Coordinator (Ship.cars + RunBuggy bridge, Digital BOL + SHA-256 tamper seal + QR, 360° scan viewer, AR Preview via WebRTC camera + CSS 3D, mobile Runner scanner) | ✅ Live | `routes/dropship.ts`, `pages/dropship.tsx`, mobile `app/scanner.tsx` |
+
+### Dropship Coordinator (Prompt 13) Architecture
+- **Backend** (`routes/dropship.ts`): 7 endpoints — carriers, claim, BOL fetch, shipments, status update, scan submit (per-position), scan retrieve. SHA-256 tamper hash generated at BOL creation. Scan sessions auto-created on claim.
+- **Web** (`pages/dropship.tsx`): Stats bar, carrier status rail (Ship.cars LIVE / RunBuggy LIVE / uShip offline), BOL cards with View BOL / 360° Scan / AR Preview actions. Digital BOL modal: SHA-256 seal, QR code (SVG), digital signatures, tamper watermark. 360° Scan viewer: 8-position carousel with auto-spin, sidebar thumbnails, angle labels. AR Preview: getUserMedia camera + CSS 3D car overlay + ground shadow + drag-to-rotate, "Place Car in Driveway" scan animation.
+- **Mobile** (`app/scanner.tsx`): Runner 360° capture UX — radar dial with 8 position dots, shutter animation, flash effect, position chips, auto-advance, submit → SHA-256 hash success screen.

@@ -24,6 +24,7 @@ import {
   ShieldPlus,
   FileSearch,
   Cpu,
+  Package,
 } from "lucide-react";
 import { NotificationBell } from "./NotificationBell";
 
@@ -62,6 +63,13 @@ const CUSTOMER_NAV = [
     icon: QrCode,
     description: "QR handshake",
     accent: "#FBBF24",
+  },
+  {
+    label: "Dropship Coordinator",
+    path: "/dropship",
+    icon: Package,
+    description: "BOL · 360° Scan · AR Preview",
+    accent: "#818CF8",
   },
   {
     label: "Dynasty Wallet",

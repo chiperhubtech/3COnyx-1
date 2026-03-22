@@ -20,6 +20,7 @@ import motorRouter from "./motor";
 import browserbaseRouter from "./browserbase";
 import gumloopRouter from "./gumloop";
 import dynastyRouter from "./dynasty";
+import dropshipRouter from "./dropship";
 
 const router: IRouter = Router();
 
@@ -44,5 +45,6 @@ router.use(motorRouter);
 router.use(browserbaseRouter);
 router.use(gumloopRouter);
 router.use(dynastyRouter);
+router.use(dropshipRouter);
 
 export default router;
