@@ -19,6 +19,7 @@ import insuremoRouter from "./insuremo";
 import motorRouter from "./motor";
 import browserbaseRouter from "./browserbase";
 import gumloopRouter from "./gumloop";
+import dynastyRouter from "./dynasty";
 
 const router: IRouter = Router();
 
@@ -42,5 +43,6 @@ router.use(insuremoRouter);
 router.use(motorRouter);
 router.use(browserbaseRouter);
 router.use(gumloopRouter);
+router.use(dynastyRouter);
 
 export default router;

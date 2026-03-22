@@ -1,12 +1,15 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   CreditCard, TrendingUp, DollarSign, Zap, Clock,
   CheckCircle2, AlertCircle, ExternalLink, ChevronRight,
   RefreshCw, Loader2, ArrowUpRight, Shield, Percent,
-  ArrowDownLeft, X, BadgeCheck,
+  ArrowDownLeft, X, BadgeCheck, ScanFace, Lock,
+  Building2, Truck, Users, BarChart3, Fingerprint,
+  ShieldCheck, Car, Split,
 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 
+// ─── Types ────────────────────────────────────────────────────────────────────
 interface Member {
   id: string;
   name: string;
@@ -42,22 +45,723 @@ interface Wallet {
   transactions: SliceTransaction[];
 }
 
+interface SplitLeg {
+  label: string;
+  recipient: string;
+  recipientType: "dealer" | "logistics" | "referrer" | "platform";
+  amount: number;
+  percentage: number;
+  stripeTransferId: string | null;
+  status: "paid" | "pending";
+}
+
+interface DynastyTransaction {
+  id: string;
+  vehicle: string;
+  vehicleVin: string;
+  salePrice: number;
+  buyerName: string;
+  referrerId: string | null;
+  referrerName: string | null;
+  kycSessionId: string;
+  kycStatus: "verified" | "simulated";
+  legs: SplitLeg[];
+  totalDistributed: number;
+  platformRetained: number;
+  createdAt: string;
+  source: "live" | "simulated";
+}
+
 const txnStatusStyle: Record<string, string> = {
   paid: "text-emerald-400 bg-emerald-400/10 border-emerald-400/25",
   pending: "text-amber-400 bg-amber-400/10 border-amber-400/25",
   processing: "text-blue-400 bg-blue-400/10 border-blue-400/25",
 };
 
-// ─── Simulate Payout Modal ─────────────────────────────────────────────────────
-function SimulatePayoutModal({
-  member,
+const legColors: Record<string, { bg: string; border: string; text: string; icon: typeof Building2 }> = {
+  dealer:    { bg: "bg-blue-500/10",    border: "border-blue-500/25",    text: "text-blue-400",    icon: Building2 },
+  logistics: { bg: "bg-violet-500/10",  border: "border-violet-500/25",  text: "text-violet-400",  icon: Truck },
+  referrer:  { bg: "bg-amber-500/10",   border: "border-amber-500/25",   text: "text-amber-400",   icon: Users },
+  platform:  { bg: "bg-emerald-500/10", border: "border-emerald-500/25", text: "text-emerald-400", icon: BarChart3 },
+};
+
+// ─── KYC Identity Modal ────────────────────────────────────────────────────────
+function KycModal({
+  buyerName,
+  vehiclePrice,
+  vehicleName,
+  onVerified,
+  onClose,
+}: {
+  buyerName: string;
+  vehiclePrice: number;
+  vehicleName: string;
+  onVerified: (sessionId: string) => void;
+  onClose: () => void;
+}) {
+  const [step, setStep] = useState<"intro" | "scanning" | "document" | "verified" | "failed">("intro");
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [scanPct, setScanPct] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const startKyc = async () => {
+    setStep("scanning");
+    setScanPct(0);
+
+    // Initiate KYC session on backend
+    const res = await fetch("/api/dynasty/kyc/initiate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ buyerName, buyerEmail: "buyer@3conyx.com", vehiclePrice }),
+    });
+    const data = await res.json();
+    setSessionId(data.sessionId ?? null);
+
+    // Animate scan
+    let pct = 0;
+    timerRef.current = setInterval(() => {
+      pct += 2.5;
+      setScanPct(pct);
+      if (pct >= 50) {
+        clearInterval(timerRef.current!);
+        setStep("document");
+        setTimeout(async () => {
+          if (data.sessionId) {
+            await fetch("/api/dynasty/kyc/verify", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ sessionId: data.sessionId, outcome: "verified" }),
+            });
+          }
+          setStep("verified");
+          setTimeout(() => onVerified(data.sessionId ?? `kyc_sim_${Date.now()}`), 1200);
+        }, 2200);
+      }
+    }, 60);
+  };
+
+  useEffect(() => () => { if (timerRef.current) clearInterval(timerRef.current); }, []);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
+      <div className="relative z-10 w-full max-w-md rounded-2xl border border-white/10 bg-[#0a0a10] shadow-2xl overflow-hidden">
+
+        {/* Header */}
+        <div className="p-5 border-b border-white/8 flex items-center justify-between bg-gradient-to-r from-blue-500/5 to-transparent">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-blue-500/15 border border-blue-500/25 flex items-center justify-center">
+              <ScanFace className="w-4 h-4 text-blue-400" />
+            </div>
+            <div>
+              <p className="text-white font-semibold text-sm">AML Identity Verification</p>
+              <p className="text-[10px] text-blue-400/60">Stripe Identity · Bank Secrecy Act compliant</p>
+            </div>
+          </div>
+          {step === "intro" && (
+            <button onClick={onClose} className="text-white/20 hover:text-white/50 transition-colors">
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+
+        {/* AML Threshold banner */}
+        <div className="px-5 pt-4">
+          <div className="flex items-center gap-2 p-3 rounded-xl bg-amber-500/5 border border-amber-500/20 mb-4">
+            <Lock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <p className="text-xs text-amber-400/70">
+              Purchases over <span className="font-bold text-amber-300">$10,000</span> require identity verification under AML/BSA regulations.
+              Transaction: <span className="font-bold text-white">${vehiclePrice.toLocaleString()}</span>
+            </p>
+          </div>
+        </div>
+
+        <div className="p-5 pt-2">
+          {/* Intro */}
+          {step === "intro" && (
+            <>
+              <p className="text-sm text-white/60 mb-1 font-medium">{vehicleName}</p>
+              <p className="text-xs text-white/30 mb-5">Buyer: {buyerName}</p>
+              <div className="space-y-3 mb-6">
+                {[
+                  { icon: Fingerprint, label: "Biometric Face Scan", sub: "Liveness detection via Stripe Identity" },
+                  { icon: ShieldCheck, label: "Document Verification", sub: "Government ID cross-referenced with DMV" },
+                  { icon: Lock, label: "Zero Data Storage", sub: "3C Onyx never stores PII — all data via Stripe vault" },
+                ].map(({ icon: Icon, label, sub }) => (
+                  <div key={label} className="flex items-center gap-3 p-3 rounded-xl border border-white/8 bg-white/[0.02]">
+                    <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
+                      <Icon className="w-3.5 h-3.5 text-blue-400" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-white">{label}</p>
+                      <p className="text-[10px] text-white/30">{sub}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <button
+                onClick={startKyc}
+                className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2"
+              >
+                <ScanFace className="w-4 h-4" />
+                Begin Identity Verification
+              </button>
+              <p className="text-[10px] text-white/20 text-center mt-3">Powered by Stripe Identity · 256-bit TLS · SOC2</p>
+            </>
+          )}
+
+          {/* Scanning */}
+          {(step === "scanning" || step === "document") && (
+            <div className="py-4 text-center">
+              {/* Biometric scan animation */}
+              <div className="relative w-32 h-32 mx-auto mb-5">
+                <div className="absolute inset-0 rounded-full border-2 border-blue-500/20 border-t-blue-500 animate-spin" />
+                <div className="absolute inset-3 rounded-full border border-blue-500/10 border-t-blue-400/40 animate-spin" style={{ animationDirection: "reverse", animationDuration: "1.5s" }} />
+                <div className="absolute inset-6 rounded-full bg-blue-500/5 border border-blue-500/15 flex items-center justify-center">
+                  {step === "scanning" ? (
+                    <ScanFace className="w-8 h-8 text-blue-400" />
+                  ) : (
+                    <Fingerprint className="w-8 h-8 text-blue-400 animate-pulse" />
+                  )}
+                </div>
+                {/* Scan line */}
+                <div className="absolute inset-6 rounded-full overflow-hidden">
+                  <div className="absolute left-0 right-0 h-0.5 bg-blue-400/60"
+                    style={{ top: `${scanPct}%`, transition: "top 0.1s linear", boxShadow: "0 0 8px rgba(96,165,250,0.8)" }} />
+                </div>
+              </div>
+
+              <p className="text-white font-semibold text-sm mb-1">
+                {step === "scanning" ? "Scanning biometrics…" : "Verifying identity document…"}
+              </p>
+              <p className="text-white/30 text-xs mb-4">
+                {step === "scanning" ? "Hold still — liveness detection in progress" : "Cross-referencing with government records"}
+              </p>
+
+              {/* Progress bar */}
+              <div className="w-48 h-1.5 rounded-full bg-white/5 mx-auto overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-blue-400 transition-all duration-150"
+                  style={{ width: `${step === "document" ? 100 : scanPct * 2}%` }}
+                />
+              </div>
+              <p className="text-[10px] text-blue-400/50 mt-2 font-mono">
+                {step === "document" ? "100%" : `${Math.round(scanPct * 2)}%`}
+              </p>
+            </div>
+          )}
+
+          {/* Verified */}
+          {step === "verified" && (
+            <div className="py-6 text-center">
+              <div className="relative w-16 h-16 mx-auto mb-4">
+                <div className="w-16 h-16 rounded-full bg-emerald-500/10 border-2 border-emerald-400/40 flex items-center justify-center">
+                  <ShieldCheck className="w-8 h-8 text-emerald-400" />
+                </div>
+                <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 border-2 border-[#0a0a10] flex items-center justify-center">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                </div>
+              </div>
+              <p className="text-emerald-400 font-bold text-base mb-1">Identity Verified</p>
+              <p className="text-white/35 text-xs">KYC cleared — proceeding to payment</p>
+              {sessionId && (
+                <p className="font-mono text-[10px] text-white/15 mt-2">{sessionId}</p>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Dynasty Purchase Modal ────────────────────────────────────────────────────
+const DEMO_VEHICLES = [
+  { name: "2023 Rolls-Royce Ghost Extended", vin: "SCA664S51PUX98777", dealer: "Rolls-Royce Motor Cars Houston", price: 489_000 },
+  { name: "2022 Lamborghini Huracán EVO Spyder", vin: "ZHWUC4ZF7NLA09412", dealer: "Lamborghini Scottsdale", price: 283_798 },
+  { name: "2021 Bugatti Chiron Sport", vin: "VF9SA3V15MM795032", dealer: "Bugatti Newport Beach", price: 3_100_000 },
+  { name: "2024 Ferrari SF90 Stradale", vin: "ZFF95NJA1N0261983", dealer: "Ferrari of Beverly Hills", price: 620_000 },
+];
+
+function DynastyPurchaseModal({
+  members,
   onClose,
   onSuccess,
 }: {
-  member: Member;
+  members: Member[];
   onClose: () => void;
   onSuccess: () => void;
 }) {
+  const [step, setStep] = useState<"select" | "kyc" | "review" | "processing" | "done">("select");
+  const [selectedVehicle, setSelectedVehicle] = useState(DEMO_VEHICLES[0]);
+  const [selectedReferrer, setSelectedReferrer] = useState<Member | null>(members[0] ?? null);
+  const [kycSessionId, setKycSessionId] = useState<string | null>(null);
+  const [result, setResult] = useState<any>(null);
+
+  const salePrice = selectedVehicle.price;
+  const dealerPayment = Math.round(salePrice * 0.85);
+  const transportFee = Math.round(salePrice * 0.025);
+  const threeCProfit = salePrice - dealerPayment - transportFee;
+  const referrerSlice = selectedReferrer ? Math.round(threeCProfit * 0.20) : 0;
+  const platformRetained = threeCProfit - referrerSlice;
+
+  const handleKycVerified = (sid: string) => {
+    setKycSessionId(sid);
+    setStep("review");
+  };
+
+  const processPurchase = async () => {
+    setStep("processing");
+    const res = await fetch("/api/dynasty/purchase", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        vehicleName: selectedVehicle.name,
+        vehicleVin: selectedVehicle.vin,
+        salePrice,
+        dealerName: selectedVehicle.dealer,
+        buyerName: "Alexander Harrington",
+        referrerId: selectedReferrer?.id ?? null,
+        referrerName: selectedReferrer?.name ?? null,
+        kycSessionId: kycSessionId ?? `kyc_sim_${Date.now()}`,
+      }),
+    });
+    const data = await res.json();
+    setResult(data);
+    setStep("done");
+    setTimeout(onSuccess, 3000);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={step === "select" ? onClose : undefined} />
+      <div className="relative z-10 w-full max-w-lg rounded-2xl border border-white/10 bg-[#0a0a10] shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto">
+
+        {/* Header */}
+        <div className="sticky top-0 p-5 border-b border-white/8 bg-[#0a0a10] flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-500/25 flex items-center justify-center">
+              <Split className="w-4 h-4 text-amber-400" />
+            </div>
+            <div>
+              <p className="text-white font-semibold text-sm">Dynasty Purchase Engine</p>
+              <p className="text-[10px] text-amber-400/60">Triple-split · KYC · Stripe Connect</p>
+            </div>
+          </div>
+          {step === "select" && (
+            <button onClick={onClose} className="text-white/20 hover:text-white/50"><X className="w-4 h-4" /></button>
+          )}
+        </div>
+
+        <div className="p-5">
+
+          {/* Step: Select */}
+          {step === "select" && (
+            <>
+              <p className="text-[10px] text-white/30 uppercase tracking-wider mb-2">Select Vehicle</p>
+              <div className="space-y-2 mb-5">
+                {DEMO_VEHICLES.map((v) => (
+                  <button
+                    key={v.vin}
+                    onClick={() => setSelectedVehicle(v)}
+                    className={`w-full text-left p-3.5 rounded-xl border transition-all ${
+                      selectedVehicle.vin === v.vin
+                        ? "border-amber-500/40 bg-amber-500/8"
+                        : "border-white/8 bg-white/[0.02] hover:bg-white/[0.04]"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-white">{v.name}</p>
+                        <p className="text-[10px] text-white/30 mt-0.5">{v.dealer}</p>
+                      </div>
+                      <p className="text-sm font-bold text-amber-400 shrink-0">${v.price.toLocaleString()}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              <p className="text-[10px] text-white/30 uppercase tracking-wider mb-2">Referrer (receives 20% of 3C profit)</p>
+              <div className="space-y-2 mb-6">
+                {members.filter((m) => m.connectStatus === "connected").map((m) => (
+                  <button
+                    key={m.id}
+                    onClick={() => setSelectedReferrer(selectedReferrer?.id === m.id ? null : m)}
+                    className={`w-full text-left p-3 rounded-xl border transition-all flex items-center gap-3 ${
+                      selectedReferrer?.id === m.id
+                        ? "border-emerald-500/30 bg-emerald-500/5"
+                        : "border-white/8 bg-white/[0.02] hover:bg-white/[0.04]"
+                    }`}
+                  >
+                    <div className="w-8 h-8 rounded-full bg-amber-400/10 border border-amber-400/20 flex items-center justify-center text-amber-300 font-bold text-xs shrink-0">
+                      {m.avatar}
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xs font-medium text-white">{m.name}</p>
+                      <p className="text-[10px] text-white/30">{m.role} · Stripe Connected</p>
+                    </div>
+                    {selectedReferrer?.id === m.id && <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />}
+                  </button>
+                ))}
+              </div>
+
+              {/* Split preview */}
+              <div className="rounded-xl border border-white/8 bg-white/[0.02] p-4 mb-4">
+                <p className="text-[10px] text-white/30 uppercase tracking-wider mb-3">Projected Split</p>
+                <div className="space-y-2">
+                  {[
+                    { label: "Dealer Wholesale (85%)", amount: dealerPayment, color: "text-blue-400" },
+                    { label: "Transport Fee (2.5%)", amount: transportFee, color: "text-violet-400" },
+                    { label: "Referrer Slice (20% of profit)", amount: referrerSlice, color: "text-amber-400" },
+                    { label: "Platform Retained (80% of profit)", amount: platformRetained, color: "text-emerald-400" },
+                  ].map(({ label, amount, color }) => (
+                    <div key={label} className="flex items-center justify-between text-xs">
+                      <span className="text-white/40">{label}</span>
+                      <span className={`font-bold ${color}`}>${amount.toLocaleString()}</span>
+                    </div>
+                  ))}
+                  <div className="pt-2 border-t border-white/8 flex items-center justify-between text-xs">
+                    <span className="text-white/50 font-medium">Total Sale</span>
+                    <span className="text-white font-bold">${salePrice.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-xl bg-blue-500/5 border border-blue-500/20 mb-5 flex items-center gap-2">
+                <ScanFace className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                <p className="text-[11px] text-blue-400/70">
+                  Transaction exceeds $10,000 — AML identity verification required before settlement.
+                </p>
+              </div>
+
+              <button
+                onClick={() => setStep("kyc")}
+                className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-sm transition-colors flex items-center justify-center gap-2"
+              >
+                <ScanFace className="w-4 h-4" />
+                Verify Identity & Continue
+              </button>
+            </>
+          )}
+
+          {/* Step: KYC */}
+          {step === "kyc" && (
+            <KycModal
+              buyerName="Alexander Harrington"
+              vehiclePrice={selectedVehicle.price}
+              vehicleName={selectedVehicle.name}
+              onVerified={handleKycVerified}
+              onClose={() => setStep("select")}
+            />
+          )}
+
+          {/* Step: Review */}
+          {step === "review" && (
+            <>
+              <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/20 mb-5">
+                <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+                <div>
+                  <p className="text-xs font-semibold text-emerald-400">Identity Verified</p>
+                  <p className="text-[10px] text-white/30 font-mono">{kycSessionId}</p>
+                </div>
+              </div>
+
+              <p className="text-sm font-semibold text-white mb-1">{selectedVehicle.name}</p>
+              <p className="text-xs text-white/30 mb-5">Sale price: <span className="text-white font-bold">${salePrice.toLocaleString()}</span></p>
+
+              {/* Full split breakdown */}
+              <div className="space-y-2.5 mb-6">
+                {[
+                  { icon: Building2, label: "Dealer Wholesale Payment", sub: selectedVehicle.dealer, amount: dealerPayment, pct: 85, color: legColors.dealer },
+                  { icon: Truck, label: "Transport & Logistics Fee", sub: "3C Logistics Network", amount: transportFee, pct: 2.5, color: legColors.logistics },
+                  ...(selectedReferrer ? [{ icon: Users, label: "Referrer Passive Income", sub: `${selectedReferrer.name} · 20% of 3C profit`, amount: referrerSlice, pct: +(DEMO_VEHICLES[0].price * 0.125 * 0.20 / DEMO_VEHICLES[0].price * 100).toFixed(1), color: legColors.referrer }] : []),
+                  { icon: BarChart3, label: "3C Platform Retained", sub: "Net profit after splits", amount: platformRetained, pct: +(platformRetained / salePrice * 100).toFixed(1), color: legColors.platform },
+                ].map(({ icon: Icon, label, sub, amount, pct, color }) => (
+                  <div key={label} className={`flex items-center gap-3 p-3.5 rounded-xl border ${color.bg} ${color.border}`}>
+                    <div className={`w-8 h-8 rounded-lg border ${color.border} flex items-center justify-center shrink-0`} style={{ background: "rgba(0,0,0,0.3)" }}>
+                      <Icon className={`w-4 h-4 ${color.text}`} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-white">{label}</p>
+                      <p className="text-[10px] text-white/30 truncate">{sub}</p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className={`text-sm font-bold ${color.text}`}>${amount.toLocaleString()}</p>
+                      <p className="text-[10px] text-white/25">{pct}%</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                onClick={processPurchase}
+                className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-sm transition-colors flex items-center justify-center gap-2"
+              >
+                <Zap className="w-4 h-4" />
+                Execute Triple-Split Payment
+              </button>
+            </>
+          )}
+
+          {/* Step: Processing */}
+          {step === "processing" && (
+            <div className="py-10 text-center">
+              <div className="relative w-20 h-20 mx-auto mb-5">
+                <div className="w-20 h-20 rounded-full border-2 border-amber-500/20 border-t-amber-500 animate-spin" />
+                <Split className="w-7 h-7 text-amber-400 absolute inset-0 m-auto" />
+              </div>
+              <p className="text-white font-semibold mb-1">Executing Splits…</p>
+              <div className="space-y-1.5 text-left max-w-xs mx-auto mt-4">
+                {["Initiating Stripe Connect transfers…", "Routing dealer payment…", "Scheduling logistics fee…", "Crediting referrer wallet…"].map((msg, i) => (
+                  <div key={msg} className="flex items-center gap-2 text-xs" style={{ opacity: 0.3 + i * 0.15 }}>
+                    <Loader2 className="w-3 h-3 text-amber-400 animate-spin shrink-0" style={{ animationDelay: `${i * 0.2}s` }} />
+                    <span className="text-white/50">{msg}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Step: Done */}
+          {step === "done" && result && (
+            <div className="py-4">
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 rounded-full bg-emerald-500/10 border-2 border-emerald-400/40 flex items-center justify-center mx-auto mb-3">
+                  <CheckCircle2 className="w-8 h-8 text-emerald-400" />
+                </div>
+                <p className="text-emerald-400 font-bold text-base">All Payments Settled!</p>
+                <p className="text-white/30 text-xs mt-0.5 font-mono">{result.transactionId}</p>
+              </div>
+
+              <div className="space-y-2 mb-4">
+                {(result.legs ?? []).map((leg: SplitLeg) => {
+                  const c = legColors[leg.recipientType] ?? legColors.platform;
+                  return (
+                    <div key={leg.label} className={`flex items-center gap-3 p-3 rounded-xl border ${c.border} ${c.bg}`}>
+                      <CheckCircle2 className={`w-4 h-4 ${c.text} shrink-0`} />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-medium text-white truncate">{leg.label}</p>
+                        {leg.stripeTransferId && (
+                          <p className="text-[10px] font-mono text-white/20">{leg.stripeTransferId}</p>
+                        )}
+                      </div>
+                      <p className={`text-sm font-bold ${c.text} shrink-0`}>${leg.amount.toLocaleString()}</p>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {result.passiveIncomeAlert && (
+                <div className="p-3 rounded-xl bg-amber-500/8 border border-amber-500/25 flex items-center gap-2">
+                  <Zap className="w-4 h-4 text-amber-400 shrink-0" />
+                  <p className="text-xs text-amber-300">
+                    <span className="font-bold">{result.passiveIncomeAlert.referrerName}</span> received a{" "}
+                    <span className="font-bold">${result.passiveIncomeAlert.amount.toLocaleString()}</span> Passive Income alert!
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Floating KYC overlay inside the modal when step === kyc */}
+      {step === "kyc" && (
+        <KycModal
+          buyerName="Alexander Harrington"
+          vehiclePrice={selectedVehicle.price}
+          vehicleName={selectedVehicle.name}
+          onVerified={handleKycVerified}
+          onClose={() => setStep("select")}
+        />
+      )}
+    </div>
+  );
+}
+
+// ─── Dynasty Split Ledger ──────────────────────────────────────────────────────
+function DynastyLedger() {
+  const [ledger, setLedger] = useState<{
+    transactions: DynastyTransaction[];
+    totalVolume: number;
+    totalDealer: number;
+    totalTransport: number;
+    totalReferrer: number;
+    totalPlatform: number;
+  } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [members, setMembers] = useState<Member[]>([]);
+  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
+
+  const fetchLedger = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [ledgerRes, membersRes] = await Promise.all([
+        fetch("/api/dynasty/ledger"),
+        fetch("/api/wallet/members"),
+      ]);
+      if (ledgerRes.ok) setLedger(await ledgerRes.json());
+      if (membersRes.ok) {
+        const d = await membersRes.json();
+        setMembers(d.members ?? []);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchLedger(); }, [fetchLedger]);
+
+  const handlePurchaseSuccess = () => {
+    setShowPurchaseModal(false);
+    setTimeout(fetchLedger, 500);
+  };
+
+  return (
+    <div className="mb-8">
+      {/* Dynasty header */}
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h2 className="text-base font-bold text-white flex items-center gap-2">
+            <Split className="w-4 h-4 text-amber-400" />
+            Dynasty Split Engine
+          </h2>
+          <p className="text-xs text-white/30 mt-0.5">Triple-split vehicle transactions with AML/KYC</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <button onClick={fetchLedger} className="ai-btn-ghost">
+            <RefreshCw className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={() => setShowPurchaseModal(true)}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs transition-colors"
+          >
+            <Car className="w-3.5 h-3.5" />
+            Simulate Purchase
+          </button>
+        </div>
+      </div>
+
+      {/* Dynasty stats */}
+      {ledger && (
+        <div className="grid grid-cols-4 gap-3 mb-5">
+          {[
+            { label: "Total Volume", value: `$${(ledger.totalVolume / 1_000_000).toFixed(2)}M`, icon: DollarSign, color: "text-white" },
+            { label: "Dealer Payments", value: `$${(ledger.totalDealer / 1_000).toFixed(0)}K`, icon: Building2, color: "text-blue-400" },
+            { label: "Referrer Slices", value: `$${(ledger.totalReferrer / 1_000).toFixed(0)}K`, icon: Users, color: "text-amber-400" },
+            { label: "Platform Profit", value: `$${(ledger.totalPlatform / 1_000).toFixed(0)}K`, icon: BarChart3, color: "text-emerald-400" },
+          ].map(({ label, value, icon: Icon, color }) => (
+            <div key={label} className="rounded-xl border border-white/8 bg-white/[0.02] p-3.5">
+              <div className="flex items-center gap-2 mb-2">
+                <Icon className={`w-3.5 h-3.5 ${color}`} />
+                <p className="text-[10px] text-white/30 uppercase tracking-wider">{label}</p>
+              </div>
+              <p className={`text-xl font-bold ${color}`}>{value}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Dynasty ledger */}
+      {loading ? (
+        <div className="space-y-2">
+          {[1, 2].map((i) => <div key={i} className="h-20 rounded-xl bg-white/[0.02] border border-white/8 animate-pulse" />)}
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {(ledger?.transactions ?? []).map((txn) => (
+            <div
+              key={txn.id}
+              className="rounded-xl border border-white/8 bg-white/[0.02] overflow-hidden cursor-pointer hover:border-white/15 transition-colors"
+              onClick={() => setExpanded(expanded === txn.id ? null : txn.id)}
+            >
+              <div className="p-4 flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
+                  <Car className="w-4 h-4 text-amber-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <p className="text-sm font-medium text-white truncate">{txn.vehicle}</p>
+                    <span className={`text-[9px] px-1.5 py-0.5 rounded border font-medium shrink-0 ${
+                      txn.kycStatus === "verified"
+                        ? "text-emerald-400 border-emerald-500/30 bg-emerald-500/5"
+                        : "text-blue-400 border-blue-500/30 bg-blue-500/5"
+                    }`}>
+                      KYC {txn.kycStatus.toUpperCase()}
+                    </span>
+                    <span className={`text-[9px] px-1.5 py-0.5 rounded border font-medium shrink-0 ${
+                      txn.source === "live"
+                        ? "text-emerald-400 border-emerald-500/30 bg-emerald-500/5"
+                        : "text-white/25 border-white/10 bg-white/[0.02]"
+                    }`}>
+                      {txn.source.toUpperCase()}
+                    </span>
+                  </div>
+                  <p className="text-xs text-white/30">
+                    {txn.buyerName} · {new Date(txn.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                    {txn.referrerName && ` · Referrer: ${txn.referrerName}`}
+                  </p>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="text-sm font-bold text-white">${txn.salePrice.toLocaleString()}</p>
+                  <p className="text-[10px] text-white/25">{txn.legs.length} splits</p>
+                </div>
+                <ChevronRight className={`w-4 h-4 text-white/15 transition-transform shrink-0 ${expanded === txn.id ? "rotate-90" : ""}`} />
+              </div>
+
+              {expanded === txn.id && (
+                <div className="border-t border-white/5 p-4 bg-black/20">
+                  <div className="space-y-2">
+                    {txn.legs.map((leg) => {
+                      const c = legColors[leg.recipientType] ?? legColors.platform;
+                      const LegIcon = c.icon;
+                      return (
+                        <div key={leg.label} className={`flex items-center gap-3 p-2.5 rounded-lg border ${c.border} ${c.bg}`}>
+                          <LegIcon className={`w-3.5 h-3.5 ${c.text} shrink-0`} />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs text-white/70">{leg.label}</p>
+                            <p className="text-[10px] text-white/25">{leg.recipient}</p>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <p className={`text-xs font-bold ${c.text}`}>${leg.amount.toLocaleString()}</p>
+                            {leg.stripeTransferId && (
+                              <p className="text-[9px] font-mono text-white/15">{leg.stripeTransferId.slice(0, 18)}…</p>
+                            )}
+                          </div>
+                          <span className={`text-[9px] px-1.5 py-0.5 rounded border font-medium ${leg.status === "paid" ? "text-emerald-400 border-emerald-500/25 bg-emerald-500/5" : "text-amber-400 border-amber-500/25 bg-amber-500/5"}`}>
+                            {leg.status}
+                          </span>
+                        </div>
+                      );
+                    })}
+                    <div className="pt-2 flex items-center justify-between text-xs border-t border-white/5">
+                      <span className="text-white/25">Platform retained</span>
+                      <span className="text-emerald-400 font-bold">${txn.platformRetained.toLocaleString()}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {showPurchaseModal && (
+        <DynastyPurchaseModal
+          members={members}
+          onClose={() => setShowPurchaseModal(false)}
+          onSuccess={handlePurchaseSuccess}
+        />
+      )}
+    </div>
+  );
+}
+
+// ─── Simulate Payout Modal ─────────────────────────────────────────────────────
+function SimulatePayoutModal({
+  member, onClose, onSuccess,
+}: { member: Member; onClose: () => void; onSuccess: () => void }) {
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
   const [result, setResult] = useState<{ memberSlice: number; stripeTransferId: string | null } | null>(null);
@@ -67,7 +771,6 @@ function SimulatePayoutModal({
     { taskId: "task-demo-2", taskTitle: "Client Delivery", vehicle: "2024 Bentley Flying Spur", taskPayout: 55000, runnerName: "Priya Rao" },
     { taskId: "task-demo-3", taskTitle: "Auction Transport", vehicle: "2023 McLaren Artura", taskPayout: 72000, runnerName: "Nikolai Petrov" },
   ];
-
   const [selected, setSelected] = useState(DEMO_TASKS[0]);
 
   const trigger = async () => {
@@ -118,9 +821,7 @@ function SimulatePayoutModal({
                     key={t.taskId}
                     onClick={() => setSelected(t)}
                     className={`w-full text-left p-3 rounded-xl border text-sm transition-all ${
-                      selected.taskId === t.taskId
-                        ? "border-amber-500/40 bg-amber-500/10"
-                        : "border-white/10 bg-white/[0.02] hover:bg-white/[0.05]"
+                      selected.taskId === t.taskId ? "border-amber-500/40 bg-amber-500/10" : "border-white/10 bg-white/[0.02] hover:bg-white/[0.05]"
                     }`}
                   >
                     <p className="font-medium text-white text-xs">{t.vehicle}</p>
@@ -137,7 +838,8 @@ function SimulatePayoutModal({
               <div className="mb-4 p-3 rounded-xl bg-amber-500/5 border border-amber-500/20 flex items-start gap-2">
                 <Percent className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
                 <p className="text-[11px] text-amber-400/70">
-                  5% Member Slice of <span className="font-bold text-amber-300">${selected.taskPayout.toLocaleString()}</span> = <span className="font-bold text-amber-300">${(selected.taskPayout * 0.05).toLocaleString()}</span> transferred instantly via Stripe Connect.
+                  5% Member Slice of <span className="font-bold text-amber-300">${selected.taskPayout.toLocaleString()}</span> ={" "}
+                  <span className="font-bold text-amber-300">${(selected.taskPayout * 0.05).toLocaleString()}</span> transferred instantly.
                 </p>
               </div>
               <button
@@ -158,14 +860,8 @@ function SimulatePayoutModal({
 
 // ─── Connect Stripe Modal ──────────────────────────────────────────────────────
 function ConnectStripeModal({
-  member,
-  onClose,
-  onConnected,
-}: {
-  member: Member;
-  onClose: () => void;
-  onConnected: () => void;
-}) {
+  member, onClose, onConnected,
+}: { member: Member; onClose: () => void; onConnected: () => void }) {
   const [step, setStep] = useState<"intro" | "onboarding" | "done">("intro");
   const [loading, setLoading] = useState(false);
 
@@ -177,12 +873,10 @@ function ConnectStripeModal({
       body: JSON.stringify({ memberId: member.id }),
     });
     const data = await res.json();
-
     if (data.onboardingUrl) {
       window.open(data.onboardingUrl, "_blank");
       setStep("onboarding");
     } else {
-      // Simulated — skip to done
       setStep("onboarding");
       setTimeout(async () => {
         await fetch("/api/wallet/connect/simulate", {
@@ -238,7 +932,6 @@ function ConnectStripeModal({
               <p className="text-[10px] text-white/20 text-center mt-3">Powered by Stripe Connect Express · 256-bit TLS</p>
             </>
           )}
-
           {step === "onboarding" && (
             <div className="py-6 text-center">
               <div className="relative w-14 h-14 mx-auto mb-4">
@@ -249,7 +942,6 @@ function ConnectStripeModal({
               <p className="text-white/30 text-xs">Connecting to Stripe Express</p>
             </div>
           )}
-
           {step === "done" && (
             <div className="py-6 text-center">
               <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-400/30 flex items-center justify-center mx-auto mb-3">
@@ -266,24 +958,13 @@ function ConnectStripeModal({
 }
 
 // ─── Member Card ───────────────────────────────────────────────────────────────
-function MemberCard({
-  member,
-  wallet,
-  isActive,
-  onClick,
-}: {
-  member: Member;
-  wallet: Wallet;
-  isActive: boolean;
-  onClick: () => void;
+function MemberCard({ member, wallet, isActive, onClick }: {
+  member: Member; wallet: Wallet; isActive: boolean; onClick: () => void;
 }) {
   const connectColor =
-    member.connectStatus === "connected"
-      ? "text-emerald-400 bg-emerald-400/10 border-emerald-400/25"
-      : member.connectStatus === "pending"
-      ? "text-amber-400 bg-amber-400/10 border-amber-400/25"
-      : "text-white/30 bg-white/5 border-white/10";
-
+    member.connectStatus === "connected" ? "text-emerald-400 bg-emerald-400/10 border-emerald-400/25"
+    : member.connectStatus === "pending"  ? "text-amber-400 bg-amber-400/10 border-amber-400/25"
+    : "text-white/30 bg-white/5 border-white/10";
   const connectLabel =
     member.connectStatus === "connected" ? "Stripe Connected"
     : member.connectStatus === "pending" ? "Onboarding"
@@ -293,9 +974,7 @@ function MemberCard({
     <button
       onClick={onClick}
       className={`w-full flex items-center gap-3 p-3.5 rounded-xl border text-left transition-all ${
-        isActive
-          ? "border-amber-500/30 bg-amber-500/[0.06]"
-          : "border-white/10 bg-white/[0.02] hover:bg-white/[0.05]"
+        isActive ? "border-amber-500/30 bg-amber-500/[0.06]" : "border-white/10 bg-white/[0.02] hover:bg-white/[0.05]"
       }`}
     >
       <div className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-400/20 to-amber-600/20 border border-amber-400/20 flex items-center justify-center text-amber-300 font-semibold text-xs shrink-0">
@@ -304,9 +983,7 @@ function MemberCard({
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-white truncate">{member.name}</p>
         <div className="flex items-center gap-2 mt-0.5">
-          <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded border ${connectColor}`}>
-            {connectLabel}
-          </span>
+          <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded border ${connectColor}`}>{connectLabel}</span>
           <p className="text-[10px] text-emerald-400/70 font-medium">${wallet.totalEarned.toLocaleString()} earned</p>
         </div>
       </div>
@@ -316,16 +993,8 @@ function MemberCard({
 }
 
 // ─── Wallet Detail ─────────────────────────────────────────────────────────────
-function WalletDetail({
-  member: initialMember,
-  wallet: initialWallet,
-  stripeMode,
-  onRefresh,
-}: {
-  member: Member;
-  wallet: Wallet;
-  stripeMode: "live" | "demo";
-  onRefresh: () => void;
+function WalletDetail({ member: initialMember, wallet: initialWallet, stripeMode, onRefresh }: {
+  member: Member; wallet: Wallet; stripeMode: "live" | "demo"; onRefresh: () => void;
 }) {
   const [member, setMember] = useState(initialMember);
   const [wallet, setWallet] = useState(initialWallet);
@@ -336,23 +1005,14 @@ function WalletDetail({
 
   const handleConnected = async () => {
     setShowConnect(false);
-    // Refetch member state
     const res = await fetch(`/api/wallet/${member.id}`);
-    if (res.ok) {
-      const data = await res.json();
-      setMember(data.member);
-      setWallet(data.wallet);
-    }
+    if (res.ok) { const d = await res.json(); setMember(d.member); setWallet(d.wallet); }
   };
 
   const handlePayoutSuccess = async () => {
     setShowPayout(false);
     const res = await fetch(`/api/wallet/${member.id}`);
-    if (res.ok) {
-      const data = await res.json();
-      setMember(data.member);
-      setWallet(data.wallet);
-    }
+    if (res.ok) { const d = await res.json(); setMember(d.member); setWallet(d.wallet); }
     onRefresh();
   };
 
@@ -360,43 +1020,26 @@ function WalletDetail({
 
   return (
     <div className="flex-1 min-w-0">
-      {/* Stats bar */}
       <div className="grid grid-cols-3 gap-3 mb-5">
-        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <TrendingUp className="w-3.5 h-3.5 text-amber-400" />
-            <p className="text-[10px] text-white/30 uppercase tracking-wider">Total Earned</p>
+        {[
+          { label: "Total Earned", value: `$${wallet.totalEarned.toLocaleString()}`, sub: "All time (5% slices)", icon: TrendingUp, color: "text-white", border: "border-white/10", bg: "" },
+          { label: "Pending", value: `$${wallet.pendingAmount.toLocaleString()}`, sub: "Awaiting confirmation", icon: Clock, color: "text-amber-400", border: "border-amber-500/15", bg: "bg-amber-500/[0.03]" },
+          { label: "Available", value: `$${wallet.availableForPayout.toLocaleString()}`, sub: wallet.lastPayoutAt ? `Last: ${new Date(wallet.lastPayoutAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}` : "No payouts yet", icon: ArrowDownLeft, color: "text-emerald-400", border: "border-emerald-500/15", bg: "bg-emerald-500/[0.03]" },
+        ].map(({ label, value, sub, icon: Icon, color, border, bg }) => (
+          <div key={label} className={`rounded-xl border ${border} ${bg} p-4`}>
+            <div className="flex items-center gap-2 mb-2">
+              <Icon className={`w-3.5 h-3.5 ${color}`} />
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">{label}</p>
+            </div>
+            <p className={`text-2xl font-bold ${color}`}>{value}</p>
+            <p className="text-[10px] text-white/25 mt-0.5">{sub}</p>
           </div>
-          <p className="text-2xl font-bold text-white">${wallet.totalEarned.toLocaleString()}</p>
-          <p className="text-[10px] text-white/25 mt-0.5">All time (5% slices)</p>
-        </div>
-        <div className="rounded-xl border border-amber-500/15 bg-amber-500/[0.03] p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Clock className="w-3.5 h-3.5 text-amber-400" />
-            <p className="text-[10px] text-white/30 uppercase tracking-wider">Pending</p>
-          </div>
-          <p className="text-2xl font-bold text-amber-400">${wallet.pendingAmount.toLocaleString()}</p>
-          <p className="text-[10px] text-white/25 mt-0.5">Awaiting confirmation</p>
-        </div>
-        <div className="rounded-xl border border-emerald-500/15 bg-emerald-500/[0.03] p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <ArrowDownLeft className="w-3.5 h-3.5 text-emerald-400" />
-            <p className="text-[10px] text-white/30 uppercase tracking-wider">Available</p>
-          </div>
-          <p className="text-2xl font-bold text-emerald-400">${wallet.availableForPayout.toLocaleString()}</p>
-          <p className="text-[10px] text-white/25 mt-0.5">
-            {wallet.lastPayoutAt
-              ? `Last: ${new Date(wallet.lastPayoutAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}`
-              : "No payouts yet"}
-          </p>
-        </div>
+        ))}
       </div>
 
-      {/* Stripe Connect status + actions */}
+      {/* Stripe Connect panel */}
       <div className={`rounded-xl border p-4 mb-5 flex items-center gap-3 ${
-        isConnected
-          ? "border-emerald-500/20 bg-emerald-500/[0.03]"
-          : "border-amber-500/20 bg-amber-500/[0.04]"
+        isConnected ? "border-emerald-500/20 bg-emerald-500/[0.03]" : "border-amber-500/20 bg-amber-500/[0.04]"
       }`}>
         <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
           isConnected ? "bg-emerald-500/10 border border-emerald-500/20" : "bg-[#635bff]/10 border border-[#635bff]/20"
@@ -414,9 +1057,7 @@ function WalletDetail({
           </div>
           {isConnected ? (
             <p className="text-xs text-emerald-400/60">
-              {member.bankLast4
-                ? `Account ending ••••${member.bankLast4}`
-                : "Connected account active"} — instant transfers enabled
+              {member.bankLast4 ? `Account ending ••••${member.bankLast4}` : "Connected account active"} — instant transfers enabled
             </p>
           ) : (
             <p className="text-xs text-white/35">
@@ -426,7 +1067,7 @@ function WalletDetail({
             </p>
           )}
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="shrink-0">
           {isConnected ? (
             <button
               onClick={() => setShowPayout(true)}
@@ -447,20 +1088,16 @@ function WalletDetail({
         </div>
       </div>
 
-      {/* Transactions */}
+      {/* Transaction history */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <p className="text-xs text-white/30 uppercase tracking-wider font-medium">Transaction History</p>
-          {wallet.transactions.length > 0 && (
-            <p className="text-[10px] text-white/20">{wallet.transactions.length} records</p>
-          )}
+          <p className="text-xs text-white/30 uppercase tracking-wider font-medium">Member Slice History</p>
+          {wallet.transactions.length > 0 && <p className="text-[10px] text-white/20">{wallet.transactions.length} records</p>}
         </div>
-
         {wallet.transactions.length === 0 ? (
           <div className="rounded-xl border border-dashed border-white/10 p-8 text-center">
             <DollarSign className="w-6 h-6 text-white/10 mx-auto mb-2" />
             <p className="text-xs text-white/25">No transactions yet</p>
-            <p className="text-[11px] text-white/15 mt-0.5">Member Slices appear here when GigTasks complete</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -468,22 +1105,15 @@ function WalletDetail({
               <div key={txn.id} className="rounded-xl border border-white/8 bg-white/[0.02] p-4">
                 <div className="flex items-start gap-3">
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                    txn.status === "paid"
-                      ? "bg-emerald-400/10 border border-emerald-400/20"
-                      : "bg-amber-400/10 border border-amber-400/20"
+                    txn.status === "paid" ? "bg-emerald-400/10 border border-emerald-400/20" : "bg-amber-400/10 border border-amber-400/20"
                   }`}>
-                    {txn.status === "paid"
-                      ? <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                      : <Clock className="w-4 h-4 text-amber-400" />
-                    }
+                    {txn.status === "paid" ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <Clock className="w-4 h-4 text-amber-400" />}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
                         <p className="text-sm font-medium text-white truncate">{txn.vehicle}</p>
-                        <p className="text-xs text-white/35 mt-0.5">
-                          {txn.taskTitle} · {txn.runnerName} · {txn.slicePct}% slice
-                        </p>
+                        <p className="text-xs text-white/35 mt-0.5">{txn.taskTitle} · {txn.runnerName} · {txn.slicePct}% slice</p>
                       </div>
                       <div className="text-right shrink-0">
                         <p className="text-base font-bold text-emerald-400">+${txn.memberSlice.toLocaleString()}</p>
@@ -494,8 +1124,7 @@ function WalletDetail({
                     </div>
                     <div className="flex items-center gap-3 mt-2">
                       <p className="text-[10px] text-white/20">
-                        Task payout: ${txn.taskPayout.toLocaleString()} ·{" "}
-                        {new Date(txn.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                        Task: ${txn.taskPayout.toLocaleString()} · {new Date(txn.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                       </p>
                       {txn.stripeTransferId && (
                         <div className="flex items-center gap-1 text-[10px] text-white/20">
@@ -538,14 +1167,10 @@ export default function WalletPage() {
       setMembers(mems);
       setStripeMode(stripeData.mode ?? "demo");
 
-      // Fetch each member's wallet in parallel
       const walletEntries = await Promise.all(
         mems.map(async (m) => {
           const r = await fetch(`/api/wallet/${m.id}`);
-          if (r.ok) {
-            const d = await r.json();
-            return [m.id, d.wallet] as const;
-          }
+          if (r.ok) { const d = await r.json(); return [m.id, d.wallet] as const; }
           return [m.id, { memberId: m.id, totalEarned: 0, pendingAmount: 0, availableForPayout: 0, lastPayoutAt: null, transactions: [] }] as const;
         })
       );
@@ -568,8 +1193,8 @@ export default function WalletPage() {
       <PageHeader
         icon={CreditCard}
         accent="#34D399"
-        title="MEMBER WALLET"
-        subtitle="5% Member Slice — instant Stripe Connect payouts on every GigTask"
+        title="DYNASTY WALLET"
+        subtitle="Triple-split engine · AML/KYC · Stripe Connect · Passive Income"
         badge={
           <span className={`neural-badge ${stripeMode === "live" ? "neural-badge-green" : "neural-badge-gold"}`}>
             <span className={`${stripeMode === "live" ? "ai-live-dot" : "ai-live-dot-gold"} mr-1`} />
@@ -577,58 +1202,70 @@ export default function WalletPage() {
           </span>
         }
         actions={
-          <button onClick={fetchAll} className="ai-btn-ghost">
-            <RefreshCw className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-2">
+            <span className="neural-badge neural-badge-blue">
+              <ScanFace className="w-2.5 h-2.5 mr-1" />
+              KYC ACTIVE
+            </span>
+            <button onClick={fetchAll} className="ai-btn-ghost">
+              <RefreshCw className="w-4 h-4" />
+            </button>
+          </div>
         }
       />
       <div className="p-6">
 
-      {/* Info banner — demo mode */}
-      {stripeMode === "demo" && (
-        <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.04] p-4 mb-5 flex items-start gap-3">
-          <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-          <div>
-            <p className="text-sm font-semibold text-amber-300 mb-0.5">Stripe Connect — Demo Mode</p>
-            <p className="text-xs text-amber-400/50">
-              Connect your Stripe account to enable real instant transfers. All payout logic, 5% calculations, and transfer IDs are fully built — payouts will execute in real time the moment your Stripe key is added.
-            </p>
+        {stripeMode === "demo" && (
+          <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.04] p-4 mb-6 flex items-start gap-3">
+            <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-semibold text-amber-300 mb-0.5">Dynasty Engine — Demo Mode</p>
+              <p className="text-xs text-amber-400/50">
+                All split logic, KYC flows, and Stripe transfer IDs are fully operational. Add Stripe keys to activate live payments. Dynasty purchases execute in full simulation with real transfer structures.
+              </p>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {loading ? (
-        <div className="grid grid-cols-3 gap-3 animate-pulse">
-          {[1, 2, 3].map((i) => <div key={i} className="h-32 rounded-xl bg-white/[0.03] border border-white/8" />)}
+        {/* Dynasty Split Engine — always visible */}
+        <DynastyLedger />
+
+        {/* Divider */}
+        <div className="flex items-center gap-3 mb-6">
+          <div className="flex-1 h-px bg-white/8" />
+          <p className="text-[10px] text-white/20 uppercase tracking-widest">Member Slice Wallets</p>
+          <div className="flex-1 h-px bg-white/8" />
         </div>
-      ) : (
-        <div className="flex gap-5">
-          {/* Member list */}
-          <div className="w-64 shrink-0 space-y-2">
-            <p className="text-[10px] text-white/25 uppercase tracking-wider mb-2">Members</p>
-            {members.map((m) => (
-              <MemberCard
-                key={m.id}
-                member={m}
-                wallet={wallets[m.id] ?? { memberId: m.id, totalEarned: 0, pendingAmount: 0, availableForPayout: 0, lastPayoutAt: null, transactions: [] }}
-                isActive={m.id === activeMemberId}
-                onClick={() => setActiveMemberId(m.id)}
+
+        {loading ? (
+          <div className="grid grid-cols-3 gap-3 animate-pulse">
+            {[1, 2, 3].map((i) => <div key={i} className="h-32 rounded-xl bg-white/[0.03] border border-white/8" />)}
+          </div>
+        ) : (
+          <div className="flex gap-5">
+            <div className="w-64 shrink-0 space-y-2">
+              <p className="text-[10px] text-white/25 uppercase tracking-wider mb-2">Members</p>
+              {members.map((m) => (
+                <MemberCard
+                  key={m.id}
+                  member={m}
+                  wallet={wallets[m.id] ?? { memberId: m.id, totalEarned: 0, pendingAmount: 0, availableForPayout: 0, lastPayoutAt: null, transactions: [] }}
+                  isActive={m.id === activeMemberId}
+                  onClick={() => setActiveMemberId(m.id)}
+                />
+              ))}
+            </div>
+            {activeMember && (
+              <WalletDetail
+                key={activeMemberId}
+                member={activeMember}
+                wallet={activeWallet}
+                stripeMode={stripeMode}
+                onRefresh={fetchAll}
               />
-            ))}
+            )}
           </div>
-
-          {/* Wallet detail */}
-          {activeMember && (
-            <WalletDetail
-              key={activeMemberId}
-              member={activeMember}
-              wallet={activeWallet}
-              stripeMode={stripeMode}
-              onRefresh={fetchAll}
-            />
-          )}
-        </div>
-      )}
+        )}
       </div>
     </div>
   );

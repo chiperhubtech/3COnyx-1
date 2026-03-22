@@ -450,6 +450,7 @@
 .neural-badge-green  { background: rgba(52,211,153,0.1);  border-color: rgba(52,211,153,0.22);  color: #34D399; }
 .neural-badge-gold   { background: rgba(201,162,39,0.1);  border-color: rgba(201,162,39,0.22);  color: #C9A227; }
 .neural-badge-violet { background: rgba(129,140,248,0.1); border-color: rgba(129,140,248,0.22); color: #818CF8; }
+.neural-badge-blue { background: rgba(96,165,250,0.1); border-color: rgba(96,165,250,0.22); color: #60A5FA; }
 .neural-badge-orange { background: rgba(249,115,22,0.1);  border-color: rgba(249,115,22,0.22);  color: #F97316; }
 
 /* — Gradient Border Card — */

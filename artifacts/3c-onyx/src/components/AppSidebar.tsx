@@ -64,10 +64,10 @@ const CUSTOMER_NAV = [
     accent: "#FBBF24",
   },
   {
-    label: "Member Wallet",
+    label: "Dynasty Wallet",
     path: "/wallet",
     icon: CreditCard,
-    description: "Earnings & payouts",
+    description: "Triple-split · KYC · payouts",
     accent: "#34D399",
   },
   {
