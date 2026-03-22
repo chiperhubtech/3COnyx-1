@@ -5,7 +5,7 @@ import {
 } from "react-native";
 import { Ionicons, MaterialCommunityIcons, Feather } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { getApiUrl } from "@/constants/api";
+import { apiFetch } from "@/lib/api";
 import { COLORS } from "@/constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -225,13 +225,11 @@ export default function CommandScreen() {
 
   const fetchAll = useCallback(async () => {
     try {
-      const base = getApiUrl();
-      const [pRes, mRes, fRes] = await Promise.all([
-        fetch(`${base}/api/command/pulse`),
-        fetch(`${base}/api/command/missions`),
-        fetch(`${base}/api/command/flagged`),
+      const [p, m, f] = await Promise.all([
+        apiFetch<Pulse>("/command/pulse"),
+        apiFetch<{ missions: Mission[] }>("/command/missions"),
+        apiFetch<{ flagged: FlaggedTxn[] }>("/command/flagged"),
       ]);
-      const [p, m, f] = await Promise.all([pRes.json(), mRes.json(), fRes.json()]);
       setPulse(p);
       setMissions(m.missions ?? []);
       setFlagged(f.flagged ?? []);
@@ -246,10 +244,8 @@ export default function CommandScreen() {
   useEffect(() => { fetchAll(); }, [fetchAll]);
 
   const handleOverride = async (id: string, action: "approved" | "rejected") => {
-    const base = getApiUrl();
-    await fetch(`${base}/api/command/override/${id}`, {
+    await apiFetch(`/command/override/${id}`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action }),
     });
     await fetchAll();
