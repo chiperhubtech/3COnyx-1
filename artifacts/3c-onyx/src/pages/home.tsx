@@ -16,6 +16,10 @@ import {
   Bell,
   Heart,
   TrendingDown,
+  Wrench,
+  ClipboardCheck,
+  Package,
+  LayoutDashboard,
 } from "lucide-react";
 
 const API = import.meta.env.BASE_URL.replace(/\/$/, "") + "/api";
@@ -264,6 +268,47 @@ export default function Home() {
                 <p style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "17px", fontWeight: 700, color: "#FFFFFF", letterSpacing: "0.02em", marginBottom: "4px" }}>{action.label}</p>
                 <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.32)", lineHeight: 1.4 }}>{action.description}</p>
                 <ArrowRight size={13} style={{ marginTop: "12px", color: action.accent, opacity: 0.5 }} />
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* Professional Access Banner */}
+      <div className="px-8 pb-6">
+        <div className="flex items-center justify-between mb-4">
+          <p className="section-label">AUTOMOTIVE PROFESSIONALS</p>
+          <Link href="/pro">
+            <span style={{ fontSize: "12px", color: "#A78BFA", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px" }}>
+              Pro Mesh <ArrowRight size={12} />
+            </span>
+          </Link>
+        </div>
+        <div className="grid grid-cols-4 gap-3">
+          {[
+            { icon: Wrench,          label: "Pro Mesh",         sub: "Apprentice → Master AI", href: "/pro",                    accent: "#A78BFA", glow: "rgba(167,139,250,0.12)" },
+            { icon: LayoutDashboard, label: "Specialist Hub",   sub: "Earnings & ratings",     href: "/specialist-dashboard",   accent: "#4FC3F7", glow: "rgba(79,195,247,0.10)"  },
+            { icon: ClipboardCheck,  label: "Inspection",       sub: "Pre-pickup SHA-256",      href: "/inspection",             accent: "#34D399", glow: "rgba(52,211,153,0.10)"  },
+            { icon: Package,         label: "Dropship",         sub: "BOL · 360° scan",        href: "/dropship",               accent: "#F97316", glow: "rgba(249,115,22,0.10)"  },
+          ].map((p) => (
+            <Link key={p.href} href={p.href}>
+              <div
+                className="ai-card holographic-card group cursor-pointer transition-all duration-200 p-4"
+                style={{ borderColor: `${p.accent}18` }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLDivElement).style.borderColor = `${p.accent}40`;
+                  (e.currentTarget as HTMLDivElement).style.boxShadow = `0 0 0 1px ${p.accent}20, 0 8px 24px ${p.accent}10`;
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLDivElement).style.borderColor = `${p.accent}18`;
+                  (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
+                }}
+              >
+                <div style={{ width: "34px", height: "34px", borderRadius: "10px", background: p.glow, border: `1px solid ${p.accent}28`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "10px" }}>
+                  <p.icon size={16} style={{ color: p.accent }} />
+                </div>
+                <p style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "15px", fontWeight: 700, color: "#FFFFFF", marginBottom: "2px" }}>{p.label}</p>
+                <p style={{ fontSize: "10px", color: "rgba(255,255,255,0.3)", lineHeight: 1.4 }}>{p.sub}</p>
               </div>
             </Link>
           ))}

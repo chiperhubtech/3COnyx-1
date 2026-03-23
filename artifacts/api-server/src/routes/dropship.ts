@@ -223,6 +223,18 @@ bols.push(
     "San Francisco, CA", "Palo Alto, CA", 35,
     "carrier-runbuggy", "runner-002", "Priya Rao", "picked_up", 1,
   ),
+  makeBol(
+    "task-003", "2022 Lamborghini Urus Pearl Capsule", "ZPBUA1ZL3NLA08213",
+    "Pearl White", 2022,
+    "Miami, FL", "Palm Beach, FL", 68,
+    "carrier-shipcars", "runner-003", "Demarco Tate", "delivered", 5,
+  ),
+  makeBol(
+    "task-004", "2023 Bentley Flying Spur Mulliner", "SCBEF2ZG9PC010872",
+    "Midnight Emerald", 2023,
+    "New York, NY", "Greenwich, CT", 54,
+    "carrier-runbuggy", "runner-004", "Nikolai Petrov", "delivered", 7,
+  ),
 );
 
 // Seed a demo scan for task-001 (Rolls-Royce — in transit, all 8 angles)

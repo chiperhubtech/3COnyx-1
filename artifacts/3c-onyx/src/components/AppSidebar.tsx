@@ -61,22 +61,8 @@ const CUSTOMER_NAV = [
     label: "Live Tracking",
     path: "/logistics",
     icon: Truck,
-    description: "Runner location",
+    description: "Your vehicle — live GPS",
     accent: "#A78BFA",
-  },
-  {
-    label: "Delivery Sign-Off",
-    path: "/delivery",
-    icon: QrCode,
-    description: "QR handshake",
-    accent: "#FBBF24",
-  },
-  {
-    label: "Dropship Coordinator",
-    path: "/dropship",
-    icon: Package,
-    description: "BOL · 360° Scan · AR Preview",
-    accent: "#818CF8",
   },
   {
     label: "Dynasty Wallet",
@@ -116,9 +102,11 @@ const CUSTOMER_NAV = [
 ];
 
 const SPECIALIST_NAV = [
-  { label: "My Dashboard", path: "/specialist-dashboard", icon: LayoutDashboard, description: "Performance & earnings" },
-  { label: "Inspection", path: "/inspection", icon: ClipboardCheck, description: "Pre-pickup form" },
-  { label: "Apply as Specialist", path: "/apply", icon: BadgeCheck, description: "Join the fleet" },
+  { label: "My Dashboard",          path: "/specialist-dashboard", icon: LayoutDashboard, description: "Earnings · ratings · tasks"    },
+  { label: "Pre-Pickup Inspection", path: "/inspection",           icon: ClipboardCheck,  description: "Condition report · SHA-256"    },
+  { label: "Proof of Delivery",     path: "/delivery",             icon: QrCode,          description: "QR handshake · audit trail"    },
+  { label: "Dropship Coordinator",  path: "/dropship",             icon: Package,         description: "BOL · 360° Scan · AR Preview"  },
+  { label: "Apply as Specialist",   path: "/apply",                icon: BadgeCheck,      description: "Join the 3C Runner fleet"      },
 ];
 
 const ADMIN_NAV = [
