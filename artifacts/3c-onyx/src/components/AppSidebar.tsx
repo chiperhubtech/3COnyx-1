@@ -194,7 +194,7 @@ export function AppSidebar() {
 
   return (
     <aside
-      className="w-64 min-h-screen flex flex-col"
+      className="w-64 h-full flex flex-col overflow-hidden shrink-0"
       style={{
         background: "linear-gradient(180deg, #06060a 0%, #08080d 100%)",
         borderRight: "1px solid rgba(255,255,255,0.06)",
