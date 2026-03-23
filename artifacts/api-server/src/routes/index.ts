@@ -35,6 +35,7 @@ import unityRouter from "./unity";
 import agentsRouter from "./agents";
 import impactRouter from "./impact";
 import proRouter from "./pro";
+import rocksolidRouter from "./rocksolid";
 
 const router: IRouter = Router();
 
@@ -71,6 +72,7 @@ router.use(agentsRouter);
 router.use(impactRouter);
 router.use(proRouter);
 router.use(blockchainRouter);
+router.use(rocksolidRouter);
 router.use(orchestratorRouter);
 
 router.use(

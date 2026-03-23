@@ -36,6 +36,7 @@ import AgenticOS from "@/pages/agentic-os";
 import Impact from "@/pages/impact";
 import Pro from "@/pages/pro";
 import Custody from "@/pages/custody";
+import ARViewer from "@/pages/ar-viewer";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -75,6 +76,7 @@ function Router() {
       <Route path="/impact" component={Impact} />
       <Route path="/pro" component={Pro} />
       <Route path="/custody" component={Custody} />
+      <Route path="/ar-viewer" component={ARViewer} />
       <Route component={NotFound} />
     </Switch>
   );
