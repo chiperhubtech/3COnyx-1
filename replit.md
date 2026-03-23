@@ -1,211 +1,107 @@
-# Workspace
+# Overview
 
-## Overview
+This project is a pnpm workspace monorepo utilizing TypeScript for a sophisticated platform called "3C Onyx." The platform aims to revolutionize the vehicle marketplace by integrating advanced AI, telematics, logistics, and financial services. It offers a comprehensive suite of tools for customers, dealers, and specialists, focusing on a cinematic dark-mode user experience with a "Apple × GTA" visual language. Key capabilities include an AI-enriched marketplace with dynamic pricing, a national wholesale engine, secure financial transactions, AI-powered automation, and robust auditing features. The long-term vision is to establish a "Hectocorn" company by leveraging cutting-edge technology to create a seamless and highly efficient ecosystem for vehicle transactions and related services.
 
-pnpm workspace monorepo using TypeScript. Each package manages its own dependencies.
+# User Preferences
 
-## Stack
+I prefer detailed explanations and iterative development. Ask before making major changes. Do not make changes to folder `Z` and file `Y`.
 
-- **Monorepo tool**: pnpm workspaces
-- **Node.js version**: 24
-- **Package manager**: pnpm
-- **TypeScript version**: 5.9
-- **API framework**: Express 5
-- **Database**: PostgreSQL + Drizzle ORM
-- **Validation**: Zod (`zod/v4`), `drizzle-zod`
-- **API codegen**: Orval (from OpenAPI spec)
-- **Build**: esbuild (CJS bundle)
+# System Architecture
 
-## Structure
+## Monorepo Structure and Tooling
 
-```text
-artifacts-monorepo/
-├── artifacts/              # Deployable applications
-│   └── api-server/         # Express API server
-├── lib/                    # Shared libraries
-│   ├── api-spec/           # OpenAPI spec + Orval codegen config
-│   ├── api-client-react/   # Generated React Query hooks
-│   ├── api-zod/            # Generated Zod schemas from OpenAPI
-│   └── db/                 # Drizzle ORM schema + DB connection
-├── scripts/                # Utility scripts (single workspace package)
-│   └── src/                # Individual .ts scripts, run via `pnpm --filter @workspace/scripts run <script>`
-├── pnpm-workspace.yaml     # pnpm workspace (artifacts/*, lib/*, lib/integrations/*, scripts)
-├── tsconfig.base.json      # Shared TS options (composite, bundler resolution, es2022)
-├── tsconfig.json           # Root TS project references
-└── package.json            # Root package with hoisted devDeps
-```
+The project is structured as a pnpm workspace monorepo, managing multiple packages (`artifacts`, `lib`, `scripts`). It uses Node.js 24, pnpm, and TypeScript 5.9. The API is built with Express 5, utilizing PostgreSQL and Drizzle ORM for database management, and Zod for validation. API codegen is handled by Orval from an OpenAPI specification, generating React Query hooks and Zod schemas. `esbuild` is used for CJS bundling.
 
-## TypeScript & Composite Projects
+## TypeScript Configuration
 
-Every package extends `tsconfig.base.json` which sets `composite: true`. The root `tsconfig.json` lists all packages as project references. This means:
+All packages extend a base `tsconfig.json` with `composite: true`, enabling project references for cross-package type-checking and dependency resolution. `tsc --build --emitDeclarationOnly` is used for type-checking and declaration file generation, while `esbuild` handles actual JavaScript bundling.
 
-- **Always typecheck from the root** — run `pnpm run typecheck` (which runs `tsc --build --emitDeclarationOnly`). This builds the full dependency graph so that cross-package imports resolve correctly. Running `tsc` inside a single package will fail if its dependencies haven't been built yet.
-- **`emitDeclarationOnly`** — we only emit `.d.ts` files during typecheck; actual JS bundling is handled by esbuild/tsx/vite...etc, not `tsc`.
-- **Project references** — when package A depends on package B, A's `tsconfig.json` must list B in its `references` array. `tsc --build` uses this to determine build order and skip up-to-date packages.
+## API Server (`@workspace/api-server`)
 
-## Root Scripts
+The core API server is an Express 5 application. Routes are organized under `src/routes/` and leverage `@workspace/api-zod` for request/response validation and `@workspace/db` for database interactions. It includes health check endpoints and supports various integrations.
 
-- `pnpm run build` — runs `typecheck` first, then recursively runs `build` in all packages that define it
-- `pnpm run typecheck` — runs `tsc --build --emitDeclarationOnly` using project references
+## UI/UX Design (3C Onyx Visual Language)
 
-## Packages
+The platform adopts a "Apple × GTA" visual language, characterized by a cinematic dark mode with a deep black (`#0A0A0A`), gold (`#C9A227`), and neon accents.
 
-### `artifacts/api-server` (`@workspace/api-server`)
+-   **Typography**: Barlow Condensed (900/800/700/600, uppercase, 0.04em letterSpacing) for headings and Inter for body/UI text, loaded via Google Fonts.
+-   **Key Visuals**: Home hero section features "YOUR FLEET, YOUR RULES." with white and gold outlined text and an ambient radial gradient. Page headers use Barlow Condensed h1 with amber-500/10 icon boxes.
+-   **Components**: `AppSidebar.tsx` provides navigation, `PageHeader.tsx` is a reusable header component.
+-   **Data Display**: Stat cards utilize translucent glassmorphism (`rgba(255,255,255,0.04)`) with accent-colored large numbers.
+-   **AI-Native Design System (CSS)**: Global CSS classes implement futuristic elements:
+    -   `.ai-card`, `.holographic-card`, `.neural-grid-overlay`, `.scan-line-overlay` for glassmorphism and animated effects.
+    -   `.neural-glow-blue/green/gold/violet` for colored box-shadow glows.
+    -   `.neural-badge` for blinking status indicators.
+    -   `.gradient-border-card` for animated gradient borders.
+    -   `.hero-mesh`, `.hero-grid`, `.neon-underline` for homepage visuals.
+    -   Numerous keyframe animations for dynamic UI elements.
 
-Express 5 API server. Routes live in `src/routes/` and use `@workspace/api-zod` for request and response validation and `@workspace/db` for persistence.
+## Core Platform Features
 
-- Entry: `src/index.ts` — reads `PORT`, starts Express
-- App setup: `src/app.ts` — mounts CORS, JSON/urlencoded parsing, routes at `/api`
-- Routes: `src/routes/index.ts` mounts sub-routers; `src/routes/health.ts` exposes `GET /health` (full path: `/api/health`)
-- Depends on: `@workspace/db`, `@workspace/api-zod`
-- `pnpm --filter @workspace/api-server run dev` — run the dev server
-- `pnpm --filter @workspace/api-server run build` — production esbuild bundle (`dist/index.cjs`)
-- Build bundles an allowlist of deps (express, cors, pg, drizzle-orm, zod, etc.) and externalizes the rest
-
-## Design System (3C Onyx)
-
-**Visual Language**: Apple × GTA — cinematic dark mode, deep black (#0A0A0A) + gold (#C9A227) + neon accents.
-
-- **Fonts**: Barlow Condensed (900/800/700/600, uppercase, letterSpacing 0.04em) for all H1/display headings; Inter for body/UI text. Loaded via Google Fonts in `index.html`.
-- **Home hero**: "YOUR FLEET, YOUR RULES." — solid white + gold outlined text in massive Barlow Condensed, ambient radial gradient background.
-- **Page headers**: All key customer pages (Marketplace, My Garage, Live Tracking, Member Wallet) use Barlow Condensed 800 uppercase h1, amber-500/10 icon box.
-- **Sidebar**: `AppSidebar.tsx` — "3C ONYX / SECURE PLATFORM" brand; sections: MY ACCOUNT (customer nav), SPECIALIST (runner nav), PLATFORM (collapsed admin tools: Concierge, Inventory, Analytics, Audit Vault, CI/CD).
-- **PageHeader component**: `src/components/PageHeader.tsx` — reusable header with accent icon box + Barlow Condensed title + optional badge/actions.
-- **Stat cards**: Translucent glassmorphism `rgba(255,255,255,0.04)` with accent-colored big numbers.
-
-## New Integrations (Backend Routes)
-
-| Integration | Route Prefix | Description | API Key Env Var | Fallback |
-|---|---|---|---|---|
-| **Plaid** | `/api/plaid/` | Financial linking — link-token, exchange, accounts, transactions, net-worth | `PLAID_CLIENT_ID` + `PLAID_SECRET` + `PLAID_ENV` | Full simulation |
-| **Insuremo** | `/api/insuremo/` | Insurance quotes by VIN across 4 carriers; active policy management | `INSUREMO_API_KEY` | Full simulation |
-| **Motor.com** | `/api/motor/` | VIN vehicle history reports + market value | `MOTOR_API_KEY` | SHA-256 seeded simulation |
-| **Browserbase** | `/api/browserbase/` | Remote browser automation tasks (dealer verify, price check, VIN decode) | `BROWSERBASE_API_KEY` + `BROWSERBASE_PROJECT_ID` | In-memory task simulation |
-| **Gumloop** | `/api/gumloop/` | AI workflow engine — 6 pre-built workflows with run/poll loop | `GUMLOOP_API_KEY` | Timed simulation with realistic outputs |
-
-## New Frontend Pages
-
-| Page | Route | Integration | Accent |
-|---|---|---|---|
-| Finance Hub | `/finance` | Plaid | #4FC3F7 (cyan) |
-| Insurance Hub | `/insurance` | Insuremo | #34D399 (emerald) |
-| Vehicle History | `/vehicle-history` | Motor.com | #F97316 (orange) |
-| AI Automation Hub | `/ai-hub` | Gumloop + Browserbase | #818CF8 (violet) |
-
-## AI-Native Design System (index.css additions)
-
-Global CSS classes for the futuristic look:
-- `.ai-card` — glassmorphism base card (backdrop-filter, dark bg, rounded-2xl)
-- `.holographic-card` — shimmer overlay animation on ::before
-- `.neural-grid-overlay` — subtle dot/grid pattern
-- `.scan-line-overlay` — animated scan line sweep on ::after
-- `.neural-glow-blue/green/gold/violet` — colored box-shadow glow
-- `.neural-badge` + `.neural-badge-green/gold/violet/orange` — blinking status badges
-- `.gradient-border-card` — animated gradient border via ::before
-- `.section-label` — 10px uppercase spaced label style
-- `.hero-mesh` — multi-radial gradient home background
-- `.hero-grid` — gold grid overlay with mask-image fade
-- `.neon-underline` — animated holographic underline on ::after
-- Keyframes: `scan-line`, `neural-pulse`, `gradient-shift`, `data-stream`, `hologram-shimmer`, `border-flow`, `float-up`, `glitch`, `status-blink`
-
-## Platform Features (3C Onyx)
-
-1. **Marketplace / National Wholesale Engine** — Two-tab UI: "All Inventory" + "Wholesale Engine". Every listing is AI-enriched server-side with: `market_avg` (deterministic regional retail estimate), `guardian_health_score` (VIN + mileage + age + DOM algorithm, 55-99), `club_price` (listed − 3% dealer discount + 1.2% platform fee), `savings_vs_retail`, and `wholesale_potential` flag. Cards show: gold SAVE $X badge, Guardian Health Score ring (SVG, color-coded EXCELLENT/GOOD/FAIR), 3C Club Price with strikethrough retail avg, "X% below retail" gold progress bar, green WHOLESALE pill, "Claim Club Price" CTA. Wholesale stats bar: deal count, total savings, avg savings, avg guardian score. Inline price breakdown tooltip. API routes: `GET /api/marketcheck/search` (enriched, filterable) + `GET /api/marketcheck/wholesale` (wholesale-only stats). Search bar with 350ms debounce. Filter panel (make/price/miles/year). Count bar with clickable wholesale shortcut link.
-2. **Watchlist** — Track vehicles with target price alerts, gap tracking, "Alert me" action
-3. **My Garage** — Smartcar telematics with odometer, fuel/battery, demo vehicles
-4. **Logistics** — HyperTrack Runner delivery map, live task tracking
-5. **Pre-Pickup Inspection** — 3-step form (vehicle → condition sliders → sign-off), saves to DB with SHA-256 audit trail
-6. **Proof of Delivery** — QR digital handshake with SHA-256 tamper hashing
-7. **Member Wallet** — Stripe Connect with 5% Member Slice transfers, payout history
-8. **AI Concierge** — Floating Gemini chat (garage context injection, SSE streaming, quick chips)
-9. **Specialist Onboarding** — 4-step BGC portal (SSN → Checkr only, never stored), Checkr simulation fallback
-10. **Specialist Dashboard** — Delivery history, star ratings, performance scores, milestone tracker
-11. **Analytics** — Admin-only revenue dashboard with Recharts charts: GMV, Member Slice, task breakdown, BGC pie chart
-12. **Live Notifications** — Notification bell in sidebar header (polls every 15s), mark read/all read, 12 seed events
-13. **SOC2 Audit Vault** — Admin-only, SHA-256 tamper hashing, filterable table, CSV export, 80 seed records
-14. **MCP Server** — `@modelcontextprotocol/sdk` StreamableHTTP server at `/api/mcp` with 8 tools: `search_vehicles`, `get_garage`, `get_watchlist`, `get_notifications`, `get_gig_tasks`, `book_runner`, `get_analytics`, `get_inspections`. Gemini Concierge uses Gemini function calling to invoke MCP tools with real DB data.
-15. **CI/CD Pipeline** — `/ci-cd` dashboard; 3 steps (TypeScript Check, Build API Server, Build Web App) run via `/api/ci/run` endpoint; live status polling every 2s; deployment config: autoscale, us-east-1, `pnpm run build`. Validation commands also registered as Replit workflows (typecheck, build-api, build-web).
+-   **Marketplace / National Wholesale Engine**: Two-tab UI for inventory and wholesale. AI-enriched listings with `market_avg`, `guardian_health_score`, `club_price`, `savings_vs_retail`, and `wholesale_potential`. Features gold badges, SVG health score rings, and CTAs.
+-   **Watchlist**: Vehicle tracking with target price alerts.
+-   **My Garage**: Smartcar telematics integration for vehicle data.
+-   **Logistics**: HyperTrack integration for live delivery tracking.
+-   **Inspections & Proof of Delivery**: Multi-step forms with SHA-256 audit trails and QR digital handshake.
+-   **Member Wallet**: Stripe Connect integration for commission transfers and payout history.
+-   **AI Concierge**: Floating Gemini chat with garage context injection and SSE streaming.
+-   **Specialist Onboarding/Dashboard**: BGC portal (Checkr integration) and performance tracking.
+-   **Analytics**: Admin-only revenue dashboards with Recharts.
+-   **Live Notifications**: Sidebar notification bell with polling and read management.
+-   **SOC2 Audit Vault**: Admin-only, SHA-256 tamper-hashed audit logs with CSV export.
+-   **MCP Server**: `@modelcontextprotocol/sdk` server exposing tools for vehicle search, garage management, notifications, gig tasks, runner booking, analytics, and inspections, utilized by the Gemini Concierge for function calling.
+-   **CI/CD Pipeline**: Dashboard for monitoring and running TypeScript Check, Build API Server, and Build Web App, integrated with Replit workflows.
+-   **Dropship Coordinator**: Manages vehicle transport with carrier integration, digital BOLs (SHA-256 tamper hash), 360° scan viewer, and AR preview. Mobile app for runner 360° capture.
+-   **NIST-MCP 2026 Security Layer**: Implements AES-256-GCM encryption, PII masking, transient agent tokens, immutable audit trails, and decision transparency ledgers.
+-   **Founder's Command Center**: Live metrics (K-Factor, Member Slices), active missions, kill-switch, national stats, alerts.
+-   **Dynasty Final Orchestration**: Triple-Threat AI with Guardian V2X Predictive Layer, 7-Agent Mesh (Gemini, MarketCheck, Stripe), revenue gating, and subscription management.
+-   **Fullpath Data Intelligence & High-Value Strike Engine**: Shopper Intent profiles, Inventory Velocity scoring, MarketCheck wholesale matching, autonomous High-Value Strike detection with a 7-Agent Strike Mesh.
+-   **Unity Infrastructure & Industrial OS**: Two-Way Integrity Mesh for I-95 Spine directory, AI-verified reputation scores, priority routing, priority runner tiers, immutable NIST-MCP Reputation Ledger, and Guardian mesh Match Agent upgrade.
+-   **Unity MVP Investor Demo**: 5-tab investor demo page (`/unity`). Tab 1: Guardian Scan (V2X wholesaler matching vs Ignorance Tax). Tab 2: Dynasty Split (animated Stripe multi-split). Tab 3: Integrity Mesh (two-way SHA-256 rating). Tab 4: Concierge (Sophisticated Architect AI persona). Tab 5: Investor Stack (Temporal.io 7-step durable workflow with live failure/recovery simulation, Magna.com tokenized cap table with founder/seed/F&F equity + live member slice pool, Modernize.io home-to-garage expansion with EV charger/solar/smart garage services). Hectocorn Ticker live at $847K+ MRR / $10.17M+ ARR / 10.17% toward $100M.
 
 ## Database Schema
 
-### Tables (SOC2 audit-trail compliant — all have `created_at` / `updated_at`)
+All database tables are SOC2 audit-trail compliant, including `created_at` and `updated_at` timestamps.
 
-| Table | Key Fields |
-|---|---|
-| `users` | `id`, `name`, `email`, `role` (Member/Dealer/Runner), `phone`, `avatar_url` |
-| `vehicles` | `id`, `vin` (unique), `year`, `make`, `model`, `color`, `price_usd`, `status`, `dealer_id` |
-| `gig_tasks` | `id`, `title`, `task_type`, `status`, `vehicle_id`, `assigned_runner_id`, `posted_by_dealer_id`, `payout_usd` |
-| `commission_ledger` | `id`, `entry_type`, `status`, `recipient_id`, `amount_usd`, `vehicle_id`, `gig_task_id`, `referred_by_user_id`, `paid_at` |
-| `audit_logs` | `id`, `event_type`, `action`, `actor_id`, `actor_role`, `severity`, `sha256_hash`, `metadata` |
-| `specialist_applications` | `id`, `applicant_name`, `email`, `dl_state`, `checkr_candidate_id`, `bgc_status`, `simulated` |
-| `conversations` | `id`, `title`, `created_at` (Gemini AI chat sessions) |
-| `messages` | `id`, `conversation_id`, `role`, `content`, `created_at` |
-| `notifications` | `id`, `type`, `title`, `body`, `read`, `created_at` |
-| `inspections` | `id`, `vehicle_label`, `inspector_name`, `condition_front/rear/driver/passenger/interior`, `odometer_confirmed`, `signed` |
-| `watchlist` | `id`, `session_id`, `vin_masked`, `heading`, `make`, `model`, `year`, `listed_price`, `target_price` |
+-   **Tables**: `users`, `vehicles`, `gig_tasks`, `commission_ledger`, `audit_logs`, `specialist_applications`, `conversations`, `messages`, `notifications`, `inspections`, `watchlist`.
+-   **Enums**: `user_role`, `vehicle_status`, `gig_task_type`, `gig_task_status`, `ledger_entry_type`, `ledger_entry_status`.
 
-### Enums
-- `user_role`: Member | Dealer | Runner
-- `vehicle_status`: Available | Reserved | In Transit | Sold | Maintenance
-- `gig_task_type`: Delivery | Inspection | Photography | Detailing | Transport | Concierge | Other
-- `gig_task_status`: Open | Claimed | In Progress | Completed | Cancelled | Disputed
-- `ledger_entry_type`: Referral | GigCompletion | Bonus | Clawback | Adjustment
-- `ledger_entry_status`: Pending | Approved | Paid | Failed | Voided
+## Database Layer (`@workspace/db`)
 
----
+Utilizes Drizzle ORM with PostgreSQL. Exports a Drizzle client instance and schema models. Drizzle Kit is configured for migrations.
 
-### `lib/db` (`@workspace/db`)
+## API Specification and Code Generation (`@workspace/api-spec`)
 
-Database layer using Drizzle ORM with PostgreSQL. Exports a Drizzle client instance and schema models.
+Manages the OpenAPI 3.1 specification (`openapi.yaml`) and Orval configuration (`orval.config.ts`), generating:
 
-- `src/index.ts` — creates a `Pool` + Drizzle instance, exports schema
-- `src/schema/index.ts` — barrel re-export of all models
-- `src/schema/<modelname>.ts` — table definitions with `drizzle-zod` insert schemas (no models definitions exist right now)
-- `drizzle.config.ts` — Drizzle Kit config (requires `DATABASE_URL`, automatically provided by Replit)
-- Exports: `.` (pool, db, schema), `./schema` (schema only)
+-   `@workspace/api-client-react`: React Query hooks and fetch client.
+-   `@workspace/api-zod`: Zod schemas for validation.
 
-Production migrations are handled by Replit when publishing. In development, we just use `pnpm --filter @workspace/db run push`, and we fallback to `pnpm --filter @workspace/db run push-force`.
+# External Dependencies
 
-### `lib/api-spec` (`@workspace/api-spec`)
-
-Owns the OpenAPI 3.1 spec (`openapi.yaml`) and the Orval config (`orval.config.ts`). Running codegen produces output into two sibling packages:
-
-1. `lib/api-client-react/src/generated/` — React Query hooks + fetch client
-2. `lib/api-zod/src/generated/` — Zod schemas
-
-Run codegen: `pnpm --filter @workspace/api-spec run codegen`
-
-### `lib/api-zod` (`@workspace/api-zod`)
-
-Generated Zod schemas from the OpenAPI spec (e.g. `HealthCheckResponse`). Used by `api-server` for response validation.
-
-### `lib/api-client-react` (`@workspace/api-client-react`)
-
-Generated React Query hooks and fetch client from the OpenAPI spec (e.g. `useHealthCheck`, `healthCheck`).
-
-### `scripts` (`@workspace/scripts`)
-
-Utility scripts package. Each script is a `.ts` file in `src/` with a corresponding npm script in `package.json`. Run scripts via `pnpm --filter @workspace/scripts run <script>`. Scripts can import any workspace package (e.g., `@workspace/db`) by adding it as a dependency in `scripts/package.json`.
-
----
-
-## Feature Registry (Prompts 1–13)
-
-| Prompt | Feature | Status | Key Files |
-|--------|---------|--------|-----------|
-| 1-9 | Core platform (marketplace, garage, logistics, delivery, AI concierge, MCP, inspection, watchlist, analytics) | ✅ Live | Various |
-| 10 | National Wholesale Engine (MarketCheck, Guardian Health Score, 3C Club Price, SAVE badges) | ✅ Live | `routes/marketcheck.ts`, `pages/marketplace.tsx` |
-| 11 | SOC2 Audit Vault, CI/CD, AI Hub (Gumloop, Browserbase), Finance Hub (Plaid), Insurance (Insuremo), Vehicle History (Motor.com) | ✅ Live | Various routes |
-| 12 | Dynasty Wallet (KYC/AML via Stripe Identity, Triple-Split: 85%/2.5%/20% referrer, passive income polling) | ✅ Live | `routes/dynasty.ts`, `pages/wallet.tsx`, `pages/referral-wallet.tsx` |
-| 13 | Dropship Coordinator (Ship.cars + RunBuggy bridge, Digital BOL + SHA-256 tamper seal + QR, 360° scan viewer, AR Preview via WebRTC camera + CSS 3D, mobile Runner scanner) | ✅ Live | `routes/dropship.ts`, `pages/dropship.tsx`, mobile `app/scanner.tsx` |
-| 14 | NIST-MCP 2026 Security Layer (AES-256-GCM encryption, PII masking, Transient Agent Tokens 15-min TTL, Immutable Agent Audit Trail hash chain, Decision Transparency ledger) | ✅ Live | `lib/cipher.ts`, `routes/security.ts`, `pages/security.tsx` |
-| 15 | Founder's Command Center (Live K-Factor sparkline, Member Slices telemetry, Active Missions mesh, Kill-Switch override queue, National Mesh stats, System alerts, Mobile Expo tab) | ✅ Live | `routes/command.ts`, `pages/command.tsx`, mobile `app/(tabs)/command.tsx` |
-| 16 | Dynasty Final Orchestration — Triple-Threat AI (Guardian V2X Predictive Layer, 7-Agent Mesh with Gemini+MarketCheck+Stripe, $99/mo Revenue Gate, Hectocorn Stress Test Ticker, Subscription paywall with Founding Member access) | ✅ Live | `routes/guardian.ts`, `routes/subscription.ts`, `pages/guardian.tsx`, `pages/subscription.tsx`, `command.tsx` Hectocorn tab |
-| 17 | Fullpath Data Intelligence + High-Value Strike Engine (Shopper Intent profiles, Inventory Velocity scoring, MarketCheck wholesale matching → autonomous High-Value Strike detection, 7-Agent Strike Mesh: Guardian→Concierge(Gemini)→Stripe $500 hold→MarketCheck lock→Runner Mission→Vault NIST-MCP→Dynasty split, API-ready mock data structure for FULLPATH_API_KEY + MARKETCHECK_API_KEY) | ✅ Live | `routes/fullpath.ts`, `routes/guardian.ts` (strikes endpoints), `pages/guardian.tsx` (Strikes tab) |
-| 18 | Unity Infrastructure & Industrial OS — Two-Way Integrity Mesh: 7-pro I-95 Spine directory (Boston→DC), AI-verified reputation scores (Professional accuracy + Member payment speed), Priority Routing (+20% for score 85+), Priority Runner member tier (1.25x Member Slice), immutable NIST-MCP Reputation Ledger (SHA-256 chain), Guardian mesh Match Agent upgrade, Unity Transactions Hectocorn ticker | ✅ Live | `routes/reputation.ts`, `pages/partners.tsx`, `guardian.ts` (Match Agent), `command.tsx` (Unity label) |
-| 19 | Unity MVP Investor Demo — Simulated API Layer mimicking Fullpath/MarketCheck/Stripe. 50 luxury vehicle profiles × 20 BGC-verified Professional Partners across 12 corridor stops (Hunts Point → Boston Seaport, 218 mi, 7 states). Guardian Scan (V2X 7-Agent Mesh → random critical alert → Ignorance Tax vs 3C Wholesale pricing comparison → best-match specialist). Dynasty Multi-Split (Stripe atomic settlement: 85% dealer, 2.5% transport, 20% of platform = member slice, net 3C). Integrity Mesh (two-way SHA-256 ledger rating: member rates shop + shop rates member). Hectocorn Ticker (live $99 increments, MRR/ARR/Hectocorn% counters). Sophisticated Architect Concierge (Unity-seeded Gemini AI persona). Zero-failure investor demo flow with deploy-anywhere API. | ✅ Live | `routes/unity.ts` (50 vehicles, 20 partners, 12 scan alerts, 7 endpoints), `pages/unity.tsx` (4-tab demo: Scan/Split/Mesh/Concierge), `App.tsx` `/unity` route, `AppSidebar.tsx` Unity Demo nav |
-
-### Dropship Coordinator (Prompt 13) Architecture
-- **Backend** (`routes/dropship.ts`): 7 endpoints — carriers, claim, BOL fetch, shipments, status update, scan submit (per-position), scan retrieve. SHA-256 tamper hash generated at BOL creation. Scan sessions auto-created on claim.
-- **Web** (`pages/dropship.tsx`): Stats bar, carrier status rail (Ship.cars LIVE / RunBuggy LIVE / uShip offline), BOL cards with View BOL / 360° Scan / AR Preview actions. Digital BOL modal: SHA-256 seal, QR code (SVG), digital signatures, tamper watermark. 360° Scan viewer: 8-position carousel with auto-spin, sidebar thumbnails, angle labels. AR Preview: getUserMedia camera + CSS 3D car overlay + ground shadow + drag-to-rotate, "Place Car in Driveway" scan animation.
-- **Mobile** (`app/scanner.tsx`): Runner 360° capture UX — radar dial with 8 position dots, shutter animation, flash effect, position chips, auto-advance, submit → SHA-256 hash success screen.
+-   **Monorepo Tool**: pnpm workspaces
+-   **API Framework**: Express 5
+-   **Database**: PostgreSQL
+-   **ORM**: Drizzle ORM
+-   **Validation**: Zod, `drizzle-zod`
+-   **API Codegen**: Orval
+-   **Build Tool**: esbuild
+-   **Cloud/Deployment**: Replit
+-   **Fonts**: Google Fonts (Barlow Condensed, Inter)
+-   **Financial Linking**: Plaid
+-   **Insurance Quotes**: Insuremo
+-   **Vehicle History**: Motor.com
+-   **Remote Browser Automation**: Browserbase
+-   **AI Workflow Engine**: Gumloop
+-   **Telematics**: Smartcar
+-   **Logistics Tracking**: HyperTrack
+-   **Payments/Payouts**: Stripe Connect
+-   **Background Checks**: Checkr
+-   **AI/LLM**: Google Gemini
+-   **Charts**: Recharts
+-   **Real-time Communication**: Server-Sent Events (SSE)
+-   **Model Context Protocol**: `@modelcontextprotocol/sdk`
+-   **Carrier Integration**: Ship.cars, RunBuggy
+-   **Identity Verification**: Stripe Identity (for Dynasty Wallet)
+-   **Data Intelligence**: Fullpath (mocked API integration)
+-   **Vehicle Market Data**: MarketCheck (mocked API integration)

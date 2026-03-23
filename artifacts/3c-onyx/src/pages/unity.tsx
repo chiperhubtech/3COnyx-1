@@ -4,7 +4,8 @@ import {
   Sparkles, Scan, Zap, Star, MapPin, AlertTriangle, CheckCircle,
   Building2, User, TrendingUp, ArrowRight, Shield, RefreshCw,
   MessageSquare, Car, Award, ChevronRight, Send, Wifi, BarChart3,
-  DollarSign, Truck, Activity, FlameKindling,
+  DollarSign, Truck, Activity, FlameKindling, Layers, Home, Sun,
+  Clock, RotateCcw, XCircle, Wrench,
 } from "lucide-react";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -26,7 +27,38 @@ const SIGNUP_NAMES = ["M. Harrington", "D. Castillo", "P. Rao", "A. Chen", "N. O
 const SEV_COLOR: Record<string, string> = { CRITICAL: "#EF4444", WARNING: "#F59E0B", INFO: "#3B82F6" };
 const BADGE_COLOR: Record<string, string> = { platinum: "#E5E7EB", gold: "#C9A227", silver: "#9CA3AF" };
 
-type Tab = "scan" | "split" | "mesh" | "concierge";
+type Tab = "scan" | "split" | "mesh" | "concierge" | "stack";
+
+// ── Temporal Workflow Data ────────────────────────────────────────────────────
+type StepStatus = "completed" | "running" | "pending" | "failed" | "recovered";
+interface WorkflowStep {
+  id: number; label: string; detail: string; duration: string;
+  status: StepStatus;
+}
+const INITIAL_STEPS: WorkflowStep[] = [
+  { id:1, label:"Guardian Scan Alert Received",     detail:"V2X mesh detected Turbo Wastegate Actuator failure",   duration:"0.2s",  status:"pending" },
+  { id:2, label:"V2X Mesh Validated",               detail:"7-agent confirmation · 3 nodes agreed",               duration:"0.4s",  status:"pending" },
+  { id:3, label:"Member Push Notification Sent",    detail:"iOS silent push · A. Harrington · opened in 14s",     duration:"0.1s",  status:"pending" },
+  { id:4, label:"Specialist Matched via AI Mesh",   detail:"M. Rodriguez · 97% accuracy · +20% priority routing", duration:"1.2s",  status:"pending" },
+  { id:5, label:"Stripe $500 Auth Hold Placed",     detail:"pi_unity_4f8a… · AML cleared · KYC verified",        duration:"2.1s",  status:"pending" },
+  { id:6, label:"OEM Parts Ordered via Distribution", detail:"Porsche NA hub · Newark · ETA 18h",                 duration:"0.8s",  status:"pending" },
+  { id:7, label:"Dynasty Multi-Split Settlement",   detail:"Dealer $4,029 · Member $25 slice · 3C net $100",      duration:"0.6s",  status:"pending" },
+];
+
+// ── Magna Cap Table Data ──────────────────────────────────────────────────────
+const CAP_TABLE = [
+  { group: "FOUNDERS",          entries: [{ name:"CEO / Founder", pct:57 }, { name:"Co-Founder / CTO", pct:15 }], color:"#C9A227" },
+  { group: "SEED INVESTORS",    entries: [{ name:"Investor I", pct:3 }, { name:"Investor II", pct:3 }, { name:"Investor III", pct:2.5 }, { name:"Investor IV", pct:2.5 }, { name:"Investor V", pct:2 }], color:"#10B981" },
+  { group: "FAMILY & FRIENDS",  entries: [{ name:"F&F Reserved Pool", pct:15 }], color:"#3B82F6" },
+];
+const MEMBER_SLICE_POOL = { reserved: 8.564, perMember: 0.001, activating: "Auto-allocates at 10,000 members" };
+
+// ── Modernize Services ────────────────────────────────────────────────────────
+const MODERNIZE_SERVICES = [
+  { id:"ev", icon: Zap,    label:"EV Charger Installation", tier:"Level 2 · 48A · 11.5kW", range:"$1,800–$2,400", eta:"3–5 days", desc:"Bring your Porsche Taycan or Tesla home to a full overnight charge. Modernize Pro network · licensed electricians.", color:"#3B82F6" },
+  { id:"solar", icon: Sun, label:"Solar Array for EV Fleet", tier:"8.5kW residential system", range:"$18,000–$22,400", eta:"4–6 weeks", desc:"Power your entire electric fleet from the roof. Net-zero driving costs. Modernize Solar · tier-1 panel brands.", color:"#F59E0B" },
+  { id:"garage", icon: Wrench, label:"Smart Garage Renovation", tier:"Multi-car · 1,100 ft² · climate", range:"$12,000–$18,000", eta:"2–3 weeks", desc:"Epoxy floor, smart lift, wall organizers, security cam, LED system. Built for the Rolls-Royce Cullinan lifestyle.", color:"#8B5CF6" },
+];
 
 export default function Unity() {
   const [tab, setTab] = useState<Tab>("scan");
@@ -166,11 +198,51 @@ export default function Unity() {
     setChatLoading(false);
   };
 
+  // ── Investor Stack state ──────────────────────────────────────────────────────
+  const [temporalSteps, setTemporalSteps]       = useState<WorkflowStep[]>(INITIAL_STEPS);
+  const [temporalPhase, setTemporalPhase]       = useState<"idle" | "running" | "failed" | "done">("idle");
+  const [temporalFailStep, setTemporalFailStep] = useState<number | null>(null);
+  const [modernizeService, setModernizeService] = useState<string | null>(null);
+  const [modernizeSent, setModernizeSent]       = useState<string | null>(null);
+
+  const resetTemporal = () => {
+    setTemporalSteps(INITIAL_STEPS);
+    setTemporalPhase("idle");
+    setTemporalFailStep(null);
+  };
+
+  const runTemporalWorkflow = async (withFailure = false) => {
+    setTemporalSteps(INITIAL_STEPS);
+    setTemporalPhase("running");
+    setTemporalFailStep(null);
+    const failAt = withFailure ? 4 : -1;
+
+    for (let i = 0; i < INITIAL_STEPS.length; i++) {
+      if (i === failAt) {
+        // Simulate server failure mid-step
+        setTemporalSteps(p => p.map((s, idx) => idx === i ? { ...s, status: "failed" } : s));
+        setTemporalFailStep(i);
+        setTemporalPhase("failed");
+        await new Promise(r => setTimeout(r, 2200));
+        // Temporal recovers from checkpoint
+        setTemporalSteps(p => p.map((s, idx) => idx === i ? { ...s, status: "recovered" } : s));
+        setTemporalPhase("running");
+        await new Promise(r => setTimeout(r, 900));
+      }
+      setTemporalSteps(p => p.map((s, idx) => idx === i ? { ...s, status: "running" } : s));
+      await new Promise(r => setTimeout(r, 480));
+      setTemporalSteps(p => p.map((s, idx) => idx === i ? { ...s, status: "completed" } : s));
+      await new Promise(r => setTimeout(r, 180));
+    }
+    setTemporalPhase("done");
+  };
+
   const TABS: { id: Tab; label: string; icon: any }[] = [
     { id: "scan",      label: "Guardian Scan",    icon: Scan },
     { id: "split",     label: "Dynasty Split",    icon: Zap },
     { id: "mesh",      label: "Integrity Mesh",   icon: Award },
     { id: "concierge", label: "Concierge",        icon: MessageSquare },
+    { id: "stack",     label: "Investor Stack",   icon: Layers },
   ];
 
   return (
@@ -651,6 +723,287 @@ export default function Unity() {
             </div>
           </div>
         )}
+
+        {/* ═══════════════════════════════════════════════════════════════════
+            TAB: INVESTOR STACK
+        ═══════════════════════════════════════════════════════════════════ */}
+        {tab === "stack" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+
+            {/* ── 1. TEMPORAL.IO ─────────────────────────────────────────── */}
+            <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16, overflow: "hidden" }}>
+              {/* Header */}
+              <div style={{ padding: "18px 22px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{ width: 36, height: 36, borderRadius: 10, background: "rgba(16,185,129,0.12)", border: "1px solid rgba(16,185,129,0.2)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <Clock size={16} style={{ color: "#10B981" }} />
+                  </div>
+                  <div>
+                    <div style={{ color: "#fff", fontSize: 14, fontWeight: 800 }}>Temporal.io — Indestructible Workflow</div>
+                    <div style={{ color: "rgba(255,255,255,0.3)", fontSize: 10 }}>Durable execution · zero lost revenue · picks up exactly where it crashed</div>
+                  </div>
+                </div>
+                <div style={{ display: "flex", gap: 8 }}>
+                  {temporalPhase !== "idle" && temporalPhase !== "running" && (
+                    <button onClick={resetTemporal} style={{ padding: "8px 14px", borderRadius: 9, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.09)", color: "rgba(255,255,255,0.4)", fontSize: 10, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
+                      <RotateCcw size={11} /> RESET
+                    </button>
+                  )}
+                  <button
+                    onClick={() => runTemporalWorkflow(false)}
+                    disabled={temporalPhase === "running"}
+                    style={{ padding: "8px 16px", borderRadius: 9, background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.25)", color: "#10B981", fontSize: 10, fontWeight: 800, cursor: temporalPhase === "running" ? "not-allowed" : "pointer", display: "flex", alignItems: "center", gap: 6 }}>
+                    {temporalPhase === "running" ? <><RefreshCw size={10} className="animate-spin" /> RUNNING…</> : "▶ RUN WORKFLOW"}
+                  </button>
+                  <button
+                    onClick={() => runTemporalWorkflow(true)}
+                    disabled={temporalPhase === "running"}
+                    style={{ padding: "8px 16px", borderRadius: 9, background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#EF4444", fontSize: 10, fontWeight: 800, cursor: temporalPhase === "running" ? "not-allowed" : "pointer", display: "flex", alignItems: "center", gap: 6 }}>
+                    <XCircle size={10} /> SIMULATE SERVER FAILURE
+                  </button>
+                </div>
+              </div>
+
+              {/* Workflow ID strip */}
+              <div style={{ padding: "10px 22px", background: "rgba(16,185,129,0.03)", borderBottom: "1px solid rgba(255,255,255,0.04)", display: "flex", gap: 20, flexWrap: "wrap" }}>
+                {[
+                  { l: "WORKFLOW ID", v: "WF-UNITY-20260323-001" },
+                  { l: "TYPE",        v: "Guardian Repair Authorization" },
+                  { l: "NAMESPACE",   v: "3c-onyx-prod" },
+                  { l: "ENGINE",      v: "Temporal.io v1.24" },
+                ].map(x => (
+                  <div key={x.l}>
+                    <div style={{ color: "rgba(255,255,255,0.2)", fontSize: 8, fontWeight: 700, letterSpacing: "0.12em" }}>{x.l}</div>
+                    <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 10, fontWeight: 600, fontFamily: "monospace" }}>{x.v}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Failure banner */}
+              {temporalPhase === "failed" && (
+                <div style={{ margin: "12px 22px", padding: "10px 14px", background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 10, display: "flex", alignItems: "center", gap: 10 }}>
+                  <XCircle size={14} style={{ color: "#EF4444" }} />
+                  <div>
+                    <div style={{ color: "#EF4444", fontSize: 11, fontWeight: 700 }}>Server process killed at Step 5 — Stripe auth mid-execution</div>
+                    <div style={{ color: "rgba(239,68,68,0.6)", fontSize: 9 }}>Temporal checkpoint preserved. Recovering from durable history log…</div>
+                  </div>
+                </div>
+              )}
+
+              {/* Recovery banner */}
+              {temporalPhase !== "failed" && temporalSteps.some(s => s.status === "recovered") && (
+                <div style={{ margin: "12px 22px", padding: "10px 14px", background: "rgba(16,185,129,0.06)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: 10, display: "flex", alignItems: "center", gap: 10 }}>
+                  <CheckCircle size={14} style={{ color: "#10B981" }} />
+                  <div>
+                    <div style={{ color: "#10B981", fontSize: 11, fontWeight: 700 }}>Temporal recovered in 1.4s — zero data loss · zero duplicate charges</div>
+                    <div style={{ color: "rgba(16,185,129,0.6)", fontSize: 9 }}>Resumed from checkpoint · Stripe $500 hold placed exactly once · workflow continuing</div>
+                  </div>
+                </div>
+              )}
+
+              {/* Steps */}
+              <div style={{ padding: "14px 22px 20px" }}>
+                {temporalSteps.map((step, i) => {
+                  const ICONS: Record<StepStatus, any> = {
+                    completed: CheckCircle,
+                    running: RefreshCw,
+                    pending: Clock,
+                    failed: XCircle,
+                    recovered: RotateCcw,
+                  };
+                  const COLORS: Record<StepStatus, string> = {
+                    completed: "#10B981",
+                    running: "#C9A227",
+                    pending: "rgba(255,255,255,0.15)",
+                    failed: "#EF4444",
+                    recovered: "#3B82F6",
+                  };
+                  const Icon = ICONS[step.status];
+                  const color = COLORS[step.status];
+                  const isActive = step.status === "running" || step.status === "failed";
+                  return (
+                    <div key={step.id} style={{ display: "flex", gap: 12, marginBottom: i < temporalSteps.length - 1 ? 14 : 0 }}>
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
+                        <div style={{ width: 28, height: 28, borderRadius: "50%", background: color + "15", border: `1.5px solid ${color}50`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                          <Icon size={12} style={{ color, animation: step.status === "running" ? "spin 1s linear infinite" : "none" }} />
+                        </div>
+                        {i < temporalSteps.length - 1 && <div style={{ width: 1, flex: 1, background: step.status === "completed" || step.status === "recovered" ? "rgba(16,185,129,0.3)" : "rgba(255,255,255,0.06)", marginTop: 4 }} />}
+                      </div>
+                      <div style={{ paddingBottom: 14, flex: 1 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
+                          <span style={{ color: isActive ? "#fff" : step.status === "completed" || step.status === "recovered" ? "rgba(255,255,255,0.75)" : "rgba(255,255,255,0.25)", fontSize: 12, fontWeight: 700 }}>{step.label}</span>
+                          {step.status === "completed" && <span style={{ color: "#10B981", fontSize: 9 }}>{step.duration}</span>}
+                          {step.status === "recovered" && <span style={{ padding: "1px 7px", background: "rgba(59,130,246,0.12)", border: "1px solid rgba(59,130,246,0.25)", borderRadius: 5, color: "#3B82F6", fontSize: 8, fontWeight: 700 }}>TEMPORAL RECOVERED</span>}
+                          {step.status === "failed" && <span style={{ padding: "1px 7px", background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.25)", borderRadius: 5, color: "#EF4444", fontSize: 8, fontWeight: 700 }}>CRASHED</span>}
+                        </div>
+                        {(step.status !== "pending") && (
+                          <div style={{ color: "rgba(255,255,255,0.3)", fontSize: 10 }}>{step.detail}</div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {temporalPhase === "done" && (
+                <div style={{ margin: "0 22px 20px", padding: "12px 16px", background: "rgba(16,185,129,0.05)", border: "1px solid rgba(16,185,129,0.15)", borderRadius: 10, textAlign: "center" }}>
+                  <div style={{ color: "#10B981", fontSize: 13, fontWeight: 800 }}>Workflow Complete — Total: 5.4s · Zero Failures · Zero Duplicate Charges</div>
+                  <div style={{ color: "rgba(255,255,255,0.2)", fontSize: 10, marginTop: 4 }}>Temporal.io: every dollar accounted for, every step durable</div>
+                </div>
+              )}
+            </div>
+
+            {/* ── 2. MAGNA.COM CAP TABLE ──────────────────────────────────── */}
+            <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16, overflow: "hidden" }}>
+              <div style={{ padding: "18px 22px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: "rgba(201,162,39,0.12)", border: "1px solid rgba(201,162,39,0.2)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <BarChart3 size={16} style={{ color: "#C9A227" }} />
+                </div>
+                <div>
+                  <div style={{ color: "#fff", fontSize: 14, fontWeight: 800 }}>Magna.com — Dynasty Equity Ledger</div>
+                  <div style={{ color: "rgba(255,255,255,0.3)", fontSize: 10 }}>Tokenized cap table · institutional-grade · $100B IPO-ready · 3C Ventures LLC</div>
+                </div>
+                <div style={{ marginLeft: "auto" }}>
+                  <span style={{ padding: "5px 12px", borderRadius: 8, background: "rgba(201,162,39,0.1)", border: "1px solid rgba(201,162,39,0.2)", color: "#C9A227", fontSize: 9, fontWeight: 800 }}>MAGNA VERIFIED</span>
+                </div>
+              </div>
+
+              <div style={{ padding: "20px 22px", display: "flex", flexDirection: "column", gap: 16 }}>
+                {CAP_TABLE.map(group => {
+                  const total = group.entries.reduce((a, e) => a + e.pct, 0);
+                  return (
+                    <div key={group.group}>
+                      <div style={{ color: "rgba(255,255,255,0.2)", fontSize: 9, fontWeight: 700, letterSpacing: "0.14em", marginBottom: 10 }}>{group.group} — {total}%</div>
+                      {group.entries.map(entry => (
+                        <div key={entry.name} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
+                          <div style={{ width: 130, color: "rgba(255,255,255,0.5)", fontSize: 11, flexShrink: 0 }}>{entry.name}</div>
+                          <div style={{ flex: 1, height: 6, background: "rgba(255,255,255,0.05)", borderRadius: 999, overflow: "hidden" }}>
+                            <div style={{ height: "100%", width: `${entry.pct * 1.4}%`, background: `linear-gradient(90deg, ${group.color}, ${group.color}aa)`, borderRadius: 999 }} />
+                          </div>
+                          <div style={{ width: 40, textAlign: "right", color: group.color, fontSize: 12, fontWeight: 800, flexShrink: 0 }}>{entry.pct}%</div>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })}
+
+                {/* Member Slices */}
+                <div style={{ padding: "14px 16px", background: "rgba(201,162,39,0.04)", border: "1px solid rgba(201,162,39,0.12)", borderRadius: 12 }}>
+                  <div style={{ display: "flex", align: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+                    <div>
+                      <div style={{ color: "rgba(201,162,39,0.6)", fontSize: 9, fontWeight: 700, letterSpacing: "0.14em", marginBottom: 4 }}>MEMBER SLICES — TOKENIZED EQUITY POOL</div>
+                      <div style={{ color: "#fff", fontSize: 12, fontWeight: 700 }}>0.001% per Active Member · Auto-allocates at 10,000 members</div>
+                      <div style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, marginTop: 4 }}>Current: {tickerSignups.toLocaleString()} members × 0.001% = {(tickerSignups * 0.001).toFixed(3)}% reserved · managed on Magna blockchain ledger</div>
+                    </div>
+                    <div style={{ textAlign: "right" }}>
+                      <div style={{ color: "#C9A227", fontSize: 22, fontWeight: 900, fontFamily: "'Barlow Condensed', sans-serif" }}>{(tickerSignups * 0.001).toFixed(3)}%</div>
+                      <div style={{ color: "rgba(201,162,39,0.4)", fontSize: 9 }}>live · updates each signup</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
+                  {[
+                    { l: "TOTAL AUTHORIZED", v: "100%", c: "#fff" },
+                    { l: "MAGNA PLATFORM", v: "Tokenized", c: "#10B981" },
+                    { l: "AUDIT STANDARD", v: "SOC2 Type II", c: "#3B82F6" },
+                  ].map(s => (
+                    <div key={s.l} style={{ padding: "12px 14px", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 10 }}>
+                      <div style={{ color: "rgba(255,255,255,0.2)", fontSize: 8, fontWeight: 700, letterSpacing: "0.12em", marginBottom: 4 }}>{s.l}</div>
+                      <div style={{ color: s.c, fontSize: 13, fontWeight: 800 }}>{s.v}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* ── 3. MODERNIZE.IO ─────────────────────────────────────────── */}
+            <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16, overflow: "hidden" }}>
+              <div style={{ padding: "18px 22px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: "rgba(139,92,246,0.12)", border: "1px solid rgba(139,92,246,0.2)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Home size={16} style={{ color: "#8B5CF6" }} />
+                </div>
+                <div>
+                  <div style={{ color: "#fff", fontSize: 14, fontWeight: 800 }}>Modernize.io — Home-to-Garage Expansion</div>
+                  <div style={{ color: "rgba(255,255,255,0.3)", fontSize: 10 }}>7-Agent Mesh now covers the entire physical infrastructure · car + home + energy</div>
+                </div>
+                <div style={{ marginLeft: "auto" }}>
+                  <span style={{ padding: "5px 12px", borderRadius: 8, background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.18)", color: "#10B981", fontSize: 9, fontWeight: 800 }}>MESH CONNECTED</span>
+                </div>
+              </div>
+
+              <div style={{ padding: "16px 22px" }}>
+                <div style={{ color: "rgba(255,255,255,0.2)", fontSize: 9, fontWeight: 700, letterSpacing: "0.14em", marginBottom: 14 }}>
+                  MEMBER: A. HARRINGTON · MANHATTAN, NY · 2-CAR GARAGE
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  {MODERNIZE_SERVICES.map(svc => {
+                    const sent = modernizeSent === svc.id;
+                    return (
+                      <div key={svc.id} style={{
+                        padding: "16px 18px", background: modernizeService === svc.id ? `rgba(${svc.color === "#3B82F6" ? "59,130,246" : svc.color === "#F59E0B" ? "245,158,11" : "139,92,246"},0.05)` : "rgba(255,255,255,0.02)",
+                        border: `1px solid ${modernizeService === svc.id ? svc.color + "30" : "rgba(255,255,255,0.06)"}`,
+                        borderRadius: 12, cursor: "pointer", transition: "all 0.2s",
+                      }} onClick={() => setModernizeService(modernizeService === svc.id ? null : svc.id)}>
+                        <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
+                          <div style={{ width: 36, height: 36, borderRadius: 10, background: svc.color + "15", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                            <svc.icon size={16} style={{ color: svc.color }} />
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+                              <div style={{ color: "#fff", fontSize: 13, fontWeight: 700 }}>{svc.label}</div>
+                              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                                <span style={{ color: "rgba(255,255,255,0.35)", fontSize: 10 }}>{svc.range}</span>
+                                <span style={{ padding: "3px 8px", borderRadius: 6, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.3)", fontSize: 9 }}>ETA {svc.eta}</span>
+                              </div>
+                            </div>
+                            <div style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, marginTop: 3 }}>{svc.tier}</div>
+                            {modernizeService === svc.id && (
+                              <div style={{ marginTop: 10 }}>
+                                <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 11, lineHeight: 1.55, marginBottom: 12 }}>{svc.desc}</div>
+                                {sent ? (
+                                  <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#10B981", fontSize: 12, fontWeight: 700 }}>
+                                    <CheckCircle size={14} /> Assessment request sent · Modernize contractor will contact within 24h
+                                  </div>
+                                ) : (
+                                  <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                                    <button onClick={(e) => { e.stopPropagation(); setModernizeSent(svc.id); }} style={{
+                                      padding: "9px 18px", borderRadius: 9, background: svc.color + "18", border: `1px solid ${svc.color}35`,
+                                      color: svc.color, fontSize: 11, fontWeight: 800, cursor: "pointer",
+                                    }}>
+                                      REQUEST HOME ASSESSMENT
+                                    </button>
+                                    <span style={{ color: "rgba(255,255,255,0.2)", fontSize: 10 }}>7-Agent Mesh → Modernize Pro Network → Licensed NY Contractor</span>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Mesh routing diagram */}
+                <div style={{ marginTop: 16, padding: "14px 16px", background: "rgba(139,92,246,0.04)", border: "1px solid rgba(139,92,246,0.12)", borderRadius: 12 }}>
+                  <div style={{ color: "rgba(255,255,255,0.2)", fontSize: 9, fontWeight: 700, letterSpacing: "0.14em", marginBottom: 10 }}>7-AGENT MESH ROUTING PATH</div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                    {["Concierge AI", "Guardian", "Member Profile", "Modernize API", "Pro Network", "Scheduler", "Stripe Escrow"].map((node, i, arr) => (
+                      <div key={node} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <div style={{ padding: "4px 10px", borderRadius: 7, background: "rgba(139,92,246,0.08)", border: "1px solid rgba(139,92,246,0.15)", color: "#8B5CF6", fontSize: 9, fontWeight: 700 }}>{node}</div>
+                        {i < arr.length - 1 && <ArrowRight size={9} style={{ color: "rgba(255,255,255,0.15)" }} />}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        )}
+
       </div>
 
       <style>{`
