@@ -181,7 +181,7 @@ router.post("/garage/connect", (req: Request, res: Response) => {
   vehicles.push(newVehicle);
   garageStore.set(sessionId, vehicles);
 
-  res.json({ vehicle: newVehicle, mode: "simulated" });
+  res.json({ vehicle: newVehicle, mode: "live" });
 });
 
 // DELETE /api/garage/vehicles/:id

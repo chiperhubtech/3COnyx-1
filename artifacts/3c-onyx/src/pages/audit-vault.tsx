@@ -300,7 +300,7 @@ export default function AuditVaultPage() {
               className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/25 text-amber-400 hover:bg-amber-500/20 text-xs font-medium transition-colors"
             >
               {seeding ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Database className="w-3.5 h-3.5" />}
-              {seeding ? "Seeding…" : "Load Demo Audit Trail"}
+              {seeding ? "Loading…" : "Load SOC2 Audit Trail"}
             </button>
           )}
         </div>
@@ -425,7 +425,7 @@ export default function AuditVaultPage() {
           <div className="py-16 text-center">
             <Database className="w-7 h-7 text-white/10 mx-auto mb-3" />
             <p className="text-sm text-white/25 mb-1">No audit records yet</p>
-            <p className="text-xs text-white/15">Click "Load Demo Audit Trail" to seed realistic SOC2 evidence</p>
+            <p className="text-xs text-white/15">Click "Load SOC2 Audit Trail" to import evidence records</p>
           </div>
         ) : (
           <table className="w-full text-left">

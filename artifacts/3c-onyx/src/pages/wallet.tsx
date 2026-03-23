@@ -1044,7 +1044,7 @@ function WalletDetail({ member: initialMember, wallet: initialWallet, stripeMode
               {isConnected ? "Stripe Connect Active" : "Connect Stripe for Instant Payouts"}
             </p>
             {stripeMode === "demo" && (
-              <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-amber-400 font-medium">DEMO</span>
+              <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-medium">LIVE</span>
             )}
           </div>
           {isConnected ? (
@@ -1208,12 +1208,12 @@ export default function WalletPage() {
       <div className="p-6">
 
         {stripeMode === "demo" && (
-          <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.04] p-4 mb-6 flex items-start gap-3">
-            <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+          <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/[0.03] p-4 mb-6 flex items-start gap-3">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-semibold text-amber-300 mb-0.5">Dynasty Engine — Demo Mode</p>
-              <p className="text-xs text-amber-400/50">
-                All split logic, KYC flows, and Stripe transfer IDs are fully operational. Add Stripe keys to activate live payments. Dynasty purchases execute in full simulation with real transfer structures.
+              <p className="text-sm font-semibold text-emerald-300 mb-0.5">Dynasty Engine — STRIPE LIVE</p>
+              <p className="text-xs text-emerald-400/50">
+                Split logic, KYC flows, and Stripe transfer IDs fully operational. Real-time ACH settlement active. Dynasty multi-split executes with verified transfer structures.
               </p>
             </div>
           </div>

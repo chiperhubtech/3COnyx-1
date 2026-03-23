@@ -352,7 +352,7 @@ function DealerScanView() {
 
           {/* Demo scan shortcuts */}
           <div className="pt-2 border-t border-white/5">
-            <p className="text-[10px] text-white/20 mb-2 uppercase tracking-wider">Quick-scan demo tasks</p>
+            <p className="text-[10px] text-white/20 mb-2 uppercase tracking-wider">Active Deliveries</p>
             <div className="space-y-1.5">
               {[
                 { id: "task-001", label: "Rolls-Royce Ghost · Beverly Hills → Malibu" },

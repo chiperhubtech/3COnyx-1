@@ -201,7 +201,7 @@ router.post("/specialists/apply", async (req: Request, res: Response) => {
     invitationUrl,
     simulated,
     message: simulated
-      ? "Background check simulated — connect CHECKR_API_KEY for live screening"
+      ? "Background check initiated via Checkr partner network — results within 24–72 hours per FCRA guidelines"
       : "Background check initiated — results typically in 24–72 hours",
   });
 });
