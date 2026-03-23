@@ -29,6 +29,7 @@ import {
   Radio,
   Users,
   Sparkles,
+  X,
 } from "lucide-react";
 import { NotificationBell } from "./NotificationBell";
 
@@ -133,14 +134,14 @@ const ADMIN_NAV = [
   { label: "CI / CD", path: "/ci-cd", icon: GitBranch, description: "Pipeline & MCP" },
 ];
 
-function NavItem({ label, path, icon: Icon, description, accent }: {
-  label: string; path: string; icon: any; description: string; accent?: string;
+function NavItem({ label, path, icon: Icon, description, accent, onClose }: {
+  label: string; path: string; icon: any; description: string; accent?: string; onClose?: () => void;
 }) {
   const [location] = useLocation();
   const isActive = location === path || location.startsWith(path + "/");
 
   return (
-    <Link href={path}>
+    <Link href={path} onClick={onClose}>
       <div
         className="group flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-150 relative"
         style={{
@@ -189,12 +190,12 @@ function NavItem({ label, path, icon: Icon, description, accent }: {
   );
 }
 
-export function AppSidebar() {
+export function AppSidebar({ onClose }: { onClose?: () => void }) {
   const [showAdmin, setShowAdmin] = useState(false);
 
   return (
     <aside
-      className="w-64 h-full flex flex-col overflow-hidden shrink-0"
+      className="w-64 h-full flex flex-col overflow-hidden"
       style={{
         background: "linear-gradient(180deg, #06060a 0%, #08080d 100%)",
         borderRight: "1px solid rgba(255,255,255,0.06)",
@@ -203,7 +204,7 @@ export function AppSidebar() {
       {/* Logo */}
       <div style={{ padding: "20px 20px 16px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
         <div className="flex items-center justify-between">
-          <Link href="/">
+          <Link href="/" onClick={onClose}>
             <div className="flex items-center gap-2.5 cursor-pointer group">
               <div
                 style={{
@@ -227,7 +228,18 @@ export function AppSidebar() {
               </div>
             </div>
           </Link>
-          <NotificationBell />
+          <div className="flex items-center gap-2">
+            <NotificationBell />
+            {/* Close button — only visible on mobile */}
+            {onClose && (
+              <button
+                onClick={onClose}
+                className="md:hidden p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/[0.06] transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -238,7 +250,7 @@ export function AppSidebar() {
           MY ACCOUNT
         </p>
         {CUSTOMER_NAV.map((item) => (
-          <NavItem key={item.path} {...item} />
+          <NavItem key={item.path} {...item} onClose={onClose} />
         ))}
 
         {/* Specialist section */}
@@ -247,7 +259,7 @@ export function AppSidebar() {
           SPECIALIST
         </p>
         {SPECIALIST_NAV.map((item) => (
-          <NavItem key={item.path} {...item} />
+          <NavItem key={item.path} {...item} onClose={onClose} />
         ))}
 
         {/* Platform / Admin (collapsible) */}
@@ -269,7 +281,7 @@ export function AppSidebar() {
         {showAdmin && (
           <div className="space-y-1">
             {ADMIN_NAV.map((item) => (
-              <NavItem key={item.path} {...item} />
+              <NavItem key={item.path} {...item} onClose={onClose} />
             ))}
           </div>
         )}
