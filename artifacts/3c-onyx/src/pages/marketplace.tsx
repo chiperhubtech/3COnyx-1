@@ -7,6 +7,7 @@ import {
   Sparkles, Tag, ChevronRight, Info, BarChart3, Store,
 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
+import { SpinViewer } from "@/components/SpinViewer";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -180,7 +181,6 @@ function WholesaleCard({
   onWatch: (c: MarketListing) => void;
   watched: boolean;
 }) {
-  const photo = car.media?.photo_links?.[0];
   const location = [car.city, car.state].filter(Boolean).join(", ");
   const maskedVin = car.vin
     ? "•".repeat(Math.max(0, car.vin.length - 4)) + car.vin.slice(-4)
@@ -205,20 +205,16 @@ function WholesaleCard({
           : "0 4px 16px rgba(0,0,0,0.3)",
       }}
     >
-      {/* Image */}
-      <div className="relative h-48 bg-gradient-to-br from-white/5 to-white/[0.02] overflow-hidden shrink-0">
-        {photo ? (
-          <img
-            src={photo}
-            alt={car.heading}
-            className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <Car className="w-10 h-10 text-white/10" />
-          </div>
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+      {/* 3C Spin Studio™ — 360° Viewer */}
+      <div className="relative overflow-hidden shrink-0 rounded-t-2xl">
+        <SpinViewer
+          frames={car.media?.photo_links ?? []}
+          vehicleName={car.heading}
+          height={192}
+          autoSpin={false}
+          compact
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none" />
 
         {/* 3C Certified */}
         <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-amber-400/40">

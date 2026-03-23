@@ -36,6 +36,7 @@ import agentsRouter from "./agents";
 import impactRouter from "./impact";
 import proRouter from "./pro";
 import rocksolidRouter from "./rocksolid";
+import spinmediaRouter from "./spinmedia";
 
 const router: IRouter = Router();
 
@@ -73,6 +74,7 @@ router.use(impactRouter);
 router.use(proRouter);
 router.use(blockchainRouter);
 router.use(rocksolidRouter);
+router.use(spinmediaRouter);
 router.use(orchestratorRouter);
 
 router.use(
