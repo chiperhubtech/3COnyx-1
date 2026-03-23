@@ -326,7 +326,7 @@ export default function PartnersPage() {
 
       <div className="p-6">
         {/* Stats bar */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 24 }}>
+        <div className="grid grid-cols-2 sm:grid-cols-4" style={{ gap: 12, marginBottom: 24 }}>
           {[
             { label: "VERIFIED PARTNERS", value: stats.verified, color: "#10B981" },
             { label: "PLATINUM TIER", value: stats.platinum, color: "#E5E7EB" },

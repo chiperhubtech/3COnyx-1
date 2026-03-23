@@ -645,7 +645,7 @@ function DynastyLedger() {
 
       {/* Dynasty stats */}
       {ledger && (
-        <div className="grid grid-cols-4 gap-3 mb-5">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
           {[
             { label: "Total Volume", value: `$${(ledger.totalVolume / 1_000_000).toFixed(2)}M`, icon: DollarSign, color: "text-white" },
             { label: "Dealer Payments", value: `$${(ledger.totalDealer / 1_000).toFixed(0)}K`, icon: Building2, color: "text-blue-400" },
@@ -1224,7 +1224,7 @@ export default function WalletPage() {
         icon={CreditCard}
         accent="#34D399"
         title="DYNASTY WALLET"
-        subtitle="Triple-split engine · AML/KYC · Stripe Connect · Passive Income"
+        subtitle="Triple-split · AML/KYC · Stripe Connect"
         badge={
           <span className={`neural-badge ${stripeMode === "live" ? "neural-badge-green" : "neural-badge-gold"}`}>
             <span className={`${stripeMode === "live" ? "ai-live-dot" : "ai-live-dot-gold"} mr-1`} />

@@ -176,12 +176,12 @@ export default function Home() {
 
       {/* Stats Bar */}
       <div className="px-8 pb-6">
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {stats.map((stat) => (
             <div key={stat.label} className="ai-card holographic-card p-4">
-              <p style={{ fontSize: "9px", letterSpacing: "0.2em", color: "rgba(255,255,255,0.28)", fontWeight: 700, marginBottom: "6px" }}>{stat.label}</p>
-              <p style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "32px", fontWeight: 800, color: stat.color, lineHeight: 1 }}>{stat.value}</p>
-              <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.28)", marginTop: "4px" }}>{stat.sub}</p>
+              <p style={{ fontSize: "9px", letterSpacing: "0.15em", color: "rgba(255,255,255,0.28)", fontWeight: 700, marginBottom: "6px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{stat.label}</p>
+              <p style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "clamp(24px, 6vw, 32px)", fontWeight: 800, color: stat.color, lineHeight: 1 }}>{stat.value}</p>
+              <p style={{ fontSize: "10px", color: "rgba(255,255,255,0.28)", marginTop: "4px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{stat.sub}</p>
             </div>
           ))}
         </div>

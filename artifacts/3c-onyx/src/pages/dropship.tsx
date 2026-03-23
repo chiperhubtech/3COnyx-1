@@ -986,7 +986,7 @@ export default function DropshipPage() {
       <div className="p-6">
 
         {/* Stats */}
-        <div className="grid grid-cols-4 gap-3 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
           {[
             { label: "Active BOLs", value: stats.total, icon: FileText, color: "text-white" },
             { label: "In Transit", value: stats.inTransit, icon: Truck, color: "text-violet-400" },

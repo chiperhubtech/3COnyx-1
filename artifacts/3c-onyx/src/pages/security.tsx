@@ -614,7 +614,7 @@ function EncryptionShield() {
   return (
     <>
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-3 mb-5">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
         {[
           { label: "Encrypted Fields", value: stats?.totalFields ?? 0, color: "text-emerald-400", icon: Shield },
           { label: "Total Decryptions", value: stats?.totalDecryptions ?? 0, color: "text-amber-400", icon: Unlock },

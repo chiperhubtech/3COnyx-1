@@ -14,22 +14,23 @@ export function PageHeader({ icon: Icon, title, subtitle, accent = "#C9A227", ba
   return (
     <div
       style={{
-        padding: "20px 24px 16px",
+        padding: "16px 20px 14px",
         borderBottom: "1px solid rgba(255,255,255,0.06)",
         background: "linear-gradient(180deg, rgba(255,255,255,0.02) 0%, transparent 100%)",
         display: "flex",
         alignItems: "flex-start",
         justifyContent: "space-between",
-        gap: "16px",
+        gap: "12px",
         flexShrink: 0,
       }}
     >
-      <div className="flex items-center gap-3">
+      {/* Left: icon + title block (can shrink) */}
+      <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0, flex: 1 }}>
         <div
           style={{
-            width: "40px",
-            height: "40px",
-            borderRadius: "12px",
+            width: "38px",
+            height: "38px",
+            borderRadius: "11px",
             background: `linear-gradient(135deg, ${accent}20 0%, ${accent}08 100%)`,
             border: `1px solid ${accent}25`,
             display: "flex",
@@ -38,18 +39,19 @@ export function PageHeader({ icon: Icon, title, subtitle, accent = "#C9A227", ba
             flexShrink: 0,
           }}
         >
-          <Icon size={18} style={{ color: accent }} />
+          <Icon size={17} style={{ color: accent }} />
         </div>
-        <div>
-          <div className="flex items-center gap-2 flex-wrap">
+        <div style={{ minWidth: 0, flex: 1 }}>
+          {/* Title row — badge floats right of title, collapses to new line if needed */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
             <h1
               style={{
                 fontFamily: "'Barlow Condensed', sans-serif",
-                fontSize: "28px",
+                fontSize: "clamp(19px, 5vw, 26px)",
                 fontWeight: 800,
                 color: "#FFFFFF",
-                letterSpacing: "0.02em",
-                lineHeight: 1,
+                letterSpacing: "0.03em",
+                lineHeight: 1.1,
                 textTransform: "uppercase",
               }}
             >
@@ -58,11 +60,27 @@ export function PageHeader({ icon: Icon, title, subtitle, accent = "#C9A227", ba
             {badge}
           </div>
           {subtitle && (
-            <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.35)", marginTop: "4px", lineHeight: 1 }}>{subtitle}</p>
+            <p style={{
+              fontSize: "11px",
+              color: "rgba(255,255,255,0.35)",
+              marginTop: "3px",
+              lineHeight: 1.3,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}>
+              {subtitle}
+            </p>
           )}
         </div>
       </div>
-      {actions && <div className="flex items-center gap-2 flex-shrink-0">{actions}</div>}
+
+      {/* Right: actions (never shrinks) */}
+      {actions && (
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+          {actions}
+        </div>
+      )}
     </div>
   );
 }

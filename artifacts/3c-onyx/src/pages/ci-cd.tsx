@@ -169,7 +169,7 @@ export default function CiCd() {
           </div>
         </div>
 
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
             { label: "STATUS", value: overallStatus.toUpperCase(), icon: <StatusIcon status={overallStatus} size={20} />, color: STATUS_COLORS[overallStatus] },
             { label: "LAST RUN", value: activeRun ? new Date(activeRun.startedAt).toLocaleTimeString() : "—", icon: <Clock size={20} className="text-zinc-400" />, color: "text-white" },

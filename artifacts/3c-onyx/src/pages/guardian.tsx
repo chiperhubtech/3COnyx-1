@@ -535,10 +535,10 @@ export default function GuardianPage() {
   const strikeStats: StrikeStats = strikeData?.stats ?? { total: 0, live: 0, deployed: 0, locked: 0, tierS: 0 };
 
   const TABS = [
-    { id: "strikes" as const, label: "High-Value Strikes", badge: strikeStats.live },
-    { id: "alerts" as const, label: "Predictive Alerts", badge: stats.pending },
-    { id: "telemetry" as const, label: "V2X Telemetry" },
-    { id: "mesh" as const, label: "Mesh Log", badge: meshData?.total },
+    { id: "strikes" as const, label: "Strikes", fullLabel: "High-Value Strikes", badge: strikeStats.live },
+    { id: "alerts" as const, label: "Alerts", fullLabel: "Predictive Alerts", badge: stats.pending },
+    { id: "telemetry" as const, label: "Telemetry", fullLabel: "V2X Telemetry" },
+    { id: "mesh" as const, label: "Mesh", fullLabel: "Mesh Log", badge: meshData?.total },
   ];
 
   return (
@@ -576,9 +576,9 @@ export default function GuardianPage() {
             { label: "MESH DEPLOYED", value: stats.approved, color: "#10B981" },
           ];
           return (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 24 }}>
+            <div className="grid grid-cols-2 sm:grid-cols-4" style={{ gap: 12, marginBottom: 24 }}>
               {statItems.map(s => (
-                <div key={s.label} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 12, padding: "14px 16px", textAlign: "center" }}>
+                <div key={s.label} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 12, padding: "14px 12px", textAlign: "center" }}>
                   <div style={{ color: s.color, fontSize: 28, fontWeight: 900, lineHeight: 1 }}>{s.value}</div>
                   <div style={{ color: "rgba(255,255,255,0.25)", fontSize: 9, fontWeight: 700, letterSpacing: 1, marginTop: 4 }}>{s.label}</div>
                 </div>
@@ -588,14 +588,15 @@ export default function GuardianPage() {
         })()}
 
         {/* Tabs */}
-        <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+        <div style={{ display: "flex", gap: 8, marginBottom: 20, overflowX: "auto", WebkitOverflowScrolling: "touch" as any, scrollbarWidth: "none" }}>
           {TABS.map(t => (
             <button key={t.id} onClick={() => handleTabChange(t.id)} style={{
-              display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 10,
+              display: "flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 10,
               background: activeTab === t.id ? "rgba(16,185,129,0.12)" : "rgba(255,255,255,0.03)",
               border: `1px solid ${activeTab === t.id ? "rgba(16,185,129,0.3)" : "rgba(255,255,255,0.06)"}`,
               color: activeTab === t.id ? "#10B981" : "rgba(255,255,255,0.4)",
               fontSize: 11, fontWeight: 700, cursor: "pointer", letterSpacing: 0.3,
+              whiteSpace: "nowrap", flexShrink: 0,
             }}>
               {t.label}
               {t.badge !== undefined && t.badge > 0 && (
@@ -609,22 +610,22 @@ export default function GuardianPage() {
         {activeTab === "strikes" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {/* Intelligence source row */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 4 }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: 10, marginBottom: 4 }}>
               <div style={{ background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.12)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
-                <TrendingUp size={14} style={{ color: "#3B82F6" }} />
-                <div>
+                <TrendingUp size={14} style={{ color: "#3B82F6", flexShrink: 0 }} />
+                <div className="min-w-0">
                   <div style={{ color: "#3B82F6", fontSize: 10, fontWeight: 700 }}>FULLPATH SHOPPER INTENT</div>
                   <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 10 }}>3 members · 2 high-intent (80+)</div>
                 </div>
-                <span style={{ marginLeft: "auto", color: "#10B981", fontSize: 9, fontWeight: 700 }}>LIVE</span>
+                <span style={{ marginLeft: "auto", color: "#10B981", fontSize: 9, fontWeight: 700, flexShrink: 0 }}>LIVE</span>
               </div>
               <div style={{ background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.12)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
-                <Target size={14} style={{ color: "#F59E0B" }} />
-                <div>
+                <Target size={14} style={{ color: "#F59E0B", flexShrink: 0 }} />
+                <div className="min-w-0">
                   <div style={{ color: "#F59E0B", fontSize: 10, fontWeight: 700 }}>MARKETCHECK WHOLESALE MESH</div>
                   <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 10 }}>National · 50 states · Live auction data</div>
                 </div>
-                <span style={{ marginLeft: "auto", color: "#10B981", fontSize: 9, fontWeight: 700 }}>LIVE</span>
+                <span style={{ marginLeft: "auto", color: "#10B981", fontSize: 9, fontWeight: 700, flexShrink: 0 }}>LIVE</span>
               </div>
             </div>
 

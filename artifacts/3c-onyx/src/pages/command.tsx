@@ -653,14 +653,14 @@ export default function CommandCenter() {
                   <span className="text-[10px] text-emerald-400">4 regions online</span>
                 </div>
               </div>
-              <div className="grid grid-cols-4 divide-x divide-white/5">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-white/5">
                 {[
                   { label: "West Coast", key: "west",      color: "text-sky-400"     },
                   { label: "Midwest",    key: "midwest",   color: "text-amber-400"   },
                   { label: "South",      key: "south",     color: "text-rose-400"    },
                   { label: "Northeast",  key: "northeast", color: "text-violet-400"  },
                 ].map(({ label, key, color }) => (
-                  <div key={key} className="p-4 text-center">
+                  <div key={key} className="p-4 text-center bg-[#0d0d10]">
                     <p className={`text-xl font-black ${color}`}>{pulse?.meshRegions[key] ?? 0}</p>
                     <p className="text-[9px] text-white/20 mt-0.5">{label}</p>
                     <p className="text-[9px] text-white/15">active</p>

@@ -273,7 +273,7 @@ export default function ReferralWallet() {
         <PassiveIncomeBanner alerts={passiveAlerts} onDismissAll={dismissAllAlerts} />
 
         {/* Stats */}
-        <div className="grid grid-cols-4 gap-3 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
           {stats.map((s) => (
             <div key={s.label} className="ai-stat-card">
               <div className="flex items-center justify-between mb-3">
