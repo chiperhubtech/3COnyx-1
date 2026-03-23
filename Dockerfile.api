@@ -1,0 +1,60 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# 3C Onyx — API Server (Node 20 / Express 5)
+# Multi-stage build: monorepo → esbuild bundle → minimal Alpine runner
+#
+# AWS ECS / EC2 deployment:
+#   docker build -f Dockerfile.api -t 3c-onyx-api .
+#   docker run -p 8080:8080 --env-file .env.production 3c-onyx-api
+#
+# Required env vars: PORT, DATABASE_URL
+# Optional:          ALLOWED_ORIGINS, NODE_ENV, STRIPE_SECRET_KEY, GEMINI_API_KEY
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Stage 1: Build ────────────────────────────────────────────────────────────
+FROM node:20-alpine AS builder
+
+WORKDIR /workspace
+
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@9 --activate
+
+# Copy workspace manifests first (layer-cache friendly)
+COPY package.json pnpm-workspace.yaml ./
+COPY pnpm-lock.yaml ./
+
+# Copy lib packages (shared workspace deps)
+COPY lib/ ./lib/
+
+# Copy API source
+COPY artifacts/api-server/ ./artifacts/api-server/
+
+# Install ALL workspace deps (needed for type resolution during build)
+RUN pnpm install --frozen-lockfile --ignore-scripts
+
+# Build → produces fully self-contained dist/
+RUN pnpm --filter @workspace/api-server run build
+
+# ── Stage 2: Runner ───────────────────────────────────────────────────────────
+FROM node:20-alpine AS runner
+
+# Non-root user for security
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV PORT=8080
+
+# The esbuild bundle is fully self-contained — no node_modules needed
+COPY --from=builder /workspace/artifacts/api-server/dist ./dist
+
+# Security: drop to non-root
+USER appuser
+
+EXPOSE 8080
+
+# AWS ALB / ECS health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD wget -qO- http://localhost:8080/api/healthz || exit 1
+
+CMD ["node", "--enable-source-maps", "./dist/index.mjs"]

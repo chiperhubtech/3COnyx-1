@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Layout } from "@/components/Layout";
 import { AIConcierge, RewardToast } from "@/components/AIConcierge";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Home from "@/pages/home";
 import Concierge from "@/pages/concierge";
 import Inventory from "@/pages/inventory";
@@ -39,7 +40,24 @@ import Custody from "@/pages/custody";
 import ARViewer from "@/pages/ar-viewer";
 import NotFound from "@/pages/not-found";
 
-const queryClient = new QueryClient();
+// ── Resilient Query Client ────────────────────────────────────────────────────
+// Retry twice with exponential back-off. Data stays fresh for 30 s,
+// is garbage-collected after 5 min, and never re-fetches on window focus
+// (prevents flooding when the user alt-tabs back to the app).
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 2,
+      retryDelay: (attempt) => Math.min(1_000 * 2 ** attempt, 12_000),
+      staleTime:  30_000,
+      gcTime:     5 * 60_000,
+      refetchOnWindowFocus: false,
+    },
+    mutations: {
+      retry: 1,
+    },
+  },
+});
 
 function Router() {
   return (
@@ -84,18 +102,22 @@ function Router() {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-          <Layout>
-            <Router />
-          </Layout>
-          <AIConcierge />
-          <RewardToast />
-        </WouterRouter>
-        <Toaster />
-      </TooltipProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+            <ErrorBoundary>
+              <Layout>
+                <Router />
+              </Layout>
+            </ErrorBoundary>
+            <AIConcierge />
+            <RewardToast />
+          </WouterRouter>
+          <Toaster />
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 

@@ -1,0 +1,84 @@
+# 3C Onyx — Docker Compose (AWS-equivalent local stack)
+#
+# Usage:
+#   docker compose up --build
+#
+# Services:
+#   api   — Express API server on :8080
+#   web   — Nginx SPA on :3000
+#   db    — PostgreSQL 16 (replace with AWS RDS in production)
+#
+# AWS production equivalents:
+#   api → ECS Fargate service behind ALB (port 8080)
+#   web → CloudFront + S3 static hosting (or ECS Fargate with Nginx)
+#   db  → Amazon RDS PostgreSQL 16 (Multi-AZ for production)
+
+version: "3.9"
+
+services:
+  # ── PostgreSQL (dev only — use RDS in production) ───────────────────────────
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       onyx
+      POSTGRES_USER:     onyx
+      POSTGRES_PASSWORD: onyx_local_secret
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U onyx"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── API Server ───────────────────────────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    restart: unless-stopped
+    environment:
+      NODE_ENV:        production
+      PORT:            "8080"
+      DATABASE_URL:    postgresql://onyx:onyx_local_secret@db:5432/onyx
+      ALLOWED_ORIGINS: "http://localhost:3000,https://app.3conyx.com"
+      # Add secrets below (use AWS Secrets Manager in production):
+      # STRIPE_SECRET_KEY:
+      # GEMINI_API_KEY:
+      # ANTHROPIC_API_KEY:
+      # OPENAI_API_KEY:
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/api/healthz || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ── Web Frontend (Nginx) ─────────────────────────────────────────────────────
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+      args:
+        BASE_PATH: /
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost/healthz || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  postgres_data:

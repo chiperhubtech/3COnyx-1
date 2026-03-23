@@ -18,7 +18,48 @@ All packages extend a base `tsconfig.json` with `composite: true`, enabling proj
 
 ## API Server (`@workspace/api-server`)
 
-The core API server is an Express 5 application. Routes are organized under `src/routes/` and leverage `@workspace/api-zod` for request/response validation and `@workspace/db` for database interactions. It includes health check endpoints and supports various integrations.
+The core API server is an Express 5 application. Routes are organized under `src/routes/` and leverage `@workspace/api-zod` for request/response validation and `@workspace/db` for database interactions.
+
+### Production Hardening (MVP-ready)
+- **CORS**: Configurable via `ALLOWED_ORIGINS` env var (comma-separated). Leave unset for open (dev). Set to domain list in production.
+- **Request timeout**: 15-second timeout on all routes via `src/middlewares/timeout.ts`. Returns 503 + JSON if exceeded.
+- **Global error handler**: Catches all unhandled Express errors, returns JSON with `code: "INTERNAL_ERROR"`. Error message hidden in production.
+- **404 handler**: Returns `{"error":"Not found","code":"NOT_FOUND"}` instead of HTML.
+- **Health probes** (AWS ALB / ECS / K8s compatible):
+  - `GET /api/healthz` — Deep check: DB + WS + metrics. Returns 200 (healthy) or 503 (DB degraded).
+  - `GET /api/readyz` — Lightweight readiness probe: DB only. Used by ALB target group health checks.
+  - `GET /api/livez` — Liveness probe: process alive check. Used by ECS task health checks.
+- **Body limit**: 2 MB request body cap to prevent payload attacks.
+
+### AWS Deployment Architecture
+```
+Internet → Route 53 → CloudFront (CDN + TLS)
+                         │
+              ┌──────────┴──────────────┐
+              │                         │
+     S3 Static Hosting              ALB (Application Load Balancer)
+     (React SPA / dist/public)          │
+                                   ECS Fargate (API containers)
+                                        │
+                                   RDS PostgreSQL 16 (Multi-AZ)
+```
+
+**Container images** (built via esbuild — fully self-contained, no node_modules in runner):
+- `Dockerfile.api` → API server (~50MB Alpine image)
+- `Dockerfile.web` → Nginx serving Vite SPA (~25MB Alpine image)
+- `docker-compose.yml` → Local full-stack simulation of AWS environment
+
+**Stack-agnostic design** — The backend can swap any provider without frontend downtime:
+- AI: Gemini → OpenAI → Anthropic (already multi-provider via ai-router)
+- Payments: Stripe Connect (swap to Braintree/Adyen via stripeClient.ts)
+- Database: PostgreSQL via Drizzle ORM (swap to MySQL/Aurora by changing the adapter)
+- Storage: Extend with S3 by adding `STORAGE_PROVIDER=s3` env var
+
+**Zero-downtime deployments**: ECS rolling updates with health check gating. New tasks must pass `/api/readyz` before old tasks are terminated.
+
+### Frontend Resilience
+- **React Error Boundary** (`src/components/ErrorBoundary.tsx`): Wraps entire app and inner layout. Any render crash shows branded 3C recovery screen instead of blank page.
+- **React Query config**: `retry: 2`, `staleTime: 30s`, `gcTime: 5min`, `refetchOnWindowFocus: false`. Exponential backoff on retries.
 
 ## UI/UX Design (3C Onyx Visual Language)
 
