@@ -31,6 +31,7 @@ import Guardian from "@/pages/guardian";
 import Subscription from "@/pages/subscription";
 import Partners from "@/pages/partners";
 import Unity from "@/pages/unity";
+import Share from "@/pages/share";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -65,6 +66,7 @@ function Router() {
       <Route path="/subscribe" component={Subscription} />
       <Route path="/partners" component={Partners} />
       <Route path="/unity" component={Unity} />
+      <Route path="/share" component={Share} />
       <Route component={NotFound} />
     </Switch>
   );
