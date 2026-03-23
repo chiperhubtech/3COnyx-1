@@ -35,6 +35,7 @@ import Share from "@/pages/share";
 import AgenticOS from "@/pages/agentic-os";
 import Impact from "@/pages/impact";
 import Pro from "@/pages/pro";
+import Custody from "@/pages/custody";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -73,6 +74,7 @@ function Router() {
       <Route path="/agentic-os" component={AgenticOS} />
       <Route path="/impact" component={Impact} />
       <Route path="/pro" component={Pro} />
+      <Route path="/custody" component={Custody} />
       <Route component={NotFound} />
     </Switch>
   );

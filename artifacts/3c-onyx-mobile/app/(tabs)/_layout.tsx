@@ -82,6 +82,18 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="carplay"
+        options={{
+          tabBarIcon: ({ color, size }) =>
+            isIOS ? (
+              <Ionicons name="car-sport-outline" size={size} color={color} />
+            ) : (
+              <Ionicons name="car-outline" size={size} color={color} />
+            ),
+          tabBarLabel: "In-Vehicle",
+        }}
+      />
     </Tabs>
   );
 }

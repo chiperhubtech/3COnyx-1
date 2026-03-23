@@ -99,14 +99,61 @@ Manages the OpenAPI 3.1 specification (`openapi.yaml`) and Orval configuration (
 -   **Logistics Tracking**: HyperTrack
 -   **Payments/Payouts**: Stripe Connect
 -   **Background Checks**: Checkr
--   **AI/LLM**: Google Gemini
+-   **AI/LLM**: Multi-model abstraction (Gemini primary, OpenAI secondary, Anthropic tertiary) via `ai-router.ts`; task-type routing (conversation/analysis/summarization/coding/quick)
 -   **Charts**: Recharts
--   **Real-time Communication**: Server-Sent Events (SSE)
+-   **Real-time Communication**: WebSocket Hub (`wsHub.ts`) — rooms: tracking, alerts, prices, agents, notify; frontend hook `useSocket.ts`; Server-Sent Events (SSE) for legacy routes
 -   **Model Context Protocol**: `@modelcontextprotocol/sdk`
 -   **Carrier Integration**: Ship.cars, RunBuggy
 -   **Identity Verification**: Stripe Identity (for Dynasty Wallet)
 -   **Data Intelligence**: Fullpath (mocked API integration)
 -   **Vehicle Market Data**: MarketCheck (mocked API integration)
+
+## Architectural Upgrades (T001–T006)
+
+Six major architectural components added to the platform:
+
+### T001 · AI Model Abstraction Layer
+- File: `artifacts/api-server/src/lib/ai-router.ts`
+- 3 providers with fallback chain: Gemini → OpenAI → Anthropic
+- Task-type routing: conversation, analysis, summarization, coding, quick
+- Status endpoint: `GET /api/ai-router/status`
+
+### T002 · WebSocket Real-Time Hub
+- File: `artifacts/api-server/src/lib/wsHub.ts`
+- 5 subscription rooms: tracking, alerts, prices, agents, notify
+- Auto-reconnect, stale-connection eviction, heartbeat ping
+- Mounted at `/ws` on the HTTP server (index.ts uses `http.createServer`)
+- Frontend hook: `artifacts/3c-onyx/src/hooks/useSocket.ts`
+- Stats endpoint: `GET /api/ws-stats`
+
+### T003 · 7-Agent Orchestration Engine
+- File: `artifacts/api-server/src/lib/agentOrchestrator.ts`
+- Named agents: Guardian, Concierge, MarketCheck, Mission, Vault, Stripe, Notify
+- Formal state machine: pending → assigned → running → complete | failed | handed_off
+- AI-powered tool execution with handoff protocol and full audit log
+- Endpoints under `/api/orchestrator/*`
+
+### T004 · Blockchain Chain-of-Custody
+- File: `artifacts/api-server/src/lib/chainOfCustody.ts`
+- SHA-256 hash-linked ledger; each block chains the previous hash
+- Optional Ethereum Sepolia anchoring (when `ETH_PRIVATE_KEY` env var is set)
+- Demo chains seeded for veh-001 (Rolls-Royce Ghost) and veh-002 (Ferrari Roma)
+- Chain integrity badge: `INTEGRITY_INTACT` | `TAMPERED`
+- UI page: `/custody` — full visual chain explorer with masked PII
+- Endpoints under `/api/blockchain/*`
+
+### T005 · CarPlay / Android Auto
+- File: `artifacts/3c-onyx-mobile/app/(tabs)/carplay.tsx`
+- 4 scenes: Garage, Delivery, Guardian Alerts, Emergency Dispatch
+- Platform-aware: iOS (CarPlay) vs Android (Android Auto)
+- Requires native Xcode/Android Studio build; gracefully documented in UI
+- Added as "In-Vehicle" tab in mobile navigation
+
+### T006 · tRPC Type-Safe API Layer
+- Server: `artifacts/api-server/src/lib/trpc.ts` — 6 sub-routers (vehicle, wallet, tasks, ai, blockchain, agent)
+- Client: `artifacts/3c-onyx/src/lib/trpc.ts` — self-contained, no cross-package type import
+- Mounted at `POST/GET /api/trpc` via Express adapter
+- tRPC endpoint verified: `tasks.stats` returns `{total:96, completed:84, completionRate:88}`
 
 ## AWS Infrastructure (`/infra`)
 

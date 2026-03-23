@@ -1,4 +1,8 @@
-import { Router, type IRouter } from "express";
+import { Router, type IRouter, type Request, type Response } from "express";
+import { createExpressMiddleware } from "@trpc/server/adapters/express";
+import { appRouter } from "../lib/trpc";
+import blockchainRouter from "./blockchain";
+import orchestratorRouter from "./orchestrator";
 import healthRouter from "./health";
 import marketcheckRouter from "./marketcheck";
 import garageRouter from "./garage";
@@ -66,5 +70,25 @@ router.use("/unity", unityRouter);
 router.use(agentsRouter);
 router.use(impactRouter);
 router.use(proRouter);
+router.use(blockchainRouter);
+router.use(orchestratorRouter);
+
+router.use(
+  "/trpc",
+  createExpressMiddleware({
+    router: appRouter,
+    createContext: () => ({}),
+  }),
+);
+
+router.get("/ws-stats", (_req: Request, res: Response) => {
+  const { stats } = require("../lib/wsHub") as typeof import("../lib/wsHub");
+  res.json({ ...stats(), ts: new Date().toISOString() });
+});
+
+router.get("/ai-router/status", (_req: Request, res: Response) => {
+  const { getRouterStatus } = require("../lib/ai-router") as typeof import("../lib/ai-router");
+  res.json(getRouterStatus());
+});
 
 export default router;
