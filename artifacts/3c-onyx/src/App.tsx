@@ -32,6 +32,7 @@ import Subscription from "@/pages/subscription";
 import Partners from "@/pages/partners";
 import Unity from "@/pages/unity";
 import Share from "@/pages/share";
+import AgenticOS from "@/pages/agentic-os";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -67,6 +68,7 @@ function Router() {
       <Route path="/partners" component={Partners} />
       <Route path="/unity" component={Unity} />
       <Route path="/share" component={Share} />
+      <Route path="/agentic-os" component={AgenticOS} />
       <Route component={NotFound} />
     </Switch>
   );

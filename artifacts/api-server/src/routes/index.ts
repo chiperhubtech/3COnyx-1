@@ -28,6 +28,7 @@ import subscriptionRouter from "./subscription";
 import fullpathRouter from "./fullpath";
 import reputationRouter from "./reputation";
 import unityRouter from "./unity";
+import agentsRouter from "./agents";
 
 const router: IRouter = Router();
 
@@ -60,5 +61,6 @@ router.use("/subscription", subscriptionRouter);
 router.use("/fullpath", fullpathRouter);
 router.use("/reputation", reputationRouter);
 router.use("/unity", unityRouter);
+router.use(agentsRouter);
 
 export default router;

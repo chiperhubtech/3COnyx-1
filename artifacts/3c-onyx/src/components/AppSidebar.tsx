@@ -121,6 +121,7 @@ const SPECIALIST_NAV = [
 
 const ADMIN_NAV = [
   { label: "Share & Invest", path: "/share", icon: QrCode, description: "F&F Round · QR pitch screen", accent: "#C9A227" },
+  { label: "Agentic OS", path: "/agentic-os", icon: Cpu, description: "Browserbase · Gumloop · SuperAGI", accent: "#818CF8" },
   { label: "Command Center", path: "/command", icon: Radio, description: "K-Factor · Hectocorn · Kill-Switch", accent: "#EF4444" },
   { label: "Guardian", path: "/guardian", icon: ShieldPlus, description: "V2X Predictive · 7-Agent Mesh", accent: "#10B981" },
   { label: "Partner Network", path: "/partners", icon: Users, description: "I-95 Spine · Reputation Mesh", accent: "#E5E7EB" },
