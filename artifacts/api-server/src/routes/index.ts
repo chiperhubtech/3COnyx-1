@@ -29,6 +29,8 @@ import fullpathRouter from "./fullpath";
 import reputationRouter from "./reputation";
 import unityRouter from "./unity";
 import agentsRouter from "./agents";
+import impactRouter from "./impact";
+import proRouter from "./pro";
 
 const router: IRouter = Router();
 
@@ -62,5 +64,7 @@ router.use("/fullpath", fullpathRouter);
 router.use("/reputation", reputationRouter);
 router.use("/unity", unityRouter);
 router.use(agentsRouter);
+router.use(impactRouter);
+router.use(proRouter);
 
 export default router;

@@ -29,6 +29,8 @@ import {
   Radio,
   Users,
   Sparkles,
+  Heart,
+  Wrench,
   X,
 } from "lucide-react";
 import { NotificationBell } from "./NotificationBell";
@@ -120,6 +122,8 @@ const SPECIALIST_NAV = [
 ];
 
 const ADMIN_NAV = [
+  { label: "3C Impact", path: "/impact", icon: Heart, description: "ESG Score · Ignorance Tax · Integrity Mesh", accent: "#34D399" },
+  { label: "Pro Mesh", path: "/pro", icon: Wrench, description: "Apprentice → Master · Foreman OS · OEM Intel", accent: "#A78BFA" },
   { label: "Share & Invest", path: "/share", icon: QrCode, description: "F&F Round · QR pitch screen", accent: "#C9A227" },
   { label: "Agentic OS", path: "/agentic-os", icon: Cpu, description: "Browserbase · Gumloop · SuperAGI", accent: "#818CF8" },
   { label: "Command Center", path: "/command", icon: Radio, description: "K-Factor · Hectocorn · Kill-Switch", accent: "#EF4444" },

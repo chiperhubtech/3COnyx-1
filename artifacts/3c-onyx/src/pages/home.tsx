@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import {
   ShoppingBag,
@@ -13,7 +14,11 @@ import {
   Shield,
   TrendingUp,
   Bell,
+  Heart,
+  TrendingDown,
 } from "lucide-react";
+
+const API = import.meta.env.BASE_URL.replace(/\/$/, "") + "/api";
 
 interface QuickStat {
   label: string;
@@ -106,10 +111,20 @@ export default function Home() {
     });
   }, []);
 
+  const { data: impactMetrics } = useQuery({
+    queryKey: ["home-impact"],
+    queryFn: () => fetch(`${API}/impact/metrics`).then(r => r.json()),
+    refetchInterval: 10_000,
+  });
+
   const hour = time.getHours();
   const greeting = hour < 12 ? "Good Morning" : hour < 18 ? "Good Afternoon" : "Good Evening";
   const timeStr = time.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
   const dateStr = time.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+
+  const savingsStr = impactMetrics?.ignoranceTax?.totalMemberSavings
+    ? `$${(impactMetrics.ignoranceTax.totalMemberSavings / 1_000_000).toFixed(2)}M`
+    : "$4.72M";
 
   return (
     <div className="h-full overflow-y-auto hero-mesh">
@@ -185,6 +200,37 @@ export default function Home() {
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Ignorance Tax Impact Strip */}
+      <div className="px-8 pb-5">
+        <Link href="/impact">
+          <div style={{
+            background: "linear-gradient(135deg, rgba(52,211,153,0.07) 0%, rgba(201,162,39,0.04) 100%)",
+            border: "1px solid rgba(52,211,153,0.15)",
+            borderRadius: "14px",
+            padding: "14px 18px",
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
+            cursor: "pointer",
+          }}>
+            <div style={{ width: "34px", height: "34px", borderRadius: "10px", background: "rgba(52,211,153,0.1)", border: "1px solid rgba(52,211,153,0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <Heart size={15} color="#34D399" />
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ fontSize: "10px", letterSpacing: "0.12em", color: "rgba(255,255,255,0.3)", fontWeight: 700, textTransform: "uppercase", marginBottom: "2px" }}>Ignorance Tax Eliminated</p>
+              <div style={{ display: "flex", alignItems: "baseline", gap: "8px" }}>
+                <p style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "22px", fontWeight: 900, color: "#34D399", lineHeight: 1 }}>{savingsStr}</p>
+                <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.35)" }}>saved vs. retail markup</p>
+              </div>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "3px" }}>
+              <TrendingDown size={13} color="#34D399" />
+              <ArrowRight size={13} color="rgba(52,211,153,0.5)" />
+            </div>
+          </div>
+        </Link>
       </div>
 
       {/* Quick Actions */}
