@@ -105,3 +105,34 @@ Manages the OpenAPI 3.1 specification (`openapi.yaml`) and Orval configuration (
 -   **Identity Verification**: Stripe Identity (for Dynasty Wallet)
 -   **Data Intelligence**: Fullpath (mocked API integration)
 -   **Vehicle Market Data**: MarketCheck (mocked API integration)
+
+## AWS Infrastructure (`/infra`)
+
+A complete AWS CDK (TypeScript v2) deployment blueprint lives in `/infra`. It is standalone (not part of the pnpm workspace) and targets production deployment on a corporate AWS account (EIN-linked).
+
+### Stacks (deploy order)
+| Stack | Key Services |
+|---|---|
+| `3C-Foundation` | VPC (3 AZ, 2 NAT GW), KMS CMK, VPC Endpoints (DynamoDB, Bedrock, Secrets Manager) |
+| `3C-Security` | Secrets Manager (9 API secrets), WAFv2 OWASP, Shield Standard, IAM permission boundary |
+| `3C-Data` | 6 DynamoDB tables (ReputationLedger, VehiclePassports, DynastyWallet, AuditVault, AgentTaskQueue, Subscriptions) + S3 Glacier WORM |
+| `3C-Intelligence` | Bedrock model access (claude-3-5-sonnet, claude-3-haiku, nova-pro), Knowledge Base S3 bucket |
+| `3C-Compute` | 7 Lambda agents (ARM64 Graviton2) + 3 router Lambdas + EventBridge bus |
+| `3C-Workflows` | 3 Step Functions state machines (RepairWorkflow, PurchaseWorkflow, SubscriptionWorkflow) |
+| `3C-Api` | API Gateway v2 HTTP, Cognito User Pool (MFA), WAF association, 20+ routes |
+| `3C-Monitoring` | CloudWatch dashboard, 6 alarms, X-Ray, SNS ops alerts |
+
+### One-command deploy
+```bash
+cd infra && npm install
+npx cdk deploy --all --require-approval never --profile 3c-corp
+```
+
+### Agent Lambda handlers (in `infra/lib/lambda/agents/`)
+- `guardian/` — V2X threat detection, DVP stamping, Bedrock haiku
+- `concierge/` — Bedrock claude-3-5-sonnet streaming NLP, Browserbase parts search
+- `marketcheck/` — Live wholesale/retail pricing + Bedrock nova-pro analysis
+- `checkr/` — BGC initiation, KYC/AML, Cognito post-confirmation trigger
+- `smartcar/` — Connected vehicle telemetry + remote lock/unlock
+- `stripe/` — Dynasty triple-split (85/13/2), subscriptions, Stripe Connect wallet
+- `hypertrack/` — Technician dispatch, ETA computation, delivery tracking
