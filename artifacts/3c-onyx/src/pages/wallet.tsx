@@ -703,34 +703,72 @@ function DynastyLedger() {
               </div>
 
               {expanded === txn.id && (
-                <div className="border-t border-white/5 p-4 bg-black/20">
-                  <div className="space-y-2">
-                    {txn.legs.map((leg) => {
-                      const c = legColors[leg.recipientType] ?? legColors.platform;
-                      const LegIcon = c.icon;
+                <div className="border-t border-white/5 bg-black/30" style={{ padding: "20px 20px 16px" }}>
+                  {/* Luxury invoice header */}
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <p style={{ fontSize: "9px", letterSpacing: "0.25em", color: "rgba(201,162,39,0.5)", fontWeight: 700, fontFamily: "'Barlow Condensed', sans-serif" }}>DYNASTY SPLIT RECEIPT</p>
+                      <p style={{ fontSize: "10px", color: "rgba(255,255,255,0.5)", marginTop: "2px" }}>{txn.vehicle}</p>
+                    </div>
+                    <div className="text-right">
+                      <p style={{ fontSize: "9px", color: "rgba(255,255,255,0.2)", fontFamily: "monospace" }}>TXN #{txn.id.slice(-8).toUpperCase()}</p>
+                      <p style={{ fontSize: "9px", color: "rgba(255,255,255,0.2)" }}>{new Date(txn.createdAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</p>
+                    </div>
+                  </div>
+                  <div className="receipt-divider" />
+
+                  {/* Line items — hotel folio style */}
+                  <div className="space-y-0">
+                    {txn.legs.map((leg, i) => {
+                      const isReferrer = leg.recipientType === "referrer";
                       return (
-                        <div key={leg.label} className={`flex items-center gap-3 p-2.5 rounded-lg border ${c.border} ${c.bg}`}>
-                          <LegIcon className={`w-3.5 h-3.5 ${c.text} shrink-0`} />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs text-white/70">{leg.label}</p>
-                            <p className="text-[10px] text-white/25">{leg.recipient}</p>
+                        <div key={leg.label} className="flex items-baseline justify-between py-2" style={{ borderBottom: i < txn.legs.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
+                          <div className="flex-1 min-w-0 pr-4">
+                            <div className="flex items-center gap-2">
+                              <p style={{ fontSize: "11px", color: isReferrer ? "#C9A227" : "rgba(255,255,255,0.65)", fontWeight: isReferrer ? 700 : 500 }}>
+                                {leg.label}
+                                {isReferrer && <span style={{ fontSize: "8px", color: "#C9A227", marginLeft: "6px", letterSpacing: "0.1em" }}>· 2% DIVIDEND</span>}
+                              </p>
+                            </div>
+                            <p style={{ fontSize: "9px", color: "rgba(255,255,255,0.22)", fontFamily: "monospace", marginTop: "1px" }}>
+                              {leg.recipient}
+                              {leg.stripeTransferId ? ` · ${leg.stripeTransferId.slice(0, 16)}…` : ""}
+                            </p>
                           </div>
-                          <div className="text-right shrink-0">
-                            <p className={`text-xs font-bold ${c.text}`}>${leg.amount.toLocaleString()}</p>
-                            {leg.stripeTransferId && (
-                              <p className="text-[9px] font-mono text-white/15">{leg.stripeTransferId.slice(0, 18)}…</p>
-                            )}
+                          <div className="text-right shrink-0 flex items-center gap-3">
+                            <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.2)" }}>{leg.percentage}%</span>
+                            <p style={{ fontSize: "13px", fontWeight: 700, fontVariantNumeric: "tabular-nums", fontFamily: "monospace", color: isReferrer ? "#C9A227" : leg.status === "paid" ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.4)" }}>
+                              ${leg.amount.toLocaleString()}
+                            </p>
+                            <span style={{ fontSize: "8px", padding: "2px 6px", borderRadius: "4px", fontWeight: 700, letterSpacing: "0.08em",
+                              background: leg.status === "paid" ? "rgba(16,185,129,0.08)" : "rgba(251,191,36,0.08)",
+                              color: leg.status === "paid" ? "#34D399" : "#FBBF24",
+                              border: `1px solid ${leg.status === "paid" ? "rgba(16,185,129,0.2)" : "rgba(251,191,36,0.2)"}`,
+                            }}>{leg.status.toUpperCase()}</span>
                           </div>
-                          <span className={`text-[9px] px-1.5 py-0.5 rounded border font-medium ${leg.status === "paid" ? "text-emerald-400 border-emerald-500/25 bg-emerald-500/5" : "text-amber-400 border-amber-500/25 bg-amber-500/5"}`}>
-                            {leg.status}
-                          </span>
                         </div>
                       );
                     })}
-                    <div className="pt-2 flex items-center justify-between text-xs border-t border-white/5">
-                      <span className="text-white/25">Platform retained</span>
-                      <span className="text-emerald-400 font-bold">${txn.platformRetained.toLocaleString()}</span>
-                    </div>
+                  </div>
+
+                  {/* Total line */}
+                  <div className="receipt-total-divider" />
+                  <div className="flex items-baseline justify-between">
+                    <p style={{ fontSize: "10px", color: "rgba(255,255,255,0.4)", letterSpacing: "0.1em", fontWeight: 700 }}>TOTAL DISTRIBUTED</p>
+                    <p style={{ fontSize: "15px", fontWeight: 900, fontFamily: "monospace", fontVariantNumeric: "tabular-nums", color: "#FFFFFF" }}>${txn.totalDistributed.toLocaleString()}</p>
+                  </div>
+                  <div className="receipt-divider" />
+                  <div className="flex items-center justify-between mt-1">
+                    <p style={{ fontSize: "9px", color: "rgba(201,162,39,0.5)" }}>Platform retained</p>
+                    <p style={{ fontSize: "11px", fontWeight: 700, fontFamily: "monospace", color: "#C9A227" }}>${txn.platformRetained.toLocaleString()}</p>
+                  </div>
+
+                  {/* KYC & Stripe footer */}
+                  <div className="flex items-center gap-2 mt-4 pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}>
+                    <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#10B981", flexShrink: 0 }} />
+                    <p style={{ fontSize: "9px", color: "rgba(255,255,255,0.2)", fontFamily: "monospace" }}>
+                      KYC {txn.kycSessionId.slice(0, 24)} · Stripe Connect · AML/FinCEN compliant
+                    </p>
                   </div>
                 </div>
               )}

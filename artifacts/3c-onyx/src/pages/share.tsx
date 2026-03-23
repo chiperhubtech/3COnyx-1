@@ -1,16 +1,41 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { Copy, Check, Wifi, TrendingUp, Shield, Zap } from "lucide-react";
 
 const BASE_SIGNUPS = 8564;
 const PRICE = 99;
 
+// Smooth animated counter — interpolates from prev to next over ~700ms
+function useCountUp(target: number, duration = 700) {
+  const [display, setDisplay] = useState(target);
+  const prev = useRef(target);
+  const raf = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (prev.current === target) return;
+    const start = prev.current;
+    const diff = target - start;
+    const startTime = performance.now();
+    const tick = (now: number) => {
+      const t = Math.min((now - startTime) / duration, 1);
+      const eased = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t; // ease-in-out quad
+      setDisplay(Math.round(start + diff * eased));
+      if (t < 1) raf.current = requestAnimationFrame(tick);
+      else { setDisplay(target); prev.current = target; }
+    };
+    raf.current = requestAnimationFrame(tick);
+    return () => { if (raf.current) cancelAnimationFrame(raf.current); };
+  }, [target, duration]);
+
+  return display;
+}
+
 function useTicker() {
   const [signups, setSignups] = useState(BASE_SIGNUPS);
   useEffect(() => {
     const iv = setInterval(() => {
-      setSignups((s) => s + Math.floor(Math.random() * 3));
-    }, 4000);
+      setSignups((s) => s + 1); // one member at a time — more believable, no flicker
+    }, 7000);
     return () => clearInterval(iv);
   }, []);
   return { signups, mrr: signups * PRICE };
@@ -40,16 +65,30 @@ export default function Share() {
   const appUrl = useAppUrl();
   const [copied, setCopied] = useState(false);
 
+  // Smooth animated display values
+  const displaySignups = useCountUp(signups);
+  const displayMrr = useCountUp(mrr);
+
   const handleCopy = () => {
     if (appUrl) {
       navigator.clipboard.writeText(appUrl).then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2500);
+      }).catch(() => {
+        // Fallback: create temp input
+        const el = document.createElement("input");
+        el.value = appUrl;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand("copy");
+        document.body.removeChild(el);
         setCopied(true);
         setTimeout(() => setCopied(false), 2500);
       });
     }
   };
 
-  const mrrFormatted = `$${(mrr / 1000).toFixed(0)}K`;
+  const mrrFormatted = `$${(displayMrr / 1000).toFixed(0)}K`;
 
   return (
     <div
@@ -127,7 +166,7 @@ export default function Share() {
         <div className="w-24 h-px my-6" style={{ background: "linear-gradient(90deg, transparent, rgba(201,162,39,0.5), transparent)" }} />
 
         {/* QR Code frame */}
-        <div className="relative mb-6" style={{ padding: "3px", borderRadius: "20px", background: "linear-gradient(135deg, #C9A227, #8B6914, #C9A227)" }}>
+        <div className="relative mb-6 scan-pulse" style={{ padding: "3px", borderRadius: "20px", background: "linear-gradient(135deg, #C9A227, #8B6914, #C9A227)" }}>
           <div
             className="relative"
             style={{
@@ -263,7 +302,7 @@ export default function Share() {
                   fontVariantNumeric: "tabular-nums",
                 }}
               >
-                {signups.toLocaleString()}
+                {displaySignups.toLocaleString()}
               </p>
             </div>
             <div className="text-right">

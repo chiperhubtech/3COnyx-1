@@ -759,3 +759,70 @@
   justify-content: center;
 }
 
+/* ─── Skeleton Loader — gold shimmer ─── */
+@keyframes skeleton-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.03) 25%,
+    rgba(201,162,39,0.09)  50%,
+    rgba(255,255,255,0.03) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.8s ease-in-out infinite;
+  border-radius: 10px;
+}
+
+/* ─── Gold Scan Pulse (Guardian / Agent scanning) ─── */
+@keyframes gold-scan-ring {
+  0%, 100% { box-shadow: 0 0  0   0   rgba(201,162,39,0);    }
+  40%       { box-shadow: 0 0 18px 4px rgba(201,162,39,0.22); }
+  60%       { box-shadow: 0 0 28px 8px rgba(201,162,39,0.12); }
+}
+.scan-pulse {
+  animation: gold-scan-ring 2.4s ease-in-out infinite;
+}
+
+/* ─── Agent "alive" border sweep ─── */
+@keyframes border-sweep {
+  0%   { border-color: rgba(16,185,129,0.15); }
+  50%  { border-color: rgba(201,162,39,0.5);  }
+  100% { border-color: rgba(16,185,129,0.15); }
+}
+.agent-live-border {
+  animation: border-sweep 3s ease-in-out infinite;
+}
+
+/* ─── Feed entry fade-in ─── */
+@keyframes feed-in {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+.feed-entry {
+  animation: feed-in 0.35s ease-out both;
+}
+
+/* ─── Number flip — smooth counter ─── */
+.num-smooth {
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
+  transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1),
+              opacity  0.25s ease;
+  will-change: transform, opacity;
+}
+
+/* ─── Luxury receipt divider ─── */
+.receipt-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201,162,39,0.35), transparent);
+  margin: 10px 0;
+}
+.receipt-total-divider {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(201,162,39,0.55), transparent);
+  margin: 8px 0 4px;
+}
+

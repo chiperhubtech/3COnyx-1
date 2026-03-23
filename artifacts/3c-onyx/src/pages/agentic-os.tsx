@@ -213,12 +213,12 @@ function PipelineStepCard({ step, isActive }: { step: PipelineStep; isActive: bo
   );
 }
 
-function FeedRow({ event }: { event: FeedEvent }) {
+function FeedRow({ event, isNew }: { event: FeedEvent; isNew?: boolean }) {
   const agentCol = AGENT_COLORS[event.agentId] || "#818CF8";
   const typeCol = TYPE_COLOR[event.type] || "#fff";
   const AgentIcon = AGENT_ICONS[event.agentId] || Bot;
   return (
-    <div className="flex gap-2.5 py-2.5 border-b" style={{ borderColor: "rgba(255,255,255,0.04)" }}>
+    <div className={`flex gap-2.5 py-2.5 border-b ${isNew ? "feed-entry" : ""}`} style={{ borderColor: "rgba(255,255,255,0.04)" }}>
       <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5" style={{ background: `${agentCol}15` }}>
         <AgentIcon className="w-2.5 h-2.5" style={{ color: agentCol }} />
       </div>
@@ -309,7 +309,7 @@ export default function AgenticOS() {
   const { data: feedData } = useQuery<{ events: FeedEvent[] }>({
     queryKey: ["agents-feed", lastFeedTs],
     queryFn: () => fetch(`${BASE}/api/agents/feed${lastFeedTs ? `?since=${lastFeedTs}` : ""}`).then(r => r.json()),
-    refetchInterval: 2000,
+    refetchInterval: 5000,
   });
 
   useEffect(() => {
@@ -364,30 +364,39 @@ export default function AgenticOS() {
     refetchInterval: 4000,
   });
 
+  const [conciergeMsg, setConciergeMsg] = useState<string | null>(null);
+  const showConcierge = (msg: string) => {
+    setConciergeMsg(msg);
+    setTimeout(() => setConciergeMsg(null), 6000);
+  };
+
   // Mutations
   const triggerPipeline = useMutation({
     mutationFn: (trigger: string) =>
       fetch(`${BASE}/api/agents/pipeline/trigger`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ trigger }),
-      }).then(r => r.json()),
+      }).then(r => { if (!r.ok) throw new Error("pipeline"); return r.json(); }),
     onSuccess: () => {
       setIsPipelinePolling(true);
       setTimeout(() => refetchPipeline(), 500);
       refetchAgents();
     },
+    onError: () => showConcierge("The Guardian pipeline is recalibrating the Seaport grid — one moment."),
   });
 
   const interruptPipeline = useMutation({
     mutationFn: () =>
-      fetch(`${BASE}/api/agents/pipeline/interrupt`, { method: "POST" }).then(r => r.json()),
+      fetch(`${BASE}/api/agents/pipeline/interrupt`, { method: "POST" }).then(r => { if (!r.ok) throw new Error("interrupt"); return r.json(); }),
     onSuccess: () => { setIsPipelinePolling(false); refetchPipeline(); },
+    onError: () => showConcierge("The interrupt signal is propagating through the mesh — one moment."),
   });
 
   const resumePipeline = useMutation({
     mutationFn: () =>
-      fetch(`${BASE}/api/agents/pipeline/resume`, { method: "POST" }).then(r => r.json()),
+      fetch(`${BASE}/api/agents/pipeline/resume`, { method: "POST" }).then(r => { if (!r.ok) throw new Error("resume"); return r.json(); }),
     onSuccess: () => { setIsPipelinePolling(true); setTimeout(() => refetchPipeline(), 800); },
+    onError: () => showConcierge("The Agent is resyncing the Temporal checkpoint — one moment."),
   });
 
   const submitGoal = useMutation({
@@ -395,11 +404,12 @@ export default function AgenticOS() {
       fetch(`${BASE}/api/agents/superagi/goal`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ item: part.item, partNumber: part.partNumber }),
-      }).then(r => r.json()),
+      }).then(r => { if (!r.ok) throw new Error("goal"); return r.json(); }),
     onSuccess: (data) => {
       setActiveGoalId(data.goalId);
       setTimeout(() => refetchGoal(), 800);
     },
+    onError: () => showConcierge("SuperAGI is recalibrating the Manchester grid — one moment."),
   });
 
   const agents = agentsData?.agents ?? [];
@@ -414,6 +424,19 @@ export default function AgenticOS() {
         badge={<span className="neural-badge neural-badge-violet">BROWSERBASE · GUMLOOP · SUPERAGI</span>}
         subtitle="Industrial Autonomy Engine · 7-Agent Mesh · I-95 Corridor"
       />
+
+      {/* Concierge error message */}
+      {conciergeMsg && (
+        <div
+          className="flex items-start gap-3 px-4 py-3 rounded-xl border"
+          style={{ background: "rgba(201,162,39,0.06)", borderColor: "rgba(201,162,39,0.25)", animation: "feed-in 0.3s ease-out" }}
+        >
+          <div className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 shrink-0" style={{ animation: "pulse 1.5s infinite" }} />
+          <p style={{ fontSize: "12px", color: "rgba(201,162,39,0.9)", fontStyle: "italic", lineHeight: 1.5 }}>
+            Concierge: {conciergeMsg}
+          </p>
+        </div>
+      )}
 
       {/* Integration Status Row */}
       <div className="grid grid-cols-3 gap-3">
@@ -592,7 +615,7 @@ export default function AgenticOS() {
             style={{ height: "520px" }}
           >
             <div className="space-y-0 flex-1">
-              {feedEvents.slice(-40).map(ev => <FeedRow key={ev.id} event={ev} />)}
+              {feedEvents.slice(-40).map((ev, i, arr) => <FeedRow key={ev.id} event={ev} isNew={i >= arr.length - 3} />)}
               {feedEvents.length === 0 && (
                 <div className="h-full flex items-center justify-center">
                   <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.2)" }}>Waiting for agent activity…</p>
@@ -721,14 +744,17 @@ function PartsSearchPanel() {
   const [geo, setGeo] = useState("Hunts Point");
   const [result, setResult] = useState<any>(null);
 
+  const [searchError, setSearchError] = useState<string | null>(null);
+
   const search = useMutation({
     mutationFn: () =>
       fetch(`${import.meta.env.BASE_URL.replace(/\/$/, "")}/api/agents/parts/search`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ partName, partNumber, geo }),
-      }).then(r => r.json()),
-    onSuccess: (data) => setResult(data),
+      }).then(r => { if (!r.ok) throw new Error("search"); return r.json(); }),
+    onSuccess: (data) => { setResult(data); setSearchError(null); },
+    onError: () => setSearchError("Browserbase is recalibrating the regional pricing mesh — one moment."),
   });
 
   const GEOS = ["Hunts Point", "Boston", "Manchester"];
@@ -783,6 +809,13 @@ function PartsSearchPanel() {
         {search.isPending ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Globe className="w-4 h-4" />}
         {search.isPending ? "Scanning via Browserbase…" : "Launch Stealth Browser Scan"}
       </button>
+
+      {searchError && (
+        <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg" style={{ background: "rgba(201,162,39,0.06)", border: "1px solid rgba(201,162,39,0.2)" }}>
+          <div className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" style={{ animation: "pulse 1.5s infinite" }} />
+          <p style={{ fontSize: "11px", color: "rgba(201,162,39,0.8)", fontStyle: "italic" }}>Concierge: {searchError}</p>
+        </div>
+      )}
 
       {result && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

@@ -463,8 +463,23 @@ const VEHICLE_IDS = ["veh-001", "veh-002", "veh-003"];
 
 export default function GuardianPage() {
   const qc = useQueryClient();
-  const [activeTab, setActiveTab] = useState<"alerts" | "telemetry" | "mesh" | "strikes">("strikes");
-  const [selectedVehicle, setSelectedVehicle] = useState(VEHICLE_IDS[0]);
+
+  // Persist active tab across refreshes
+  const [activeTab, setActiveTab] = useState<"alerts" | "telemetry" | "mesh" | "strikes">(() => {
+    try { return (localStorage.getItem("guardian-tab") as any) || "strikes"; } catch { return "strikes"; }
+  });
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab as any);
+    try { localStorage.setItem("guardian-tab", tab); } catch { /* ignore */ }
+  };
+
+  const [selectedVehicle, setSelectedVehicle] = useState(() => {
+    try { return localStorage.getItem("guardian-vehicle") || VEHICLE_IDS[0]; } catch { return VEHICLE_IDS[0]; }
+  });
+  const handleVehicleChange = (id: string) => {
+    setSelectedVehicle(id);
+    try { localStorage.setItem("guardian-vehicle", id); } catch { /* ignore */ }
+  };
 
   const { data: alertData, isLoading: alertLoading } = useQuery({
     queryKey: ["guardian-alerts"],
@@ -575,7 +590,7 @@ export default function GuardianPage() {
         {/* Tabs */}
         <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
           {TABS.map(t => (
-            <button key={t.id} onClick={() => setActiveTab(t.id)} style={{
+            <button key={t.id} onClick={() => handleTabChange(t.id)} style={{
               display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 10,
               background: activeTab === t.id ? "rgba(16,185,129,0.12)" : "rgba(255,255,255,0.03)",
               border: `1px solid ${activeTab === t.id ? "rgba(16,185,129,0.3)" : "rgba(255,255,255,0.06)"}`,
@@ -614,8 +629,13 @@ export default function GuardianPage() {
             </div>
 
             {strikeLoading ? (
-              <div style={{ textAlign: "center", color: "rgba(255,255,255,0.3)", padding: 40, fontSize: 13 }}>
-                Scanning wholesale mesh for high-value opportunities…
+              <div className="space-y-3 p-2">
+                {[1, 2, 3].map(i => (
+                  <div key={i} className="skeleton scan-pulse" style={{ height: 80, borderRadius: 14 }} />
+                ))}
+                <p style={{ textAlign: "center", color: "rgba(201,162,39,0.4)", fontSize: 11, letterSpacing: "0.1em", paddingTop: 4 }}>
+                  SCANNING WHOLESALE MESH…
+                </p>
               </div>
             ) : strikes.length === 0 ? (
               <div style={{ textAlign: "center", padding: 60 }}>
@@ -638,7 +658,14 @@ export default function GuardianPage() {
         {activeTab === "alerts" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {alertLoading ? (
-              <div style={{ textAlign: "center", color: "rgba(255,255,255,0.3)", padding: 40, fontSize: 13 }}>Loading V2X intelligence…</div>
+              <div className="space-y-3 p-2">
+                {[1, 2].map(i => (
+                  <div key={i} className="skeleton scan-pulse" style={{ height: 90, borderRadius: 14 }} />
+                ))}
+                <p style={{ textAlign: "center", color: "rgba(201,162,39,0.4)", fontSize: 11, letterSpacing: "0.1em", paddingTop: 4 }}>
+                  LOADING V2X INTELLIGENCE…
+                </p>
+              </div>
             ) : alerts.length === 0 ? (
               <div style={{ textAlign: "center", padding: 60 }}>
                 <Shield size={32} style={{ color: "rgba(16,185,129,0.4)", margin: "0 auto 12px" }} />
@@ -667,7 +694,7 @@ export default function GuardianPage() {
                 { id: "veh-002", label: "Aston Martin Vantage" },
                 { id: "veh-003", label: "Ferrari Roma" },
               ].map(v => (
-                <button key={v.id} onClick={() => setSelectedVehicle(v.id)} style={{
+                <button key={v.id} onClick={() => handleVehicleChange(v.id)} style={{
                   padding: "8px 14px", borderRadius: 10,
                   background: selectedVehicle === v.id ? "rgba(16,185,129,0.12)" : "rgba(255,255,255,0.03)",
                   border: `1px solid ${selectedVehicle === v.id ? "rgba(16,185,129,0.3)" : "rgba(255,255,255,0.06)"}`,
@@ -680,7 +707,15 @@ export default function GuardianPage() {
             </div>
 
             {telLoading ? (
-              <div style={{ textAlign: "center", color: "rgba(255,255,255,0.3)", padding: 40 }}>Reading V2X telemetry…</div>
+              <div className="space-y-3 p-2">
+                <div className="skeleton scan-pulse" style={{ height: 120, borderRadius: 16 }} />
+                <div className="grid" style={{ gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
+                  {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="skeleton" style={{ height: 72, borderRadius: 12 }} />)}
+                </div>
+                <p style={{ textAlign: "center", color: "rgba(201,162,39,0.4)", fontSize: 11, letterSpacing: "0.1em", paddingTop: 4 }}>
+                  READING V2X TELEMETRY…
+                </p>
+              </div>
             ) : tel ? (
               <div>
                 {/* Health score hero */}
