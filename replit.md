@@ -2,6 +2,16 @@
 
 3C Onyx is a luxury dark-mode Automotive AI Operating System — a trust layer between consumers and the automotive industry. "We move like water." The platform includes ONYX AI Concierge, Guardian V2X, Blockchain Chain-of-Custody (SHA-256 + HMAC + PostgreSQL persistence + Ethereum anchoring), Dynasty Wallet, Stripe Connect, Viral Growth Engine, Founding Member pre-launch payment system, and dual-layer AI personalization (Consumer/Pro modes). No mock/simulation language visible to users — all badges read LIVE.
 
+## Decision Engine (completed — LLM-independent)
+- `lib/decisionEngine.ts` — Rule-based, deterministic scoring for vehicles, shops, and fraud. No LLM required.
+- `GET /api/engine/status` returns `{"llmDependency":false,"mode":"deterministic"}` — verifiable in production
+- `POST /api/engine/score/vehicle` — Scores a vehicle across 4 dimensions (price, condition, blockchain history, mileage) → STRONG_BUY/BUY/NEUTRAL/CAUTION/AVOID
+- `POST /api/engine/score/shop` — Scores repair shops (rating, price-vs-budget, distance, certs)
+- `POST /api/engine/fraud/check` — Detects fraud signals (price anomaly, VIN cloning, title wash, off-platform contact) → CLEAN/LOW/MEDIUM/HIGH/CRITICAL
+- `POST /api/engine/feedback` — Records user action on any decision (accepted/rejected/ignored + outcome) — feedback loop for scoring improvement
+- `engine_decisions` PostgreSQL table stores every decision made for ML improvement over time
+- Multi-provider AI router ALREADY existed: Gemini → OpenAI → Anthropic fallback (confirmed asset)
+
 ## VC Red-Flag Resolutions (completed)
 - **Blockchain**: SHA-256 hash chain + HMAC-SHA-256 signing + PostgreSQL persistence (survives restarts) + public proof verifier (`GET /api/blockchain/proof/:hash`, no auth). Ethereum Sepolia anchoring optional.
 - **Vehicle Data**: NHTSA vPIC free government VIN decode (`GET /api/marketcheck/vin/:vin`) — real US DOT data, no API key required. "3c-demo" source label eliminated → "3c-curated".

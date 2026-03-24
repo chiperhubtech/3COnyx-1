@@ -48,6 +48,7 @@ import foundingRouter from "./founding";
 import growthRouter from "./growth";
 import enhanceRouter from "./enhance";
 import documentsRouter from "./documents";
+import engineRouter from "./engine";
 
 const router: IRouter = Router();
 
@@ -97,6 +98,7 @@ router.use(foundingRouter);
 router.use(growthRouter);
 router.use(enhanceRouter);
 router.use(documentsRouter);
+router.use(engineRouter);
 router.use(orchestratorRouter);
 
 router.use(
