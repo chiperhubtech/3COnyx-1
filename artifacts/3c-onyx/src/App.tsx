@@ -12,6 +12,8 @@ import { OnboardingModal, useOnboarding } from "@/components/OnboardingModal";
 
 import Home from "@/pages/home";
 import LandingPage from "@/pages/landing";
+import JoinPage from "@/pages/join";
+import JoinSuccess from "@/pages/join-success";
 import Concierge from "@/pages/concierge";
 import Inventory from "@/pages/inventory";
 import Marketplace from "@/pages/marketplace";
@@ -91,22 +93,24 @@ function AppRoutes() {
   const [location] = useLocation();
 
   // Public pages — no sidebar, no auth required
-  const PUBLIC_PATHS = ["/landing", "/login", "/register", "/waitlist", "/legal/terms", "/legal/privacy"];
+  const PUBLIC_PATHS = ["/landing", "/login", "/register", "/waitlist", "/legal/terms", "/legal/privacy", "/join"];
   const isPublic = PUBLIC_PATHS.some((p) => location === p || location.startsWith(p));
 
   if (isPublic) {
     return (
       <Switch>
-        <Route path="/landing"       component={LandingPage} />
+        <Route path="/landing"         component={LandingPage} />
+        <Route path="/join/success"    component={JoinSuccess} />
+        <Route path="/join"            component={JoinPage} />
         <Route path="/login">
           <PublicRoute><LoginPage /></PublicRoute>
         </Route>
         <Route path="/register">
           <PublicRoute><RegisterPage /></PublicRoute>
         </Route>
-        <Route path="/waitlist"      component={WaitlistPage} />
-        <Route path="/legal/terms"   component={TermsPage} />
-        <Route path="/legal/privacy" component={PrivacyPage} />
+        <Route path="/waitlist"        component={WaitlistPage} />
+        <Route path="/legal/terms"     component={TermsPage} />
+        <Route path="/legal/privacy"   component={PrivacyPage} />
       </Switch>
     );
   }

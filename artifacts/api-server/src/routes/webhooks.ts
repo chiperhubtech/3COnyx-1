@@ -156,6 +156,28 @@ async function handleEvent(event: { type: string; data: { object: Record<string,
       break;
     }
 
+    case "checkout.session.completed": {
+      const session  = obj as { id: string; customer: string; payment_intent: string; payment_status: string; metadata: Record<string, string> };
+      const metadata = session.metadata ?? {};
+
+      if (metadata.product === "founding_member" && session.payment_status === "paid") {
+        const { foundingMembersTable } = await import("@workspace/db");
+        const { eq } = await import("drizzle-orm");
+        await db
+          .update(foundingMembersTable)
+          .set({
+            status: "active",
+            stripeCustomerId: session.customer ?? null,
+            stripePaymentIntentId: session.payment_intent ?? null,
+            confirmedAt: new Date(),
+          })
+          .where(eq(foundingMembersTable.stripeCheckoutSessionId, session.id));
+        logger.info({ sessionId: session.id, email: metadata.email }, "[founding] Founding member confirmed via webhook");
+        await writeAudit("SYSTEM", "INFO", `Founding member confirmed: ${metadata.email ?? session.id}`, { sessionId: session.id });
+      }
+      break;
+    }
+
     case "customer.subscription.trial_will_end": {
       logger.info({ customer: obj.customer }, "Trial ending soon");
       await writeAudit("SYSTEM", "INFO", `Trial ending for customer ${obj.customer as string}`, {});

@@ -44,6 +44,7 @@ import escalationRouter from "./escalation";
 import checkoutRouter from "./checkout";
 import runnerRouter from "./runner";
 import intelligenceRouter from "./intelligence";
+import foundingRouter from "./founding";
 
 const router: IRouter = Router();
 
@@ -89,6 +90,7 @@ router.use(escalationRouter);
 router.use(checkoutRouter);
 router.use(runnerRouter);
 router.use(intelligenceRouter);
+router.use(foundingRouter);
 router.use(orchestratorRouter);
 
 router.use(
