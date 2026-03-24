@@ -555,6 +555,7 @@ export default function Home() {
               {[
                 { label: "Guardian V2X",        sub: "Predictive safety",      href: "/guardian",   color: "#34D399" },
                 { label: "Blockchain Custody",   sub: "SHA-256 chain",          href: "/custody",    color: "#818CF8" },
+                { label: "SDV Intelligence",      sub: "$213B → $1.2T market",   href: "/sdv",        color: "#C9A227" },
                 { label: "Trust Layer",          sub: "How it works",           href: "/trust",      color: "#60A5FA" },
                 { label: "AI Command Center",    sub: "K-factor · kill-switch", href: "/command",    color: "#EF4444" },
                 { label: "AR Spatial OS",        sub: "Rocksolid · Guardian",   href: "/ar-viewer",  color: "#C9A227" },

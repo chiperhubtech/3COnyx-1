@@ -51,6 +51,7 @@ import ARViewer from "@/pages/ar-viewer";
 import NotFound from "@/pages/not-found";
 import RunnerTasks from "@/pages/runner-tasks";
 import TechnologyPage from "@/pages/technology";
+import SDVPage from "@/pages/sdv";
 
 // Auth + launch pages
 import LoginPage    from "@/pages/login";
@@ -96,7 +97,7 @@ function AppRoutes() {
   const [location] = useLocation();
 
   // Public pages — no sidebar, no auth required
-  const PUBLIC_PATHS = ["/landing", "/login", "/register", "/waitlist", "/legal/terms", "/legal/privacy", "/join", "/m/", "/technology"];
+  const PUBLIC_PATHS = ["/landing", "/login", "/register", "/waitlist", "/legal/terms", "/legal/privacy", "/join", "/m/", "/technology", "/sdv"];
   const isPublic = PUBLIC_PATHS.some((p) => location === p || location.startsWith(p));
 
   if (isPublic) {
@@ -106,6 +107,7 @@ function AppRoutes() {
         <Route path="/join/success"    component={JoinSuccess} />
         <Route path="/join"            component={JoinPage} />
         <Route path="/technology"      component={TechnologyPage} />
+        <Route path="/sdv"             component={SDVPage} />
         <Route path="/m/:code"         component={MemberProfilePage} />
         <Route path="/login">
           <PublicRoute><LoginPage /></PublicRoute>

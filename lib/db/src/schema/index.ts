@@ -15,3 +15,4 @@ export * from "./founding-members";
 export * from "./analytics-events";
 export * from "./blockchain-records";
 export * from "./engine-decisions";
+export * from "./sdv-profiles";
