@@ -91,10 +91,10 @@ seed("veh-002", "2021 Aston Martin Vantage");
 
 // GET /api/spin/session/:vehicleId
 router.get("/spin/session/:vehicleId", (req: Request, res: Response) => {
-  const { vehicleId } = req.params;
+  const vehicleId = req.params["vehicleId"] as string;
   const session = sessions.get(vehicleId);
   if (!session) {
-    return res.status(404).json({ error: "No spin session found for this vehicle", vehicleId });
+    res.status(404).json({ error: "No spin session found for this vehicle", vehicleId }); return;
   }
   const capturedCount = session.frames.filter((f) => f.status === "captured").length;
   res.json({
@@ -107,7 +107,7 @@ router.get("/spin/session/:vehicleId", (req: Request, res: Response) => {
 
 // POST /api/spin/session/:vehicleId/start
 router.post("/spin/session/:vehicleId/start", (req: Request, res: Response) => {
-  const { vehicleId } = req.params;
+  const vehicleId = req.params["vehicleId"] as string;
   const { vehicleName = "Vehicle", runnerId = "runner-001", frameCount = 18 } = req.body as {
     vehicleName?: string; runnerId?: string; frameCount?: number;
   };

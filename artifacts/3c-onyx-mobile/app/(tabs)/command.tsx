@@ -216,6 +216,7 @@ function KillSwitchCard({ txn, onAction }: {
 
 // ─── Main Screen ──────────────────────────────────────────────────────────────
 export default function CommandScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const [pulse, setPulse] = useState<Pulse | null>(null);
   const [missions, setMissions] = useState<Mission[]>([]);
@@ -274,7 +275,7 @@ export default function CommandScreen() {
             <MaterialCommunityIcons name="radar" size={18} color="#EF4444" />
           </View>
           <View>
-            <Text style={styles.headerTitle}>COMMAND CENTER</Text>
+            <Text style={styles.headerTitle}>{t("command.title")}</Text>
             <Text style={styles.headerSub}>Founder Access · National Mesh</Text>
           </View>
         </View>

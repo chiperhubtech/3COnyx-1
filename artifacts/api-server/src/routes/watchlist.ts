@@ -46,7 +46,7 @@ router.post("/watchlist", async (req: Request, res: Response) => {
 });
 
 router.delete("/watchlist/:id", async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(req.params["id"] as string, 10);
   await db.delete(watchlistTable).where(eq(watchlistTable.id, id));
   res.status(204).end();
 });

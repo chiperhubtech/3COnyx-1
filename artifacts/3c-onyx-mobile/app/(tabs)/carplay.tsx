@@ -121,6 +121,7 @@ function SceneCard({ scene }: { scene: CarPlayScene }) {
 }
 
 export default function CarPlayScreen() {
+  const { t } = useTranslation();
   const [carPlayConnected, setCarPlayConnected] = useState(false);
 
   useEffect(() => {
@@ -149,7 +150,7 @@ export default function CarPlayScreen() {
           <View style={styles.headerIcon}>
             <Ionicons name="car-sport-outline" size={28} color={COLORS.gold} />
           </View>
-          <Text style={styles.headerTitle}>CarPlay & Android Auto</Text>
+          <Text style={styles.headerTitle}>{t("carplay.title")}</Text>
           <Text style={styles.headerSubtitle}>
             Drive-safe integration for 3C Onyx. Four scenes available when connected to a CarPlay or Android Auto head unit.
           </Text>

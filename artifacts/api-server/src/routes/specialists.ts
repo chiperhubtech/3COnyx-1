@@ -57,7 +57,7 @@ async function createCheckrCandidate(
     const err = await res.text();
     throw new Error(`Checkr candidate creation failed: ${res.status} ${err}`);
   }
-  return res.json();
+  return res.json() as Promise<CheckrCandidate>;
 }
 
 async function createCheckrInvitation(candidateId: string): Promise<CheckrInvitation> {
@@ -74,7 +74,7 @@ async function createCheckrInvitation(candidateId: string): Promise<CheckrInvita
     }),
   });
   if (!res.ok) throw new Error(`Checkr invitation creation failed: ${res.status}`);
-  return res.json();
+  return res.json() as Promise<CheckrInvitation>;
 }
 
 // ─── Simulation (when CHECKR_API_KEY not set) ─────────────────────────────────
@@ -225,7 +225,7 @@ router.get("/specialists/applications", async (_req: Request, res: Response) => 
 
 // ─── GET /api/specialists/bgc-status ─────────────────────────────────────────
 router.get("/specialists/bgc-status/:candidateId", async (req: Request, res: Response) => {
-  const { candidateId } = req.params;
+  const candidateId = req.params["candidateId"] as string;
   const apiKey = process.env.CHECKR_API_KEY;
 
   if (!apiKey || candidateId.startsWith("cand_sim_")) {
@@ -245,7 +245,7 @@ router.get("/specialists/bgc-status/:candidateId", async (req: Request, res: Res
     return;
   }
 
-  const candidate = await checkrRes.json();
+  const candidate = await checkrRes.json() as CheckrCandidate;
   res.json({ status: candidate.status, simulated: false });
 });
 

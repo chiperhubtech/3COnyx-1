@@ -183,6 +183,7 @@ appendAuditEntry({
   alternativesConsidered: ["$127,400 (raw avg)", "$119,000 (aggressive)"],
   outcomeType: "accepted",
   vehicleIdMasked: "•••••••••••8123",
+  ownerVisible: false,
 });
 
 appendAuditEntry({
@@ -195,6 +196,7 @@ appendAuditEntry({
   alternativesConsidered: ["Retail_B $1,159 (faster)", "Aftermarket_C $198 (not OEM)"],
   outcomeType: "accepted",
   vehicleIdMasked: "•••••••••••8123",
+  ownerVisible: false,
 });
 
 appendAuditEntry({
@@ -207,6 +209,7 @@ appendAuditEntry({
   alternativesConsidered: ["No action (risk < 3mi)", "Full rejection (risk > 5mi)"],
   outcomeType: "flagged",
   vehicleIdMasked: "•••••••••••3902",
+  ownerVisible: false,
 });
 
 appendAuditEntry({
@@ -219,6 +222,7 @@ appendAuditEntry({
   alternativesConsidered: ["Partial disclosure (city only)", "Full disclosure (policy violation)"],
   outcomeType: "overridden",
   vehicleIdMasked: null,
+  ownerVisible: false,
 });
 
 appendAuditEntry({
@@ -231,6 +235,7 @@ appendAuditEntry({
   alternativesConsidered: ["Capital One 7.1% / 60mo", "Chase 6.8% / 72mo (pending pre-approval)"],
   outcomeType: "accepted",
   vehicleIdMasked: null,
+  ownerVisible: false,
 });
 
 appendAuditEntry({
@@ -243,6 +248,7 @@ appendAuditEntry({
   alternativesConsidered: ["8.0/10 (conservative)", "8.7/10 (if oxidation ignored)"],
   outcomeType: "accepted",
   vehicleIdMasked: "•••••••••••8123",
+  ownerVisible: false,
 });
 
 appendAuditEntry({
@@ -255,6 +261,7 @@ appendAuditEntry({
   alternativesConsidered: ["List immediately (faster turn)", "Hold 30 days (diminishing return)"],
   outcomeType: "deferred",
   vehicleIdMasked: "•••••••••••7841",
+  ownerVisible: false,
 });
 
 appendAuditEntry({
@@ -267,6 +274,7 @@ appendAuditEntry({
   alternativesConsidered: ["Manual review (if any hit)", "Rejection (if lien found)"],
   outcomeType: "accepted",
   vehicleIdMasked: "•••••••••••8123",
+  ownerVisible: false,
 });
 
 // ─── Vehicle vitals for transient access (PII-free) ──────────────────────────
@@ -396,6 +404,7 @@ router.post("/security/decrypt", (req: Request, res: Response) => {
     alternativesConsidered: [],
     outcomeType: "accepted",
     vehicleIdMasked: null,
+    ownerVisible: false,
   });
 
   const plaintext = decryptString(field.encryptedToken);
@@ -445,6 +454,7 @@ router.post("/security/transient-access/grant", (req: Request, res: Response) =>
     alternativesConsidered: ["Permanent access (policy violation)", "No access"],
     outcomeType: "accepted",
     vehicleIdMasked: vehicleId,
+    ownerVisible: false,
   });
 
   res.json({ token: token.token, expiresAt: token.expiresAt, vehicleName });
@@ -502,6 +512,7 @@ router.get("/security/transient-access/:token/vitals", (req: Request, res: Respo
     alternativesConsidered: [],
     outcomeType: "accepted",
     vehicleIdMasked: tokenRecord.vehicleId,
+    ownerVisible: false,
   });
 
   res.json({
@@ -542,6 +553,7 @@ router.post("/security/agent-audit/entry", (req: Request, res: Response) => {
     alternativesConsidered: alternativesConsidered ?? [],
     outcomeType: (outcomeType ?? "accepted") as any,
     vehicleIdMasked: vehicleIdMasked ?? null,
+    ownerVisible: false,
   });
   res.json({ entry });
 });

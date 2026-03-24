@@ -79,7 +79,7 @@ router.get("/waitlist/stats", async (_req: Request, res: Response) => {
 });
 
 router.get("/waitlist/check/:email", async (req: Request, res: Response) => {
-  const email = decodeURIComponent(req.params.email).toLowerCase();
+  const email = decodeURIComponent(req.params["email"] as string).toLowerCase();
   const [entry] = await db.select().from(waitlistTable).where(eq(waitlistTable.email, email)).limit(1);
   if (!entry) {
     res.json({ onList: false });
