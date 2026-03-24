@@ -156,4 +156,24 @@ router.post("/auth/logout", requireAuth, (_req: Request, res: Response) => {
   res.json({ success: true, message: "Logged out. Discard your token client-side." });
 });
 
+// ─── POST /api/auth/onboarding-complete ──────────────────────────────────────
+router.post("/auth/onboarding-complete", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const user = (req as any).user as { id: number };
+    // Mark onboarding complete on user record if the column exists
+    // For now, log and ack — the localStorage flag is the primary gate
+    await writeAudit({
+      userId: String(user.id),
+      action: "ONBOARDING_COMPLETE",
+      resource: "user",
+      resourceId: String(user.id),
+      meta: { completedAt: new Date().toISOString() },
+    });
+    res.json({ success: true });
+  } catch {
+    // Non-blocking — client still marks complete
+    res.json({ success: true });
+  }
+});
+
 export default router;

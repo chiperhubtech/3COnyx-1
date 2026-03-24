@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -5,9 +6,12 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Layout } from "@/components/Layout";
 import { AIConcierge, RewardToast } from "@/components/AIConcierge";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { AuthProvider } from "@/context/AuthContext";
+import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { ProtectedRoute, PublicRoute } from "@/components/ProtectedRoute";
+import { OnboardingModal, useOnboarding } from "@/components/OnboardingModal";
 
 import Home from "@/pages/home";
+import LandingPage from "@/pages/landing";
 import Concierge from "@/pages/concierge";
 import Inventory from "@/pages/inventory";
 import Marketplace from "@/pages/marketplace";
@@ -41,6 +45,7 @@ import Pro from "@/pages/pro";
 import Custody from "@/pages/custody";
 import ARViewer from "@/pages/ar-viewer";
 import NotFound from "@/pages/not-found";
+import RunnerTasks from "@/pages/runner-tasks";
 
 // Auth + launch pages
 import LoginPage    from "@/pages/login";
@@ -50,8 +55,6 @@ import AdminPage    from "@/pages/admin";
 import TermsPage    from "@/pages/legal/terms";
 import PrivacyPage  from "@/pages/legal/privacy";
 import TrustPage    from "@/pages/trust";
-
-const BARE_PATHS = ["/login", "/register", "/waitlist"];
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -66,63 +69,107 @@ const queryClient = new QueryClient({
   },
 });
 
+/* ─── Onboarding Gate — wraps authenticated app ─────────────────────────── */
+function OnboardingGate({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
+  const { needsOnboarding } = useOnboarding();
+  const [dismissed, setDismissed] = useState(false);
+
+  // Only show onboarding if logged in AND not yet complete
+  const show = !!user && needsOnboarding && !dismissed;
+
+  return (
+    <>
+      {show && <OnboardingModal onComplete={() => setDismissed(true)} />}
+      {children}
+    </>
+  );
+}
+
+/* ─── All Routes ─────────────────────────────────────────────────────────── */
 function AppRoutes() {
   const [location] = useLocation();
-  const isBare = BARE_PATHS.some((p) => location === p);
 
-  if (isBare) {
+  // Public pages — no sidebar, no auth required
+  const PUBLIC_PATHS = ["/landing", "/login", "/register", "/waitlist", "/legal/terms", "/legal/privacy"];
+  const isPublic = PUBLIC_PATHS.some((p) => location === p || location.startsWith(p));
+
+  if (isPublic) {
     return (
       <Switch>
-        <Route path="/login"    component={LoginPage} />
-        <Route path="/register" component={RegisterPage} />
-        <Route path="/waitlist" component={WaitlistPage} />
+        <Route path="/landing"       component={LandingPage} />
+        <Route path="/login">
+          <PublicRoute><LoginPage /></PublicRoute>
+        </Route>
+        <Route path="/register">
+          <PublicRoute><RegisterPage /></PublicRoute>
+        </Route>
+        <Route path="/waitlist"      component={WaitlistPage} />
+        <Route path="/legal/terms"   component={TermsPage} />
+        <Route path="/legal/privacy" component={PrivacyPage} />
       </Switch>
     );
   }
 
   return (
-    <Layout>
-      <Switch>
-        <Route path="/"                   component={Home} />
-        <Route path="/concierge"          component={Concierge} />
-        <Route path="/inventory"          component={Inventory} />
-        <Route path="/marketplace"        component={Marketplace} />
-        <Route path="/garage"             component={Garage} />
-        <Route path="/logistics"          component={Logistics} />
-        <Route path="/delivery"           component={Delivery} />
-        <Route path="/wallet"             component={Wallet} />
-        <Route path="/referral-wallet"    component={ReferralWallet} />
-        <Route path="/audit-vault"        component={AuditVault} />
-        <Route path="/apply"              component={Apply} />
-        <Route path="/specialist-dashboard" component={SpecialistDashboard} />
-        <Route path="/inspection"         component={Inspection} />
-        <Route path="/watchlist"          component={Watchlist} />
-        <Route path="/analytics"          component={Analytics} />
-        <Route path="/ci-cd"              component={CiCd} />
-        <Route path="/finance"            component={Finance} />
-        <Route path="/insurance"          component={Insurance} />
-        <Route path="/vehicle-history"    component={VehicleHistory} />
-        <Route path="/ai-hub"             component={AIHub} />
-        <Route path="/dropship"           component={Dropship} />
-        <Route path="/security"           component={Security} />
-        <Route path="/command"            component={Command} />
-        <Route path="/guardian"           component={Guardian} />
-        <Route path="/subscribe"          component={Subscription} />
-        <Route path="/partners"           component={Partners} />
-        <Route path="/unity"              component={Unity} />
-        <Route path="/share"              component={Share} />
-        <Route path="/agentic-os"         component={AgenticOS} />
-        <Route path="/impact"             component={Impact} />
-        <Route path="/pro"                component={Pro} />
-        <Route path="/custody"            component={Custody} />
-        <Route path="/ar-viewer"          component={ARViewer} />
-        <Route path="/admin"              component={AdminPage} />
-        <Route path="/legal/terms"        component={TermsPage} />
-        <Route path="/legal/privacy"      component={PrivacyPage} />
-        <Route path="/trust"              component={TrustPage} />
-        <Route component={NotFound} />
-      </Switch>
-    </Layout>
+    <ProtectedRoute>
+      <OnboardingGate>
+        <Layout>
+          <Switch>
+            {/* Core Dashboard */}
+            <Route path="/"                     component={Home} />
+            <Route path="/trust"                component={TrustPage} />
+
+            {/* Consumer */}
+            <Route path="/concierge"            component={Concierge} />
+            <Route path="/marketplace"          component={Marketplace} />
+            <Route path="/garage"               component={Garage} />
+            <Route path="/logistics"            component={Logistics} />
+            <Route path="/delivery"             component={Delivery} />
+            <Route path="/wallet"               component={Wallet} />
+            <Route path="/referral-wallet"      component={ReferralWallet} />
+            <Route path="/watchlist"            component={Watchlist} />
+            <Route path="/finance"              component={Finance} />
+            <Route path="/insurance"            component={Insurance} />
+            <Route path="/vehicle-history"      component={VehicleHistory} />
+
+            {/* Specialist / Runner */}
+            <Route path="/specialist-dashboard" component={SpecialistDashboard} />
+            <Route path="/inspection"           component={Inspection} />
+            <Route path="/delivery"             component={Delivery} />
+            <Route path="/dropship"             component={Dropship} />
+            <Route path="/apply"                component={Apply} />
+            <Route path="/runner-tasks"         component={RunnerTasks} />
+
+            {/* Platform */}
+            <Route path="/inventory"            component={Inventory} />
+            <Route path="/audit-vault"          component={AuditVault} />
+            <Route path="/analytics"            component={Analytics} />
+            <Route path="/ci-cd"                component={CiCd} />
+            <Route path="/ai-hub"               component={AIHub} />
+            <Route path="/security"             component={Security} />
+            <Route path="/command"              component={Command} />
+            <Route path="/guardian"             component={Guardian} />
+            <Route path="/subscribe"            component={Subscription} />
+            <Route path="/partners"             component={Partners} />
+            <Route path="/unity"                component={Unity} />
+            <Route path="/share"                component={Share} />
+            <Route path="/agentic-os"           component={AgenticOS} />
+            <Route path="/impact"               component={Impact} />
+            <Route path="/pro"                  component={Pro} />
+            <Route path="/custody"              component={Custody} />
+            <Route path="/ar-viewer"            component={ARViewer} />
+
+            {/* Admin — role protected */}
+            <Route path="/admin">
+              <ProtectedRoute requiredRole="Admin"><AdminPage /></ProtectedRoute>
+            </Route>
+
+            <Route component={NotFound} />
+          </Switch>
+        </Layout>
+      </OnboardingGate>
+    </ProtectedRoute>
   );
 }
 

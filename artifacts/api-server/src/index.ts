@@ -2,6 +2,7 @@ import http from "http";
 import app from "./app";
 import { logger } from "./lib/logger";
 import * as wsHub from "./lib/wsHub";
+import { startPriceAlertJob } from "./lib/priceAlertJob";
 
 const rawPort = process.env["PORT"];
 
@@ -24,6 +25,7 @@ wsHub.attach(server);
 server.listen(port, () => {
   logger.info({ port }, "Server listening");
   logger.info("WebSocket hub active at /ws");
+  startPriceAlertJob();
 });
 
 server.on("error", (err) => {

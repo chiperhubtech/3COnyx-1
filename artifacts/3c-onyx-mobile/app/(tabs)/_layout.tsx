@@ -64,6 +64,24 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="runner"
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="car-outline" size={size} color={color} />
+          ),
+          tabBarLabel: "Tasks",
+        }}
+      />
+      <Tabs.Screen
+        name="wallet"
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="wallet-outline" size={size} color={color} />
+          ),
+          tabBarLabel: "Wallet",
+        }}
+      />
+      <Tabs.Screen
         name="notifications"
         options={{
           tabBarIcon: ({ color, size }) =>

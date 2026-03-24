@@ -41,6 +41,8 @@ import authRouter from "./auth";
 import adminRouter from "./admin";
 import waitlistRouter from "./waitlist";
 import escalationRouter from "./escalation";
+import checkoutRouter from "./checkout";
+import runnerRouter from "./runner";
 
 const router: IRouter = Router();
 
@@ -83,6 +85,8 @@ router.use(authRouter);
 router.use("/admin", adminRouter);
 router.use(waitlistRouter);
 router.use(escalationRouter);
+router.use(checkoutRouter);
+router.use(runnerRouter);
 router.use(orchestratorRouter);
 
 router.use(
