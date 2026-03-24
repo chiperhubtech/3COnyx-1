@@ -5,8 +5,10 @@
  * POST /api/blockchain/entry                   — Add a new custody entry
  * GET  /api/blockchain/verify/:vehicleId       — Verify chain integrity
  * GET  /api/blockchain/entry/:hash             — Lookup entry by SHA-256 hash
+ * GET  /api/blockchain/proof/:hash             — Public proof certificate (no auth)
  * GET  /api/blockchain/status                  — Hub status + all tracked vehicles
  */
+import crypto from "crypto";
 import { Router, type Request, type Response } from "express";
 import { addEntry, getChain, verifyChain, verifyEntry, getAllVehicleIds, type EntryType } from "../lib/chainOfCustody";
 import { maskPii } from "../lib/cipher";
@@ -82,6 +84,62 @@ router.get("/blockchain/entry/:hash", (req: Request, res: Response) => {
     return;
   }
   res.json({ ...entry, actor: maskPii(entry.actor) });
+});
+
+/**
+ * GET /api/blockchain/proof/:hash
+ * Public, no-auth proof certificate for a single entry.
+ * Anyone — investor, regulator, buyer — can verify any hash independently.
+ */
+router.get("/blockchain/proof/:hash", (req: Request, res: Response) => {
+  const { hash } = req.params;
+
+  if (!/^[a-f0-9]{64}$/.test(hash)) {
+    res.status(400).json({ error: "Invalid hash — must be a 64-character hex SHA-256 string" });
+    return;
+  }
+
+  const entry = verifyEntry(hash);
+  if (!entry) {
+    res.status(404).json({
+      verified: false,
+      hash,
+      error: "Hash not found in 3C Onyx chain-of-custody ledger",
+      tip: "Ensure the hash is exact — SHA-256 hashes are case-sensitive",
+    });
+    return;
+  }
+
+  const HMAC_SECRET = process.env.BLOCKCHAIN_HMAC_SECRET ?? "3c-onyx-chain-of-custody-v1-secret";
+  const expectedHmac = crypto.createHmac("sha256", HMAC_SECRET).update(hash).digest("hex");
+  const hmacValid = entry.hmacSignature === expectedHmac;
+
+  res.json({
+    verified: true,
+    hmacValid,
+    integrityStatus: hmacValid ? "INTACT" : "SIGNATURE_MISMATCH",
+    certificate: {
+      hash,
+      hmacSignature: entry.hmacSignature,
+      vehicleId: entry.vehicleId,
+      vinMasked: entry.vinMasked,
+      eventType: entry.type,
+      blockIndex: entry.blockIndex,
+      previousHash: entry.previousHash,
+      timestamp: entry.timestamp,
+      ethTxHash: entry.ethTxHash ?? null,
+      ethNetwork: entry.ethTxHash ? "ethereum-sepolia" : null,
+      issuedBy: "3C Onyx Chain-of-Custody Authority",
+      algorithm: "SHA-256 + HMAC-SHA-256",
+      verifiedAt: new Date().toISOString(),
+    },
+    howToVerify: [
+      "1. Reproduce the SHA-256 hash using: SHA256(entryId + vehicleId + type + actor + data + previousHash + blockIndex + timestamp)",
+      "2. Compare to the hash field — any tamper breaks the match",
+      "3. Verify the HMAC signature using the published HMAC-SHA-256 key",
+      "4. If ethTxHash is present, verify on Sepolia Etherscan — the hash prefix is anchored on-chain",
+    ],
+  });
 });
 
 export default router;

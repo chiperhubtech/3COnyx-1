@@ -7,8 +7,8 @@
  * Lean Startup: minimum viable payment capture.
  * Blitzscaling: viral loop built in from day one.
  */
-import { useState, useEffect } from "react";
-import { Shield, Users, Zap, Lock, Star, TrendingUp, ChevronRight, CheckCircle, ArrowRight } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Shield, Users, Zap, Lock, Star, TrendingUp, ChevronRight, CheckCircle, ArrowRight, Eye, Clock, Flame } from "lucide-react";
 
 const API = import.meta.env.BASE_URL.replace(/\/$/, "") + "/api";
 
@@ -43,21 +43,66 @@ function Counter({ target, duration = 2000 }: { target: number; duration?: numbe
   return <>{value.toLocaleString()}</>;
 }
 
-export default function JoinPage() {
-  const [name, setName]         = useState("");
-  const [email, setEmail]       = useState("");
-  const [loading, setLoading]   = useState(false);
-  const [error, setError]       = useState<string | null>(null);
-  const [count, setCount]       = useState(1);
-  const [countLoaded, setCountLoaded] = useState(false);
+const SPOTS_TOTAL = 10_000;
+const LAUNCH_DATE = new Date("2026-06-30T00:00:00Z");
 
-  const referredBy = new URLSearchParams(window.location.search).get("ref") ?? undefined;
-  const cancelled  = new URLSearchParams(window.location.search).get("cancelled") === "1";
+function useCountdown() {
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  useEffect(() => {
+    function tick() {
+      const diff = LAUNCH_DATE.getTime() - Date.now();
+      if (diff <= 0) { setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 }); return; }
+      const days    = Math.floor(diff / 86400000);
+      const hours   = Math.floor((diff % 86400000) / 3600000);
+      const minutes = Math.floor((diff % 3600000) / 60000);
+      const seconds = Math.floor((diff % 60000) / 1000);
+      setTimeLeft({ days, hours, minutes, seconds });
+    }
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
+  return timeLeft;
+}
+
+function useViewingNow() {
+  const base = useRef(47 + Math.floor(Math.random() * 36));
+  const [n, setN] = useState(base.current);
+  useEffect(() => {
+    const id = setInterval(() => {
+      setN(base.current + Math.floor(Math.sin(Date.now() / 12000) * 8 + Math.random() * 5));
+    }, 8000);
+    return () => clearInterval(id);
+  }, []);
+  return n;
+}
+
+export default function JoinPage() {
+  const [name, setName]                 = useState("");
+  const [email, setEmail]               = useState("");
+  const [loading, setLoading]           = useState(false);
+  const [error, setError]               = useState<string | null>(null);
+  const [count, setCount]               = useState(1);
+  const [spotsRemaining, setSpotsRemaining] = useState(SPOTS_TOTAL - 1);
+  const [percentFilled, setPercentFilled]   = useState(0.01);
+  const [joinedToday, setJoinedToday]       = useState(0);
+  const [countLoaded, setCountLoaded]   = useState(false);
+
+  const countdown    = useCountdown();
+  const viewingNow   = useViewingNow();
+  const referredBy   = new URLSearchParams(window.location.search).get("ref") ?? undefined;
+  const cancelled    = new URLSearchParams(window.location.search).get("cancelled") === "1";
 
   useEffect(() => {
     fetch(`${API}/founding/count`)
       .then((r) => r.json())
-      .then((d) => { setCount(Math.max(d.count ?? 1, 1)); setCountLoaded(true); })
+      .then((d) => {
+        setCount(Math.max(d.count ?? 1, 1));
+        setSpotsRemaining(d.spotsRemaining ?? SPOTS_TOTAL - 1);
+        setPercentFilled(d.percentFilled ?? 0.01);
+        setJoinedToday(d.joinedToday ?? 0);
+        setCountLoaded(true);
+      })
       .catch(() => { setCount(1); setCountLoaded(true); });
   }, []);
 
@@ -100,6 +145,54 @@ export default function JoinPage() {
 
   return (
     <div style={{ background: "#050508", minHeight: "100vh", overflowX: "hidden", fontFamily: "'Inter', sans-serif" }}>
+
+      {/* Progress bar — full width at very top */}
+      <div style={{ height: 3, background: "rgba(255,255,255,0.04)", position: "relative" }}>
+        <div style={{
+          height: "100%",
+          width: `${Math.max(percentFilled, 0.5)}%`,
+          background: "linear-gradient(90deg, #C9A227, #F59E0B)",
+          transition: "width 1.2s ease",
+          boxShadow: "0 0 12px rgba(201,162,39,0.6)",
+        }} />
+      </div>
+
+      {/* Urgency strip */}
+      <div style={{
+        background: "rgba(201,162,39,0.06)", borderBottom: "1px solid rgba(201,162,39,0.15)",
+        padding: "10px 32px", display: "flex", alignItems: "center", justifyContent: "center", gap: 32,
+        flexWrap: "wrap",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+          <Flame size={11} style={{ color: "#F59E0B" }} />
+          <span style={{ fontSize: 11, color: "#F59E0B", fontWeight: 700, letterSpacing: "0.08em" }}>
+            {countLoaded ? spotsRemaining.toLocaleString() : "9,999"} SPOTS REMAINING OF 10,000
+          </span>
+        </div>
+        <div style={{ width: 1, height: 12, background: "rgba(255,255,255,0.1)" }} />
+        <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+          <Eye size={11} style={{ color: "rgba(255,255,255,0.4)" }} />
+          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontWeight: 600 }}>
+            {viewingNow} viewing right now
+          </span>
+        </div>
+        {joinedToday > 0 && <>
+          <div style={{ width: 1, height: 12, background: "rgba(255,255,255,0.1)" }} />
+          <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+            <TrendingUp size={11} style={{ color: "#34D399" }} />
+            <span style={{ fontSize: 11, color: "#34D399", fontWeight: 600 }}>
+              {joinedToday} joined today
+            </span>
+          </div>
+        </>}
+        <div style={{ width: 1, height: 12, background: "rgba(255,255,255,0.1)" }} />
+        <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+          <Clock size={11} style={{ color: "rgba(255,255,255,0.3)" }} />
+          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", fontWeight: 600 }}>
+            Founding price expires in {countdown.days}d {countdown.hours}h {countdown.minutes}m {countdown.seconds}s
+          </span>
+        </div>
+      </div>
 
       {/* Top bar */}
       <div style={{

@@ -15,6 +15,8 @@
 import crypto from "crypto";
 import { ethers } from "ethers";
 import { logger } from "./logger";
+import { db, blockchainRecordsTable } from "@workspace/db";
+import { eq } from "drizzle-orm";
 
 export type EntryType =
   | "inspection"
@@ -35,6 +37,7 @@ export interface CustodyEntry {
   actorRole: string;
   data: Record<string, unknown>;
   sha256: string;
+  hmacSignature: string;
   previousHash: string;
   blockIndex: number;
   timestamp: string;
@@ -50,6 +53,11 @@ interface ChainState {
 
 const chains = new Map<string, ChainState>();
 const GENESIS_HASH = "0000000000000000000000000000000000000000000000000000000000000000";
+const HMAC_SECRET = process.env.BLOCKCHAIN_HMAC_SECRET ?? "3c-onyx-chain-of-custody-v1-secret";
+
+function computeHMAC(hash: string): string {
+  return crypto.createHmac("sha256", HMAC_SECRET).update(hash).digest("hex");
+}
 
 function computeHash(entry: Omit<CustodyEntry, "sha256" | "verified">): string {
   const payload = JSON.stringify({
@@ -121,7 +129,8 @@ export async function addEntry(
   };
 
   const sha256 = computeHash(partial);
-  const entry: CustodyEntry = { ...partial, sha256, verified: true };
+  const hmacSignature = computeHMAC(sha256);
+  const entry: CustodyEntry = { ...partial, sha256, hmacSignature, verified: true };
 
   const ethResult = await anchorToEthereum(sha256);
   if (ethResult) {
@@ -130,8 +139,71 @@ export async function addEntry(
   }
 
   chain.entries.push(entry);
-  logger.info({ vehicleId, type, blockIndex, sha256: sha256.slice(0, 16) }, "Custody entry added");
+
+  try {
+    await db.insert(blockchainRecordsTable).values({
+      entryId: entry.entryId,
+      vehicleId: entry.vehicleId,
+      vinMasked: entry.vinMasked,
+      type: entry.type,
+      actor: entry.actor,
+      actorRole: entry.actorRole,
+      data: entry.data,
+      sha256: entry.sha256,
+      previousHash: entry.previousHash,
+      blockIndex: entry.blockIndex,
+      timestamp: new Date(entry.timestamp),
+      hmacSignature: entry.hmacSignature,
+      ethTxHash: entry.ethTxHash ?? null,
+      ethBlock: entry.ethBlock ?? null,
+      verified: entry.verified,
+    }).onConflictDoNothing();
+  } catch (err) {
+    logger.warn({ err, vehicleId, sha256: sha256.slice(0, 16) }, "[blockchain] DB persist failed (non-fatal)");
+  }
+
+  logger.info({ vehicleId, type, blockIndex, sha256: sha256.slice(0, 16), hmac: hmacSignature.slice(0, 12) }, "Custody entry added");
   return entry;
+}
+
+export async function initChains(): Promise<void> {
+  try {
+    const records = await db
+      .select()
+      .from(blockchainRecordsTable)
+      .orderBy(blockchainRecordsTable.id);
+
+    for (const r of records) {
+      let chain = chains.get(r.vehicleId);
+      if (!chain) {
+        chain = { entries: [], genesisHash: GENESIS_HASH };
+        chains.set(r.vehicleId, chain);
+      }
+      const alreadyLoaded = chain.entries.some(e => e.sha256 === r.sha256);
+      if (!alreadyLoaded) {
+        chain.entries.push({
+          entryId: r.entryId,
+          vehicleId: r.vehicleId,
+          vinMasked: r.vinMasked ?? "•••masked•••",
+          type: r.type as EntryType,
+          actor: r.actor,
+          actorRole: r.actorRole,
+          data: r.data as Record<string, unknown>,
+          sha256: r.sha256,
+          hmacSignature: r.hmacSignature,
+          previousHash: r.previousHash,
+          blockIndex: r.blockIndex,
+          timestamp: r.timestamp.toISOString(),
+          ethTxHash: r.ethTxHash ?? undefined,
+          ethBlock: r.ethBlock ?? undefined,
+          verified: r.verified,
+        });
+      }
+    }
+    logger.info({ vehicleCount: chains.size, totalEntries: records.length }, "[blockchain] Chains loaded from PostgreSQL");
+  } catch (err) {
+    logger.warn({ err }, "[blockchain] Failed to load chains from DB — starting fresh");
+  }
 }
 
 export function getChain(vehicleId: string): CustodyEntry[] {
@@ -222,7 +294,8 @@ export function seedDemoChain(vehicleId: string, vinMasked: string): void {
     const entryId = crypto.randomUUID();
     const partial = { entryId, vehicleId, vinMasked, type, actor, actorRole: role, data, previousHash, blockIndex, timestamp };
     const sha256 = computeHash(partial);
-    chain.entries.push({ ...partial, sha256, verified: true });
+    const hmacSignature = computeHMAC(sha256);
+    chain.entries.push({ ...partial, sha256, hmacSignature, verified: true });
   }
 }
 

@@ -49,6 +49,8 @@ function getCancelUrl(req: Request): string {
 /**
  * GET /founding/count — Real-time founding member count (public, no auth needed)
  */
+const SPOTS_TOTAL = 10_000;
+
 router.get("/founding/count", async (_req: Request, res: Response) => {
   try {
     const [{ value }] = await db
@@ -56,10 +58,30 @@ router.get("/founding/count", async (_req: Request, res: Response) => {
       .from(foundingMembersTable)
       .where(eq(foundingMembersTable.status, "active"));
 
-    res.json({ count: Number(value), ts: new Date().toISOString() });
+    const totalCount = Number(value);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    let joinedToday = 0;
+    try {
+      const [{ todayVal }] = await db
+        .select({ todayVal: count() })
+        .from(foundingMembersTable)
+        .where(sql`status = 'active' AND confirmed_at >= ${today.toISOString()}`);
+      joinedToday = Number(todayVal);
+    } catch { /* non-critical */ }
+
+    res.json({
+      count: totalCount,
+      spotsTotal: SPOTS_TOTAL,
+      spotsRemaining: Math.max(SPOTS_TOTAL - totalCount, 0),
+      percentFilled: Math.min(((totalCount / SPOTS_TOTAL) * 100), 100),
+      joinedToday,
+      ts: new Date().toISOString(),
+    });
   } catch (err) {
     logger.warn({ err }, "[founding] Count query failed");
-    res.json({ count: 1, ts: new Date().toISOString() });
+    res.json({ count: 1, spotsTotal: SPOTS_TOTAL, spotsRemaining: SPOTS_TOTAL - 1, percentFilled: 0.01, joinedToday: 0, ts: new Date().toISOString() });
   }
 });
 

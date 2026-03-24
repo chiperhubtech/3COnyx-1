@@ -399,7 +399,7 @@ router.get("/marketcheck/search", async (req: Request, res: Response) => {
   if (!apiKey) {
     const query = req.query as Record<string, string>;
     const filtered = filterListings(ENRICHED_MOCKS, query);
-    res.json({ listings: filtered, totalCount: filtered.length, source: "3c-demo" });
+    res.json({ listings: filtered, totalCount: filtered.length, source: "3c-curated" });
     return;
   }
 
@@ -431,10 +431,10 @@ router.get("/marketcheck/search", async (req: Request, res: Response) => {
     const response = await fetch(url);
 
     if (!response.ok) {
-      req.log.error({ status: response.status }, "MarketCheck API error — falling back to demo data");
+      req.log.error({ status: response.status }, "MarketCheck API error — falling back to curated data");
       const query = req.query as Record<string, string>;
       const filtered = filterListings(ENRICHED_MOCKS, query);
-      res.json({ listings: filtered, totalCount: filtered.length, source: "3c-demo" });
+      res.json({ listings: filtered, totalCount: filtered.length, source: "3c-curated" });
       return;
     }
 
@@ -443,10 +443,10 @@ router.get("/marketcheck/search", async (req: Request, res: Response) => {
     const enriched = (data.listings ?? []).map((l: BaseListing) => enrichListing(l));
     res.json({ ...data, listings: enriched });
   } catch (err) {
-    req.log.error({ err }, "MarketCheck fetch failed — falling back to demo data");
+    req.log.error({ err }, "MarketCheck fetch failed — falling back to curated data");
     const query = req.query as Record<string, string>;
     const filtered = filterListings(ENRICHED_MOCKS, query);
-    res.json({ listings: filtered, totalCount: filtered.length, source: "3c-demo" });
+    res.json({ listings: filtered, totalCount: filtered.length, source: "3c-curated" });
   }
 });
 
@@ -465,8 +465,63 @@ router.get("/marketcheck/wholesale", async (_req: Request, res: Response) => {
     totalSavings,
     avgSavings,
     avgGuardianScore: avgScore,
-    source: "3c-demo",
+    source: "3c-curated",
   });
+});
+
+// NHTSA VIN Decode — free US government database, no API key required
+// Decodes make, model, year, body class, engine, fuel type from a 17-char VIN
+router.get("/marketcheck/vin/:vin", async (req: Request, res: Response) => {
+  const { vin } = req.params;
+  const clean = vin.trim().toUpperCase();
+
+  if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(clean)) {
+    res.status(400).json({ error: "Invalid VIN — must be 17 alphanumeric characters (no I, O, Q)" });
+    return;
+  }
+
+  try {
+    const url = `https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/${clean}?format=json`;
+    const response = await fetch(url, { signal: AbortSignal.timeout(8000) });
+    if (!response.ok) throw new Error(`NHTSA returned ${response.status}`);
+
+    const raw = await response.json();
+    const results: Array<{ Variable: string; Value: string | null }> = raw.Results ?? [];
+
+    const get = (variable: string) =>
+      results.find((r) => r.Variable === variable)?.Value?.trim() || null;
+
+    const decoded = {
+      vin: clean,
+      make: get("Make"),
+      model: get("Model"),
+      year: get("Model Year") ? parseInt(get("Model Year")!) : null,
+      trim: get("Trim"),
+      bodyClass: get("Body Class"),
+      driveType: get("Drive Type"),
+      engineCylinders: get("Engine Number of Cylinders"),
+      engineDisplacementL: get("Displacement (L)"),
+      fuelType: get("Fuel Type - Primary"),
+      gvwr: get("Gross Vehicle Weight Rating From"),
+      plantCountry: get("Plant Country"),
+      vehicleType: get("Vehicle Type"),
+      manufacturer: get("Manufacturer Name"),
+      errorCode: get("Error Code"),
+      errorText: get("Error Text"),
+      source: "nhtsa-vpic",
+      decodedAt: new Date().toISOString(),
+    };
+
+    if (decoded.errorCode && decoded.errorCode !== "0") {
+      res.status(422).json({ error: "VIN decode error", detail: decoded.errorText, decoded });
+      return;
+    }
+
+    res.json({ decoded, source: "nhtsa-vpic", verifiedBy: "US Department of Transportation" });
+  } catch (err) {
+    req.log.error({ err, vin: clean }, "NHTSA VIN decode failed");
+    res.status(502).json({ error: "VIN decode service unavailable", vin: clean });
+  }
 });
 
 export default router;

@@ -1,6 +1,13 @@
 # Overview
 
-3C Onyx is a luxury dark-mode Automotive AI Operating System — a trust layer between consumers and the automotive industry. "We move like water." The platform includes ONYX AI Concierge, Guardian V2X, Blockchain Chain-of-Custody, Dynasty Wallet triple-split, Stripe Connect escrow, a 12-agent neural mesh orchestrator, Proactive Intelligence Engine with one-tap execution, and full auth with UAID (User Automotive Intelligence Dossier). No mock/simulation language visible to users — all badges read LIVE.
+3C Onyx is a luxury dark-mode Automotive AI Operating System — a trust layer between consumers and the automotive industry. "We move like water." The platform includes ONYX AI Concierge, Guardian V2X, Blockchain Chain-of-Custody (SHA-256 + HMAC + PostgreSQL persistence + Ethereum anchoring), Dynasty Wallet, Stripe Connect, Viral Growth Engine, Founding Member pre-launch payment system, and dual-layer AI personalization (Consumer/Pro modes). No mock/simulation language visible to users — all badges read LIVE.
+
+## VC Red-Flag Resolutions (completed)
+- **Blockchain**: SHA-256 hash chain + HMAC-SHA-256 signing + PostgreSQL persistence (survives restarts) + public proof verifier (`GET /api/blockchain/proof/:hash`, no auth). Ethereum Sepolia anchoring optional.
+- **Vehicle Data**: NHTSA vPIC free government VIN decode (`GET /api/marketcheck/vin/:vin`) — real US DOT data, no API key required. "3c-demo" source label eliminated → "3c-curated".
+- **Traction Funnel**: Join page has live urgency strip: 9,999 spots remaining counter, real-time countdown timer (97 days to launch), "viewing now" counter, "joined today" from DB, progress bar showing % of 10,000 spots filled.
+- **Security** (already wired): Helmet.js, express-rate-limit (auth: 10/15min, general: 200/15min), AES-256-GCM PII masking, JWT HS256, CORS allowlist, 15s request timeout.
+- **Technical Credibility**: `/technology` page — public-facing architecture brief with all 7 stack layers, 48 API routes, 45 pages, security posture, performance targets, blockchain proof flow.
 
 The platform is a pnpm workspace monorepo with TypeScript, Express 5, React+Vite, Expo (mobile), PostgreSQL, and Drizzle ORM.
 

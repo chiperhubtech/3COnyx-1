@@ -3,6 +3,7 @@ import app from "./app";
 import { logger } from "./lib/logger";
 import * as wsHub from "./lib/wsHub";
 import { startPriceAlertJob } from "./lib/priceAlertJob";
+import { initChains } from "./lib/chainOfCustody";
 
 const rawPort = process.env["PORT"];
 
@@ -26,6 +27,7 @@ server.listen(port, () => {
   logger.info({ port }, "Server listening");
   logger.info("WebSocket hub active at /ws");
   startPriceAlertJob();
+  initChains().catch((err) => logger.warn({ err }, "initChains failed"));
 });
 
 server.on("error", (err) => {
