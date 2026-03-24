@@ -121,10 +121,17 @@ export default function HomeScreen() {
       accent: COLORS.emerald,
     },
     {
-      icon: <Feather name="navigation" size={20} color="#3B9EFF" />,
-      label: "Track Delivery",
-      sub: "Live runner location",
-      route: "/(tabs)/notifications",
+      icon: <Feather name="shield" size={20} color={COLORS.gold} />,
+      label: "Document Vault",
+      sub: "Scan ID & insurance",
+      route: "/documents",
+      accent: COLORS.gold,
+    },
+    {
+      icon: <Feather name="users" size={20} color="#3B9EFF" />,
+      label: "Invite Friends",
+      sub: "Earn rewards",
+      route: "/invite",
       accent: "#3B9EFF",
     },
     {

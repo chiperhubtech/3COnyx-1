@@ -47,6 +47,7 @@ import intelligenceRouter from "./intelligence";
 import foundingRouter from "./founding";
 import growthRouter from "./growth";
 import enhanceRouter from "./enhance";
+import documentsRouter from "./documents";
 
 const router: IRouter = Router();
 
@@ -95,6 +96,7 @@ router.use(intelligenceRouter);
 router.use(foundingRouter);
 router.use(growthRouter);
 router.use(enhanceRouter);
+router.use(documentsRouter);
 router.use(orchestratorRouter);
 
 router.use(
