@@ -1,0 +1,122 @@
+Build an AI-native automotive platform called "3C / CUXTOMCANDYCLUB" that operates as a TRUST LAYER across the entire automotive ecosystem (not a marketplace or dealership competitor).
+
+CORE PRINCIPLE:
+The platform should sit between consumers and the automotive industry, handling coordination, decision-making, and execution while improving transparency, pricing, and trust.
+
+SYSTEM ARCHITECTURE:
+
+1. AI CONCIERGE (PRIMARY INTERFACE)
+- Natural language input (chat-based UI)
+- Accept user requests like:
+  "Find me a car"
+  "My car is making a noise"
+  "I need insurance"
+  "I want to upgrade my wheels"
+- Respond like a knowledgeable automotive professional
+- Ask minimal follow-up questions
+- Route requests automatically to the correct internal workflow
+
+2. MULTI-AGENT SYSTEM (MODULAR AI AGENTS)
+Create specialized agents that operate independently but communicate through a central orchestrator:
+
+- Diagnostic Agent → identifies issues from user input
+- Vehicle Sourcing Agent → searches listings (simulate MarketCheck)
+- Service Matcher Agent → finds repair shops (simulate Google Maps)
+- Pricing Intelligence Agent → compares pricing + finds savings
+- Finance Agent → simulates loan matching (like Plaid integration)
+- Insurance Agent → simulates quote comparison
+- Parts & Customization Agent → finds compatible upgrades
+- Runner Dispatch Agent → assigns gig workers for physical tasks
+
+Each agent must:
+- Receive structured input
+- Return structured output
+- Be callable via a central orchestrator
+
+3. ORCHESTRATOR (CORE LOGIC)
+- Analyze user intent
+- Route to appropriate agents
+- Combine outputs
+- Return a SINGLE clear recommendation
+
+Example output:
+"Best option saves you $420. We can handle everything now."
+
+4. TRUST LAYER LOGIC (CRITICAL)
+- Never act as the service provider
+- Always act as the coordinator
+- Prioritize:
+  1. Cost savings
+  2. Convenience
+  3. Verified options
+- Show transparency:
+  - Price comparisons
+  - Reason for recommendation
+- Log all decisions for auditability
+
+5. HUMAN-IN-THE-LOOP SYSTEM
+- Add escalation triggers:
+  - Complex cases
+  - High-value transactions
+  - Low confidence decisions
+- Allow manual override by admin dashboard
+- Humans act as supervisors, not operators
+
+6. RUNNER / GIG NETWORK
+- Create task system:
+  - Pickup/dropoff
+  - Deliver parts
+  - Vehicle transport
+- Assign tasks via Runner Dispatch Agent
+- Track:
+  - Status
+  - ETA
+  - Completion
+
+7. REFERRAL (BIRD DOG SYSTEM)
+- Generate unique referral codes
+- Track:
+  - Referrer
+  - New user
+  - Transactions
+- Trigger rewards on completed transactions
+- Display earnings dashboard
+
+8. USER DASHBOARD (UAID - UNIQUE AUTOMOTIVE IDENTITY)
+- Store:
+  - Vehicle info
+  - Service history
+  - Active requests
+  - Savings tracked
+- Show:
+  - "Total saved"
+  - "Tasks completed"
+  - "Vehicle health"
+
+9. DESIGN REQUIREMENTS
+- AI-native UI
+- Minimal inputs
+- Chat-first experience
+- Clean, premium (Apple + futuristic style)
+- Dark/light adaptive
+
+10. MVP SIMULATION MODE (IMPORTANT)
+- If APIs are not connected:
+  - Simulate responses realistically
+  - Return believable pricing + options
+- Ensure the experience feels fully functional
+
+GOAL:
+Create a working MVP where a user can:
+- Submit any automotive-related request
+- Be guided by AI
+- Receive a clear optimized solution
+- Trigger execution (simulated or real)
+
+The system should feel like:
+"Tell us what you need. We handle everything."
+
+Focus on:
+- Simplicity for user
+- Complexity handled in backend
+- Trust, transparency, and control
