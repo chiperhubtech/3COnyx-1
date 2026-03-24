@@ -4,7 +4,7 @@ import * as Localization from "expo-localization";
 
 const deviceLocale = Localization.getLocales()[0]?.languageCode ?? "en";
 
-const SUPPORTED = ["en", "es", "fr", "pt", "de", "ar", "zh", "ja", "ko", "hi", "it", "ru", "nl"];
+const SUPPORTED = ["en", "es", "fr", "pt", "de", "ar"];
 
 const resources = {
   en: {
@@ -80,6 +80,9 @@ const resources = {
       command: {
         title: "COMMAND CENTER",
       },
+      runner: {
+        title: "RUNNER TASKS",
+      },
       common: {
         loading: "Loading...",
         error: "Something went wrong",
@@ -109,6 +112,7 @@ const resources = {
       notifications: { title: "NOTIFICACIONES", markAllRead: "Marcar todo como leído", unread: "NO LEÍDAS", earlier: "ANTERIORES", empty: "Aún no hay notificaciones.", emptyDesc: "Estás al día." },
       carplay: { title: "CarPlay y Android Auto" },
       command: { title: "CENTRO DE COMANDO" },
+      runner: { title: "TAREAS DE RUNNER" },
       common: { loading: "Cargando...", error: "Algo salió mal", retry: "Intentar de nuevo", live: "EN VIVO", active: "ACTIVO", secure: "SEGURO", connected: "CONECTADO" },
       poweredBy: "DESARROLLADO POR CUXTOMCANDYCLUB LLC",
     },
@@ -130,6 +134,7 @@ const resources = {
       notifications: { title: "NOTIFICATIONS", markAllRead: "Tout marquer comme lu", unread: "NON LUES", earlier: "PRÉCÉDENTES", empty: "Aucune notification pour l'instant.", emptyDesc: "Vous êtes à jour." },
       carplay: { title: "CarPlay et Android Auto" },
       command: { title: "CENTRE DE COMMANDE" },
+      runner: { title: "TÂCHES RUNNER" },
       common: { loading: "Chargement...", error: "Une erreur s'est produite", retry: "Réessayer", live: "EN DIRECT", active: "ACTIF", secure: "SÉCURISÉ", connected: "CONNECTÉ" },
       poweredBy: "PROPULSÉ PAR CUXTOMCANDYCLUB LLC",
     },
@@ -151,6 +156,7 @@ const resources = {
       notifications: { title: "NOTIFICAÇÕES", markAllRead: "Marcar tudo como lido", unread: "NÃO LIDAS", earlier: "ANTERIORES", empty: "Sem notificações ainda.", emptyDesc: "Você está em dia." },
       carplay: { title: "CarPlay e Android Auto" },
       command: { title: "CENTRO DE COMANDO" },
+      runner: { title: "TAREFAS RUNNER" },
       common: { loading: "Carregando...", error: "Algo deu errado", retry: "Tentar Novamente", live: "AO VIVO", active: "ATIVO", secure: "SEGURO", connected: "CONECTADO" },
       poweredBy: "DESENVOLVIDO POR CUXTOMCANDYCLUB LLC",
     },
@@ -173,7 +179,8 @@ const resources = {
       common: { loading: "Laden...", error: "Etwas ist schiefgelaufen", retry: "Erneut versuchen", live: "LIVE", active: "AKTIV", secure: "SICHER", connected: "VERBUNDEN" },
       poweredBy: "BETRIEBEN VON CUXTOMCANDYCLUB LLC",
       carplay: { title: "CarPlay & Android Auto" },
-      command: { title: "مركز القيادة" },
+      command: { title: "BEFEHLSZENTRUM" },
+      runner: { title: "RUNNER-AUFGABEN" },
     },
   },
   ar: {
@@ -193,6 +200,7 @@ const resources = {
       notifications: { title: "الإشعارات", markAllRead: "تحديد الكل كمقروء", unread: "غير مقروء", earlier: "سابقاً", empty: "لا إشعارات بعد.", emptyDesc: "أنت محدّث." },
       carplay: { title: "CarPlay وأندرويد أوتو" },
       command: { title: "مركز القيادة" },
+      runner: { title: "مهام الركض" },
       common: { loading: "جارٍ التحميل...", error: "حدث خطأ ما", retry: "حاول مجدداً", live: "مباشر", active: "نشط", secure: "آمن", connected: "متصل" },
       poweredBy: "مدعوم من CUXTOMCANDYCLUB LLC",
     },

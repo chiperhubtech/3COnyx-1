@@ -127,6 +127,7 @@ function TaskCard({ task, onAccept, onComplete, myTask }: {
 }
 
 export default function RunnerScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const qc = useQueryClient();
   const [view, setView] = useState<"available" | "mine">("available");
@@ -173,7 +174,7 @@ export default function RunnerScreen() {
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
         <View>
-          <Text style={styles.headerTitle}>RUNNER TASKS</Text>
+          <Text style={styles.headerTitle}>{t("runner.title")}</Text>
           <Text style={styles.headerSub}>DISPATCH NETWORK</Text>
         </View>
         <View style={styles.earningsChip}>
