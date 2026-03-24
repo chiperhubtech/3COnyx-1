@@ -292,10 +292,10 @@ export default function CommandScreen() {
       {/* Section tabs */}
       <View style={styles.tabRow}>
         {([
-          { id: "pulse" as const,      label: "Pulse",      badge: pulse?.unackedAlerts },
-          { id: "missions" as const,   label: "Missions",   badge: missions.filter(m => m.status !== "delivered").length },
+          { id: "pulse" as const,      label: "Pulse",      badge: pulse?.unackedAlerts,                                      danger: false },
+          { id: "missions" as const,   label: "Missions",   badge: missions.filter(m => m.status !== "delivered").length,   danger: false },
           { id: "killswitch" as const, label: "Kill-Switch", badge: unresolvedFlagged.length, danger: true },
-        ] as const).map(({ id, label, badge, danger }) => (
+        ]).map(({ id, label, badge, danger }) => (
           <TouchableOpacity
             key={id}
             style={[styles.tab, activeSection === id && styles.tabActive]}

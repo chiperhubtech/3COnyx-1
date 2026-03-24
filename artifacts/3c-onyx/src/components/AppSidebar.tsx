@@ -14,6 +14,7 @@ import {
   Link2, X, Glasses, Brain, Layers, Activity,
 } from "lucide-react";
 import { NotificationBell } from "./NotificationBell";
+import { ThemeToggle } from "./ThemeToggle";
 
 /* ─── Navigation Data ─────────────────────────────────────────── */
 const CUSTOMER_NAV = [
@@ -182,8 +183,8 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
       display: "flex",
       flexDirection: "column",
       overflow: "hidden",
-      background: "linear-gradient(180deg, #05050a 0%, #070710 100%)",
-      borderRight: "1px solid rgba(255,255,255,0.05)",
+      background: "var(--onyx-sidebar-bg)",
+      borderRight: "1px solid var(--onyx-border-line)",
     }}>
 
       {/* ── Logo ──────────────────────────────────────────────── */}
@@ -274,18 +275,33 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
         )}
       </nav>
 
-      {/* ── Footer — Security Badge ───────────────────────────── */}
-      <div style={{ padding: "10px 12px 14px", borderTop: "1px solid rgba(255,255,255,0.04)" }}>
+      {/* ── Footer — Branding + Theme Toggle + Security Badge ─── */}
+      <div style={{ padding: "10px 12px 14px", borderTop: "1px solid var(--onyx-border-line)" }}>
+        {/* Brand line */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+          <div>
+            <p style={{
+              fontFamily: "'Barlow Condensed', sans-serif",
+              fontSize: 11, fontWeight: 900, letterSpacing: "0.12em",
+              color: "var(--onyx-text-secondary)", lineHeight: 1,
+            }}>3C ONYX</p>
+            <p style={{ fontSize: 7, fontWeight: 700, color: "#C9A227", letterSpacing: "0.18em", marginTop: 2 }}>
+              CUXTOMCANDYCLUB LLC
+            </p>
+          </div>
+          <ThemeToggle size="sm" />
+        </div>
+        {/* Security badge */}
         <div style={{
-          padding: "9px 12px", borderRadius: 10,
+          padding: "8px 11px", borderRadius: 9,
           background: "rgba(52,211,153,0.04)",
-          border: "1px solid rgba(52,211,153,0.15)",
+          border: "1px solid rgba(52,211,153,0.14)",
           display: "flex", alignItems: "center", gap: 8,
         }}>
-          <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#34D399", flexShrink: 0, animation: "pulse 2s infinite" }} />
+          <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#34D399", flexShrink: 0, animation: "pulse 2s infinite" }} />
           <div>
-            <p style={{ fontSize: 9, color: "rgba(52,211,153,0.8)", fontWeight: 700, letterSpacing: "0.1em", lineHeight: 1 }}>PII Protection Active</p>
-            <p style={{ fontSize: 8, color: "rgba(255,255,255,0.2)", marginTop: 2, letterSpacing: "0.06em" }}>AES-256 · SOC2 Compliant</p>
+            <p style={{ fontSize: 8, color: "rgba(52,211,153,0.8)", fontWeight: 700, letterSpacing: "0.1em", lineHeight: 1 }}>PII Protection Active</p>
+            <p style={{ fontSize: 7, color: "var(--onyx-text-dim)", marginTop: 2, letterSpacing: "0.06em" }}>AES-256 · SOC2 Compliant</p>
           </div>
         </div>
       </div>

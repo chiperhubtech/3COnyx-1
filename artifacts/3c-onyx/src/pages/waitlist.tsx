@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Shield, Truck, Wrench, Building2, Users, CheckCircle2, Loader2, ArrowRight, Lock, Zap, Star } from "lucide-react";
+import { PublicNavbar } from "@/components/PublicNavbar";
+import { GlobalFooter } from "@/components/GlobalFooter";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -50,7 +52,8 @@ export default function WaitlistPage() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#06060A", color: "#fff" }}>
+    <div className="public-page" style={{ background: "#06060A", color: "#fff" }}>
+      <PublicNavbar />
 
       {/* Hero */}
       <div style={{ padding: "80px 24px 60px", textAlign: "center", maxWidth: 680, margin: "0 auto" }}>
@@ -134,6 +137,7 @@ export default function WaitlistPage() {
           </form>
         )}
       </div>
+      <GlobalFooter />
     </div>
   );
 }

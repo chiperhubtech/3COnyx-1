@@ -66,73 +66,75 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-/* === 3C ONYX — LUXURY DARK THEME === */
+/* === 3C ONYX — DUAL THEME SYSTEM === */
+
+/* ── LIGHT MODE (default :root) — Warm Champagne / Ivory ──────── */
 :root {
-  --button-outline: rgba(255,255,255, .08);
-  --badge-outline: rgba(255,255,255, .05);
-  --opaque-button-border-intensity: 9;
-  --elevate-1: rgba(255,255,255, .03);
-  --elevate-2: rgba(255,255,255, .07);
+  --button-outline: rgba(0,0,0, .08);
+  --badge-outline: rgba(0,0,0, .05);
+  --opaque-button-border-intensity: 5;
+  --elevate-1: rgba(0,0,0, .02);
+  --elevate-2: rgba(0,0,0, .05);
 
-  /* Deep onyx backgrounds */
-  --background: 240 6% 7%;         /* #0d0d10 */
-  --foreground: 0 0% 92%;          /* off-white */
+  /* Warm ivory backgrounds */
+  --background: 42 35% 95%;        /* #F8F4ED warm ivory */
+  --foreground: 0 0% 6%;           /* near-black */
 
-  --border: 240 5% 16%;            /* subtle border */
+  --border: 34 20% 84%;            /* #E5DDD0 warm sand */
 
-  --card: 240 5% 10%;              /* #181820 */
-  --card-foreground: 0 0% 92%;
-  --card-border: 240 5% 16%;
+  --card: 0 0% 100%;               /* white */
+  --card-foreground: 0 0% 6%;
+  --card-border: 34 20% 88%;
 
-  --sidebar: 240 7% 6%;            /* #0a0a0c */
-  --sidebar-foreground: 0 0% 80%;
-  --sidebar-border: 240 5% 14%;
-  --sidebar-primary: 38 92% 55%;   /* amber-500 */
-  --sidebar-primary-foreground: 0 0% 5%;
-  --sidebar-accent: 240 5% 13%;
-  --sidebar-accent-foreground: 0 0% 80%;
-  --sidebar-ring: 38 92% 55%;
+  --sidebar: 36 24% 91%;           /* #F2EDE4 warm sidebar */
+  --sidebar-foreground: 0 0% 15%;
+  --sidebar-border: 34 20% 83%;
+  --sidebar-primary: 38 92% 40%;   /* deeper gold for light bg */
+  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-accent: 36 20% 86%;
+  --sidebar-accent-foreground: 0 0% 15%;
+  --sidebar-ring: 38 92% 40%;
 
-  --popover: 240 6% 9%;
-  --popover-foreground: 0 0% 92%;
-  --popover-border: 240 5% 18%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 6%;
+  --popover-border: 34 20% 86%;
 
-  --primary: 38 92% 55%;           /* amber gold */
-  --primary-foreground: 0 0% 5%;
+  --primary: 38 92% 40%;           /* deep amber gold */
+  --primary-foreground: 0 0% 98%;
 
-  --secondary: 240 5% 13%;
-  --secondary-foreground: 0 0% 80%;
+  --secondary: 36 20% 88%;
+  --secondary-foreground: 0 0% 15%;
 
-  --muted: 240 5% 12%;
-  --muted-foreground: 240 4% 52%;
+  --muted: 40 15% 90%;
+  --muted-foreground: 0 0% 40%;
 
-  --accent: 240 5% 15%;
-  --accent-foreground: 0 0% 90%;
+  --accent: 36 20% 86%;
+  --accent-foreground: 0 0% 10%;
 
   --destructive: 0 72% 51%;
   --destructive-foreground: 0 0% 98%;
 
-  --input: 240 5% 18%;
-  --ring: 38 92% 55%;
+  --input: 34 20% 88%;
+  --ring: 38 92% 40%;
 
-  --chart-1: 38 92% 55%;
-  --chart-2: 160 60% 45%;
-  --chart-3: 220 70% 60%;
-  --chart-4: 280 60% 60%;
-  --chart-5: 340 70% 55%;
+  --chart-1: 38 92% 40%;
+  --chart-2: 160 60% 38%;
+  --chart-3: 220 70% 55%;
+  --chart-4: 280 60% 52%;
+  --chart-5: 340 70% 48%;
 
   --app-font-sans: 'Inter', system-ui, sans-serif;
   --app-font-serif: Georgia, serif;
   --app-font-mono: 'JetBrains Mono', 'Fira Code', monospace;
   --radius: .5rem;
-  --shadow-2xs: 0px 1px 2px 0px rgba(0,0,0,0.4);
-  --shadow-xs: 0px 1px 3px 0px rgba(0,0,0,0.4);
-  --shadow-sm: 0px 2px 4px 0px rgba(0,0,0,0.5);
-  --shadow: 0px 4px 8px 0px rgba(0,0,0,0.5);
-  --shadow-md: 0px 6px 12px 0px rgba(0,0,0,0.5);
-  --shadow-lg: 0px 10px 20px 0px rgba(0,0,0,0.5);
-  --shadow-xl: 0px 16px 32px 0px rgba(0,0,0,0.5);
-  --shadow-2xl: 0px 24px 48px 0px rgba(0,0,0,0.6);
+  --shadow-2xs: 0px 1px 2px 0px rgba(0,0,0,0.08);
+  --shadow-xs: 0px 1px 3px 0px rgba(0,0,0,0.10);
+  --shadow-sm: 0px 2px 4px 0px rgba(0,0,0,0.12);
+  --shadow: 0px 4px 8px 0px rgba(0,0,0,0.12);
+  --shadow-md: 0px 6px 12px 0px rgba(0,0,0,0.14);
+  --shadow-lg: 0px 10px 20px 0px rgba(0,0,0,0.16);
+  --shadow-xl: 0px 16px 32px 0px rgba(0,0,0,0.18);
+  --shadow-2xl: 0px 24px 48px 0px rgba(0,0,0,0.20);
   --tracking-normal: 0em;
   --spacing: 0.25rem;
 
@@ -150,9 +152,25 @@
   --accent-border: hsl(from hsl(var(--accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
   --destructive-border: hsl(var(--destructive));
   --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+
+  /* ── Theme-aware inline-style helpers (used on custom pages) ── */
+  --onyx-page-bg: #F8F4ED;
+  --onyx-page-bg-alt: #F2EDE4;
+  --onyx-surface: rgba(255,255,255,0.9);
+  --onyx-surface-hover: rgba(0,0,0,0.03);
+  --onyx-border-line: rgba(0,0,0,0.08);
+  --onyx-border-accent: rgba(201,162,39,0.3);
+  --onyx-text-primary: #0A0A0A;
+  --onyx-text-secondary: rgba(10,10,10,0.6);
+  --onyx-text-muted: rgba(10,10,10,0.35);
+  --onyx-text-dim: rgba(10,10,10,0.2);
+  --onyx-gold: #A07B1A;
+  --onyx-gold-glow: rgba(160,123,26,0.15);
+  --onyx-emerald: #00A846;
+  --onyx-sidebar-bg: linear-gradient(180deg, #F2EDE4 0%, #EDE7DC 100%);
 }
 
-/* Always dark — no light mode override needed for 3C Onyx */
+/* ── DARK MODE — Deep Onyx ─────────────────────────────────────── */
 .dark {
   --button-outline: rgba(255,255,255, .08);
   --badge-outline: rgba(255,255,255, .05);
@@ -202,10 +220,30 @@
   --shadow-lg: 0px 10px 20px 0px rgba(0,0,0,0.6);
   --shadow-xl: 0px 16px 32px 0px rgba(0,0,0,0.6);
   --shadow-2xl: 0px 24px 48px 0px rgba(0,0,0,0.7);
+
+  /* ── Dark theme inline-style helpers ── */
+  --onyx-page-bg: #080810;
+  --onyx-page-bg-alt: #0a0a14;
+  --onyx-surface: rgba(255,255,255,0.03);
+  --onyx-surface-hover: rgba(255,255,255,0.05);
+  --onyx-border-line: rgba(255,255,255,0.06);
+  --onyx-border-accent: rgba(201,162,39,0.2);
+  --onyx-text-primary: #EBEBEB;
+  --onyx-text-secondary: rgba(235,235,235,0.55);
+  --onyx-text-muted: rgba(235,235,235,0.3);
+  --onyx-text-dim: rgba(235,235,235,0.15);
+  --onyx-gold: #C9A227;
+  --onyx-gold-glow: rgba(201,162,39,0.15);
+  --onyx-emerald: #00C853;
+  --onyx-sidebar-bg: linear-gradient(180deg, #05050a 0%, #070710 100%);
 }
 
 @layer base {
   html {
+    color-scheme: light;
+  }
+
+  html.dark {
     color-scheme: dark;
   }
 
@@ -882,3 +920,47 @@
   margin: 8px 0 4px;
 }
 
+
+/* ─── Responsive grid utilities (landing, sdv, technology) ─── */
+.grid-4-col {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+.grid-3-col {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.grid-2-col {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+@media (max-width: 900px) {
+  .grid-4-col { grid-template-columns: repeat(2, 1fr); }
+  .grid-3-col { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+  .grid-4-col { grid-template-columns: 1fr; gap: 12px; }
+  .grid-3-col { grid-template-columns: 1fr; gap: 12px; }
+  .grid-2-col { grid-template-columns: 1fr; gap: 12px; }
+}
+
+/* ─── Public page base wrapper ─── */
+.public-page {
+  background: var(--onyx-page-bg);
+  min-height: 100vh;
+  color: var(--onyx-text-primary);
+  font-family: system-ui, sans-serif;
+}
+.public-page-pt {
+  padding-top: 60px; /* height of fixed PublicNavbar */
+}
+
+/* ─── Stat border dividers ─── */
+@media (max-width: 600px) {
+  .stat-border-right { border-right: none !important; border-bottom: 1px solid rgba(128,128,128,0.1) !important; padding-bottom: 24px !important; }
+  .hero-padding { padding: 0 20px !important; }
+  .section-padding { padding-left: 20px !important; padding-right: 20px !important; }
+}

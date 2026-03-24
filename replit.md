@@ -45,7 +45,20 @@ The frontend incorporates a React Error Boundary for crash recovery and configur
 
 ## UI/UX Design (3C Onyx Visual Language)
 
-The platform adopts a cinematic dark-mode "Apple × GTA" visual language, using deep black, gold, and neon accents. Typography uses Barlow Condensed for headings and Inter for body text. Key visuals include a "YOUR FLEET, YOUR RULES" hero section and amber-accented page headers. Components feature translucent glassmorphism for stat cards. A custom AI-Native Design System (CSS) provides futuristic elements like holographic cards, neural glow effects, and dynamic animations.
+The platform adopts a cinematic "Apple × GTA" visual language with a dual-theme system. Dark mode (default): deep black, gold, and neon accents. Light mode: warm ivory (#F8F4ED) palette. Typography uses Barlow Condensed for headings and Inter for body text. Key visuals include a "THE AUTOMOTIVE INTELLIGENCE LAYER" hero and amber-accented page headers. Components feature translucent glassmorphism for stat cards. A custom AI-Native Design System (CSS) provides futuristic elements like holographic cards, neural glow effects, and dynamic animations.
+
+### Theme System (next-themes)
+- `ThemeProvider` in `main.tsx` — attribute="class", defaultTheme="dark"
+- CSS variables in `index.css`: `:root` = light (warm ivory), `.dark` = original dark values
+- Variables: `--onyx-page-bg`, `--onyx-surface`, `--onyx-text-primary`, `--onyx-text-secondary`, `--onyx-text-muted`, `--onyx-text-dim`, `--onyx-gold`, `--onyx-sidebar-bg`, `--onyx-border-line`
+- `ThemeToggle` component in AppSidebar and PublicNavbar
+- Responsive grid CSS utilities: `.grid-4-col`, `.grid-3-col`, `.grid-2-col` collapse on mobile
+
+### Public Pages
+- `PublicNavbar` (sticky, blur, dual-theme, CUXTOMCANDYCLUB LLC branding + JOIN NOW CTA)
+- `GlobalFooter` (CUXTOMCANDYCLUB LLC branding, all public nav links)
+- Applied to: landing, sdv, technology, waitlist, login, register. Join page keeps its urgency strip + GlobalFooter.
+- All public page containers use `.public-page` CSS class (picks up CSS variables)
 
 ## Core Platform Features
 

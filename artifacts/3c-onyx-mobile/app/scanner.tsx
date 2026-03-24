@@ -185,11 +185,10 @@ export default function ScannerScreen() {
   const submitScan = async () => {
     setSubmitting(true);
     try {
-      const res = await apiFetch(`/api/dropship/scan/submit`, {
+      const data = await apiFetch<{ scan?: { sha256Hash?: string } }>(`/dropship/scan/submit`, {
         method: "POST",
         body: JSON.stringify({ vehicleId, positionIndex: -1 }),
       });
-      const data = await res.json();
       setScanHash(data.scan?.sha256Hash ?? "scan_completed_" + Date.now().toString(16));
     } catch {
       setScanHash("scan_completed_" + Date.now().toString(16));

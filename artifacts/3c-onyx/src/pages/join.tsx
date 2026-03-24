@@ -9,6 +9,7 @@
  */
 import { useState, useEffect, useRef } from "react";
 import { Shield, Users, Zap, Lock, Star, TrendingUp, ChevronRight, CheckCircle, ArrowRight, Eye, Clock, Flame } from "lucide-react";
+import { GlobalFooter } from "@/components/GlobalFooter";
 
 const API = import.meta.env.BASE_URL.replace(/\/$/, "") + "/api";
 
@@ -528,6 +529,7 @@ export default function JoinPage() {
           }
         }
       `}</style>
+      <GlobalFooter />
     </div>
   );
 }

@@ -77,11 +77,19 @@ function QuickActionCard({ action }: { action: QuickAction }) {
   );
 }
 
+function getGreeting() {
+  const h = new Date().getHours();
+  if (h < 12) return "GOOD MORNING";
+  if (h < 17) return "GOOD AFTERNOON";
+  return "GOOD EVENING";
+}
+
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const isWeb = Platform.OS === "web";
   const topPad = isWeb ? 67 : insets.top;
   const bottomPad = isWeb ? 34 : insets.bottom;
+  const greeting = getGreeting();
 
   const { data: notifications } = useQuery({
     queryKey: ["notifications"],
@@ -141,6 +149,13 @@ export default function HomeScreen() {
       route: "/(tabs)/notifications",
       accent: COLORS.amber,
     },
+    {
+      icon: <Feather name="cpu" size={20} color="#A78BFA" />,
+      label: "In-Vehicle",
+      sub: "CarPlay & SDV OTA",
+      route: "/(tabs)/carplay",
+      accent: "#A78BFA",
+    },
   ];
 
   return (
@@ -158,7 +173,7 @@ export default function HomeScreen() {
               <View style={styles.brandDot} />
               <Text style={styles.brandName}>3C ONYX</Text>
             </View>
-            <Text style={styles.brandSub}>SECURE PLATFORM</Text>
+            <Text style={styles.brandSub}>CUXTOMCANDYCLUB LLC</Text>
           </View>
           <View style={styles.headerRight}>
             <View style={styles.securityBadge}>
@@ -178,7 +193,7 @@ export default function HomeScreen() {
 
         {/* Hero */}
         <View style={styles.hero}>
-          <Text style={styles.greeting}>GOOD MORNING, MEMBER</Text>
+          <Text style={styles.greeting}>{greeting}, MEMBER</Text>
           <Text style={styles.heroLine1}>YOUR FLEET,</Text>
           <Text style={styles.heroLine2}>YOUR RULES.</Text>
           <View style={styles.heroDivider} />
@@ -239,10 +254,11 @@ export default function HomeScreen() {
           {[
             { label: "MCP Server", status: "ONLINE", color: COLORS.emerald },
             { label: "Stripe Connect", status: "LIVE", color: COLORS.emerald },
+            { label: "Blockchain OTA", status: "STAMPING", color: "#A78BFA" },
             { label: "PII Protection", status: "ACTIVE", color: COLORS.gold },
             { label: "SOC2 Audit Vault", status: "LOGGING", color: "#3B9EFF" },
           ].map((item, i) => (
-            <View key={item.label} style={[styles.statusRow, i < 3 && styles.statusBorder]}>
+            <View key={item.label} style={[styles.statusRow, i < 4 && styles.statusBorder]}>
               <Text style={styles.statusLabel}>{item.label}</Text>
               <View style={styles.statusRight}>
                 <View style={[styles.statusDot, { backgroundColor: item.color }]} />

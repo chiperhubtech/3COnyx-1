@@ -3,6 +3,8 @@
  * Public-facing SDV positioning page for members, OEMs, and investors.
  */
 import React, { useEffect, useRef, useState } from "react";
+import { PublicNavbar } from "@/components/PublicNavbar";
+import { GlobalFooter } from "@/components/GlobalFooter";
 
 const GOLD = "#C9A227";
 const EMERALD = "#00C853";
@@ -101,7 +103,8 @@ export default function SDVPage() {
   };
 
   return (
-    <div style={{ background: "#080810", minHeight: "100vh", color: "#fff", fontFamily: "system-ui, sans-serif" }}>
+    <div className="public-page" style={{ background: "#080810", color: "#fff" }}>
+      <PublicNavbar />
 
       {/* Hero */}
       <div style={{ maxWidth: 900, margin: "0 auto", padding: "80px 24px 60px" }}>
@@ -334,6 +337,7 @@ export default function SDVPage() {
         </div>
       </div>
 
+      <GlobalFooter />
     </div>
   );
 }

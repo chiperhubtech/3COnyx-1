@@ -3,6 +3,8 @@
  * Real stack depth, security layers, and system design — visible to any investor or CTO.
  */
 import { Shield, Zap, Database, Lock, Brain, Globe, Server, Code2, CheckCircle2, TrendingUp } from "lucide-react";
+import { PublicNavbar } from "@/components/PublicNavbar";
+import { GlobalFooter } from "@/components/GlobalFooter";
 
 const API_ROUTES = 48;
 const WEB_PAGES = 45;
@@ -104,7 +106,8 @@ const PERFORMANCE_TARGETS = [
 
 export default function TechnologyPage() {
   return (
-    <div style={{ background: "#050508", minHeight: "100vh", fontFamily: "'Inter', sans-serif", color: "#fff" }}>
+    <div className="public-page" style={{ background: "#050508", color: "#fff" }}>
+      <PublicNavbar />
 
       {/* Header */}
       <div style={{
@@ -308,6 +311,7 @@ export default function TechnologyPage() {
           div[style*="padding: 48px 64px"] { padding: 24px 20px 60px !important; }
         }
       `}</style>
+      <GlobalFooter />
     </div>
   );
 }
