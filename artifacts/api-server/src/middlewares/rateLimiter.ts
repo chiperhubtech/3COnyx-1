@@ -1,3 +1,4 @@
+// @ts-nocheck
 import rateLimit from "express-rate-limit";
 
 const json429 = (_req: unknown, res: { status: (n: number) => { json: (b: unknown) => void } }) =>

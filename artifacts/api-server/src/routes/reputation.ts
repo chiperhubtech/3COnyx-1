@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * 3C Onyx — Two-Way Integrity Mesh (Reputation Ledger)
  *

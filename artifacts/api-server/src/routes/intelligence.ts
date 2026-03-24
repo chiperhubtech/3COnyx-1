@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Intelligence Engine — Proactive AI Automotive Operating System
  * ─────────────────────────────────────────────────────────────

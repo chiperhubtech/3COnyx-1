@@ -59,7 +59,7 @@ function computeHMAC(hash: string): string {
   return crypto.createHmac("sha256", HMAC_SECRET).update(hash).digest("hex");
 }
 
-function computeHash(entry: Omit<CustodyEntry, "sha256" | "verified">): string {
+function computeHash(entry: Omit<CustodyEntry, "sha256" | "hmacSignature" | "verified">): string {
   const payload = JSON.stringify({
     entryId: entry.entryId,
     vehicleId: entry.vehicleId,

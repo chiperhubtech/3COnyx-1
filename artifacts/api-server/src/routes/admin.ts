@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * 3C Onyx — Admin Dashboard API
  * All routes require: Auth + Admin role

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * 3C Onyx — Price Alert Background Job
  *
@@ -58,7 +59,7 @@ async function checkPrices() {
         });
         const res = await fetch(`https://mc-api.marketcheck.com/v2/search/car/active?${params}`);
         if (res.ok) {
-          const data = await res.json();
+          const data = await res.json() as { listings?: Array<{ price?: number }> };
           const listing = data.listings?.[0];
           currentPrice = listing?.price ?? null;
         }

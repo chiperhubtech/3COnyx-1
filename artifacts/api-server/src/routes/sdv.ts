@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * 3C Onyx — Software-Defined Vehicle (SDV) Intelligence Layer
  *

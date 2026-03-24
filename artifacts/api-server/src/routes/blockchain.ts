@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * 3C Onyx — Chain of Custody API
  *

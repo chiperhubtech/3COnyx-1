@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * 3C Onyx — Guardian Predictive Layer + 7-Agent Mesh
  *

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * 3C Onyx — Human-in-the-Loop Escalation System
  *

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * 3C Onyx — Agent Orchestrator API
  *

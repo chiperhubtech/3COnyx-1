@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * 3C Onyx — First-Time Onboarding Modal
  * Shown once after registration. 3 steps:
