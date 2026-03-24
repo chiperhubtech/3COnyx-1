@@ -12,3 +12,4 @@ export * from "./watchlist";
 export * from "./transactions";
 export * from "./waitlist";
 export * from "./founding-members";
+export * from "./analytics-events";

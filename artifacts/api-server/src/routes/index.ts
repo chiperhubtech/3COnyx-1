@@ -45,6 +45,7 @@ import checkoutRouter from "./checkout";
 import runnerRouter from "./runner";
 import intelligenceRouter from "./intelligence";
 import foundingRouter from "./founding";
+import growthRouter from "./growth";
 
 const router: IRouter = Router();
 
@@ -91,6 +92,7 @@ router.use(checkoutRouter);
 router.use(runnerRouter);
 router.use(intelligenceRouter);
 router.use(foundingRouter);
+router.use(growthRouter);
 router.use(orchestratorRouter);
 
 router.use(

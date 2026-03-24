@@ -14,6 +14,8 @@ import Home from "@/pages/home";
 import LandingPage from "@/pages/landing";
 import JoinPage from "@/pages/join";
 import JoinSuccess from "@/pages/join-success";
+import MemberProfilePage from "@/pages/member-profile";
+import GrowthDashboard from "@/pages/growth";
 import Concierge from "@/pages/concierge";
 import Inventory from "@/pages/inventory";
 import Marketplace from "@/pages/marketplace";
@@ -93,7 +95,7 @@ function AppRoutes() {
   const [location] = useLocation();
 
   // Public pages — no sidebar, no auth required
-  const PUBLIC_PATHS = ["/landing", "/login", "/register", "/waitlist", "/legal/terms", "/legal/privacy", "/join"];
+  const PUBLIC_PATHS = ["/landing", "/login", "/register", "/waitlist", "/legal/terms", "/legal/privacy", "/join", "/m/"];
   const isPublic = PUBLIC_PATHS.some((p) => location === p || location.startsWith(p));
 
   if (isPublic) {
@@ -102,6 +104,7 @@ function AppRoutes() {
         <Route path="/landing"         component={LandingPage} />
         <Route path="/join/success"    component={JoinSuccess} />
         <Route path="/join"            component={JoinPage} />
+        <Route path="/m/:code"         component={MemberProfilePage} />
         <Route path="/login">
           <PublicRoute><LoginPage /></PublicRoute>
         </Route>
@@ -163,6 +166,9 @@ function AppRoutes() {
             <Route path="/pro"                  component={Pro} />
             <Route path="/custody"              component={Custody} />
             <Route path="/ar-viewer"            component={ARViewer} />
+
+            {/* Growth Engine */}
+            <Route path="/growth"               component={GrowthDashboard} />
 
             {/* Admin — role protected */}
             <Route path="/admin">
