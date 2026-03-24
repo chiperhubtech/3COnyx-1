@@ -805,6 +805,62 @@
   animation: feed-in 0.35s ease-out both;
 }
 
+/* ─── NeuralMesh / Agent Ring animations ─── */
+@keyframes slow-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes slow-pulse-ring {
+  0%, 100% { opacity: 0.25; transform: scale(1); }
+  50%       { opacity: 0.60; transform: scale(1.04); }
+}
+
+/* ─── Gradient text sweep ─── */
+@keyframes gradient-sweep {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.gradient-text-sweep {
+  background-size: 200% 200%;
+  animation: gradient-sweep 5s ease infinite;
+}
+
+/* ─── Scanline overlay — ultra subtle ─── */
+.scanlines::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.015) 2px,
+    rgba(0,0,0,0.015) 4px
+  );
+}
+
+/* ─── Neural float accent ─── */
+@keyframes neural-float {
+  0%, 100% { transform: translateY(0px);  }
+  50%       { transform: translateY(-6px); }
+}
+.neural-float {
+  animation: neural-float 6s ease-in-out infinite;
+}
+
+/* ─── Cockpit data blink ─── */
+@keyframes data-blink {
+  0%, 90%, 100% { opacity: 1; }
+  95%           { opacity: 0.3; }
+}
+.data-blink {
+  animation: data-blink 4s ease-in-out infinite;
+}
+
 /* ─── Number flip — smooth counter ─── */
 .num-smooth {
   display: inline-block;
