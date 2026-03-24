@@ -10,6 +10,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Shield, Users, Zap, Lock, Star, TrendingUp, ChevronRight, CheckCircle, ArrowRight, Eye, Clock, Flame } from "lucide-react";
 import { GlobalFooter } from "@/components/GlobalFooter";
+import { PublicNavbar } from "@/components/PublicNavbar";
 
 const API = import.meta.env.BASE_URL.replace(/\/$/, "") + "/api";
 
@@ -145,10 +146,12 @@ export default function JoinPage() {
   }
 
   return (
-    <div style={{ background: "#050508", minHeight: "100vh", overflowX: "hidden", fontFamily: "'Inter', sans-serif" }}>
+    <div style={{ background: "var(--onyx-page-bg)", minHeight: "100vh", overflowX: "hidden", fontFamily: "'Inter', sans-serif" }}>
 
-      {/* Progress bar — full width at very top */}
-      <div style={{ height: 3, background: "rgba(255,255,255,0.04)", position: "relative" }}>
+      <PublicNavbar />
+
+      {/* Progress bar — full width at very top, offset below fixed navbar */}
+      <div style={{ height: 3, background: "rgba(255,255,255,0.04)", position: "relative", marginTop: 60 }}>
         <div style={{
           height: "100%",
           width: `${Math.max(percentFilled, 0.5)}%`,
@@ -191,34 +194,6 @@ export default function JoinPage() {
           <Clock size={11} style={{ color: "rgba(255,255,255,0.3)" }} />
           <span style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", fontWeight: 600 }}>
             Founding price expires in {countdown.days}d {countdown.hours}h {countdown.minutes}m {countdown.seconds}s
-          </span>
-        </div>
-      </div>
-
-      {/* Top bar */}
-      <div style={{
-        padding: "16px 32px",
-        borderBottom: "1px solid rgba(255,255,255,0.05)",
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        background: "rgba(5,5,8,0.9)", backdropFilter: "blur(20px)",
-        position: "sticky", top: 0, zIndex: 10,
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{
-            width: 32, height: 32, borderRadius: 8,
-            background: "linear-gradient(135deg, #C9A227, #8B6914)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
-            <span style={{ fontSize: 14, fontWeight: 900, color: "#000", fontFamily: "'Barlow Condensed', sans-serif" }}>3C</span>
-          </div>
-          <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 16, fontWeight: 800, color: "#fff", letterSpacing: "0.08em" }}>
-            ONYX
-          </span>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#34D399", animation: "pulse 2s infinite" }} />
-          <span style={{ fontSize: 11, color: "#34D399", fontWeight: 700, letterSpacing: "0.1em" }}>
-            {countLoaded ? <Counter target={count} /> : count} FOUNDING MEMBERS
           </span>
         </div>
       </div>

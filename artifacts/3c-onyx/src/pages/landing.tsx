@@ -178,34 +178,34 @@ export default function LandingPage() {
       </div>
 
       {/* ── STATS STRIP ──────────────────────────────────────────────── */}
-      <div style={{ padding: "48px 24px", background: "#080810", borderTop: "1px solid rgba(255,255,255,0.05)", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+      <div style={{ padding: "48px 24px", background: "var(--onyx-surface)", borderTop: "1px solid var(--onyx-border-line)", borderBottom: "1px solid var(--onyx-border-line)" }}>
         <div className="grid-4-col" style={{ maxWidth: 1000, margin: "0 auto" }}>
           {STATS.map((s) => (
             <div key={s.label} style={{ textAlign: "center", padding: "16px 20px" }}>
               <p style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "clamp(32px,5vw,44px)", fontWeight: 900, color: s.color, lineHeight: 1, marginBottom: 6 }}>{s.value}</p>
-              <p style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", letterSpacing: "0.14em", fontWeight: 600 }}>{s.label}</p>
+              <p style={{ fontSize: 10, color: "var(--onyx-text-muted)", letterSpacing: "0.14em", fontWeight: 600 }}>{s.label}</p>
             </div>
           ))}
         </div>
       </div>
 
       {/* ── HOW IT WORKS ─────────────────────────────────────────────── */}
-      <div style={{ padding: "80px 24px", maxWidth: 1100, margin: "0 auto", background: "#050508" }}>
+      <div style={{ padding: "80px 24px", maxWidth: 1100, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 56 }}>
-          <p style={{ fontSize: 9, letterSpacing: "0.3em", color: "rgba(255,255,255,0.3)", fontWeight: 700, marginBottom: 12 }}>THE PROCESS</p>
-          <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "clamp(36px,6vw,52px)", fontWeight: 900, textTransform: "uppercase", lineHeight: 1, color: "#fff" }}>HOW WE COORDINATE</h2>
+          <p style={{ fontSize: 9, letterSpacing: "0.3em", color: "var(--onyx-text-muted)", fontWeight: 700, marginBottom: 12 }}>THE PROCESS</p>
+          <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "clamp(36px,6vw,52px)", fontWeight: 900, textTransform: "uppercase", lineHeight: 1, color: "var(--onyx-text-primary)" }}>HOW WE COORDINATE</h2>
         </div>
         <div className="grid-4-col">
           {HOW.map((h) => {
             const Icon = h.icon;
             return (
-              <div key={h.step} style={{ padding: "24px 20px", borderRadius: 18, background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.07)" }}>
+              <div key={h.step} style={{ padding: "24px 20px", borderRadius: 18, background: "var(--onyx-surface)", border: "1px solid var(--onyx-border-line)" }}>
                 <p style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 44, fontWeight: 900, color: `${h.color}30`, lineHeight: 1, marginBottom: 12 }}>{h.step}</p>
                 <div style={{ width: 36, height: 36, borderRadius: 10, background: `${h.color}12`, border: `1px solid ${h.color}25`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 14 }}>
                   <Icon size={16} style={{ color: h.color }} />
                 </div>
-                <p style={{ fontSize: 15, fontWeight: 800, color: "#fff", marginBottom: 8, lineHeight: 1.2 }}>{h.title}</p>
-                <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", lineHeight: 1.6 }}>{h.desc}</p>
+                <p style={{ fontSize: 15, fontWeight: 800, color: "var(--onyx-text-primary)", marginBottom: 8, lineHeight: 1.2 }}>{h.title}</p>
+                <p style={{ fontSize: 12, color: "var(--onyx-text-muted)", lineHeight: 1.6 }}>{h.desc}</p>
               </div>
             );
           })}
@@ -213,16 +213,16 @@ export default function LandingPage() {
       </div>
 
       {/* ── FEATURES GRID ────────────────────────────────────────────── */}
-      <div style={{ padding: "0 24px 80px", maxWidth: 1100, margin: "0 auto", background: "#050508" }}>
+      <div style={{ padding: "0 24px 80px", maxWidth: 1100, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 56 }}>
-          <p style={{ fontSize: 9, letterSpacing: "0.3em", color: "rgba(255,255,255,0.3)", fontWeight: 700, marginBottom: 12 }}>THE PLATFORM</p>
-          <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "clamp(36px,6vw,52px)", fontWeight: 900, textTransform: "uppercase", lineHeight: 1, color: "#fff" }}>WHAT'S INSIDE</h2>
+          <p style={{ fontSize: 9, letterSpacing: "0.3em", color: "var(--onyx-text-muted)", fontWeight: 700, marginBottom: 12 }}>THE PLATFORM</p>
+          <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "clamp(36px,6vw,52px)", fontWeight: 900, textTransform: "uppercase", lineHeight: 1, color: "var(--onyx-text-primary)" }}>WHAT'S INSIDE</h2>
         </div>
         <div className="grid-3-col">
           {FEATURES.map((f) => {
             const Icon = f.icon;
             return (
-              <div key={f.title} style={{ padding: "24px 22px", borderRadius: 18, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)", position: "relative", overflow: "hidden" }}>
+              <div key={f.title} style={{ padding: "24px 22px", borderRadius: 18, background: "var(--onyx-surface)", border: "1px solid var(--onyx-border-line)", position: "relative", overflow: "hidden" }}>
                 <div style={{ position: "absolute", top: -30, right: -30, width: 100, height: 100, borderRadius: "50%", background: `radial-gradient(circle, ${f.color}12 0%, transparent 70%)`, pointerEvents: "none" }} />
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
                   <div style={{ width: 40, height: 40, borderRadius: 12, background: `${f.color}12`, border: `1px solid ${f.color}25`, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -230,8 +230,8 @@ export default function LandingPage() {
                   </div>
                   <span style={{ fontSize: 8, fontWeight: 800, color: f.color, letterSpacing: "0.12em", padding: "3px 8px", borderRadius: 20, background: `${f.color}10`, border: `1px solid ${f.color}20` }}>{f.badge}</span>
                 </div>
-                <p style={{ fontSize: 16, fontWeight: 800, color: "#fff", marginBottom: 8 }}>{f.title}</p>
-                <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", lineHeight: 1.7 }}>{f.desc}</p>
+                <p style={{ fontSize: 16, fontWeight: 800, color: "var(--onyx-text-primary)", marginBottom: 8 }}>{f.title}</p>
+                <p style={{ fontSize: 12, color: "var(--onyx-text-muted)", lineHeight: 1.7 }}>{f.desc}</p>
               </div>
             );
           })}
@@ -239,25 +239,25 @@ export default function LandingPage() {
       </div>
 
       {/* ── TRUST STRIP ──────────────────────────────────────────────── */}
-      <div style={{ padding: "36px 24px", borderTop: "1px solid rgba(255,255,255,0.05)", background: "#080810" }}>
+      <div style={{ padding: "36px 24px", borderTop: "1px solid var(--onyx-border-line)", background: "var(--onyx-surface)" }}>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 24, justifyContent: "center", alignItems: "center" }}>
           {TRUST_POINTS.map(({ icon: Icon, text }) => (
             <div key={text} style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <Icon size={13} style={{ color: "#34D399" }} />
-              <span style={{ fontSize: 12, color: "rgba(255,255,255,0.45)" }}>{text}</span>
+              <span style={{ fontSize: 12, color: "var(--onyx-text-muted)" }}>{text}</span>
             </div>
           ))}
         </div>
       </div>
 
       {/* ── FINAL CTA ────────────────────────────────────────────────── */}
-      <div style={{ padding: "80px 24px 100px", textAlign: "center", maxWidth: 700, margin: "0 auto", background: "#050508" }}>
+      <div style={{ padding: "80px 24px 100px", textAlign: "center", maxWidth: 700, margin: "0 auto" }}>
         <p style={{ fontSize: 9, letterSpacing: "0.3em", color: "#C9A227", fontWeight: 700, marginBottom: 16 }}>READY?</p>
-        <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "clamp(36px,7vw,56px)", fontWeight: 900, textTransform: "uppercase", lineHeight: 1, marginBottom: 16, color: "#fff" }}>
+        <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "clamp(36px,7vw,56px)", fontWeight: 900, textTransform: "uppercase", lineHeight: 1, marginBottom: 16, color: "var(--onyx-text-primary)" }}>
           TELL US WHAT YOU NEED.<br />
           <span style={{ color: "#C9A227" }}>WE HANDLE EVERYTHING.</span>
         </h2>
-        <p style={{ fontSize: 14, color: "rgba(255,255,255,0.35)", marginBottom: 36 }}>No phone tag. No markups. No confusion. One clear answer, executed.</p>
+        <p style={{ fontSize: 14, color: "var(--onyx-text-muted)", marginBottom: 36 }}>No phone tag. No markups. No confusion. One clear answer, executed.</p>
         <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
           <Link href="/join">
             <button style={{ padding: "15px 32px", borderRadius: 14, background: "linear-gradient(135deg,#C9A227,#8B6914)", border: "none", color: "#000", fontWeight: 800, fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", gap: 8, letterSpacing: "0.08em", boxShadow: "0 8px 40px rgba(201,162,39,0.25)", fontFamily: "'Barlow Condensed', sans-serif" }}>

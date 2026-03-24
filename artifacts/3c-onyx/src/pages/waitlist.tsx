@@ -52,7 +52,7 @@ export default function WaitlistPage() {
   };
 
   return (
-    <div className="public-page" style={{ background: "#06060A", color: "#fff" }}>
+    <div className="public-page" style={{ color: "var(--onyx-text-primary)" }}>
       <PublicNavbar />
 
       {/* Hero */}

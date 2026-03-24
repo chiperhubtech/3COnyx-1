@@ -103,7 +103,7 @@ export default function SDVPage() {
   };
 
   return (
-    <div className="public-page" style={{ background: "#080810", color: "#fff" }}>
+    <div className="public-page" style={{ color: "var(--onyx-text-primary)" }}>
       <PublicNavbar />
 
       {/* Hero */}

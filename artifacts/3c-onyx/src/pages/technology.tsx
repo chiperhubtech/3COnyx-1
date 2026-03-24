@@ -106,7 +106,7 @@ const PERFORMANCE_TARGETS = [
 
 export default function TechnologyPage() {
   return (
-    <div className="public-page" style={{ background: "#050508", color: "#fff" }}>
+    <div className="public-page" style={{ color: "var(--onyx-text-primary)" }}>
       <PublicNavbar />
 
       {/* Header */}
