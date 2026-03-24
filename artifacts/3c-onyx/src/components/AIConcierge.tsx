@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import {
   X, Sparkles, Send, ChevronDown, Car, Zap, MapPin, RotateCcw,
   AlertTriangle, CheckCircle2, Wrench, DollarSign, ArrowRight,
-  Brain, Route, Shield,
+  Brain, Route, Shield, Users, TrendingDown, PlayCircle,
 } from "lucide-react";
 
 interface Message {
@@ -13,6 +13,26 @@ interface Message {
   diagnostic?: DiagnosticResult;
   intent?: IntentResult;
   reward?: RewardResult;
+  recommendation?: RecommendationResult;
+  escalation?: EscalationResult;
+}
+
+interface RecommendationResult {
+  headline: string;
+  savingsAmount?: number;
+  savingsBasis?: string;
+  whatWeHandle: string[];
+  options?: { label: string; price: number; isRecommended?: boolean; reasonShort?: string }[];
+  confidence: number;
+  escalated?: boolean;
+  readyToExecute?: boolean;
+}
+
+interface EscalationResult {
+  escalated: true;
+  reason: string;
+  requestSummary: string;
+  message: string;
 }
 
 interface DiagnosticResult {
@@ -155,6 +175,85 @@ function IntentChip({ d }: { d: IntentResult }) {
       <span style={{ fontSize: 9, color: "rgba(255,255,255,0.25)" }}>
         {Math.round((d.confidence || 0.92) * 100)}% confidence
       </span>
+    </div>
+  );
+}
+
+function RecommendationCard({ r }: { r: RecommendationResult }) {
+  if (r.escalated) {
+    return (
+      <div style={{ margin: "6px 0", borderRadius: 12, background: "rgba(249,115,22,0.05)", border: "1px solid rgba(249,115,22,0.25)", overflow: "hidden" }}>
+        <div style={{ padding: "10px 12px", borderBottom: "1px solid rgba(249,115,22,0.15)", display: "flex", alignItems: "center", gap: 7 }}>
+          <Users size={12} style={{ color: "#F97316" }} />
+          <span style={{ fontSize: 10, fontWeight: 800, color: "#F97316", letterSpacing: "0.1em" }}>SUPERVISOR REVIEW</span>
+        </div>
+        <div style={{ padding: "12px 12px" }}>
+          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", margin: 0, lineHeight: 1.5 }}>
+            This request requires human supervisor approval before execution. Our team will review and notify you shortly.
+          </p>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div style={{ margin: "6px 0", borderRadius: 12, background: "rgba(52,211,153,0.05)", border: "1px solid rgba(52,211,153,0.22)", overflow: "hidden" }}>
+      {/* Header */}
+      <div style={{ padding: "10px 12px", borderBottom: "1px solid rgba(52,211,153,0.12)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <Shield size={12} style={{ color: "#34D399" }} />
+          <span style={{ fontSize: 10, fontWeight: 800, color: "#34D399", letterSpacing: "0.1em" }}>3C RECOMMENDATION</span>
+        </div>
+        <span style={{ fontSize: 9, color: "rgba(52,211,153,0.5)", fontFamily: "monospace" }}>{Math.round(r.confidence * 100)}% confidence</span>
+      </div>
+
+      {/* Headline */}
+      <div style={{ padding: "12px 12px 8px" }}>
+        <p style={{ fontSize: 15, fontWeight: 800, color: "#fff", margin: "0 0 4px", lineHeight: 1.2 }}>{r.headline}</p>
+        {r.savingsAmount && (
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "3px 9px", borderRadius: 20, background: "rgba(52,211,153,0.1)", border: "1px solid rgba(52,211,153,0.2)" }}>
+            <TrendingDown size={10} style={{ color: "#34D399" }} />
+            <span style={{ fontSize: 10, fontWeight: 700, color: "#34D399" }}>
+              ${r.savingsAmount.toLocaleString()} saved{r.savingsBasis ? ` ${r.savingsBasis}` : ""}
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Options */}
+      {r.options && r.options.length > 0 && (
+        <div style={{ padding: "0 12px 8px", display: "flex", flexDirection: "column", gap: 5 }}>
+          {r.options.map((opt, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 10px", borderRadius: 8, background: opt.isRecommended ? "rgba(52,211,153,0.08)" : "rgba(255,255,255,0.03)", border: `1px solid ${opt.isRecommended ? "rgba(52,211,153,0.2)" : "rgba(255,255,255,0.06)"}` }}>
+              {opt.isRecommended && <CheckCircle2 size={10} style={{ color: "#34D399", flexShrink: 0 }} />}
+              <div style={{ flex: 1 }}>
+                <span style={{ fontSize: 11, fontWeight: opt.isRecommended ? 700 : 400, color: opt.isRecommended ? "#fff" : "rgba(255,255,255,0.5)" }}>{opt.label}</span>
+                {opt.reasonShort && <span style={{ fontSize: 9, color: "rgba(255,255,255,0.3)", marginLeft: 6 }}>{opt.reasonShort}</span>}
+              </div>
+              <span style={{ fontSize: 12, fontWeight: 700, color: opt.isRecommended ? "#34D399" : "rgba(255,255,255,0.4)" }}>${opt.price.toLocaleString()}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* What we handle */}
+      {r.whatWeHandle.length > 0 && (
+        <div style={{ padding: "8px 12px", borderTop: "1px solid rgba(52,211,153,0.1)" }}>
+          <p style={{ fontSize: 9, color: "rgba(255,255,255,0.3)", letterSpacing: "0.1em", margin: "0 0 6px" }}>WE HANDLE</p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+            {r.whatWeHandle.map((item, i) => (
+              <span key={i} style={{ fontSize: 10, padding: "2px 8px", borderRadius: 6, background: "rgba(52,211,153,0.08)", border: "1px solid rgba(52,211,153,0.15)", color: "rgba(52,211,153,0.8)" }}>✓ {item}</span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Execute CTA */}
+      {r.readyToExecute && (
+        <div style={{ padding: "8px 12px", borderTop: "1px solid rgba(52,211,153,0.1)", display: "flex", alignItems: "center", gap: 6 }}>
+          <PlayCircle size={12} style={{ color: "#34D399" }} />
+          <span style={{ fontSize: 10, color: "#34D399", fontWeight: 600 }}>Ready to execute — confirm above or say "proceed"</span>
+        </div>
+      )}
     </div>
   );
 }
@@ -371,6 +470,8 @@ export function AIConcierge() {
         let diagnostic: DiagnosticResult | undefined;
         let intentResult: IntentResult | undefined;
         let rewardResult: RewardResult | undefined;
+        let recommendationResult: RecommendationResult | undefined;
+        let escalationResult: EscalationResult | undefined;
 
         while (true) {
           const { done, value } = await reader.read();
@@ -413,13 +514,31 @@ export function AIConcierge() {
                   if (d.rewardId) rewardResult = d as RewardResult;
                 } catch { /* skip */ }
               }
+              if (payload.toolResult?.name === "recommend_solution") {
+                try {
+                  const d = JSON.parse(payload.toolResult.output);
+                  if (d.recommendation) {
+                    if (d.escalated) {
+                      escalationResult = d as EscalationResult;
+                    } else {
+                      recommendationResult = d as RecommendationResult;
+                    }
+                  }
+                } catch { /* skip */ }
+              }
+              if (payload.toolResult?.name === "escalate_to_human") {
+                try {
+                  const d = JSON.parse(payload.toolResult.output);
+                  if (d.escalated) escalationResult = d as EscalationResult;
+                } catch { /* skip */ }
+              }
             } catch { /* skip malformed */ }
           }
         }
 
         setMessages((prev) =>
           prev.map((m) => m.id === assistantId
-            ? { ...m, streaming: false, diagnostic, intent: intentResult, reward: rewardResult }
+            ? { ...m, streaming: false, diagnostic, intent: intentResult, reward: rewardResult, recommendation: recommendationResult, escalation: escalationResult }
             : m
           )
         );
@@ -572,6 +691,16 @@ export function AIConcierge() {
               </div>
 
               {msg.diagnostic && <div style={{ marginTop: 6, width: "90%" }}><DiagnosticCard d={msg.diagnostic} /></div>}
+              {msg.recommendation && !msg.recommendation.escalated && (
+                <div style={{ marginTop: 6, width: "92%" }}>
+                  <RecommendationCard r={msg.recommendation} />
+                </div>
+              )}
+              {(msg.escalation || msg.recommendation?.escalated) && (
+                <div style={{ marginTop: 6, width: "92%" }}>
+                  <RecommendationCard r={{ headline: msg.escalation?.message ?? "Escalated for review", whatWeHandle: [], confidence: 0, escalated: true }} />
+                </div>
+              )}
               {msg.reward && <div style={{ marginTop: 6, width: "85%" }}><RewardChip d={msg.reward} /></div>}
             </div>
           ))}

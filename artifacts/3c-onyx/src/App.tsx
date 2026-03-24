@@ -49,6 +49,7 @@ import WaitlistPage from "@/pages/waitlist";
 import AdminPage    from "@/pages/admin";
 import TermsPage    from "@/pages/legal/terms";
 import PrivacyPage  from "@/pages/legal/privacy";
+import TrustPage    from "@/pages/trust";
 
 const BARE_PATHS = ["/login", "/register", "/waitlist"];
 
@@ -118,6 +119,7 @@ function AppRoutes() {
         <Route path="/admin"              component={AdminPage} />
         <Route path="/legal/terms"        component={TermsPage} />
         <Route path="/legal/privacy"      component={PrivacyPage} />
+        <Route path="/trust"              component={TrustPage} />
         <Route component={NotFound} />
       </Switch>
     </Layout>

@@ -45,7 +45,15 @@ INTENT ROUTING (call classify_intent FIRST on every new request):
   • REWARD → When you complete a task (booking, purchase, referral) — call trigger_reward
 
 MASTER FLOW:
-  User Request → classify_intent → route to tool → execute → return result → trigger_reward if transaction completed
+  User Request → classify_intent → route to tool → execute → recommend_solution (when you have a clear answer) → trigger_reward if transaction completed
+
+TRUST LAYER PRINCIPLE (CRITICAL):
+  - 3C Onyx is a TRUST LAYER between consumers and the automotive industry
+  - We COORDINATE — we never compete with dealers, shops, specialists, or insurers
+  - Always act as the coordinator: "We handle everything" is literal
+  - When you have compared options and can make a clear recommendation: call recommend_solution
+  - If value is $10k+ OR confidence < 70% OR request is multi-domain complex: call escalate_to_human
+  - Humans supervise — they don't operate. The platform does the work.
 
 DIAGNOSTIC PROTOCOL (when user mentions vehicle issues):
   1. Call classify_intent with intent="diagnostic"
@@ -171,6 +179,39 @@ const TOOL_DECLARATIONS = [
         amount: { type: "number", description: "Dollar amount — if omitted the platform calculates it automatically" },
       },
       required: ["rewardType"],
+    },
+  },
+  {
+    name: "recommend_solution",
+    description: "Present a unified trust-layer recommendation: the single best option with savings, reasoning, and what we will handle. Call this when you have enough information to make a clear recommendation.",
+    parameters: {
+      type: "object" as const,
+      properties: {
+        headline:      { type: "string",  description: "Short bold headline summarizing the recommendation (e.g. 'Best option saves you $840')" },
+        savingsAmount: { type: "number",  description: "Dollar amount saved vs. retail/alternative" },
+        savingsBasis:  { type: "string",  description: "What the saving is compared to (e.g. 'vs. dealership retail')" },
+        whatWeHandle:  { type: "array",   description: "List of things 3C will handle — 2-4 items", items: { type: "string" } },
+        options:       { type: "array",   description: "2-3 comparison options the user could choose from", items: { type: "object", properties: { label: { type: "string" }, price: { type: "number" }, isRecommended: { type: "boolean" }, reasonShort: { type: "string" } } } },
+        confidence:    { type: "number",  description: "Confidence score 0.0-1.0. If below 0.70, this will trigger human escalation." },
+        escalate:      { type: "boolean", description: "Set true if this decision needs human supervisor review (high value, complex, or low confidence)." },
+        readyToExecute:{ type: "boolean", description: "True if the platform can proceed with execution now." },
+      },
+      required: ["headline", "whatWeHandle", "confidence"],
+    },
+  },
+  {
+    name: "escalate_to_human",
+    description: "Escalate a request to a human supervisor when it's too complex, too high-value ($10k+), or confidence is below 70%. Pauses AI execution and alerts the supervisor team.",
+    parameters: {
+      type: "object" as const,
+      properties: {
+        reason:         { type: "string", description: "Why this needs a human: low_confidence | high_value | complex | manual" },
+        requestSummary: { type: "string", description: "One-sentence summary of what the user needs" },
+        estimatedValue: { type: "number", description: "Estimated transaction value in dollars" },
+        confidence:     { type: "number", description: "Current confidence score" },
+        recommendation: { type: "string", description: "What ONYX would have recommended if proceeding" },
+      },
+      required: ["reason", "requestSummary"],
     },
   },
 ];
@@ -325,6 +366,55 @@ async function executeTool(name: string, args: Record<string, any>): Promise<str
         if (rewardEventsBus.length > 20) rewardEventsBus.shift();
 
         return JSON.stringify({ rewardId, amount, rewardType, vehicle, fromName, message: `$${amount} reward credited — Ref: ${rewardId}` });
+      }
+
+      case "recommend_solution": {
+        const {
+          headline = "Recommendation ready", savingsAmount, savingsBasis,
+          whatWeHandle = [], options = [], confidence = 0.85,
+          escalate = false, readyToExecute = true,
+        } = args;
+
+        // Auto-escalate if confidence below threshold or explicit escalation
+        if (escalate || confidence < 0.70) {
+          try {
+            await fetch(`${process.env.INTERNAL_API_URL ?? "http://localhost:8080"}/api/escalation/create`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                requestSummary: headline,
+                confidence,
+                recommendation: headline,
+                manualFlag: !escalate && confidence < 0.70,
+              }),
+            });
+          } catch { /* non-blocking */ }
+          return JSON.stringify({
+            recommendation: true, escalated: true, confidence,
+            headline,
+            message: "This request has been escalated to a 3C supervisor for review. Execution is paused — you will be notified when approved.",
+          });
+        }
+
+        return JSON.stringify({
+          recommendation: true, escalated: false, confidence,
+          headline, savingsAmount, savingsBasis, whatWeHandle, options, readyToExecute,
+        });
+      }
+
+      case "escalate_to_human": {
+        const { reason = "manual", requestSummary = "", estimatedValue, confidence, recommendation } = args;
+        try {
+          await fetch(`${process.env.INTERNAL_API_URL ?? "http://localhost:8080"}/api/escalation/create`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ requestSummary, confidence, estimatedValue, recommendation, manualFlag: reason === "manual" }),
+          });
+        } catch { /* non-blocking */ }
+        return JSON.stringify({
+          escalated: true, reason, requestSummary,
+          message: `Request escalated to 3C supervisor (${reason}). Execution paused. Our team will review within minutes.`,
+        });
       }
 
       default:

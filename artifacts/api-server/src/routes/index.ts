@@ -40,6 +40,7 @@ import spinmediaRouter from "./spinmedia";
 import authRouter from "./auth";
 import adminRouter from "./admin";
 import waitlistRouter from "./waitlist";
+import escalationRouter from "./escalation";
 
 const router: IRouter = Router();
 
@@ -81,6 +82,7 @@ router.use(spinmediaRouter);
 router.use(authRouter);
 router.use("/admin", adminRouter);
 router.use(waitlistRouter);
+router.use(escalationRouter);
 router.use(orchestratorRouter);
 
 router.use(
