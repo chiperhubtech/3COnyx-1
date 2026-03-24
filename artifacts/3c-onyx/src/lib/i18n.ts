@@ -26,4 +26,12 @@ i18n
     },
   });
 
+// Apply RTL direction on initial load based on stored language
+const storedLang = localStorage.getItem("onyx-lang");
+if (storedLang) {
+  const isRtl = storedLang === "ar";
+  document.documentElement.dir = isRtl ? "rtl" : "ltr";
+  document.documentElement.lang = storedLang;
+}
+
 export default i18n;

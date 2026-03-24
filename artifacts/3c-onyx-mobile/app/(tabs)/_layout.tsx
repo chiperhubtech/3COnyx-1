@@ -4,8 +4,10 @@ import { Feather, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import React from "react";
 import { Platform, StyleSheet, View } from "react-native";
 import { COLORS } from "@/constants/colors";
+import { useTranslation } from "react-i18next";
 
 export default function TabLayout() {
+  const { t } = useTranslation();
   const isIOS = Platform.OS === "ios";
   const isWeb = Platform.OS === "web";
 

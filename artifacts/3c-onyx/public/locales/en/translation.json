@@ -114,7 +114,9 @@
       "submit": "SECURE MY SPOT — $99",
       "ssl": "256-bit SSL encryption",
       "stripe": "Secured by Stripe · PCI Level 1 compliant",
-      "refund": "Full refund available before launch date"
+      "refund": "Full refund available before launch date",
+      "errorRequired": "Please enter your full name and email address.",
+      "errorEmail": "Please enter a valid email address."
     },
     "testimonials": {
       "title": "WHAT EARLY MEMBERS SAY"

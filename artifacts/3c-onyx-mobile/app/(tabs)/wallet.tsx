@@ -16,6 +16,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { COLORS } from "@/constants/colors";
 import { apiFetch } from "@/lib/api";
+import { useTranslation } from "react-i18next";
 
 interface WalletData {
   memberId: string;

@@ -25,9 +25,16 @@ export default function LanguageSelector({ compact = false }: LanguageSelectorPr
 
   const current = LANGUAGES.find((l) => l.code === i18n.language) || LANGUAGES[0];
 
+  const RTL_LANGS = new Set(["ar"]);
+
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    i18n.changeLanguage(e.target.value);
-    localStorage.setItem("onyx-lang", e.target.value);
+    const lang = e.target.value;
+    i18n.changeLanguage(lang);
+    localStorage.setItem("onyx-lang", lang);
+    const dir = RTL_LANGS.has(lang) ? "rtl" : "ltr";
+    document.documentElement.dir = dir;
+    document.documentElement.lang = lang;
+    document.body.dir = dir;
   };
 
   if (compact) {

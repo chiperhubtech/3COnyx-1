@@ -81,6 +81,7 @@ function useViewingNow() {
 }
 
 export default function JoinPage() {
+  const { t } = useTranslation();
   const [name, setName]                 = useState("");
   const [email, setEmail]               = useState("");
   const [loading, setLoading]           = useState(false);
@@ -114,11 +115,11 @@ export default function JoinPage() {
     setError(null);
 
     if (!name.trim() || !email.trim()) {
-      setError("Please enter your full name and email address.");
+      setError(t("join.form.errorRequired"));
       return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError("Please enter a valid email address.");
+      setError(t("join.form.errorEmail"));
       return;
     }
 
@@ -171,14 +172,14 @@ export default function JoinPage() {
         <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
           <Flame size={11} style={{ color: "#F59E0B" }} />
           <span style={{ fontSize: 11, color: "#F59E0B", fontWeight: 700, letterSpacing: "0.08em" }}>
-            {countLoaded ? spotsRemaining.toLocaleString() : "9,999"} SPOTS REMAINING OF 10,000
+            {t("join.spotsRemaining", { count: countLoaded ? spotsRemaining.toLocaleString() : "9,999" })}
           </span>
         </div>
         <div style={{ width: 1, height: 12, background: "rgba(255,255,255,0.1)" }} />
         <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
           <Eye size={11} style={{ color: "rgba(255,255,255,0.4)" }} />
           <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontWeight: 600 }}>
-            {viewingNow} viewing right now
+            {t("join.viewing", { count: viewingNow })}
           </span>
         </div>
         {joinedToday > 0 && <>
@@ -186,7 +187,7 @@ export default function JoinPage() {
           <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
             <TrendingUp size={11} style={{ color: "#34D399" }} />
             <span style={{ fontSize: 11, color: "#34D399", fontWeight: 600 }}>
-              {joinedToday} joined today
+              {t("join.joinedToday", { count: joinedToday })}
             </span>
           </div>
         </>}
@@ -194,7 +195,7 @@ export default function JoinPage() {
         <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
           <Clock size={11} style={{ color: "rgba(255,255,255,0.3)" }} />
           <span style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", fontWeight: 600 }}>
-            Founding price expires in {countdown.days}d {countdown.hours}h {countdown.minutes}m {countdown.seconds}s
+            {t("join.priceExpires", { time: `${countdown.days}d ${countdown.hours}h ${countdown.minutes}m ${countdown.seconds}s` })}
           </span>
         </div>
       </div>
@@ -225,7 +226,7 @@ export default function JoinPage() {
               background: "rgba(201,162,39,0.1)", border: "1px solid rgba(201,162,39,0.3)",
             }}>
               <span style={{ fontSize: 10, fontWeight: 800, color: "#C9A227", letterSpacing: "0.18em" }}>
-                FOUNDING MEMBER — LIMITED
+                {t("join.badge")}
               </span>
             </div>
           </div>

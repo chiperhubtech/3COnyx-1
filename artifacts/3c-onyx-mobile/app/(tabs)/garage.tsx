@@ -13,6 +13,7 @@ import Svg, { Circle } from "react-native-svg";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { COLORS } from "@/constants/colors";
 import { apiFetch } from "@/lib/api";
+import { useTranslation } from "react-i18next";
 
 type GarageVehicle = {
   id: string;
