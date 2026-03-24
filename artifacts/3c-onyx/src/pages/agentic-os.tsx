@@ -367,8 +367,18 @@ export default function AgenticOS() {
   const [conciergeMsg, setConciergeMsg] = useState<string | null>(null);
   const showConcierge = (msg: string) => {
     setConciergeMsg(msg);
-    setTimeout(() => setConciergeMsg(null), 6000);
+    setTimeout(() => setConciergeMsg(null), 12000);
   };
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get("q");
+    if (q) {
+      showConcierge(q);
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Mutations
   const triggerPipeline = useMutation({

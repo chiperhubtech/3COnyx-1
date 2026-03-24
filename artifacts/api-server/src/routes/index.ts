@@ -43,6 +43,7 @@ import waitlistRouter from "./waitlist";
 import escalationRouter from "./escalation";
 import checkoutRouter from "./checkout";
 import runnerRouter from "./runner";
+import intelligenceRouter from "./intelligence";
 
 const router: IRouter = Router();
 
@@ -87,6 +88,7 @@ router.use(waitlistRouter);
 router.use(escalationRouter);
 router.use(checkoutRouter);
 router.use(runnerRouter);
+router.use(intelligenceRouter);
 router.use(orchestratorRouter);
 
 router.use(

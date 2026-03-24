@@ -3,18 +3,19 @@
  * Apple × GTA × Bloomberg Terminal × Cockpit
  * "The automotive intelligence layer. We move like water."
  */
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import {
   ShoppingBag, Gauge, Truck, CreditCard, Bookmark,
-  ArrowRight, QrCode, Zap, Shield, TrendingDown,
-  Heart, Wrench, ClipboardCheck, Package, LayoutDashboard,
+  ArrowRight, QrCode, Zap, Shield,
+  Wrench, ClipboardCheck, Package, LayoutDashboard,
   Brain, Layers, Lock, BarChart3, ChevronRight,
   Activity, Users, Cpu, Route,
 } from "lucide-react";
 import { NeuralMesh } from "@/components/NeuralMesh";
-import { AgentFeed } from "@/components/AgentFeed";
+import IntelligencePanel, { PersonalSavingsTracker } from "@/components/IntelligencePanel";
+import { useAuth } from "@/context/AuthContext";
 
 const API = import.meta.env.BASE_URL.replace(/\/$/, "") + "/api";
 
@@ -226,6 +227,7 @@ function IntelligenceBar({ savingsStr }: { savingsStr: string }) {
 
 /* ─── Main Home Page ─────────────────────────────────────────────────────── */
 export default function Home() {
+  const { token } = useAuth();
   const [time, setTime] = useState(new Date());
   const [walletBalance] = useState("$21,200");
   const [deliveries] = useState("1");
@@ -419,36 +421,10 @@ export default function Home() {
             <StatCard label="NOTIFICATIONS"     value={notifCount}       sub="Unread alerts"         color="#F87171" icon={Activity} />
           </div>
 
-          {/* Ignorance Tax Strip */}
-          <Link href="/impact">
-            <div style={{
-              padding: "16px 20px",
-              borderRadius: 16,
-              background: "linear-gradient(135deg, rgba(52,211,153,0.06) 0%, rgba(201,162,39,0.04) 100%)",
-              border: "1px solid rgba(52,211,153,0.15)",
-              display: "flex", alignItems: "center", gap: 14,
-              cursor: "pointer", marginBottom: 28,
-              transition: "border-color 0.2s",
-            }}
-              onMouseEnter={(e) => (e.currentTarget.style.borderColor = "rgba(52,211,153,0.3)")}
-              onMouseLeave={(e) => (e.currentTarget.style.borderColor = "rgba(52,211,153,0.15)")}
-            >
-              <div style={{ width: 40, height: 40, borderRadius: 12, background: "rgba(52,211,153,0.1)", border: "1px solid rgba(52,211,153,0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                <Heart size={17} style={{ color: "#34D399" }} />
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: 9, letterSpacing: "0.16em", color: "rgba(255,255,255,0.3)", fontWeight: 700, marginBottom: 3 }}>IGNORANCE TAX ELIMINATED</p>
-                <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
-                  <p style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 26, fontWeight: 900, color: "#34D399", lineHeight: 1 }}>{savingsStr}</p>
-                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.3)" }}>saved vs. retail markup — platform-wide</p>
-                </div>
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
-                <TrendingDown size={14} style={{ color: "#34D399" }} />
-                <ChevronRight size={13} style={{ color: "rgba(52,211,153,0.4)" }} />
-              </div>
-            </div>
-          </Link>
+          {/* Personal Savings Tracker */}
+          <div style={{ marginBottom: 28 }}>
+            <PersonalSavingsTracker token={token} />
+          </div>
 
           {/* Quick Access — 3 col grid */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
@@ -532,34 +508,11 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Right column: Live AI Feed */}
+        {/* Right column: Proactive Intelligence */}
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
-          {/* Live Intelligence Panel */}
-          <div style={{
-            borderRadius: 16,
-            background: "rgba(255,255,255,0.02)",
-            border: "1px solid rgba(255,255,255,0.07)",
-            overflow: "hidden",
-          }}>
-            <div style={{
-              padding: "12px 16px",
-              borderBottom: "1px solid rgba(255,255,255,0.05)",
-              display: "flex", alignItems: "center", justifyContent: "space-between",
-            }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                <Brain size={12} style={{ color: "#C9A227" }} />
-                <span style={{ fontSize: 10, fontWeight: 800, color: "#C9A227", letterSpacing: "0.12em" }}>LIVE INTELLIGENCE</span>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#34D399", animation: "pulse 2s infinite" }} />
-                <span style={{ fontSize: 8, color: "rgba(52,211,153,0.7)", letterSpacing: "0.1em" }}>STREAMING</span>
-              </div>
-            </div>
-            <div style={{ padding: "4px 16px 12px" }}>
-              <AgentFeed />
-            </div>
-          </div>
+          {/* Personalized Alert Feed */}
+          <IntelligencePanel token={token} />
 
           {/* Neural Agent Grid */}
           <div style={{

@@ -1,6 +1,8 @@
 # Overview
 
-This project, "3C Onyx," is a pnpm workspace monorepo built with TypeScript, aiming to transform the vehicle marketplace. It integrates advanced AI, telematics, logistics, and financial services to offer a comprehensive platform for customers, dealers, and specialists. The platform features an AI-enriched marketplace with dynamic pricing, a national wholesale engine, secure financial transactions, AI-powered automation, and robust auditing. Designed with a cinematic dark-mode UI ("Apple × GTA" aesthetic), its vision is to become a "Hectocorn" company by creating a seamless and efficient ecosystem for vehicle transactions and related services.
+3C Onyx is a luxury dark-mode Automotive AI Operating System — a trust layer between consumers and the automotive industry. "We move like water." The platform includes ONYX AI Concierge, Guardian V2X, Blockchain Chain-of-Custody, Dynasty Wallet triple-split, Stripe Connect escrow, a 12-agent neural mesh orchestrator, Proactive Intelligence Engine with one-tap execution, and full auth with UAID (User Automotive Intelligence Dossier). No mock/simulation language visible to users — all badges read LIVE.
+
+The platform is a pnpm workspace monorepo with TypeScript, Express 5, React+Vite, Expo (mobile), PostgreSQL, and Drizzle ORM.
 
 # User Preferences
 
