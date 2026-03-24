@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { SpinViewer } from "@/components/SpinViewer";
+import { useTranslation } from "react-i18next";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 

@@ -1,0 +1,391 @@
+{
+  "nav": {
+    "home": "Home",
+    "technology": "Technology",
+    "sdvLayer": "SDV Layer",
+    "join": "Join",
+    "joinNow": "JOIN NOW",
+    "poweredBy": "POWERED BY CUXTOMCANDYCLUB LLC"
+  },
+  "landing": {
+    "badge": "TRUST LAYER LIVE · SECURITY ACTIVE",
+    "hero": {
+      "line1": "THE AUTOMOTIVE",
+      "line2": "INTELLIGENCE LAYER.",
+      "sub": "We sit between consumers and the automotive industry — coordinating every deal, every delivery, every decision. We don't compete. We coordinate. We move like water.",
+      "cta": "JOIN THE PLATFORM",
+      "howItWorks": "HOW IT WORKS",
+      "discover": "DISCOVER MORE"
+    },
+    "stats": {
+      "saved": "Saved vs. Retail",
+      "agents": "AI Agents Live",
+      "confidence": "Confidence Score",
+      "resolution": "Avg. Resolution Time"
+    },
+    "how": {
+      "title": "HOW WE COORDINATE",
+      "process": "THE PROCESS",
+      "step1Title": "Tell ONYX What You Need",
+      "step1Desc": "Text in plain language. No forms. \"Find me a car under $80k\" — that's it.",
+      "step2Title": "We Handle the Complexity",
+      "step2Desc": "12 agents run simultaneously: pricing, inspection, insurance, routing, financing — all at once.",
+      "step3Title": "One Clear Answer",
+      "step3Desc": "\"Best option saves you $840. We handle everything now.\" Transparent reasoning. Zero markup.",
+      "step4Title": "Executed, Not Just Advised",
+      "step4Desc": "Runner dispatched. Escrow opened. Blockchain record written. You just confirm."
+    },
+    "features": {
+      "title": "WHAT'S INSIDE",
+      "platform": "THE PLATFORM",
+      "feature1Title": "ONYX AI Concierge",
+      "feature1Desc": "12 specialized agents working simultaneously. Tell us what you need in plain language — we handle everything from pricing to paperwork.",
+      "feature1Badge": "12 AGENTS",
+      "feature2Title": "Guardian V2X",
+      "feature2Desc": "Predictive safety mesh that monitors your vehicles in real time. Anomaly detection, insurance optimization, and failure prevention.",
+      "feature2Badge": "LIVE MONITORING",
+      "feature3Title": "Blockchain Custody",
+      "feature3Desc": "Every vehicle transaction is SHA-256 hashed and anchored to Ethereum. Immutable chain of title — no disputes, no fraud.",
+      "feature3Badge": "IMMUTABLE",
+      "feature4Title": "Dynasty Wallet",
+      "feature4Desc": "Triple-split payment engine with Stripe escrow. 5% Member Slice on every transaction. Instant payouts to runners and specialists.",
+      "feature4Badge": "STRIPE CONNECT",
+      "feature5Title": "Runner Network",
+      "feature5Desc": "Background-verified gig network for vehicle delivery. Cryptographic proof-of-delivery. GPS tracked from dispatch to handoff.",
+      "feature5Badge": "GPS TRACKED",
+      "feature6Title": "AR Spatial OS",
+      "feature6Desc": "Augmented reality vehicle inspection overlay. See VIN data, Guardian scores, and service history layered over the physical vehicle.",
+      "feature6Badge": "AR POWERED"
+    },
+    "trust": {
+      "soc2": "SOC2 Type II Compliant",
+      "aes": "AES-256 Encryption",
+      "pii": "PII Masked by Default",
+      "checkr": "Checkr-Verified Runners",
+      "neverCompete": "Never a Competitor",
+      "blockchain": "Blockchain Anchored"
+    },
+    "cta": {
+      "ready": "READY?",
+      "title": "TELL US WHAT YOU NEED.",
+      "titleGold": "WE HANDLE EVERYTHING.",
+      "sub": "No phone tag. No markups. No confusion. One clear answer, executed.",
+      "getStarted": "GET STARTED FREE",
+      "signIn": "SIGN IN"
+    }
+  },
+  "join": {
+    "badge": "FOUNDING MEMBER — LIMITED",
+    "spotsRemaining": "{{count}} SPOTS REMAINING OF 10,000",
+    "viewing": "{{count}} viewing right now",
+    "joinedToday": "{{count}} joined today",
+    "priceExpires": "Founding price expires in {{time}}",
+    "hero": {
+      "line1": "OWN YOUR",
+      "line2": "SPOT.",
+      "sub": "One-time $99 locks in your founding member status — forever. When we launch, founding members never pay more than $99. Full stop.",
+      "memberIs": "Member #1 is real.",
+      "memberIsDesc": "The first founding member paid today. Every member number after that is yours — first come, first locked."
+    },
+    "benefits": {
+      "title": "WHAT YOUR $99 INCLUDES — FOREVER",
+      "badge": "Founding Member Badge",
+      "badgeDetail": "Permanently stamped on your account — for life",
+      "pricelock": "$99 Price Lock — Forever",
+      "pricelockDetail": "Never pay more. Future members pay market rate",
+      "earlyAccess": "Early Access — Everything",
+      "earlyAccessDetail": "First into every feature before public launch",
+      "guardian": "Guardian V2X Included",
+      "guardianDetail": "Predictive vehicle safety & V2X network access",
+      "commission": "5% Lifetime Commission",
+      "commissionDetail": "On every referral you bring in — forever",
+      "wallet": "Dynasty Wallet Priority",
+      "walletDetail": "Top-tier split on every transaction you touch"
+    },
+    "form": {
+      "title": "SECURE YOUR FOUNDING MEMBERSHIP",
+      "price": "one-time · locked forever",
+      "name": "FULL NAME",
+      "namePlaceholder": "Your name",
+      "email": "EMAIL ADDRESS",
+      "emailPlaceholder": "you@example.com",
+      "referral": "REFERRAL CODE",
+      "referralPlaceholder": "Optional referral code",
+      "submit": "SECURE MY SPOT — $99",
+      "ssl": "256-bit SSL encryption",
+      "stripe": "Secured by Stripe · PCI Level 1 compliant",
+      "refund": "Full refund available before launch date"
+    },
+    "testimonials": {
+      "title": "WHAT EARLY MEMBERS SAY"
+    },
+    "faq": {
+      "title": "QUICK ANSWERS"
+    }
+  },
+  "home": {
+    "greeting": {
+      "morning": "GOOD MORNING",
+      "afternoon": "GOOD AFTERNOON",
+      "evening": "GOOD EVENING"
+    },
+    "platformStatus": "Platform Status",
+    "platformOnline": "ALL SYSTEMS ONLINE",
+    "quickActions": "Quick Actions",
+    "recentActivity": "Recent Activity",
+    "actions": {
+      "concierge": "ONYX AI",
+      "conciergeDesc": "Concierge",
+      "guardian": "Guardian",
+      "guardianDesc": "V2X Safety",
+      "garage": "My Garage",
+      "garageDesc": "Vehicles",
+      "marketplace": "Market",
+      "marketplaceDesc": "Buy & Sell",
+      "wallet": "Wallet",
+      "walletDesc": "Dynasty",
+      "documents": "Docs",
+      "documentsDesc": "Vault"
+    },
+    "status": {
+      "neuralMesh": "NEURAL MESH",
+      "aiAgents": "AI AGENTS",
+      "blockchainSync": "BLOCKCHAIN SYNC",
+      "securityLayer": "SECURITY LAYER",
+      "otaStamping": "BLOCKCHAIN OTA"
+    }
+  },
+  "marketplace": {
+    "title": "LUXURY MARKETPLACE",
+    "subtitle": "Certified vehicles. Blockchain-verified. No markup.",
+    "search": "Search make, model...",
+    "filter": "Filter",
+    "sort": "Sort",
+    "price": "Price",
+    "mileage": "Mileage",
+    "year": "Year",
+    "condition": "Condition",
+    "noResults": "No vehicles match your filters.",
+    "viewDetails": "View Details",
+    "requestInspection": "Request Inspection",
+    "blockchainVerified": "BLOCKCHAIN VERIFIED",
+    "guardianScore": "Guardian Score",
+    "priceBreakdown": "Price Breakdown",
+    "vehiclePrice": "Vehicle Price",
+    "memberSlice": "Member Slice (5%)",
+    "platformFee": "Platform Fee",
+    "total": "Total",
+    "escrowNote": "Funds held in Stripe escrow until delivery confirmation"
+  },
+  "sdv": {
+    "badge": "SDV INTELLIGENCE LAYER",
+    "hero": {
+      "line1": "THE TRUST LAYER",
+      "line2Gold": "EVERY SDV NEEDS.",
+      "sub": "The automotive software market grows from $213B in 2024 to $1.2T by 2030. Every software-defined vehicle needs a blockchain-anchored identity layer, an intelligence scoring engine, and a trust infrastructure for OTA updates, V2X communication, and digital ownership. That layer is 3C Onyx."
+    },
+    "readinessTiers": "SDV READINESS TIERS",
+    "tiers": {
+      "tier1": "Tier 1 — Connected",
+      "tier2": "Tier 2 — Autonomous Ready",
+      "tier3": "Tier 3 — SDV Native",
+      "tier4": "Tier 4 — Full Intelligence"
+    },
+    "capabilities": "SDV CAPABILITIES",
+    "liveData": "LIVE SDV DATA",
+    "noProfiles": "No SDV profiles registered yet.",
+    "registerFirst": "Register your first SDV profile to see intelligence data.",
+    "telemetry": "TELEMETRY",
+    "otaHistory": "OTA UPDATE HISTORY",
+    "noUpdates": "No OTA updates recorded.",
+    "viewAll": "VIEW ALL"
+  },
+  "technology": {
+    "badge": "ARCHITECTURE — TECHNICAL BRIEF",
+    "hero": {
+      "line1": "BUILT LIKE",
+      "line2Green": "INFRASTRUCTURE.",
+      "sub": "Every layer of 3C Onyx is production-grade from day one. This is the technical brief for investors, partners, and CTOs who want to look under the hood."
+    },
+    "apiEndpoints": "API ENDPOINTS",
+    "webMobileScreens": "WEB + MOBILE SCREENS",
+    "postgresqlTables": "POSTGRESQL TABLES",
+    "aiModels": "AI MODELS IN ROUTER",
+    "layers": {
+      "presentation": "PRESENTATION",
+      "api": "API LAYER",
+      "data": "DATA LAYER",
+      "security": "SECURITY",
+      "blockchain": "BLOCKCHAIN",
+      "ai": "AI INTELLIGENCE"
+    }
+  },
+  "trust": {
+    "badge": "SECURITY ARCHITECTURE",
+    "title": "BUILT ON TRUST.",
+    "titleGold": "SECURED BY DESIGN.",
+    "sub": "Every layer of 3C Onyx is built security-first. We don't bolt security on — we architect it in.",
+    "principles": "SECURITY PRINCIPLES",
+    "zeroTrust": "Zero-Trust Architecture",
+    "e2eEncryption": "End-to-End Encryption",
+    "blockchainAudit": "Blockchain Audit Trail",
+    "compliance": "SOC2 Compliance",
+    "certifications": "CERTIFICATIONS & COMPLIANCE"
+  },
+  "guardian": {
+    "title": "GUARDIAN V2X",
+    "subtitle": "PREDICTIVE SAFETY INTELLIGENCE",
+    "score": "Guardian Score",
+    "safetyMesh": "SAFETY MESH",
+    "alerts": "ACTIVE ALERTS",
+    "noAlerts": "No active alerts",
+    "allClear": "ALL CLEAR",
+    "vehicleHealth": "Vehicle Health",
+    "anomalyDetection": "Anomaly Detection",
+    "insuranceOptimization": "Insurance Optimization",
+    "v2xNetwork": "V2X Network",
+    "monitoring": "MONITORING",
+    "active": "ACTIVE",
+    "offline": "OFFLINE"
+  },
+  "concierge": {
+    "title": "ONYX AI CONCIERGE",
+    "subtitle": "12 SPECIALIZED AGENTS",
+    "placeholder": "Tell me what you need... \"Find me a car under $80k\" or \"What's wrong with my Porsche?\"",
+    "send": "SEND",
+    "thinking": "ONYX is coordinating your request...",
+    "agents": "ACTIVE AGENTS",
+    "history": "CONVERSATION HISTORY",
+    "newChat": "NEW CHAT",
+    "clearHistory": "Clear History"
+  },
+  "garage": {
+    "title": "MY GARAGE",
+    "subtitle": "YOUR VEHICLES",
+    "addVehicle": "Add Vehicle",
+    "noVehicles": "No vehicles in your garage yet.",
+    "addFirst": "Add your first vehicle to get started.",
+    "vin": "VIN",
+    "vinPlaceholder": "Enter VIN number",
+    "make": "Make",
+    "model": "Model",
+    "year": "Year",
+    "mileage": "Mileage",
+    "color": "Color",
+    "guardianStatus": "Guardian Status",
+    "blockchainId": "Blockchain ID",
+    "serviceHistory": "Service History",
+    "addService": "Add Service Record",
+    "noService": "No service records yet.",
+    "documents": "Documents",
+    "scanDocument": "Scan Document"
+  },
+  "wallet": {
+    "title": "DYNASTY WALLET",
+    "subtitle": "TRIPLE-SPLIT ENGINE",
+    "balance": "Balance",
+    "pending": "Pending",
+    "lifetime": "Lifetime Earnings",
+    "connectStripe": "CONNECT STRIPE",
+    "connected": "CONNECTED",
+    "disconnected": "DISCONNECTED",
+    "transactions": "TRANSACTIONS",
+    "noTransactions": "No transactions yet.",
+    "split": "Split",
+    "memberSlice": "MEMBER SLICE",
+    "runnerCut": "RUNNER CUT",
+    "platformFee": "PLATFORM FEE",
+    "payoutStatus": "Payout Status",
+    "paid": "PAID",
+    "pending_status": "PENDING",
+    "escrow": "ESCROW"
+  },
+  "waitlist": {
+    "badge": "JOIN THE WAITLIST",
+    "title": "BE FIRST.",
+    "titleGold": "GET EARLY ACCESS.",
+    "sub": "3C Onyx is invite-only at launch. Join the waitlist and we'll notify you the moment your spot opens.",
+    "form": {
+      "email": "Email address",
+      "emailPlaceholder": "you@example.com",
+      "submit": "JOIN WAITLIST",
+      "submitting": "JOINING...",
+      "success": "You're on the list! We'll be in touch.",
+      "error": "Something went wrong. Please try again."
+    },
+    "benefits": {
+      "title": "WAITLIST MEMBERS GET",
+      "earlyAccess": "Early access before public launch",
+      "pricelock": "Founding member pricing ($99 locked)",
+      "badge": "Exclusive founding member badge",
+      "priority": "Priority support and onboarding"
+    }
+  },
+  "footer": {
+    "tagline": "\"We move like water.\" — The trust and intelligence layer for the automotive industry.",
+    "founded": "Founded 2024 · 3C Onyx — Powered by CUXTOMCANDYCLUB LLC",
+    "allRights": "All rights reserved.",
+    "aes": "AES-256 ENCRYPTED",
+    "soc2": "SOC2 COMPLIANT",
+    "blockchain": "BLOCKCHAIN VERIFIED",
+    "links": {
+      "technology": "Technology",
+      "sdvLayer": "SDV Layer",
+      "trustLayer": "Trust Layer",
+      "join": "Join",
+      "privacy": "Privacy",
+      "terms": "Terms"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Try Again",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "search": "Search",
+    "filter": "Filter",
+    "viewAll": "View All",
+    "learnMore": "Learn More",
+    "getStarted": "Get Started",
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "dashboard": "Dashboard",
+    "settings": "Settings",
+    "live": "LIVE",
+    "active": "ACTIVE",
+    "offline": "OFFLINE",
+    "connected": "CONNECTED",
+    "secure": "SECURE"
+  },
+  "sidebar": {
+    "concierge": "ONYX AI Concierge",
+    "conciergeDesc": "12-agent intelligence engine",
+    "guardian": "Guardian V2X",
+    "guardianDesc": "Predictive safety network",
+    "garage": "My Garage",
+    "garageDesc": "Vehicle management",
+    "marketplace": "Marketplace",
+    "marketplaceDesc": "Certified luxury vehicles",
+    "wallet": "Dynasty Wallet",
+    "walletDesc": "Triple-split payment engine",
+    "documents": "Document Vault",
+    "documentsDesc": "Secure file storage",
+    "intelligence": "Decision Engine",
+    "intelligenceDesc": "LLM-independent scoring",
+    "neuralMesh": "NEURAL MESH LIVE",
+    "agents": "AGENTS",
+    "status": "STATUS",
+    "latency": "LATENCY"
+  },
+  "langSelector": {
+    "label": "Language"
+  }
+}

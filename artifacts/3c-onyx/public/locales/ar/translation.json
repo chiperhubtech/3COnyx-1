@@ -1,0 +1,46 @@
+{
+  "nav": { "home": "الرئيسية", "technology": "التكنولوجيا", "sdvLayer": "طبقة SDV", "join": "انضم", "joinNow": "انضم الآن", "poweredBy": "مدعوم من CUXTOMCANDYCLUB LLC" },
+  "landing": {
+    "badge": "طبقة الثقة مباشرة · الأمان نشط",
+    "hero": { "line1": "طبقة الذكاء", "line2": "السيارات.", "sub": "نقف بين المستهلكين وصناعة السيارات — ننسق كل صفقة، كل توصيل، كل قرار. لا ننافس. ننسق. نتحرك مثل الماء.", "cta": "انضم إلى المنصة", "howItWorks": "كيف يعمل", "discover": "اكتشف المزيد" },
+    "stats": { "saved": "وفر مقابل التجزئة", "agents": "وكلاء الذكاء الاصطناعي النشطون", "confidence": "درجة الثقة", "resolution": "متوسط وقت الحل" },
+    "how": { "title": "كيف ننسق", "process": "العملية", "step1Title": "أخبر ONYX بما تحتاج", "step1Desc": "اكتب بلغة طبيعية. بدون نماذج.", "step2Title": "نتعامل مع التعقيد", "step2Desc": "12 وكيلاً يعملون في وقت واحد: التسعير والفحص والتأمين والتوجيه والتمويل.", "step3Title": "إجابة واضحة واحدة", "step3Desc": "أفضل خيار يوفر لك 840 دولاراً. نتعامل مع كل شيء الآن.", "step4Title": "منفذ لا مجرد نصيحة", "step4Desc": "تم إرسال السائق. تم فتح الضمان. تم كتابة سجل البلوكتشين." },
+    "features": { "title": "ما في الداخل", "platform": "المنصة", "feature1Title": "كونسيرج ذكاء ONYX", "feature1Desc": "12 وكيلاً متخصصاً يعملون في وقت واحد.", "feature1Badge": "12 وكيل", "feature2Title": "Guardian V2X", "feature2Desc": "شبكة أمان تنبؤية تراقب مركباتك في الوقت الفعلي.", "feature2Badge": "مراقبة مباشرة", "feature3Title": "حضانة البلوكتشين", "feature3Desc": "كل معاملة مركبة مجزأة بـ SHA-256 ومثبتة في Ethereum.", "feature3Badge": "غير قابل للتغيير", "feature4Title": "Dynasty Wallet", "feature4Desc": "محرك دفع ثلاثي التقسيم مع ضمان Stripe.", "feature4Badge": "STRIPE CONNECT", "feature5Title": "شبكة السائقين", "feature5Desc": "شبكة موثقة لتوصيل المركبات. تتبع GPS.", "feature5Badge": "تتبع GPS", "feature6Title": "نظام AR المكاني", "feature6Desc": "تراكب فحص المركبة بالواقع المعزز.", "feature6Badge": "مدعوم بالواقع المعزز" },
+    "trust": { "soc2": "متوافق SOC2 النوع الثاني", "aes": "تشفير AES-256", "pii": "PII مقنع افتراضياً", "checkr": "سائقون موثقون من Checkr", "neverCompete": "لسنا منافسين أبداً", "blockchain": "مثبت في البلوكتشين" },
+    "cta": { "ready": "جاهز؟", "title": "أخبرنا بما تحتاج.", "titleGold": "نتعامل مع كل شيء.", "sub": "بدون مكالمات هاتفية. بدون هوامش. بدون إرباك. إجابة واضحة، منفذة.", "getStarted": "ابدأ مجاناً", "signIn": "تسجيل الدخول" }
+  },
+  "join": {
+    "badge": "عضو مؤسس — محدود",
+    "spotsRemaining": "{{count}} مكاناً متبقياً من 10,000",
+    "viewing": "{{count}} يشاهد الآن",
+    "joinedToday": "{{count}} انضموا اليوم",
+    "priceExpires": "ينتهي سعر المؤسس خلال {{time}}",
+    "hero": { "line1": "احجز", "line2": "مكانك.", "sub": "دفعة واحدة بقيمة 99 دولاراً تضمن وضعك كعضو مؤسس — إلى الأبد.", "memberIs": "العضو رقم 1 حقيقي.", "memberIsDesc": "أول عضو مؤسس دفع اليوم." },
+    "benefits": { "title": "ما تشمله 99 دولاراً — إلى الأبد", "badge": "شارة عضو مؤسس", "badgeDetail": "مختوم بشكل دائم على حسابك", "pricelock": "سعر مقفل بـ 99 دولاراً — إلى الأبد", "pricelockDetail": "لا تدفع أكثر أبداً. الأعضاء المستقبليون يدفعون سعر السوق", "earlyAccess": "الوصول المبكر — لكل شيء", "earlyAccessDetail": "الأول في كل ميزة قبل الإطلاق العام", "guardian": "Guardian V2X مضمن", "guardianDetail": "سلامة المركبة التنبؤية والوصول إلى شبكة V2X", "commission": "عمولة 5% مدى الحياة", "commissionDetail": "على كل إحالة تجلبها — إلى الأبد", "wallet": "أولوية Dynasty Wallet", "walletDetail": "أعلى مستوى من التقسيم في كل معاملة" },
+    "form": { "title": "أمّن عضويتك التأسيسية", "price": "لمرة واحدة · مقفل إلى الأبد", "name": "الاسم الكامل", "namePlaceholder": "اسمك", "email": "عنوان البريد الإلكتروني", "emailPlaceholder": "you@example.com", "referral": "رمز الإحالة", "referralPlaceholder": "رمز إحالة اختياري", "submit": "أمّن مكاني — 99 دولاراً", "ssl": "تشفير SSL 256 بت", "stripe": "مؤمن بواسطة Stripe · PCI Level 1", "refund": "استرداد كامل متاح قبل تاريخ الإطلاق" },
+    "testimonials": { "title": "ما يقوله الأعضاء الأوائل" },
+    "faq": { "title": "إجابات سريعة" }
+  },
+  "home": {
+    "greeting": { "morning": "صباح الخير", "afternoon": "مساء الخير", "evening": "مساء النور" },
+    "platformStatus": "حالة المنصة",
+    "platformOnline": "جميع الأنظمة تعمل",
+    "quickActions": "الإجراءات السريعة",
+    "recentActivity": "النشاط الأخير",
+    "actions": { "concierge": "ONYX AI", "conciergeDesc": "كونسيرج", "guardian": "Guardian", "guardianDesc": "أمان V2X", "garage": "كراجي", "garageDesc": "المركبات", "marketplace": "السوق", "marketplaceDesc": "شراء وبيع", "wallet": "المحفظة", "walletDesc": "Dynasty", "documents": "وثائق", "documentsDesc": "الخزينة" },
+    "status": { "neuralMesh": "الشبكة العصبية", "aiAgents": "وكلاء الذكاء الاصطناعي", "blockchainSync": "مزامنة البلوكتشين", "securityLayer": "طبقة الأمان", "otaStamping": "OTA بلوكتشين" }
+  },
+  "marketplace": { "title": "سوق الرفاهية", "subtitle": "مركبات معتمدة. موثقة بالبلوكتشين. بدون هامش.", "search": "بحث عن الماركة، الموديل...", "noResults": "لا توجد مركبات تطابق فلاترك.", "blockchainVerified": "موثق بالبلوكتشين", "escrowNote": "الأموال محتجزة في ضمان Stripe حتى تأكيد التسليم" },
+  "sdv": { "badge": "طبقة ذكاء SDV", "hero": { "line1": "طبقة الثقة", "line2Gold": "التي تحتاجها كل SDV.", "sub": "سوق برامج السيارات ينمو من 213 مليار دولار في 2024 إلى 1.2 تريليون في 2030." }, "readinessTiers": "مستويات جاهزية SDV", "capabilities": "قدرات SDV", "liveData": "بيانات SDV المباشرة", "noProfiles": "لم يتم تسجيل ملفات SDV بعد.", "viewAll": "عرض الكل" },
+  "technology": { "badge": "الهندسة المعمارية — الملخص التقني", "hero": { "line1": "مبني مثل", "line2Green": "البنية التحتية.", "sub": "كل طبقة من 3C Onyx على مستوى الإنتاج من اليوم الأول." }, "apiEndpoints": "نقاط نهاية API", "webMobileScreens": "شاشات ويب + موبايل", "postgresqlTables": "جداول PostgreSQL", "aiModels": "نماذج الذكاء الاصطناعي" },
+  "trust": { "badge": "هندسة الأمان", "title": "مبني على الثقة.", "titleGold": "مؤمن بالتصميم.", "sub": "كل طبقة من 3C Onyx مبنية بالأمان أولاً.", "principles": "مبادئ الأمان", "certifications": "الشهادات والامتثال" },
+  "guardian": { "title": "GUARDIAN V2X", "subtitle": "ذكاء السلامة التنبؤي", "score": "درجة Guardian", "noAlerts": "لا توجد تنبيهات نشطة", "allClear": "كل شيء واضح", "active": "نشط", "offline": "غير متصل" },
+  "concierge": { "title": "كونسيرج ONYX AI", "subtitle": "12 وكيلاً متخصصاً", "placeholder": "أخبرني بما تحتاج...", "send": "إرسال", "thinking": "ONYX ينسق طلبك...", "newChat": "محادثة جديدة" },
+  "garage": { "title": "كراجي", "subtitle": "مركباتك", "addVehicle": "إضافة مركبة", "noVehicles": "لا توجد مركبات في كراجك بعد.", "noService": "لا توجد سجلات خدمة بعد." },
+  "wallet": { "title": "DYNASTY WALLET", "subtitle": "محرك التقسيم الثلاثي", "balance": "الرصيد", "pending": "معلق", "lifetime": "الأرباح مدى الحياة", "connectStripe": "ربط Stripe", "connected": "متصل", "disconnected": "غير متصل", "noTransactions": "لا توجد معاملات بعد." },
+  "waitlist": { "badge": "انضم إلى قائمة الانتظار", "title": "كن الأول.", "titleGold": "احصل على وصول مبكر.", "sub": "3C Onyx بالدعوة فقط عند الإطلاق.", "form": { "email": "عنوان البريد الإلكتروني", "emailPlaceholder": "you@example.com", "submit": "انضم إلى القائمة", "submitting": "جارٍ الانضمام...", "success": "أنت على القائمة! سنتواصل معك.", "error": "حدث خطأ ما. يرجى المحاولة مرة أخرى." }, "benefits": { "title": "أعضاء قائمة الانتظار يحصلون على", "earlyAccess": "وصول مبكر قبل الإطلاق العام", "pricelock": "سعر العضو المؤسس (99 دولاراً مقفلاً)", "badge": "شارة حصرية للعضو المؤسس", "priority": "دعم ذو أولوية وتأهيل" } },
+  "footer": { "tagline": "\"نتحرك مثل الماء.\" — طبقة الثقة والذكاء لصناعة السيارات.", "founded": "تأسس 2024 · 3C Onyx — مدعوم من CUXTOMCANDYCLUB LLC", "allRights": "جميع الحقوق محفوظة.", "aes": "مشفر AES-256", "soc2": "متوافق SOC2", "blockchain": "موثق بالبلوكتشين" },
+  "common": { "loading": "جارٍ التحميل...", "error": "حدث خطأ ما", "retry": "حاول مرة أخرى", "save": "حفظ", "cancel": "إلغاء", "confirm": "تأكيد", "delete": "حذف", "edit": "تعديل", "close": "إغلاق", "back": "رجوع", "next": "التالي", "submit": "إرسال", "search": "بحث", "viewAll": "عرض الكل", "getStarted": "ابدأ", "signIn": "تسجيل الدخول", "signOut": "تسجيل الخروج", "live": "مباشر", "active": "نشط", "secure": "آمن" },
+  "sidebar": { "concierge": "كونسيرج ONYX AI", "conciergeDesc": "محرك ذكاء 12 وكيل", "guardian": "Guardian V2X", "guardianDesc": "شبكة الأمان التنبؤية", "garage": "كراجي", "garageDesc": "إدارة المركبات", "marketplace": "السوق", "marketplaceDesc": "مركبات فاخرة معتمدة", "wallet": "Dynasty Wallet", "walletDesc": "محرك الدفع الثلاثي", "neuralMesh": "الشبكة العصبية مباشرة" },
+  "langSelector": { "label": "اللغة" }
+}

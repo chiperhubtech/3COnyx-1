@@ -1,0 +1,46 @@
+{
+  "nav": { "home": "ホーム", "technology": "テクノロジー", "sdvLayer": "SDVレイヤー", "join": "参加", "joinNow": "今すぐ参加", "poweredBy": "CUXTOMCANDYCLUB LLC 提供" },
+  "landing": {
+    "badge": "トラストレイヤー稼働中 · セキュリティ有効",
+    "hero": { "line1": "自動車", "line2": "インテリジェンスレイヤー。", "sub": "私たちは消費者と自動車業界の間に立ち、あらゆる取引、配送、決定を調整します。競争しません。協調します。水のように動きます。", "cta": "プラットフォームに参加", "howItWorks": "仕組み", "discover": "さらに探索" },
+    "stats": { "saved": "小売価格比節約", "agents": "アクティブAIエージェント", "confidence": "信頼スコア", "resolution": "平均解決時間" },
+    "how": { "title": "調整方法", "process": "プロセス", "step1Title": "ONYXに必要なことを伝える", "step1Desc": "自然言語で入力。フォーム不要。", "step2Title": "複雑さを処理", "step2Desc": "12のエージェントが同時に動作：価格設定、検査、保険、ルーティング、融資。", "step3Title": "明確な1つの回答", "step3Desc": "最良の選択肢で840ドル節約。今すぐすべてを処理します。", "step4Title": "アドバイスではなく実行", "step4Desc": "ドライバー派遣済み。エスクロー開設済み。ブロックチェーン記録書き込み済み。" },
+    "features": { "title": "内容", "platform": "プラットフォーム", "feature1Title": "ONYX AIコンシェルジュ", "feature1Desc": "12の専門エージェントが同時に作業。", "feature1Badge": "12エージェント", "feature2Title": "Guardian V2X", "feature2Desc": "リアルタイムで車両を監視する予測安全メッシュ。", "feature2Badge": "ライブ監視", "feature3Title": "ブロックチェーン管理", "feature3Desc": "すべての車両取引はSHA-256ハッシュ化されイーサリアムに固定。", "feature3Badge": "不変", "feature4Title": "Dynastyウォレット", "feature4Desc": "Stripeエスクロー付き三重分割支払いエンジン。", "feature4Badge": "STRIPE CONNECT", "feature5Title": "ドライバーネットワーク", "feature5Desc": "認証済み車両配送ネットワーク。GPS追跡。", "feature5Badge": "GPS追跡", "feature6Title": "AR Spatial OS", "feature6Desc": "AR車両検査オーバーレイ。", "feature6Badge": "AR駆動" },
+    "trust": { "soc2": "SOC2タイプII準拠", "aes": "AES-256暗号化", "pii": "PII デフォルトマスク", "checkr": "Checkr認証ドライバー", "neverCompete": "競合相手ではない", "blockchain": "ブロックチェーン固定" },
+    "cta": { "ready": "準備完了？", "title": "何が必要か教えてください。", "titleGold": "すべて処理します。", "sub": "電話なし。上乗せなし。混乱なし。明確な回答、実行済み。", "getStarted": "無料で始める", "signIn": "サインイン" }
+  },
+  "join": {
+    "badge": "創設メンバー — 限定",
+    "spotsRemaining": "残り{{count}}スポット（10,000中）",
+    "viewing": "{{count}}人が閲覧中",
+    "joinedToday": "今日{{count}}人が参加",
+    "priceExpires": "創設価格は{{time}}後に終了",
+    "hero": { "line1": "スポットを", "line2": "確保。", "sub": "99ドルの1回払いで創設メンバーステータスを永久に確定。", "memberIs": "メンバー#1は本物。", "memberIsDesc": "最初の創設メンバーが今日支払いました。" },
+    "benefits": { "title": "99ドルに含まれるもの — 永久", "badge": "創設メンバーバッジ", "badgeDetail": "アカウントに永久に刻印", "pricelock": "99ドル価格ロック — 永久", "pricelockDetail": "それ以上は支払わない。将来のメンバーは市場価格で支払う", "earlyAccess": "早期アクセス — すべて", "earlyAccessDetail": "公開前に全機能に最初にアクセス", "guardian": "Guardian V2X 含む", "guardianDetail": "予測車両安全とV2Xネットワークアクセス", "commission": "5%生涯コミッション", "commissionDetail": "紹介ごとに — 永久", "wallet": "Dynasty ウォレット優先", "walletDetail": "すべての取引でトップ分割" },
+    "form": { "title": "創設メンバーシップを確保", "price": "1回払い · 永久ロック", "name": "氏名", "namePlaceholder": "お名前", "email": "メールアドレス", "emailPlaceholder": "you@example.com", "referral": "紹介コード", "referralPlaceholder": "任意の紹介コード", "submit": "スポットを確保 — 99ドル", "ssl": "256ビットSSL暗号化", "stripe": "Stripeで保護 · PCIレベル1", "refund": "発売日前は全額返金可能" },
+    "testimonials": { "title": "初期メンバーの声" },
+    "faq": { "title": "よくある質問" }
+  },
+  "home": {
+    "greeting": { "morning": "おはようございます", "afternoon": "こんにちは", "evening": "こんばんは" },
+    "platformStatus": "プラットフォーム状態",
+    "platformOnline": "全システム正常稼働",
+    "quickActions": "クイックアクション",
+    "recentActivity": "最近のアクティビティ",
+    "actions": { "concierge": "ONYX AI", "conciergeDesc": "コンシェルジュ", "guardian": "Guardian", "guardianDesc": "V2X安全", "garage": "マイガレージ", "garageDesc": "車両", "marketplace": "マーケット", "marketplaceDesc": "売買", "wallet": "ウォレット", "walletDesc": "Dynasty", "documents": "書類", "documentsDesc": "ボールト" },
+    "status": { "neuralMesh": "ニューラルメッシュ", "aiAgents": "AIエージェント", "blockchainSync": "ブロックチェーン同期", "securityLayer": "セキュリティレイヤー", "otaStamping": "ブロックチェーンOTA" }
+  },
+  "marketplace": { "title": "ラグジュアリーマーケット", "subtitle": "認定車両。ブロックチェーン認証。手数料なし。", "search": "メーカー、モデルを検索...", "noResults": "フィルターに一致する車両がありません。", "blockchainVerified": "ブロックチェーン認証済み", "escrowNote": "配送確認まで資金はStripeエスクローで保管" },
+  "sdv": { "badge": "SDVインテリジェンスレイヤー", "hero": { "line1": "トラストレイヤー", "line2Gold": "すべてのSDVに必要な。", "sub": "自動車ソフトウェア市場は2024年の2130億ドルから2030年に1.2兆ドルに成長。" }, "readinessTiers": "SDV準備ティア", "capabilities": "SDV能力", "liveData": "SDVライブデータ", "noProfiles": "SDVプロファイルはまだ登録されていません。", "viewAll": "すべて表示" },
+  "technology": { "badge": "アーキテクチャ — 技術概要", "hero": { "line1": "インフラのように", "line2Green": "構築。", "sub": "3C Onyxのすべてのレイヤーは初日からプロダクション品質。" }, "apiEndpoints": "APIエンドポイント", "webMobileScreens": "ウェブ+モバイル画面", "postgresqlTables": "PostgreSQLテーブル", "aiModels": "ルーターのAIモデル" },
+  "trust": { "badge": "セキュリティアーキテクチャ", "title": "信頼の上に構築。", "titleGold": "設計によって保護。", "sub": "3C Onyxのすべてのレイヤーはセキュリティファーストで構築。", "principles": "セキュリティ原則", "certifications": "認証とコンプライアンス" },
+  "guardian": { "title": "GUARDIAN V2X", "subtitle": "予測安全インテリジェンス", "score": "Guardianスコア", "noAlerts": "アクティブアラートなし", "allClear": "異常なし", "active": "アクティブ", "offline": "オフライン" },
+  "concierge": { "title": "ONYX AIコンシェルジュ", "subtitle": "12専門エージェント", "placeholder": "必要なことを教えてください...", "send": "送信", "thinking": "ONYXがリクエストを調整中...", "newChat": "新しいチャット" },
+  "garage": { "title": "マイガレージ", "subtitle": "あなたの車両", "addVehicle": "車両を追加", "noVehicles": "ガレージにまだ車両がありません。", "noService": "まだサービス記録がありません。" },
+  "wallet": { "title": "DYNASTYウォレット", "subtitle": "トリプルスプリットエンジン", "balance": "残高", "pending": "保留中", "lifetime": "生涯収益", "connectStripe": "STRIPEを接続", "connected": "接続済み", "disconnected": "未接続", "noTransactions": "まだ取引がありません。" },
+  "waitlist": { "badge": "ウェイトリストに参加", "title": "最初になる。", "titleGold": "早期アクセスを取得。", "sub": "3C Onyxはローンチ時に招待制のみ。", "form": { "email": "メールアドレス", "emailPlaceholder": "you@example.com", "submit": "ウェイトリストに参加", "submitting": "参加中...", "success": "リストに追加されました！連絡します。", "error": "エラーが発生しました。再試行してください。" }, "benefits": { "title": "ウェイトリストメンバーが得るもの", "earlyAccess": "公開前の早期アクセス", "pricelock": "創設メンバー価格（99ドルロック）", "badge": "限定創設メンバーバッジ", "priority": "優先サポートとオンボーディング" } },
+  "footer": { "tagline": "\"水のように動く。\" — 自動車業界の信頼とインテリジェンスレイヤー。", "founded": "2024年設立 · 3C Onyx — CUXTOMCANDYCLUB LLC提供", "allRights": "全権利留保。", "aes": "AES-256暗号化", "soc2": "SOC2準拠", "blockchain": "ブロックチェーン認証" },
+  "common": { "loading": "読み込み中...", "error": "エラーが発生しました", "retry": "再試行", "save": "保存", "cancel": "キャンセル", "confirm": "確認", "delete": "削除", "edit": "編集", "close": "閉じる", "back": "戻る", "next": "次へ", "submit": "送信", "search": "検索", "viewAll": "すべて表示", "getStarted": "始める", "signIn": "サインイン", "signOut": "サインアウト", "live": "ライブ", "active": "アクティブ", "secure": "安全" },
+  "sidebar": { "concierge": "ONYX AIコンシェルジュ", "conciergeDesc": "12エージェントインテリジェンスエンジン", "guardian": "Guardian V2X", "guardianDesc": "予測安全ネットワーク", "garage": "マイガレージ", "garageDesc": "車両管理", "marketplace": "マーケットプレイス", "marketplaceDesc": "認定ラグジュアリー車両", "wallet": "Dynastyウォレット", "walletDesc": "三重分割支払いエンジン", "neuralMesh": "ニューラルメッシュ ライブ" },
+  "langSelector": { "label": "言語" }
+}

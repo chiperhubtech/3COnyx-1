@@ -5,6 +5,7 @@
 import { Shield, Zap, Database, Lock, Brain, Globe, Server, Code2, CheckCircle2, TrendingUp } from "lucide-react";
 import { PublicNavbar } from "@/components/PublicNavbar";
 import { GlobalFooter } from "@/components/GlobalFooter";
+import { useTranslation } from "react-i18next";
 
 const API_ROUTES = 48;
 const WEB_PAGES = 45;

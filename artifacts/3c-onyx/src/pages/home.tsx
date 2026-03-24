@@ -16,6 +16,7 @@ import {
 import { NeuralMesh } from "@/components/NeuralMesh";
 import IntelligencePanel, { PersonalSavingsTracker } from "@/components/IntelligencePanel";
 import { useAuth } from "@/context/AuthContext";
+import { useTranslation } from "react-i18next";
 
 const API = import.meta.env.BASE_URL.replace(/\/$/, "") + "/api";
 
@@ -228,6 +229,7 @@ function IntelligenceBar({ savingsStr }: { savingsStr: string }) {
 /* ─── Main Home Page ─────────────────────────────────────────────────────── */
 export default function Home() {
   const { token } = useAuth();
+  const { t } = useTranslation();
   const [time, setTime] = useState(new Date());
   const [walletBalance] = useState("$21,200");
   const [deliveries] = useState("1");
@@ -246,7 +248,7 @@ export default function Home() {
   });
 
   const hour = time.getHours();
-  const greeting = hour < 12 ? "GOOD MORNING" : hour < 18 ? "GOOD AFTERNOON" : "GOOD EVENING";
+  const greeting = hour < 12 ? t("home.greeting.morning") : hour < 18 ? t("home.greeting.afternoon") : t("home.greeting.evening");
   const timeStr  = time.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
   const dateStr  = time.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
 

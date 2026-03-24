@@ -7,18 +7,11 @@ import { Link } from "wouter";
 import { Shield } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-
-const FOOTER_LINKS = [
-  { label: "Technology",   href: "/technology" },
-  { label: "SDV Layer",    href: "/sdv" },
-  { label: "Trust Layer",  href: "/landing" },
-  { label: "Join",         href: "/join" },
-  { label: "Privacy",      href: "/legal/privacy" },
-  { label: "Terms",        href: "/legal/terms" },
-];
+import { useTranslation } from "react-i18next";
 
 export function GlobalFooter() {
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   const isDark = !mounted || theme === "dark";
@@ -28,6 +21,15 @@ export function GlobalFooter() {
   const textMuted = isDark ? "rgba(255,255,255,0.25)" : "rgba(0,0,0,0.30)";
   const textDim = isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.18)";
   const textFg = isDark ? "rgba(255,255,255,0.55)" : "rgba(0,0,0,0.50)";
+
+  const FOOTER_LINKS = [
+    { labelKey: "footer.links.technology", href: "/technology" },
+    { labelKey: "footer.links.sdvLayer",   href: "/sdv" },
+    { labelKey: "footer.links.trustLayer", href: "/landing" },
+    { labelKey: "footer.links.join",       href: "/join" },
+    { labelKey: "footer.links.privacy",    href: "/legal/privacy" },
+    { labelKey: "footer.links.terms",      href: "/legal/terms" },
+  ];
 
   return (
     <footer style={{ background: bg, borderTop: `1px solid ${border}`, padding: "48px 24px 32px" }}>
@@ -53,12 +55,12 @@ export function GlobalFooter() {
                   letterSpacing: "0.1em", lineHeight: 1,
                 }}>3C ONYX</div>
                 <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.22em", color: "#C9A227", marginTop: 2 }}>
-                  POWERED BY CUXTOMCANDYCLUB LLC
+                  {t("nav.poweredBy")}
                 </div>
               </div>
             </div>
             <p style={{ color: textMuted, fontSize: 12, maxWidth: 280, lineHeight: 1.6, fontStyle: "italic" }}>
-              "We move like water." — The trust and intelligence layer for the automotive industry.
+              {t("footer.tagline")}
             </p>
           </div>
 
@@ -82,7 +84,7 @@ export function GlobalFooter() {
                     (e.currentTarget as HTMLDivElement).style.borderColor = border;
                   }}
                 >
-                  {link.label}
+                  {t(link.labelKey)}
                 </div>
               </Link>
             ))}
@@ -93,16 +95,16 @@ export function GlobalFooter() {
         <div style={{ borderTop: `1px solid ${border}`, paddingTop: 20, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
           <div>
             <p style={{ color: textDim, fontSize: 10, letterSpacing: "0.08em" }}>
-              © 2026 CUXTOMCANDYCLUB LLC. All rights reserved.
+              © 2026 CUXTOMCANDYCLUB LLC. {t("footer.allRights")}
             </p>
             <p style={{ color: textDim, fontSize: 9, letterSpacing: "0.08em", marginTop: 3 }}>
-              Founded 2024 · 3C Onyx — Powered by CUXTOMCANDYCLUB LLC
+              {t("footer.founded")}
             </p>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <span style={{ fontSize: 9, color: textDim, letterSpacing: "0.14em" }}>AES-256 ENCRYPTED</span>
-            <span style={{ fontSize: 9, color: textDim, letterSpacing: "0.14em" }}>SOC2 COMPLIANT</span>
-            <span style={{ fontSize: 9, color: textDim, letterSpacing: "0.14em" }}>BLOCKCHAIN VERIFIED</span>
+            <span style={{ fontSize: 9, color: textDim, letterSpacing: "0.14em" }}>{t("footer.aes")}</span>
+            <span style={{ fontSize: 9, color: textDim, letterSpacing: "0.14em" }}>{t("footer.soc2")}</span>
+            <span style={{ fontSize: 9, color: textDim, letterSpacing: "0.14em" }}>{t("footer.blockchain")}</span>
           </div>
         </div>
       </div>

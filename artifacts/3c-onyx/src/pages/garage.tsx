@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { maskVin } from "@/lib/piiMask";
+import { useTranslation } from "react-i18next";
 
 interface Vehicle {
   id: string;

@@ -1,0 +1,46 @@
+{
+  "nav": { "home": "首页", "technology": "技术", "sdvLayer": "SDV层", "join": "加入", "joinNow": "立即加入", "poweredBy": "由 CUXTOMCANDYCLUB LLC 提供支持" },
+  "landing": {
+    "badge": "信任层上线 · 安全激活",
+    "hero": { "line1": "汽车", "line2": "智能层。", "sub": "我们处于消费者和汽车行业之间——协调每笔交易、每次交付、每个决策。我们不竞争。我们协调。我们如水般流动。", "cta": "加入平台", "howItWorks": "工作原理", "discover": "探索更多" },
+    "stats": { "saved": "与零售相比节省", "agents": "活跃AI代理", "confidence": "置信度评分", "resolution": "平均解决时间" },
+    "how": { "title": "我们如何协调", "process": "流程", "step1Title": "告诉ONYX您需要什么", "step1Desc": "用自然语言输入。无需表格。", "step2Title": "我们处理复杂性", "step2Desc": "12个代理同时运行：定价、检查、保险、路线、融资。", "step3Title": "一个明确的答案", "step3Desc": "最佳选择为您节省840美元。我们现在处理一切。", "step4Title": "执行，而非仅建议", "step4Desc": "司机已派遣。托管账户已开立。区块链记录已写入。" },
+    "features": { "title": "平台内容", "platform": "平台", "feature1Title": "ONYX AI礼宾服务", "feature1Desc": "12个专业代理同时工作。", "feature1Badge": "12个代理", "feature2Title": "Guardian V2X", "feature2Desc": "实时监控您车辆的预测安全网络。", "feature2Badge": "实时监控", "feature3Title": "区块链保管", "feature3Desc": "每笔车辆交易都经过SHA-256哈希并锚定到以太坊。", "feature3Badge": "不可变", "feature4Title": "Dynasty钱包", "feature4Desc": "三重分割支付引擎，配备Stripe托管。", "feature4Badge": "STRIPE CONNECT", "feature5Title": "司机网络", "feature5Desc": "经验证的车辆配送网络。GPS追踪。", "feature5Badge": "GPS追踪", "feature6Title": "AR空间OS", "feature6Desc": "增强现实车辆检查叠加。", "feature6Badge": "AR驱动" },
+    "trust": { "soc2": "SOC2 II型合规", "aes": "AES-256加密", "pii": "默认屏蔽PII", "checkr": "Checkr验证司机", "neverCompete": "永远不是竞争对手", "blockchain": "区块链锚定" },
+    "cta": { "ready": "准备好了？", "title": "告诉我们您需要什么。", "titleGold": "我们处理一切。", "sub": "没有电话标签。没有加价。没有混乱。一个明确的答案，执行完毕。", "getStarted": "免费开始", "signIn": "登录" }
+  },
+  "join": {
+    "badge": "创始会员 — 限额",
+    "spotsRemaining": "剩余{{count}}个名额（共10,000个）",
+    "viewing": "{{count}}人正在查看",
+    "joinedToday": "{{count}}人今天加入",
+    "priceExpires": "创始价格将在{{time}}后到期",
+    "hero": { "line1": "拥有您的", "line2": "名额。", "sub": "一次性99美元锁定您的创始会员资格——永久。", "memberIs": "会员#1是真实的。", "memberIsDesc": "第一位创始会员今天付款了。" },
+    "benefits": { "title": "您的99美元包含——永久", "badge": "创始会员徽章", "badgeDetail": "永久印在您的账户上", "pricelock": "99美元永久价格锁定", "pricelockDetail": "永不多付。未来会员按市场价格付费", "earlyAccess": "早期访问——一切", "earlyAccessDetail": "在公开发布前第一个使用每项功能", "guardian": "包含Guardian V2X", "guardianDetail": "预测车辆安全和V2X网络访问", "commission": "5%终身佣金", "commissionDetail": "您带来的每次推荐——永久", "wallet": "Dynasty钱包优先级", "walletDetail": "每笔交易的顶级分成" },
+    "form": { "title": "确保您的创始会员资格", "price": "一次性 · 永久锁定", "name": "全名", "namePlaceholder": "您的姓名", "email": "电子邮件地址", "emailPlaceholder": "you@example.com", "referral": "推荐码", "referralPlaceholder": "可选推荐码", "submit": "确保我的名额 — 99美元", "ssl": "256位SSL加密", "stripe": "由Stripe保护 · PCI一级合规", "refund": "发布日期前可获得全额退款" },
+    "testimonials": { "title": "早期会员怎么说" },
+    "faq": { "title": "快速答案" }
+  },
+  "home": {
+    "greeting": { "morning": "早上好", "afternoon": "下午好", "evening": "晚上好" },
+    "platformStatus": "平台状态",
+    "platformOnline": "所有系统正常运行",
+    "quickActions": "快速操作",
+    "recentActivity": "最近活动",
+    "actions": { "concierge": "ONYX AI", "conciergeDesc": "礼宾服务", "guardian": "Guardian", "guardianDesc": "V2X安全", "garage": "我的车库", "garageDesc": "车辆", "marketplace": "市场", "marketplaceDesc": "买卖", "wallet": "钱包", "walletDesc": "Dynasty", "documents": "文件", "documentsDesc": "保险库" },
+    "status": { "neuralMesh": "神经网络", "aiAgents": "AI代理", "blockchainSync": "区块链同步", "securityLayer": "安全层", "otaStamping": "区块链OTA" }
+  },
+  "marketplace": { "title": "豪华市场", "subtitle": "认证车辆。区块链验证。无加价。", "search": "搜索品牌、型号...", "noResults": "没有车辆符合您的筛选条件。", "blockchainVerified": "区块链已验证", "escrowNote": "资金托管在Stripe直到交付确认" },
+  "sdv": { "badge": "SDV智能层", "hero": { "line1": "信任层", "line2Gold": "每辆SDV都需要。", "sub": "汽车软件市场从2024年的2130亿美元增长到2030年的1.2万亿美元。" }, "readinessTiers": "SDV准备等级", "capabilities": "SDV能力", "liveData": "SDV实时数据", "noProfiles": "尚未注册SDV配置文件。", "viewAll": "查看全部" },
+  "technology": { "badge": "架构 — 技术简介", "hero": { "line1": "构建如同", "line2Green": "基础设施。", "sub": "3C Onyx的每一层从第一天起都是生产级别的。" }, "apiEndpoints": "API端点", "webMobileScreens": "网页+移动屏幕", "postgresqlTables": "PostgreSQL表", "aiModels": "路由器中的AI模型" },
+  "trust": { "badge": "安全架构", "title": "建立在信任上。", "titleGold": "通过设计保障安全。", "sub": "3C Onyx的每一层都是以安全为先构建的。", "principles": "安全原则", "certifications": "认证与合规" },
+  "guardian": { "title": "GUARDIAN V2X", "subtitle": "预测安全智能", "score": "Guardian评分", "noAlerts": "无活跃警报", "allClear": "一切正常", "active": "活跃", "offline": "离线" },
+  "concierge": { "title": "ONYX AI礼宾服务", "subtitle": "12个专业代理", "placeholder": "告诉我您需要什么...", "send": "发送", "thinking": "ONYX正在协调您的请求...", "newChat": "新对话" },
+  "garage": { "title": "我的车库", "subtitle": "您的车辆", "addVehicle": "添加车辆", "noVehicles": "您的车库还没有车辆。", "noService": "还没有服务记录。" },
+  "wallet": { "title": "DYNASTY钱包", "subtitle": "三重分割引擎", "balance": "余额", "pending": "待处理", "lifetime": "终身收益", "connectStripe": "连接STRIPE", "connected": "已连接", "disconnected": "未连接", "noTransactions": "还没有交易。" },
+  "waitlist": { "badge": "加入等待名单", "title": "成为第一个。", "titleGold": "获得早期访问。", "sub": "3C Onyx在发布时仅凭邀请。", "form": { "email": "电子邮件地址", "emailPlaceholder": "you@example.com", "submit": "加入等待名单", "submitting": "加入中...", "success": "您已加入名单！我们会与您联系。", "error": "出了点问题。请重试。" }, "benefits": { "title": "等待名单成员获得", "earlyAccess": "公开发布前的早期访问", "pricelock": "创始会员定价（99美元锁定）", "badge": "独家创始会员徽章", "priority": "优先支持和入职" } },
+  "footer": { "tagline": "\"我们如水般流动。\" — 汽车行业的信任和智能层。", "founded": "成立于2024年 · 3C Onyx — 由CUXTOMCANDYCLUB LLC提供支持", "allRights": "保留所有权利。", "aes": "AES-256加密", "soc2": "SOC2合规", "blockchain": "区块链验证" },
+  "common": { "loading": "加载中...", "error": "出了点问题", "retry": "重试", "save": "保存", "cancel": "取消", "confirm": "确认", "delete": "删除", "edit": "编辑", "close": "关闭", "back": "返回", "next": "下一步", "submit": "提交", "search": "搜索", "viewAll": "查看全部", "getStarted": "开始", "signIn": "登录", "signOut": "退出", "live": "直播", "active": "活跃", "secure": "安全" },
+  "sidebar": { "concierge": "ONYX AI礼宾服务", "conciergeDesc": "12代理智能引擎", "guardian": "Guardian V2X", "guardianDesc": "预测安全网络", "garage": "我的车库", "garageDesc": "车辆管理", "marketplace": "市场", "marketplaceDesc": "认证豪华车辆", "wallet": "Dynasty钱包", "walletDesc": "三重分割支付引擎", "neuralMesh": "神经网络实时" },
+  "langSelector": { "label": "语言" }
+}

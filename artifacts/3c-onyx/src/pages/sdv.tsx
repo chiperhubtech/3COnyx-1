@@ -5,6 +5,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { PublicNavbar } from "@/components/PublicNavbar";
 import { GlobalFooter } from "@/components/GlobalFooter";
+import { useTranslation } from "react-i18next";
 
 const GOLD = "#C9A227";
 const EMERALD = "#00C853";

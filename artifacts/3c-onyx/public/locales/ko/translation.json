@@ -1,0 +1,46 @@
+{
+  "nav": { "home": "홈", "technology": "기술", "sdvLayer": "SDV 레이어", "join": "가입", "joinNow": "지금 가입", "poweredBy": "CUXTOMCANDYCLUB LLC 제공" },
+  "landing": {
+    "badge": "신뢰 레이어 라이브 · 보안 활성화",
+    "hero": { "line1": "자동차", "line2": "인텔리전스 레이어.", "sub": "우리는 소비자와 자동차 산업 사이에 위치하여 모든 거래, 배송, 결정을 조율합니다. 경쟁하지 않습니다. 조율합니다. 물처럼 움직입니다.", "cta": "플랫폼 가입", "howItWorks": "작동 방식", "discover": "더 알아보기" },
+    "stats": { "saved": "소매가 대비 절약", "agents": "활성 AI 에이전트", "confidence": "신뢰도 점수", "resolution": "평균 해결 시간" },
+    "how": { "title": "조율 방법", "process": "프로세스", "step1Title": "ONYX에 필요한 것 말하기", "step1Desc": "자연어로 입력. 양식 없음.", "step2Title": "복잡성 처리", "step2Desc": "12개 에이전트가 동시에 실행: 가격 책정, 검사, 보험, 라우팅, 금융.", "step3Title": "명확한 하나의 답변", "step3Desc": "최선의 옵션으로 840달러 절약. 지금 모든 것을 처리합니다.", "step4Title": "조언이 아닌 실행", "step4Desc": "드라이버 파견됨. 에스크로 개설됨. 블록체인 기록 작성됨." },
+    "features": { "title": "포함 내용", "platform": "플랫폼", "feature1Title": "ONYX AI 컨시어지", "feature1Desc": "12개의 전문 에이전트가 동시에 작동.", "feature1Badge": "12 에이전트", "feature2Title": "Guardian V2X", "feature2Desc": "실시간으로 차량을 모니터링하는 예측 안전 네트워크.", "feature2Badge": "실시간 모니터링", "feature3Title": "블록체인 보관", "feature3Desc": "모든 차량 거래는 SHA-256 해시되어 이더리움에 고정됩니다.", "feature3Badge": "불변", "feature4Title": "Dynasty 지갑", "feature4Desc": "Stripe 에스크로가 포함된 삼중 분할 결제 엔진.", "feature4Badge": "STRIPE CONNECT", "feature5Title": "드라이버 네트워크", "feature5Desc": "차량 배송을 위한 인증된 네트워크. GPS 추적.", "feature5Badge": "GPS 추적", "feature6Title": "AR Spatial OS", "feature6Desc": "AR 차량 검사 오버레이.", "feature6Badge": "AR 기반" },
+    "trust": { "soc2": "SOC2 Type II 준수", "aes": "AES-256 암호화", "pii": "PII 기본 마스킹", "checkr": "Checkr 인증 드라이버", "neverCompete": "경쟁자가 아님", "blockchain": "블록체인 고정" },
+    "cta": { "ready": "준비됐나요?", "title": "필요한 것을 말씀해 주세요.", "titleGold": "모든 것을 처리합니다.", "sub": "전화 연결 없음. 추가 비용 없음. 혼란 없음. 명확한 답변, 실행됨.", "getStarted": "무료로 시작", "signIn": "로그인" }
+  },
+  "join": {
+    "badge": "창립 회원 — 한정",
+    "spotsRemaining": "{{count}}개 자리 남음 (10,000 중)",
+    "viewing": "{{count}}명 지금 보는 중",
+    "joinedToday": "오늘 {{count}}명 가입",
+    "priceExpires": "창립 가격 {{time}} 후 만료",
+    "hero": { "line1": "자리를", "line2": "확보하세요.", "sub": "일회성 $99로 창립 회원 지위를 영구적으로 확정합니다.", "memberIs": "회원 #1은 실제입니다.", "memberIsDesc": "첫 번째 창립 회원이 오늘 결제했습니다." },
+    "benefits": { "title": "$99에 포함된 것 — 영구", "badge": "창립 회원 배지", "badgeDetail": "계정에 영구적으로 각인됨", "pricelock": "$99 가격 고정 — 영구", "pricelockDetail": "더 이상 지불하지 않음. 미래 회원은 시장 가격 지불", "earlyAccess": "조기 액세스 — 모든 것", "earlyAccessDetail": "공개 출시 전에 모든 기능에 첫 번째로 접근", "guardian": "Guardian V2X 포함", "guardianDetail": "예측 차량 안전 및 V2X 네트워크 접근", "commission": "5% 평생 커미션", "commissionDetail": "가져오는 모든 추천에 대해 — 영구", "wallet": "Dynasty 지갑 우선순위", "walletDetail": "모든 거래에서 최고 수준의 분할" },
+    "form": { "title": "창립 회원십 확보", "price": "일회성 · 영구 고정", "name": "전체 이름", "namePlaceholder": "이름", "email": "이메일 주소", "emailPlaceholder": "you@example.com", "referral": "추천 코드", "referralPlaceholder": "선택적 추천 코드", "submit": "내 자리 확보 — $99", "ssl": "256비트 SSL 암호화", "stripe": "Stripe 보안 · PCI 레벨 1", "refund": "출시일 전 전액 환불 가능" },
+    "testimonials": { "title": "초기 회원들의 말" },
+    "faq": { "title": "빠른 답변" }
+  },
+  "home": {
+    "greeting": { "morning": "좋은 아침", "afternoon": "좋은 오후", "evening": "좋은 저녁" },
+    "platformStatus": "플랫폼 상태",
+    "platformOnline": "모든 시스템 온라인",
+    "quickActions": "빠른 작업",
+    "recentActivity": "최근 활동",
+    "actions": { "concierge": "ONYX AI", "conciergeDesc": "컨시어지", "guardian": "Guardian", "guardianDesc": "V2X 안전", "garage": "내 차고", "garageDesc": "차량", "marketplace": "마켓", "marketplaceDesc": "사고팔기", "wallet": "지갑", "walletDesc": "Dynasty", "documents": "문서", "documentsDesc": "볼트" },
+    "status": { "neuralMesh": "뉴럴 메시", "aiAgents": "AI 에이전트", "blockchainSync": "블록체인 동기화", "securityLayer": "보안 레이어", "otaStamping": "블록체인 OTA" }
+  },
+  "marketplace": { "title": "럭셔리 마켓플레이스", "subtitle": "인증된 차량. 블록체인 검증. 추가 비용 없음.", "search": "제조사, 모델 검색...", "noResults": "필터에 맞는 차량이 없습니다.", "blockchainVerified": "블록체인 검증됨", "escrowNote": "배송 확인까지 Stripe 에스크로에 자금 보관" },
+  "sdv": { "badge": "SDV 인텔리전스 레이어", "hero": { "line1": "신뢰 레이어", "line2Gold": "모든 SDV에 필요한.", "sub": "자동차 소프트웨어 시장이 2024년 2130억 달러에서 2030년 1.2조 달러로 성장." }, "readinessTiers": "SDV 준비 단계", "capabilities": "SDV 기능", "liveData": "SDV 실시간 데이터", "noProfiles": "SDV 프로필이 아직 등록되지 않았습니다.", "viewAll": "모두 보기" },
+  "technology": { "badge": "아키텍처 — 기술 개요", "hero": { "line1": "인프라처럼", "line2Green": "구축됨.", "sub": "3C Onyx의 모든 레이어는 첫날부터 프로덕션 수준입니다." }, "apiEndpoints": "API 엔드포인트", "webMobileScreens": "웹 + 모바일 화면", "postgresqlTables": "PostgreSQL 테이블", "aiModels": "라우터의 AI 모델" },
+  "trust": { "badge": "보안 아키텍처", "title": "신뢰 위에 구축됨.", "titleGold": "설계로 보호됨.", "sub": "3C Onyx의 모든 레이어는 보안 우선으로 구축됩니다.", "principles": "보안 원칙", "certifications": "인증 및 규정 준수" },
+  "guardian": { "title": "GUARDIAN V2X", "subtitle": "예측 안전 인텔리전스", "score": "Guardian 점수", "noAlerts": "활성 경보 없음", "allClear": "이상 없음", "active": "활성", "offline": "오프라인" },
+  "concierge": { "title": "ONYX AI 컨시어지", "subtitle": "12 전문 에이전트", "placeholder": "필요한 것을 말씀해 주세요...", "send": "전송", "thinking": "ONYX가 요청을 조율하는 중...", "newChat": "새 채팅" },
+  "garage": { "title": "내 차고", "subtitle": "내 차량", "addVehicle": "차량 추가", "noVehicles": "차고에 차량이 아직 없습니다.", "noService": "서비스 기록이 아직 없습니다." },
+  "wallet": { "title": "DYNASTY 지갑", "subtitle": "삼중 분할 엔진", "balance": "잔액", "pending": "대기 중", "lifetime": "평생 수익", "connectStripe": "STRIPE 연결", "connected": "연결됨", "disconnected": "연결 안 됨", "noTransactions": "아직 거래가 없습니다." },
+  "waitlist": { "badge": "대기 목록 가입", "title": "첫 번째가 되세요.", "titleGold": "조기 접근 권한 획득.", "sub": "3C Onyx는 출시 시 초대 전용입니다.", "form": { "email": "이메일 주소", "emailPlaceholder": "you@example.com", "submit": "대기 목록 가입", "submitting": "가입 중...", "success": "목록에 추가되었습니다! 곧 연락하겠습니다.", "error": "문제가 발생했습니다. 다시 시도해 주세요." }, "benefits": { "title": "대기 목록 회원 혜택", "earlyAccess": "공개 출시 전 조기 접근", "pricelock": "창립 회원 가격 ($99 고정)", "badge": "독점 창립 회원 배지", "priority": "우선 지원 및 온보딩" } },
+  "footer": { "tagline": "\"물처럼 움직입니다.\" — 자동차 산업을 위한 신뢰 및 인텔리전스 레이어.", "founded": "2024년 설립 · 3C Onyx — CUXTOMCANDYCLUB LLC 제공", "allRights": "모든 권리 보유.", "aes": "AES-256 암호화", "soc2": "SOC2 준수", "blockchain": "블록체인 검증됨" },
+  "common": { "loading": "로딩 중...", "error": "문제가 발생했습니다", "retry": "다시 시도", "save": "저장", "cancel": "취소", "confirm": "확인", "delete": "삭제", "edit": "편집", "close": "닫기", "back": "뒤로", "next": "다음", "submit": "제출", "search": "검색", "viewAll": "모두 보기", "getStarted": "시작하기", "signIn": "로그인", "signOut": "로그아웃", "live": "라이브", "active": "활성", "secure": "보안" },
+  "sidebar": { "concierge": "ONYX AI 컨시어지", "conciergeDesc": "12 에이전트 인텔리전스 엔진", "guardian": "Guardian V2X", "guardianDesc": "예측 안전 네트워크", "garage": "내 차고", "garageDesc": "차량 관리", "marketplace": "마켓플레이스", "marketplaceDesc": "인증된 럭셔리 차량", "wallet": "Dynasty 지갑", "walletDesc": "삼중 분할 결제 엔진", "neuralMesh": "뉴럴 메시 라이브" },
+  "langSelector": { "label": "언어" }
+}

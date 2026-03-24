@@ -1,0 +1,46 @@
+{
+  "nav": { "home": "होम", "technology": "प्रौद्योगिकी", "sdvLayer": "SDV परत", "join": "शामिल हों", "joinNow": "अभी शामिल हों", "poweredBy": "CUXTOMCANDYCLUB LLC द्वारा संचालित" },
+  "landing": {
+    "badge": "विश्वास परत लाइव · सुरक्षा सक्रिय",
+    "hero": { "line1": "ऑटोमोटिव", "line2": "इंटेलिजेंस परत।", "sub": "हम उपभोक्ताओं और ऑटोमोटिव उद्योग के बीच खड़े हैं — हर सौदे, हर डिलीवरी, हर निर्णय का समन्वय करते हैं। हम प्रतिस्पर्धा नहीं करते। हम समन्वय करते हैं। हम पानी की तरह चलते हैं।", "cta": "प्लेटफ़ॉर्म से जुड़ें", "howItWorks": "यह कैसे काम करता है", "discover": "और खोजें" },
+    "stats": { "saved": "खुदरा की तुलना में बचत", "agents": "सक्रिय AI एजेंट", "confidence": "विश्वास स्कोर", "resolution": "औसत समाधान समय" },
+    "how": { "title": "हम कैसे समन्वय करते हैं", "process": "प्रक्रिया", "step1Title": "ONYX को बताएं क्या चाहिए", "step1Desc": "सरल भाषा में टाइप करें। कोई फॉर्म नहीं।", "step2Title": "हम जटिलता संभालते हैं", "step2Desc": "12 एजेंट एक साथ काम करते हैं: मूल्य निर्धारण, निरीक्षण, बीमा, रूटिंग, वित्त।", "step3Title": "एक स्पष्ट जवाब", "step3Desc": "सबसे अच्छा विकल्प आपको $840 बचाता है। हम अभी सब कुछ संभालते हैं।", "step4Title": "सलाह नहीं, निष्पादन", "step4Desc": "ड्राइवर भेजा गया। एस्क्रो खोला गया। ब्लॉकचेन रिकॉर्ड लिखा गया।" },
+    "features": { "title": "क्या है अंदर", "platform": "प्लेटफ़ॉर्म", "feature1Title": "ONYX AI कंसीयर्ज", "feature1Desc": "12 विशेष एजेंट एक साथ काम करते हैं।", "feature1Badge": "12 एजेंट", "feature2Title": "Guardian V2X", "feature2Desc": "रियल टाइम में आपके वाहनों की निगरानी करने वाला पूर्वानुमानित सुरक्षा नेटवर्क।", "feature2Badge": "लाइव मॉनिटरिंग", "feature3Title": "ब्लॉकचेन हिरासत", "feature3Desc": "हर वाहन लेनदेन SHA-256 हैश और Ethereum से जुड़ा।", "feature3Badge": "अपरिवर्तनीय", "feature4Title": "Dynasty वॉलेट", "feature4Desc": "Stripe एस्क्रो के साथ ट्रिपल-स्प्लिट भुगतान इंजन।", "feature4Badge": "STRIPE CONNECT", "feature5Title": "ड्राइवर नेटवर्क", "feature5Desc": "वाहन डिलीवरी के लिए सत्यापित नेटवर्क। GPS ट्रैकिंग।", "feature5Badge": "GPS ट्रैक्ड", "feature6Title": "AR Spatial OS", "feature6Desc": "AR वाहन निरीक्षण ओवरले।", "feature6Badge": "AR संचालित" },
+    "trust": { "soc2": "SOC2 टाइप II अनुपालन", "aes": "AES-256 एन्क्रिप्शन", "pii": "PII डिफ़ॉल्ट रूप से मास्क", "checkr": "Checkr सत्यापित ड्राइवर", "neverCompete": "कभी प्रतिस्पर्धी नहीं", "blockchain": "ब्लॉकचेन एंकर्ड" },
+    "cta": { "ready": "तैयार हैं?", "title": "हमें बताएं आपको क्या चाहिए।", "titleGold": "हम सब कुछ संभालते हैं।", "sub": "कोई फोन नहीं। कोई मार्कअप नहीं। कोई भ्रम नहीं। एक स्पष्ट जवाब, निष्पादित।", "getStarted": "मुफ़्त शुरू करें", "signIn": "साइन इन" }
+  },
+  "join": {
+    "badge": "संस्थापक सदस्य — सीमित",
+    "spotsRemaining": "{{count}} जगहें बची हैं 10,000 में से",
+    "viewing": "{{count}} अभी देख रहे हैं",
+    "joinedToday": "{{count}} आज शामिल हुए",
+    "priceExpires": "संस्थापक मूल्य {{time}} में समाप्त होता है",
+    "hero": { "line1": "अपनी जगह", "line2": "सुरक्षित करें।", "sub": "एकमुश्त $99 आपकी संस्थापक सदस्य स्थिति को हमेशा के लिए लॉक करता है।", "memberIs": "सदस्य #1 वास्तविक है।", "memberIsDesc": "पहले संस्थापक सदस्य ने आज भुगतान किया।" },
+    "benefits": { "title": "आपके $99 में क्या शामिल है — हमेशा के लिए", "badge": "संस्थापक सदस्य बैज", "badgeDetail": "आपके खाते पर स्थायी रूप से मुद्रित", "pricelock": "$99 मूल्य लॉक — हमेशा के लिए", "pricelockDetail": "कभी अधिक न दें। भविष्य के सदस्य बाजार मूल्य देते हैं", "earlyAccess": "जल्दी पहुंच — सब कुछ", "earlyAccessDetail": "सार्वजनिक लॉन्च से पहले हर सुविधा में पहले", "guardian": "Guardian V2X शामिल", "guardianDetail": "पूर्वानुमानित वाहन सुरक्षा और V2X नेटवर्क पहुंच", "commission": "5% आजीवन कमीशन", "commissionDetail": "हर रेफरल पर जो आप लाते हैं — हमेशा के लिए", "wallet": "Dynasty Wallet प्राथमिकता", "walletDetail": "हर लेनदेन में शीर्ष स्तर का विभाजन" },
+    "form": { "title": "अपनी संस्थापक सदस्यता सुरक्षित करें", "price": "एकमुश्त · हमेशा के लिए लॉक", "name": "पूरा नाम", "namePlaceholder": "आपका नाम", "email": "ईमेल पता", "emailPlaceholder": "you@example.com", "referral": "रेफरल कोड", "referralPlaceholder": "वैकल्पिक रेफरल कोड", "submit": "मेरी जगह सुरक्षित करें — $99", "ssl": "256-बिट SSL एन्क्रिप्शन", "stripe": "Stripe द्वारा सुरक्षित · PCI Level 1", "refund": "लॉन्च तिथि से पहले पूर्ण रिफंड उपलब्ध" },
+    "testimonials": { "title": "शुरुआती सदस्य क्या कहते हैं" },
+    "faq": { "title": "त्वरित उत्तर" }
+  },
+  "home": {
+    "greeting": { "morning": "सुप्रभात", "afternoon": "नमस्कार", "evening": "शुभ संध्या" },
+    "platformStatus": "प्लेटफ़ॉर्म स्थिति",
+    "platformOnline": "सभी सिस्टम ऑनलाइन",
+    "quickActions": "त्वरित क्रियाएं",
+    "recentActivity": "हाल की गतिविधि",
+    "actions": { "concierge": "ONYX AI", "conciergeDesc": "कंसीयर्ज", "guardian": "Guardian", "guardianDesc": "V2X सुरक्षा", "garage": "मेरा गैराज", "garageDesc": "वाहन", "marketplace": "बाजार", "marketplaceDesc": "खरीदें और बेचें", "wallet": "वॉलेट", "walletDesc": "Dynasty", "documents": "दस्तावेज़", "documentsDesc": "वॉल्ट" },
+    "status": { "neuralMesh": "न्यूरल मेश", "aiAgents": "AI एजेंट", "blockchainSync": "ब्लॉकचेन सिंक", "securityLayer": "सुरक्षा परत", "otaStamping": "ब्लॉकचेन OTA" }
+  },
+  "marketplace": { "title": "लक्जरी मार्केटप्लेस", "subtitle": "प्रमाणित वाहन। ब्लॉकचेन सत्यापित। कोई मार्कअप नहीं।", "search": "मेक, मॉडल खोजें...", "noResults": "आपके फ़िल्टर से कोई वाहन मेल नहीं खाता।", "blockchainVerified": "ब्लॉकचेन सत्यापित", "escrowNote": "डिलीवरी पुष्टि तक Stripe एस्क्रो में धनराशि" },
+  "sdv": { "badge": "SDV इंटेलिजेंस परत", "hero": { "line1": "विश्वास परत", "line2Gold": "हर SDV को चाहिए।", "sub": "ऑटोमोटिव सॉफ्टवेयर बाजार 2024 में $213B से 2030 में $1.2T तक बढ़ता है।" }, "readinessTiers": "SDV तैयारी स्तर", "capabilities": "SDV क्षमताएं", "liveData": "SDV लाइव डेटा", "noProfiles": "अभी तक कोई SDV प्रोफ़ाइल नहीं।", "viewAll": "सभी देखें" },
+  "technology": { "badge": "आर्किटेक्चर — तकनीकी संक्षिप्त", "hero": { "line1": "इंफ्रास्ट्रक्चर की तरह", "line2Green": "बनाया गया।", "sub": "3C Onyx की हर परत पहले दिन से प्रोडक्शन-ग्रेड है।" }, "apiEndpoints": "API एंडपॉइंट", "webMobileScreens": "वेब + मोबाइल स्क्रीन", "postgresqlTables": "PostgreSQL टेबल", "aiModels": "राउटर में AI मॉडल" },
+  "trust": { "badge": "सुरक्षा आर्किटेक्चर", "title": "विश्वास पर बनाया।", "titleGold": "डिजाइन द्वारा सुरक्षित।", "sub": "3C Onyx की हर परत सुरक्षा-पहले बनाई गई है।", "principles": "सुरक्षा सिद्धांत", "certifications": "प्रमाणन और अनुपालन" },
+  "guardian": { "title": "GUARDIAN V2X", "subtitle": "पूर्वानुमानित सुरक्षा इंटेलिजेंस", "score": "Guardian स्कोर", "noAlerts": "कोई सक्रिय अलर्ट नहीं", "allClear": "सब ठीक है", "active": "सक्रिय", "offline": "ऑफलाइन" },
+  "concierge": { "title": "ONYX AI कंसीयर्ज", "subtitle": "12 विशेष एजेंट", "placeholder": "मुझे बताएं आपको क्या चाहिए...", "send": "भेजें", "thinking": "ONYX आपका अनुरोध समन्वित कर रहा है...", "newChat": "नई चैट" },
+  "garage": { "title": "मेरा गैराज", "subtitle": "आपके वाहन", "addVehicle": "वाहन जोड़ें", "noVehicles": "आपके गैराज में अभी तक कोई वाहन नहीं है।", "noService": "अभी तक कोई सेवा रिकॉर्ड नहीं।" },
+  "wallet": { "title": "DYNASTY वॉलेट", "subtitle": "ट्रिपल-स्प्लिट इंजन", "balance": "शेष राशि", "pending": "लंबित", "lifetime": "आजीवन कमाई", "connectStripe": "STRIPE कनेक्ट करें", "connected": "कनेक्टेड", "disconnected": "डिसकनेक्टेड", "noTransactions": "अभी तक कोई लेनदेन नहीं।" },
+  "waitlist": { "badge": "प्रतीक्षा सूची में शामिल हों", "title": "पहले बनें।", "titleGold": "जल्दी पहुंच पाएं।", "sub": "3C Onyx लॉन्च पर केवल आमंत्रण द्वारा है।", "form": { "email": "ईमेल पता", "emailPlaceholder": "you@example.com", "submit": "प्रतीक्षा सूची में शामिल हों", "submitting": "शामिल हो रहे हैं...", "success": "आप सूची में हैं! हम संपर्क करेंगे।", "error": "कुछ गलत हुआ। कृपया पुनः प्रयास करें।" }, "benefits": { "title": "प्रतीक्षा सूची सदस्यों को मिलता है", "earlyAccess": "सार्वजनिक लॉन्च से पहले जल्दी पहुंच", "pricelock": "संस्थापक सदस्य मूल्य ($99 लॉक)", "badge": "विशेष संस्थापक सदस्य बैज", "priority": "प्राथमिकता सहायता और ऑनबोर्डिंग" } },
+  "footer": { "tagline": "\"हम पानी की तरह चलते हैं।\" — ऑटोमोटिव उद्योग के लिए विश्वास और इंटेलिजेंस परत।", "founded": "2024 में स्थापित · 3C Onyx — CUXTOMCANDYCLUB LLC द्वारा संचालित", "allRights": "सर्वाधिकार सुरक्षित।", "aes": "AES-256 एन्क्रिप्टेड", "soc2": "SOC2 अनुपालन", "blockchain": "ब्लॉकचेन सत्यापित" },
+  "common": { "loading": "लोड हो रहा है...", "error": "कुछ गलत हुआ", "retry": "पुनः प्रयास करें", "save": "सहेजें", "cancel": "रद्द करें", "confirm": "पुष्टि करें", "delete": "हटाएं", "edit": "संपादित करें", "close": "बंद करें", "back": "वापस", "next": "अगला", "submit": "जमा करें", "search": "खोजें", "viewAll": "सभी देखें", "getStarted": "शुरू करें", "signIn": "साइन इन", "signOut": "साइन आउट", "live": "लाइव", "active": "सक्रिय", "secure": "सुरक्षित" },
+  "sidebar": { "concierge": "ONYX AI कंसीयर्ज", "conciergeDesc": "12-एजेंट इंटेलिजेंस इंजन", "guardian": "Guardian V2X", "guardianDesc": "पूर्वानुमानित सुरक्षा नेटवर्क", "garage": "मेरा गैराज", "garageDesc": "वाहन प्रबंधन", "marketplace": "मार्केटप्लेस", "marketplaceDesc": "प्रमाणित लक्जरी वाहन", "wallet": "Dynasty वॉलेट", "walletDesc": "ट्रिपल-स्प्लिट भुगतान इंजन", "neuralMesh": "न्यूरल मेश लाइव" },
+  "langSelector": { "label": "भाषा" }
+}

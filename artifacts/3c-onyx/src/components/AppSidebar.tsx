@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { NotificationBell } from "./NotificationBell";
 import { ThemeToggle } from "./ThemeToggle";
+import LanguageSelector from "./LanguageSelector";
 
 /* ─── Navigation Data ─────────────────────────────────────────── */
 const CUSTOMER_NAV = [
@@ -289,7 +290,10 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
               POWERED BY CUXTOMCANDYCLUB LLC
             </p>
           </div>
-          <ThemeToggle size="sm" />
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <LanguageSelector compact />
+            <ThemeToggle size="sm" />
+          </div>
         </div>
         {/* Security badge */}
         <div style={{

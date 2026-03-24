@@ -10,6 +10,7 @@ import {
   Shield, Users, Building2, ArrowRight, CheckCircle2,
   Zap, Lock, Eye, BarChart3, Heart, Layers,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const PARTIES = [
   {

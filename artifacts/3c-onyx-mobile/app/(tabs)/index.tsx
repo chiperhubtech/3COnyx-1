@@ -15,6 +15,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { COLORS } from "@/constants/colors";
 import { apiFetch } from "@/lib/api";
+import { useTranslation } from "react-i18next";
 
 type WatchlistItem = { id: number };
 type GigTask = { id: number; status: string };
@@ -77,19 +78,14 @@ function QuickActionCard({ action }: { action: QuickAction }) {
   );
 }
 
-function getGreeting() {
-  const h = new Date().getHours();
-  if (h < 12) return "GOOD MORNING";
-  if (h < 17) return "GOOD AFTERNOON";
-  return "GOOD EVENING";
-}
-
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const isWeb = Platform.OS === "web";
   const topPad = isWeb ? 67 : insets.top;
   const bottomPad = isWeb ? 34 : insets.bottom;
-  const greeting = getGreeting();
+  const { t } = useTranslation();
+  const h = new Date().getHours();
+  const greeting = h < 12 ? t("greeting.morning") : h < 17 ? t("greeting.afternoon") : t("greeting.evening");
 
   const { data: notifications } = useQuery({
     queryKey: ["notifications"],

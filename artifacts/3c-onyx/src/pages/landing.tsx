@@ -15,75 +15,7 @@ import {
 import { NeuralMesh } from "@/components/NeuralMesh";
 import { PublicNavbar } from "@/components/PublicNavbar";
 import { GlobalFooter } from "@/components/GlobalFooter";
-
-/* ─── Feature Cards ─────────────────────────────────────────────────────── */
-const FEATURES = [
-  {
-    icon: Brain,
-    title: "ONYX AI Concierge",
-    desc: "12 specialized agents working simultaneously. Tell us what you need in plain language — we handle everything from pricing to paperwork.",
-    color: "#C9A227",
-    badge: "12 AGENTS",
-  },
-  {
-    icon: Shield,
-    title: "Guardian V2X",
-    desc: "Predictive safety mesh that monitors your vehicles in real time. Anomaly detection, insurance optimization, and failure prevention.",
-    color: "#34D399",
-    badge: "LIVE MONITORING",
-  },
-  {
-    icon: Lock,
-    title: "Blockchain Custody",
-    desc: "Every vehicle transaction is SHA-256 hashed and anchored to Ethereum. Immutable chain of title — no disputes, no fraud.",
-    color: "#818CF8",
-    badge: "IMMUTABLE",
-  },
-  {
-    icon: DollarSign,
-    title: "Dynasty Wallet",
-    desc: "Triple-split payment engine with Stripe escrow. 5% Member Slice on every transaction. Instant payouts to runners and specialists.",
-    color: "#4FC3F7",
-    badge: "STRIPE CONNECT",
-  },
-  {
-    icon: Truck,
-    title: "Runner Network",
-    desc: "Background-verified gig network for vehicle delivery. Cryptographic proof-of-delivery. GPS tracked from dispatch to handoff.",
-    color: "#F97316",
-    badge: "GPS TRACKED",
-  },
-  {
-    icon: Eye,
-    title: "AR Spatial OS",
-    desc: "Augmented reality vehicle inspection overlay. See VIN data, Guardian scores, and service history layered over the physical vehicle.",
-    color: "#A78BFA",
-    badge: "AR POWERED",
-  },
-];
-
-const STATS = [
-  { value: "$4.7M",  label: "Saved vs. Retail",     color: "#34D399" },
-  { value: "12",     label: "AI Agents Live",        color: "#C9A227" },
-  { value: "94%",    label: "Confidence Score",      color: "#60A5FA" },
-  { value: "< 2h",   label: "Avg. Resolution Time",  color: "#A78BFA" },
-];
-
-const HOW = [
-  { step: "01", title: "Tell ONYX What You Need", desc: "Text in plain language. No forms. \"Find me a car under $80k\" — that's it.", icon: Brain, color: "#C9A227" },
-  { step: "02", title: "We Handle the Complexity", desc: "12 agents run simultaneously: pricing, inspection, insurance, routing, financing — all at once.", icon: Cpu, color: "#60A5FA" },
-  { step: "03", title: "One Clear Answer", desc: "\"Best option saves you $840. We handle everything now.\" Transparent reasoning. Zero markup.", icon: CheckCircle2, color: "#34D399" },
-  { step: "04", title: "Executed, Not Just Advised", desc: "Runner dispatched. Escrow opened. Blockchain record written. You just confirm.", icon: Zap, color: "#A78BFA" },
-];
-
-const TRUST_POINTS = [
-  { icon: Shield, text: "SOC2 Type II Compliant" },
-  { icon: Lock,   text: "AES-256 Encryption" },
-  { icon: Eye,    text: "PII Masked by Default" },
-  { icon: Users,  text: "Checkr-Verified Runners" },
-  { icon: Heart,  text: "Never a Competitor" },
-  { icon: Star,   text: "Blockchain Anchored" },
-];
+import { useTranslation } from "react-i18next";
 
 /* ─── Animated Counter ──────────────────────────────────────────────────── */
 function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
@@ -103,6 +35,40 @@ function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
 
 /* ─── Main Landing Page ─────────────────────────────────────────────────── */
 export default function LandingPage() {
+  const { t } = useTranslation();
+
+  const FEATURES = [
+    { icon: Brain,     title: t("landing.features.feature1Title"), desc: t("landing.features.feature1Desc"), color: "#C9A227", badge: t("landing.features.feature1Badge") },
+    { icon: Shield,    title: t("landing.features.feature2Title"), desc: t("landing.features.feature2Desc"), color: "#34D399", badge: t("landing.features.feature2Badge") },
+    { icon: Lock,      title: t("landing.features.feature3Title"), desc: t("landing.features.feature3Desc"), color: "#818CF8", badge: t("landing.features.feature3Badge") },
+    { icon: DollarSign,title: t("landing.features.feature4Title"), desc: t("landing.features.feature4Desc"), color: "#4FC3F7", badge: t("landing.features.feature4Badge") },
+    { icon: Truck,     title: t("landing.features.feature5Title"), desc: t("landing.features.feature5Desc"), color: "#F97316", badge: t("landing.features.feature5Badge") },
+    { icon: Eye,       title: t("landing.features.feature6Title"), desc: t("landing.features.feature6Desc"), color: "#A78BFA", badge: t("landing.features.feature6Badge") },
+  ];
+
+  const STATS = [
+    { value: "$4.7M", label: t("landing.stats.saved"),      color: "#34D399" },
+    { value: "12",    label: t("landing.stats.agents"),     color: "#C9A227" },
+    { value: "94%",   label: t("landing.stats.confidence"), color: "#60A5FA" },
+    { value: "< 2h",  label: t("landing.stats.resolution"), color: "#A78BFA" },
+  ];
+
+  const HOW = [
+    { step: "01", title: t("landing.how.step1Title"), desc: t("landing.how.step1Desc"), icon: Brain,        color: "#C9A227" },
+    { step: "02", title: t("landing.how.step2Title"), desc: t("landing.how.step2Desc"), icon: Cpu,          color: "#60A5FA" },
+    { step: "03", title: t("landing.how.step3Title"), desc: t("landing.how.step3Desc"), icon: CheckCircle2, color: "#34D399" },
+    { step: "04", title: t("landing.how.step4Title"), desc: t("landing.how.step4Desc"), icon: Zap,          color: "#A78BFA" },
+  ];
+
+  const TRUST_POINTS = [
+    { icon: Shield, text: t("landing.trust.soc2") },
+    { icon: Lock,   text: t("landing.trust.aes") },
+    { icon: Eye,    text: t("landing.trust.pii") },
+    { icon: Users,  text: t("landing.trust.checkr") },
+    { icon: Heart,  text: t("landing.trust.neverCompete") },
+    { icon: Star,   text: t("landing.trust.blockchain") },
+  ];
+
   return (
     <div className="public-page">
       <PublicNavbar />
@@ -128,7 +94,7 @@ export default function LandingPage() {
           {/* Status badge */}
           <div style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "5px 14px", borderRadius: 20, background: "rgba(52,211,153,0.08)", border: "1px solid rgba(52,211,153,0.2)", marginBottom: 28 }}>
             <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#34D399", animation: "pulse 2s infinite" }} />
-            <span style={{ fontSize: 9, fontWeight: 800, color: "#34D399", letterSpacing: "0.18em" }}>TRUST LAYER LIVE · SECURITY ACTIVE</span>
+            <span style={{ fontSize: 9, fontWeight: 800, color: "#34D399", letterSpacing: "0.18em" }}>{t("landing.badge")}</span>
           </div>
 
           <h1 style={{
@@ -141,37 +107,37 @@ export default function LandingPage() {
             margin: "0 0 28px",
             color: "#fff",
           }}>
-            THE AUTOMOTIVE<br />
+            {t("landing.hero.line1")}<br />
             <span style={{
               background: "linear-gradient(90deg, #C9A227 0%, #60A5FA 45%, #A78BFA 100%)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               backgroundClip: "text",
             }}>
-              INTELLIGENCE LAYER.
+              {t("landing.hero.line2")}
             </span>
           </h1>
 
           <p style={{ fontSize: "clamp(14px, 2vw, 17px)", color: "rgba(255,255,255,0.45)", lineHeight: 1.8, maxWidth: 580, margin: "0 auto 36px" }}>
-            We sit between consumers and the automotive industry — coordinating every deal, every delivery, every decision. We don't compete. We coordinate. We move like water.
+            {t("landing.hero.sub")}
           </p>
 
           <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
             <Link href="/join">
               <button style={{ padding: "14px 28px", borderRadius: 14, background: "linear-gradient(135deg,#C9A227,#8B6914)", border: "none", color: "#000", fontWeight: 800, fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", gap: 8, letterSpacing: "0.06em", boxShadow: "0 8px 32px rgba(201,162,39,0.3)", fontFamily: "'Barlow Condensed', sans-serif" }}>
-                <Brain size={16} />JOIN THE PLATFORM
+                <Brain size={16} />{t("landing.hero.cta")}
               </button>
             </Link>
             <Link href="/trust">
               <button style={{ padding: "14px 24px", borderRadius: 14, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.7)", fontWeight: 700, fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", gap: 8, fontFamily: "'Barlow Condensed', sans-serif" }}>
-                <Layers size={15} />HOW IT WORKS
+                <Layers size={15} />{t("landing.hero.howItWorks")}
               </button>
             </Link>
           </div>
 
           {/* Scroll cue */}
           <div style={{ marginTop: 48, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-            <span style={{ fontSize: 8, color: "rgba(255,255,255,0.2)", letterSpacing: "0.2em" }}>DISCOVER MORE</span>
+            <span style={{ fontSize: 8, color: "rgba(255,255,255,0.2)", letterSpacing: "0.2em" }}>{t("landing.hero.discover")}</span>
             <ChevronDown size={14} style={{ color: "rgba(255,255,255,0.2)", animation: "neural-float 2s ease-in-out infinite" }} />
           </div>
         </div>
@@ -192,8 +158,8 @@ export default function LandingPage() {
       {/* ── HOW IT WORKS ─────────────────────────────────────────────── */}
       <div style={{ padding: "80px 24px", maxWidth: 1100, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 56 }}>
-          <p style={{ fontSize: 9, letterSpacing: "0.3em", color: "var(--onyx-text-muted)", fontWeight: 700, marginBottom: 12 }}>THE PROCESS</p>
-          <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "clamp(36px,6vw,52px)", fontWeight: 900, textTransform: "uppercase", lineHeight: 1, color: "var(--onyx-text-primary)" }}>HOW WE COORDINATE</h2>
+          <p style={{ fontSize: 9, letterSpacing: "0.3em", color: "var(--onyx-text-muted)", fontWeight: 700, marginBottom: 12 }}>{t("landing.how.process")}</p>
+          <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "clamp(36px,6vw,52px)", fontWeight: 900, textTransform: "uppercase", lineHeight: 1, color: "var(--onyx-text-primary)" }}>{t("landing.how.title")}</h2>
         </div>
         <div className="grid-4-col">
           {HOW.map((h) => {
@@ -215,8 +181,8 @@ export default function LandingPage() {
       {/* ── FEATURES GRID ────────────────────────────────────────────── */}
       <div style={{ padding: "0 24px 80px", maxWidth: 1100, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 56 }}>
-          <p style={{ fontSize: 9, letterSpacing: "0.3em", color: "var(--onyx-text-muted)", fontWeight: 700, marginBottom: 12 }}>THE PLATFORM</p>
-          <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "clamp(36px,6vw,52px)", fontWeight: 900, textTransform: "uppercase", lineHeight: 1, color: "var(--onyx-text-primary)" }}>WHAT'S INSIDE</h2>
+          <p style={{ fontSize: 9, letterSpacing: "0.3em", color: "var(--onyx-text-muted)", fontWeight: 700, marginBottom: 12 }}>{t("landing.features.platform")}</p>
+          <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "clamp(36px,6vw,52px)", fontWeight: 900, textTransform: "uppercase", lineHeight: 1, color: "var(--onyx-text-primary)" }}>{t("landing.features.title")}</h2>
         </div>
         <div className="grid-3-col">
           {FEATURES.map((f) => {
@@ -252,21 +218,21 @@ export default function LandingPage() {
 
       {/* ── FINAL CTA ────────────────────────────────────────────────── */}
       <div style={{ padding: "80px 24px 100px", textAlign: "center", maxWidth: 700, margin: "0 auto" }}>
-        <p style={{ fontSize: 9, letterSpacing: "0.3em", color: "#C9A227", fontWeight: 700, marginBottom: 16 }}>READY?</p>
+        <p style={{ fontSize: 9, letterSpacing: "0.3em", color: "#C9A227", fontWeight: 700, marginBottom: 16 }}>{t("landing.cta.ready")}</p>
         <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "clamp(36px,7vw,56px)", fontWeight: 900, textTransform: "uppercase", lineHeight: 1, marginBottom: 16, color: "var(--onyx-text-primary)" }}>
-          TELL US WHAT YOU NEED.<br />
-          <span style={{ color: "#C9A227" }}>WE HANDLE EVERYTHING.</span>
+          {t("landing.cta.title")}<br />
+          <span style={{ color: "#C9A227" }}>{t("landing.cta.titleGold")}</span>
         </h2>
-        <p style={{ fontSize: 14, color: "var(--onyx-text-muted)", marginBottom: 36 }}>No phone tag. No markups. No confusion. One clear answer, executed.</p>
+        <p style={{ fontSize: 14, color: "var(--onyx-text-muted)", marginBottom: 36 }}>{t("landing.cta.sub")}</p>
         <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
           <Link href="/join">
             <button style={{ padding: "15px 32px", borderRadius: 14, background: "linear-gradient(135deg,#C9A227,#8B6914)", border: "none", color: "#000", fontWeight: 800, fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", gap: 8, letterSpacing: "0.08em", boxShadow: "0 8px 40px rgba(201,162,39,0.25)", fontFamily: "'Barlow Condensed', sans-serif" }}>
-              GET STARTED FREE <ArrowRight size={15} />
+              {t("landing.cta.getStarted")} <ArrowRight size={15} />
             </button>
           </Link>
           <Link href="/login">
             <button style={{ padding: "15px 24px", borderRadius: 14, background: "transparent", border: "1px solid rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.6)", fontWeight: 700, fontSize: 14, cursor: "pointer", fontFamily: "'Barlow Condensed', sans-serif" }}>
-              SIGN IN
+              {t("landing.cta.signIn")}
             </button>
           </Link>
         </div>

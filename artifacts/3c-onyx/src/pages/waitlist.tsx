@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Shield, Truck, Wrench, Building2, Users, CheckCircle2, Loader2, ArrowRight, Lock, Zap, Star } from "lucide-react";
 import { PublicNavbar } from "@/components/PublicNavbar";
 import { GlobalFooter } from "@/components/GlobalFooter";
+import { useTranslation } from "react-i18next";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -21,6 +22,7 @@ const PERKS = [
 ];
 
 export default function WaitlistPage() {
+  const { t } = useTranslation();
   const [email, setEmail]   = useState("");
   const [name, setName]     = useState("");
   const [role, setRole]     = useState("Member");
@@ -58,7 +60,7 @@ export default function WaitlistPage() {
       {/* Hero */}
       <div style={{ padding: "80px 24px 60px", textAlign: "center", maxWidth: 680, margin: "0 auto" }}>
         <div style={{ display: "inline-block", padding: "5px 14px", borderRadius: 20, background: "rgba(201,162,39,0.1)", border: "1px solid rgba(201,162,39,0.25)", fontSize: 11, fontWeight: 700, color: "#C9A227", letterSpacing: "0.12em", marginBottom: 24 }}>
-          PRIVATE LAUNCH — INVITE ONLY
+          {t("waitlist.badge")}
         </div>
         <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "clamp(40px, 8vw, 72px)", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.04em", lineHeight: 1, margin: "0 0 20px" }}>
           THE FUTURE OF<br />
@@ -128,7 +130,7 @@ export default function WaitlistPage() {
 
             <button type="submit" disabled={loading} style={{ padding: 14, borderRadius: 12, background: "linear-gradient(135deg, #C9A227, #B8901A)", border: "none", color: "#000", fontWeight: 800, fontSize: 13, letterSpacing: "0.08em", cursor: loading ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, opacity: loading ? 0.7 : 1 }}>
               {loading ? <Loader2 size={16} className="animate-spin" /> : <ArrowRight size={16} />}
-              {loading ? "JOINING..." : "SECURE MY SPOT"}
+              {loading ? t("waitlist.form.submitting") : t("waitlist.form.submit")}
             </button>
 
             <p style={{ textAlign: "center", fontSize: 11, color: "rgba(255,255,255,0.2)", margin: 0 }}>

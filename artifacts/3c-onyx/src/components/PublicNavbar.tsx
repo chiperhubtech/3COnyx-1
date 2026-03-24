@@ -8,16 +8,12 @@ import { Shield } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-
-const NAV_LINKS = [
-  { label: "Home",       href: "/landing" },
-  { label: "Technology", href: "/technology" },
-  { label: "SDV Layer",  href: "/sdv" },
-  { label: "Join",       href: "/join" },
-];
+import { useTranslation } from "react-i18next";
+import LanguageSelector from "./LanguageSelector";
 
 export function PublicNavbar() {
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const [mounted, setMounted] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -86,7 +82,12 @@ export function PublicNavbar() {
 
         {/* Nav links — hidden on mobile */}
         <div style={{ display: "flex", alignItems: "center", gap: 4 }} className="hidden md:flex">
-          {NAV_LINKS.map((link) => (
+          {[
+            { key: "nav.home", href: "/landing" },
+            { key: "nav.technology", href: "/technology" },
+            { key: "nav.sdvLayer", href: "/sdv" },
+            { key: "nav.join", href: "/join" },
+          ].map((link) => (
             <Link key={link.href} href={link.href}>
               <div style={{
                 padding: "6px 14px", borderRadius: 8, cursor: "pointer",
@@ -102,7 +103,7 @@ export function PublicNavbar() {
                   (e.currentTarget as HTMLDivElement).style.background = "transparent";
                 }}
               >
-                {link.label}
+                {t(link.key)}
               </div>
             </Link>
           ))}
@@ -110,6 +111,7 @@ export function PublicNavbar() {
 
         {/* Right actions */}
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <LanguageSelector compact />
           <ThemeToggle size="sm" />
           <Link href="/join">
             <div style={{
@@ -120,7 +122,7 @@ export function PublicNavbar() {
               boxShadow: "0 2px 12px rgba(201,162,39,0.25)",
               whiteSpace: "nowrap",
             }}>
-              JOIN NOW
+              {t("nav.joinNow")}
             </div>
           </Link>
         </div>

@@ -4,6 +4,7 @@ import { Shield, Zap, AlertTriangle, CheckCircle, XCircle, Activity,
   Bot, ShoppingCart, Truck, Lock, Bell, ChevronDown, ChevronUp, Cpu,
   Target, TrendingUp, DollarSign, Eye, Rocket } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
+import { useTranslation } from "react-i18next";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface PredictiveAlert {

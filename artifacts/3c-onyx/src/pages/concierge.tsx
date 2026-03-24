@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { UserCheck, Phone, Mail, Star, MessageSquare, Calendar, X, CheckCircle2, ChevronRight, Clock } from "lucide-react";
 import { maskBankAccount, maskVin } from "@/lib/piiMask";
+import { useTranslation } from "react-i18next";
 
 const clients = [
   {
