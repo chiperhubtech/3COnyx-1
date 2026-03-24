@@ -108,7 +108,7 @@ export default function LandingPage() {
       <PublicNavbar />
 
       {/* ── HERO ─────────────────────────────────────────────────────── */}
-      <div style={{ position: "relative", minHeight: "100vh", display: "flex", alignItems: "center", overflow: "hidden", background: "#050508" }}>
+      <div style={{ position: "relative", minHeight: "100vh", display: "flex", alignItems: "center", overflow: "hidden", background: "var(--onyx-page-bg)" }}>
 
         {/* Full bleed neural mesh */}
         <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>

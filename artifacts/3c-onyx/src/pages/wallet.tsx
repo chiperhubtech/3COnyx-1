@@ -145,7 +145,7 @@ function KycModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
-      <div className="relative z-10 w-full max-w-md rounded-2xl border border-white/10 bg-[#0a0a10] shadow-2xl overflow-hidden">
+      <div className="relative z-10 w-full max-w-md rounded-2xl border border-white/10 bg-[var(--onyx-surface)] shadow-2xl overflow-hidden">
 
         {/* Header */}
         <div className="p-5 border-b border-white/8 flex items-center justify-between bg-gradient-to-r from-blue-500/5 to-transparent">
@@ -258,7 +258,7 @@ function KycModal({
                 <div className="w-16 h-16 rounded-full bg-emerald-500/10 border-2 border-emerald-400/40 flex items-center justify-center">
                   <ShieldCheck className="w-8 h-8 text-emerald-400" />
                 </div>
-                <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 border-2 border-[#0a0a10] flex items-center justify-center">
+                <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 border-2 border-[var(--onyx-surface)] flex items-center justify-center">
                   <CheckCircle2 className="w-3.5 h-3.5 text-white" />
                 </div>
               </div>
@@ -335,10 +335,10 @@ function DynastyPurchaseModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={step === "select" ? onClose : undefined} />
-      <div className="relative z-10 w-full max-w-lg rounded-2xl border border-white/10 bg-[#0a0a10] shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto">
+      <div className="relative z-10 w-full max-w-lg rounded-2xl border border-white/10 bg-[var(--onyx-surface)] shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto">
 
         {/* Header */}
-        <div className="sticky top-0 p-5 border-b border-white/8 bg-[#0a0a10] flex items-center justify-between">
+        <div className="sticky top-0 p-5 border-b border-white/8 bg-[var(--onyx-surface)] flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-500/25 flex items-center justify-center">
               <Split className="w-4 h-4 text-amber-400" />
@@ -820,7 +820,7 @@ function SimulatePayoutModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" onClick={!submitting ? onClose : undefined} />
-      <div className="relative z-10 w-full max-w-sm rounded-2xl border border-white/10 bg-[#0f0f13] shadow-2xl overflow-hidden">
+      <div className="relative z-10 w-full max-w-sm rounded-2xl border border-white/10 bg-[var(--onyx-surface)] shadow-2xl overflow-hidden">
         {done ? (
           <div className="p-8 text-center">
             <div className="w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-400/30 flex items-center justify-center mx-auto mb-4">
@@ -924,7 +924,7 @@ function ConnectStripeModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" onClick={step === "intro" ? onClose : undefined} />
-      <div className="relative z-10 w-full max-w-sm rounded-2xl border border-white/10 bg-[#0f0f13] shadow-2xl overflow-hidden">
+      <div className="relative z-10 w-full max-w-sm rounded-2xl border border-white/10 bg-[var(--onyx-surface)] shadow-2xl overflow-hidden">
         <div className="p-5 border-b border-white/10 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded bg-[#635bff] flex items-center justify-center">

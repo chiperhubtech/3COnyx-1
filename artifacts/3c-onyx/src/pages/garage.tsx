@@ -67,7 +67,7 @@ function ConnectModal({ onClose, onConnected }: { onClose: () => void; onConnect
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={step !== "linking" ? onClose : undefined} />
-      <div className="relative z-10 w-full max-w-sm rounded-2xl border border-white/10 bg-[#0f0f13] shadow-2xl overflow-hidden">
+      <div className="relative z-10 w-full max-w-sm rounded-2xl border border-white/10 bg-[var(--onyx-surface)] shadow-2xl overflow-hidden">
 
         {/* Header */}
         <div className="p-5 border-b border-white/10 flex items-center justify-between">
@@ -210,7 +210,7 @@ function SpecialistModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={state !== "submitting" ? onClose : undefined} />
-      <div className="relative z-10 w-full max-w-sm rounded-2xl border border-white/10 bg-[#0f0f13] shadow-2xl overflow-hidden">
+      <div className="relative z-10 w-full max-w-sm rounded-2xl border border-white/10 bg-[var(--onyx-surface)] shadow-2xl overflow-hidden">
         {state === "done" ? (
           <div className="p-8 text-center">
             <div className="w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-400/30 flex items-center justify-center mx-auto mb-4">

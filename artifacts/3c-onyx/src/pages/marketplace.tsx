@@ -139,7 +139,7 @@ function PriceBreakdown({
           <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
           <div
             className="absolute bottom-6 right-0 z-20 w-56 rounded-xl border border-amber-500/20 p-3 text-xs shadow-2xl"
-            style={{ background: "#0d0d11" }}
+            style={{ background: "var(--onyx-surface)" }}
           >
             <p className="text-[10px] font-bold text-amber-400 uppercase tracking-widest mb-2">Price Breakdown</p>
             <div className="space-y-1.5">
@@ -418,7 +418,7 @@ function ConciergeModal({ car, onClose }: { car: MarketListing; onClose: () => v
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" onClick={state !== "submitting" ? onClose : undefined} />
-      <div className="relative z-10 w-full max-w-md rounded-2xl border border-white/10 bg-[#0f0f13] shadow-2xl overflow-hidden">
+      <div className="relative z-10 w-full max-w-md rounded-2xl border border-white/10 bg-[var(--onyx-surface)] shadow-2xl overflow-hidden">
         {state === "success" ? (
           <div className="p-8 text-center">
             <div className="w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-400/30 flex items-center justify-center mx-auto mb-4">
@@ -822,7 +822,7 @@ export default function Marketplace() {
                   className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-amber-500/50 focus:outline-none"
                 >
                   {MAKES.map((m) => (
-                    <option key={m.value} value={m.value} className="bg-[#1a1a1f]">{m.label}</option>
+                    <option key={m.value} value={m.value} className="bg-[var(--onyx-surface)]">{m.label}</option>
                   ))}
                 </select>
               </div>
@@ -833,11 +833,11 @@ export default function Marketplace() {
                   onChange={(e) => setFilters((p) => ({ ...p, price_max: e.target.value }))}
                   className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-amber-500/50 focus:outline-none"
                 >
-                  <option value="" className="bg-[#1a1a1f]">Any Price</option>
-                  <option value="150000" className="bg-[#1a1a1f]">Under $150K</option>
-                  <option value="200000" className="bg-[#1a1a1f]">Under $200K</option>
-                  <option value="250000" className="bg-[#1a1a1f]">Under $250K</option>
-                  <option value="350000" className="bg-[#1a1a1f]">Under $350K</option>
+                  <option value="" className="bg-[var(--onyx-surface)]">Any Price</option>
+                  <option value="150000" className="bg-[var(--onyx-surface)]">Under $150K</option>
+                  <option value="200000" className="bg-[var(--onyx-surface)]">Under $200K</option>
+                  <option value="250000" className="bg-[var(--onyx-surface)]">Under $250K</option>
+                  <option value="350000" className="bg-[var(--onyx-surface)]">Under $350K</option>
                 </select>
               </div>
               <div>
@@ -847,10 +847,10 @@ export default function Marketplace() {
                   onChange={(e) => setFilters((p) => ({ ...p, miles_max: e.target.value }))}
                   className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-amber-500/50 focus:outline-none"
                 >
-                  <option value="" className="bg-[#1a1a1f]">Any Mileage</option>
-                  <option value="5000" className="bg-[#1a1a1f]">Under 5,000 mi</option>
-                  <option value="10000" className="bg-[#1a1a1f]">Under 10,000 mi</option>
-                  <option value="20000" className="bg-[#1a1a1f]">Under 20,000 mi</option>
+                  <option value="" className="bg-[var(--onyx-surface)]">Any Mileage</option>
+                  <option value="5000" className="bg-[var(--onyx-surface)]">Under 5,000 mi</option>
+                  <option value="10000" className="bg-[var(--onyx-surface)]">Under 10,000 mi</option>
+                  <option value="20000" className="bg-[var(--onyx-surface)]">Under 20,000 mi</option>
                 </select>
               </div>
               <div>
@@ -860,10 +860,10 @@ export default function Marketplace() {
                   onChange={(e) => setFilters((p) => ({ ...p, year: e.target.value }))}
                   className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-amber-500/50 focus:outline-none"
                 >
-                  <option value="" className="bg-[#1a1a1f]">Any Year</option>
-                  <option value="2023" className="bg-[#1a1a1f]">2023</option>
-                  <option value="2022" className="bg-[#1a1a1f]">2022</option>
-                  <option value="2021" className="bg-[#1a1a1f]">2021</option>
+                  <option value="" className="bg-[var(--onyx-surface)]">Any Year</option>
+                  <option value="2023" className="bg-[var(--onyx-surface)]">2023</option>
+                  <option value="2022" className="bg-[var(--onyx-surface)]">2022</option>
+                  <option value="2021" className="bg-[var(--onyx-surface)]">2021</option>
                 </select>
               </div>
             </div>
