@@ -37,6 +37,9 @@ import impactRouter from "./impact";
 import proRouter from "./pro";
 import rocksolidRouter from "./rocksolid";
 import spinmediaRouter from "./spinmedia";
+import authRouter from "./auth";
+import adminRouter from "./admin";
+import waitlistRouter from "./waitlist";
 
 const router: IRouter = Router();
 
@@ -75,6 +78,9 @@ router.use(proRouter);
 router.use(blockchainRouter);
 router.use(rocksolidRouter);
 router.use(spinmediaRouter);
+router.use(authRouter);
+router.use("/admin", adminRouter);
+router.use(waitlistRouter);
 router.use(orchestratorRouter);
 
 router.use(

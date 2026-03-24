@@ -9,3 +9,5 @@ export * from "./messages";
 export * from "./notifications";
 export * from "./inspections";
 export * from "./watchlist";
+export * from "./transactions";
+export * from "./waitlist";
