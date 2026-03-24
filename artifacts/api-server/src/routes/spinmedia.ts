@@ -129,13 +129,13 @@ router.post("/spin/session/:vehicleId/start", (req: Request, res: Response) => {
 
 // POST /api/spin/session/:vehicleId/frame
 router.post("/spin/session/:vehicleId/frame", (req: Request, res: Response) => {
-  const { vehicleId } = req.params;
+  const vehicleId = req.params["vehicleId"] as string;
   const session = sessions.get(vehicleId);
-  if (!session) return res.status(404).json({ error: "Session not found" });
+  if (!session) { res.status(404).json({ error: "Session not found" }); return; }
 
   const { position, url } = req.body as { position: number; url?: string };
   const frame = session.frames.find((f) => f.position === position);
-  if (!frame) return res.status(400).json({ error: `Frame position ${position} not found in session` });
+  if (!frame) { res.status(400).json({ error: `Frame position ${position} not found in session` }); return; }
 
   frame.status      = "captured";
   frame.capturedAt  = new Date().toISOString();
@@ -154,9 +154,9 @@ router.post("/spin/session/:vehicleId/frame", (req: Request, res: Response) => {
 
 // POST /api/spin/session/:vehicleId/submit
 router.post("/spin/session/:vehicleId/submit", (req: Request, res: Response) => {
-  const { vehicleId } = req.params;
+  const vehicleId = req.params["vehicleId"] as string;
   const session = sessions.get(vehicleId);
-  if (!session) return res.status(404).json({ error: "Session not found" });
+  if (!session) { res.status(404).json({ error: "Session not found" }); return; }
 
   const capturedCount = session.frames.filter((f) => f.status === "captured").length;
   session.status      = capturedCount >= session.frameCount * 0.8 ? "complete" : "review";

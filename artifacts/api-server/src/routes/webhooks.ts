@@ -17,6 +17,7 @@
  * POST /api/webhooks/stripe — Stripe webhook endpoint (must be raw body)
  */
 import { Router, type Request, type Response } from "express";
+import type Stripe from "stripe";
 import { getUncachableStripeClient } from "../lib/stripeClient";
 import { db, usersTable, transactionsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
@@ -67,8 +68,8 @@ router.post(
   },
 );
 
-async function handleEvent(event: { type: string; data: { object: Record<string, unknown> } }) {
-  const obj = event.data.object;
+async function handleEvent(event: Stripe.Event) {
+  const obj = event.data.object as unknown as Record<string, unknown>;
 
   switch (event.type) {
 
@@ -88,7 +89,7 @@ async function handleEvent(event: { type: string; data: { object: Record<string,
           description:     `Subscription ${event.type.split(".").pop()} — status: ${status}`,
           stripePaymentId: obj.id as string,
         });
-        await writeAudit("PAYOUT", "INFO", `Stripe subscription ${status} for user ${user.id}`, { customerId, status });
+        await writeAudit({ eventType: "PAYOUT", severity: "INFO", action: `Stripe subscription ${status} for user ${user.id}`, metadata: { customerId, status } });
       }
       break;
     }
@@ -96,7 +97,7 @@ async function handleEvent(event: { type: string; data: { object: Record<string,
     case "customer.subscription.deleted": {
       const customerId = obj.customer as string;
       logger.info({ customerId }, "Subscription cancelled");
-      await writeAudit("PAYOUT", "WARN", `Subscription cancelled for customer ${customerId}`, { customerId });
+      await writeAudit({ eventType: "PAYOUT", severity: "WARN", action: `Subscription cancelled for customer ${customerId}`, metadata: { customerId } });
       break;
     }
 
@@ -123,7 +124,7 @@ async function handleEvent(event: { type: string; data: { object: Record<string,
     case "invoice.payment_failed": {
       const customerId = obj.customer as string;
       logger.warn({ customerId }, "Invoice payment FAILED");
-      await writeAudit("PAYOUT", "WARN", `Invoice payment failed for customer ${customerId}`, { customerId });
+      await writeAudit({ eventType: "PAYOUT", severity: "WARN", action: `Invoice payment failed for customer ${customerId}`, metadata: { customerId } });
       break;
     }
 
@@ -140,7 +141,7 @@ async function handleEvent(event: { type: string; data: { object: Record<string,
         stripePaymentId: obj.id as string,
         completedAt:     new Date(),
       });
-      await writeAudit("PAYOUT", "INFO", `Purchase PaymentIntent succeeded: ${obj.id as string}`, { amount });
+      await writeAudit({ eventType: "PAYOUT", severity: "INFO", action: `Purchase PaymentIntent succeeded: ${obj.id as string}`, metadata: { amount } });
       break;
     }
 
@@ -173,14 +174,14 @@ async function handleEvent(event: { type: string; data: { object: Record<string,
           })
           .where(eq(foundingMembersTable.stripeCheckoutSessionId, session.id));
         logger.info({ sessionId: session.id, email: metadata.email }, "[founding] Founding member confirmed via webhook");
-        await writeAudit("SYSTEM", "INFO", `Founding member confirmed: ${metadata.email ?? session.id}`, { sessionId: session.id });
+        await writeAudit({ eventType: "SYSTEM", severity: "INFO", action: `Founding member confirmed: ${metadata.email ?? session.id}`, metadata: { sessionId: session.id } });
       }
       break;
     }
 
     case "customer.subscription.trial_will_end": {
       logger.info({ customer: obj.customer }, "Trial ending soon");
-      await writeAudit("SYSTEM", "INFO", `Trial ending for customer ${obj.customer as string}`, {});
+      await writeAudit({ eventType: "SYSTEM", severity: "INFO", action: `Trial ending for customer ${obj.customer as string}` });
       break;
     }
 

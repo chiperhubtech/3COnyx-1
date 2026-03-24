@@ -94,7 +94,7 @@ router.patch("/users/:id", async (req: Request, res: Response) => {
   if (isVerified !== undefined) updates.isVerified = isVerified;
 
   const [updated] = await db.update(usersTable).set(updates as Parameters<typeof db.update>[0]).where(eq(usersTable.id, userId)).returning();
-  await writeAudit("ADMIN", "INFO", `Admin updated user ${userId}`, { updates, byAdmin: req.user!.sub });
+  await writeAudit({ eventType: "ADMIN", severity: "INFO", action: `Admin updated user ${userId}`, metadata: { updates, byAdmin: req.user!.sub } });
   const { passwordHash: _, ...pub } = updated;
   res.json({ user: pub });
 });
@@ -118,7 +118,7 @@ router.get("/waitlist", async (_req: Request, res: Response) => {
 router.post("/audit", async (req: Request, res: Response) => {
   const { message, data } = req.body as { message?: string; data?: Record<string, unknown> };
   if (!message) { res.status(400).json({ error: "message required" }); return; }
-  await writeAudit("ADMIN", "INFO", message, data ?? {});
+  await writeAudit({ eventType: "ADMIN", severity: "INFO", action: message, metadata: data ?? {} });
   res.json({ success: true });
 });
 

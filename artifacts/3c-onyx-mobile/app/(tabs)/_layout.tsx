@@ -71,7 +71,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="car-outline" size={size} color={color} />
           ),
-          tabBarLabel: "Tasks",
+          tabBarLabel: t("tabs.tasks"),
         }}
       />
       <Tabs.Screen
@@ -80,7 +80,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="wallet-outline" size={size} color={color} />
           ),
-          tabBarLabel: "Wallet",
+          tabBarLabel: t("tabs.wallet"),
         }}
       />
       <Tabs.Screen
@@ -111,7 +111,7 @@ export default function TabLayout() {
             ) : (
               <Ionicons name="car-outline" size={size} color={color} />
             ),
-          tabBarLabel: "In-Vehicle",
+          tabBarLabel: t("tabs.inVehicle"),
         }}
       />
     </Tabs>

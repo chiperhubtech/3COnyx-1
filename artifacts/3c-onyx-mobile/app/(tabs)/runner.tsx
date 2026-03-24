@@ -45,10 +45,11 @@ const URGENCY_COLOR: Record<string, string> = {
   standard: "#34D399",
 };
 
-function TaskCard({ task, onAccept, onComplete }: {
+function TaskCard({ task, onAccept, onComplete, myTask }: {
   task: RunnerTask;
   onAccept?: (id: string) => void;
   onComplete?: (task: RunnerTask) => void;
+  myTask?: boolean;
 }) {
   const isMine = task.status === "accepted" || task.status === "completed";
   const urgencyColor = URGENCY_COLOR[task.urgency] ?? "#60A5FA";
@@ -166,7 +167,7 @@ export default function RunnerScreen() {
   const total = mine.filter(t => t.status === "completed").reduce((s, t) => s + t.netPayout, 0);
 
   return (
-    <View style={{ flex: 1, backgroundColor: COLORS.background }}>
+    <View style={{ flex: 1, backgroundColor: COLORS.black }}>
       <StatusBar barStyle="light-content" />
 
       {/* Header */}
@@ -259,7 +260,7 @@ const styles = StyleSheet.create({
   header: { padding: 20, paddingBottom: 12, flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between" },
   headerTitle: { fontSize: 22, fontWeight: "900", color: "#fff", letterSpacing: 1 },
   headerSub: { fontSize: 9, color: "rgba(255,255,255,0.3)", letterSpacing: 2, marginTop: 2 },
-  earningsChip: { alignItems: "flex-end", backgroundColor: "rgba(52,211,153,0.1)", borderRadius: 12, padding: "8px 12px", borderWidth: 1, borderColor: "rgba(52,211,153,0.2)" },
+  earningsChip: { alignItems: "flex-end", backgroundColor: "rgba(52,211,153,0.1)", borderRadius: 12, paddingVertical: 8, paddingHorizontal: 12, borderWidth: 1, borderColor: "rgba(52,211,153,0.2)" },
   earningsVal: { fontSize: 18, fontWeight: "900", color: "#34D399" },
   earningsLabel: { fontSize: 9, color: "rgba(52,211,153,0.6)", letterSpacing: 1 },
   tabs: { flexDirection: "row", gap: 8, paddingHorizontal: 16, paddingBottom: 12 },

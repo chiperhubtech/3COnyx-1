@@ -75,7 +75,7 @@ export function PublicNavbar() {
               <div style={{
                 fontSize: 8, fontWeight: 700, letterSpacing: "0.2em",
                 color: "#C9A227", lineHeight: 1, marginTop: 2,
-              }}>POWERED BY CUXTOMCANDYCLUB LLC</div>
+              }}>{t("nav.poweredBy")}</div>
             </div>
           </div>
         </Link>

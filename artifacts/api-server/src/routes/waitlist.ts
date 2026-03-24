@@ -50,7 +50,7 @@ router.post("/waitlist/join", async (req: Request, res: Response) => {
     city:       city?.trim() ?? null,
   }).returning();
 
-  await writeAudit("SYSTEM", "INFO", `Waitlist join: ${emailLower} (${safeRole})`, { entryId: entry.id });
+  await writeAudit({ eventType: "SYSTEM", severity: "INFO", action: `Waitlist join: ${emailLower} (${safeRole})`, metadata: { entryId: entry.id } });
 
   res.status(201).json({
     success: true,
@@ -110,7 +110,7 @@ router.post(
       .set({ isInvited: true, invitedAt: new Date(), inviteCode })
       .where(eq(waitlistTable.email, entry.email));
 
-    await writeAudit("ADMIN", "INFO", `Waitlist invite sent to ${entry.email}`, { inviteCode });
+    await writeAudit({ eventType: "ADMIN", severity: "INFO", action: `Waitlist invite sent to ${entry.email}`, metadata: { inviteCode } });
 
     res.json({ success: true, email: entry.email, inviteCode, message: "Invite issued." });
   },
