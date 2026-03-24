@@ -17,12 +17,13 @@
     "priceExpires": "창립 가격 {{time}} 후 만료",
     "hero": { "line1": "자리를", "line2": "확보하세요.", "sub": "일회성 $99로 창립 회원 지위를 영구적으로 확정합니다.", "memberIs": "회원 #1은 실제입니다.", "memberIsDesc": "첫 번째 창립 회원이 오늘 결제했습니다." },
     "benefits": { "title": "$99에 포함된 것 — 영구", "badge": "창립 회원 배지", "badgeDetail": "계정에 영구적으로 각인됨", "pricelock": "$99 가격 고정 — 영구", "pricelockDetail": "더 이상 지불하지 않음. 미래 회원은 시장 가격 지불", "earlyAccess": "조기 액세스 — 모든 것", "earlyAccessDetail": "공개 출시 전에 모든 기능에 첫 번째로 접근", "guardian": "Guardian V2X 포함", "guardianDetail": "예측 차량 안전 및 V2X 네트워크 접근", "commission": "5% 평생 커미션", "commissionDetail": "가져오는 모든 추천에 대해 — 영구", "wallet": "Dynasty 지갑 우선순위", "walletDetail": "모든 거래에서 최고 수준의 분할" },
-    "form": { "title": "창립 회원십 확보", "price": "일회성 · 영구 고정", "name": "전체 이름", "namePlaceholder": "이름", "email": "이메일 주소", "emailPlaceholder": "you@example.com", "referral": "추천 코드", "referralPlaceholder": "선택적 추천 코드", "submit": "내 자리 확보 — $99", "ssl": "256비트 SSL 암호화", "stripe": "Stripe 보안 · PCI 레벨 1", "refund": "출시일 전 전액 환불 가능" },
+    "form": { "title": "창립 회원십 확보", "price": "일회성 · 영구 고정", "name": "전체 이름", "namePlaceholder": "이름", "email": "이메일 주소", "emailPlaceholder": "you@example.com", "referral": "추천 코드", "referralPlaceholder": "선택적 추천 코드", "submit": "내 자리 확보 — $99", "redirecting": "결제 페이지로 이동 중…", "ssl": "256비트 SSL 암호화", "stripe": "Stripe 보안 · PCI 레벨 1", "refund": "출시일 전 전액 환불 가능", "errorRequired": "성명과 이메일 주소를 입력해 주세요.", "errorEmail": "유효한 이메일 주소를 입력해 주세요." },
     "testimonials": { "title": "초기 회원들의 말" },
     "faq": { "title": "빠른 답변" }
   },
   "home": {
     "greeting": { "morning": "좋은 아침", "afternoon": "좋은 오후", "evening": "좋은 저녁" },
+    "hero": { "line1": "자동차", "line2": "인텔리전스 레이어.", "sub": "우리는 자동차 생태계의 모든 부분을 조정합니다. 물처럼 움직입니다.", "cta": "ONYX AI와 대화하기", "howItWorks": "작동 방식" },
     "platformStatus": "플랫폼 상태",
     "platformOnline": "모든 시스템 온라인",
     "quickActions": "빠른 작업",

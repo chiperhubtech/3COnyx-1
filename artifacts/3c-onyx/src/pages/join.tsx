@@ -250,7 +250,7 @@ export default function JoinPage() {
           <div style={{ width: 48, height: 2, background: "linear-gradient(90deg, #C9A227, transparent)", marginBottom: 20 }} />
 
           <p style={{ fontSize: 18, color: "rgba(255,255,255,0.5)", lineHeight: 1.7, maxWidth: 460, marginBottom: 36 }}>
-            One-time $99 locks in your founding member status — forever. When we launch, founding members never pay more than $99. Full stop.
+            {t("join.hero.sub")}
           </p>
 
           {/* Member #1 social proof */}
@@ -269,16 +269,16 @@ export default function JoinPage() {
               #1
             </div>
             <div>
-              <p style={{ fontSize: 13, color: "#fff", fontWeight: 600, marginBottom: 3 }}>Member #1 is real.</p>
+              <p style={{ fontSize: 13, color: "#fff", fontWeight: 600, marginBottom: 3 }}>{t("join.hero.memberIs")}</p>
               <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", lineHeight: 1.5 }}>
-                The first founding member paid today. Every member number after that is yours — first come, first locked.
+                {t("join.hero.memberIsDesc")}
               </p>
             </div>
           </div>
 
           {/* Benefits */}
           <p style={{ fontSize: 9, letterSpacing: "0.2em", color: "rgba(255,255,255,0.2)", fontWeight: 700, marginBottom: 16 }}>
-            WHAT YOUR $99 INCLUDES — FOREVER
+            {t("join.benefits.title")}
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 48 }}>
             {BENEFITS.map((b) => (
@@ -338,14 +338,14 @@ export default function JoinPage() {
               background: "linear-gradient(180deg, rgba(201,162,39,0.06) 0%, transparent 100%)",
             }}>
               <p style={{ fontSize: 9, letterSpacing: "0.2em", color: "#C9A227", fontWeight: 700, marginBottom: 8 }}>
-                SECURE YOUR FOUNDING MEMBERSHIP
+                {t("join.form.title")}
               </p>
               <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
                 <span style={{
                   fontFamily: "'Barlow Condensed', sans-serif",
                   fontSize: 52, fontWeight: 900, color: "#fff", lineHeight: 1,
                 }}>$99</span>
-                <span style={{ fontSize: 13, color: "rgba(255,255,255,0.3)", fontWeight: 500 }}>one-time · locked forever</span>
+                <span style={{ fontSize: 13, color: "rgba(255,255,255,0.3)", fontWeight: 500 }}>{t("join.form.price")}</span>
               </div>
             </div>
 
@@ -354,13 +354,13 @@ export default function JoinPage() {
               <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                 <div>
                   <label style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.4)", letterSpacing: "0.12em", display: "block", marginBottom: 6 }}>
-                    FULL NAME
+                    {t("join.form.name")}
                   </label>
                   <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Your name"
+                    placeholder={t("join.form.namePlaceholder")}
                     required
                     style={{
                       width: "100%", padding: "12px 14px", borderRadius: 10,
@@ -377,13 +377,13 @@ export default function JoinPage() {
 
                 <div>
                   <label style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.4)", letterSpacing: "0.12em", display: "block", marginBottom: 6 }}>
-                    EMAIL ADDRESS
+                    {t("join.form.email")}
                   </label>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@example.com"
+                    placeholder={t("join.form.emailPlaceholder")}
                     required
                     style={{
                       width: "100%", padding: "12px 14px", borderRadius: 10,
@@ -427,9 +427,9 @@ export default function JoinPage() {
                   }}
                 >
                   {loading ? (
-                    "REDIRECTING TO CHECKOUT…"
+                    t("join.form.redirecting")
                   ) : (
-                    <><Lock size={14} /> SECURE MY SPOT — $99</>
+                    <><Lock size={14} /> {t("join.form.submit")}</>
                   )}
                 </button>
               </div>
@@ -437,13 +437,13 @@ export default function JoinPage() {
               {/* Trust signals */}
               <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 8 }}>
                 {[
-                  { icon: Shield,       text: "256-bit SSL encryption" },
-                  { icon: CheckCircle,  text: "Secured by Stripe · PCI Level 1 compliant" },
-                  { icon: ArrowRight,   text: "Full refund available before launch date" },
-                ].map((t) => (
-                  <div key={t.text} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <t.icon size={11} style={{ color: "rgba(255,255,255,0.25)", flexShrink: 0 }} />
-                    <span style={{ fontSize: 11, color: "rgba(255,255,255,0.25)" }}>{t.text}</span>
+                  { icon: Shield,       text: t("join.form.ssl") },
+                  { icon: CheckCircle,  text: t("join.form.stripe") },
+                  { icon: ArrowRight,   text: t("join.form.refund") },
+                ].map((signal) => (
+                  <div key={signal.text} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <signal.icon size={11} style={{ color: "rgba(255,255,255,0.25)", flexShrink: 0 }} />
+                    <span style={{ fontSize: 11, color: "rgba(255,255,255,0.25)" }}>{signal.text}</span>
                   </div>
                 ))}
               </div>

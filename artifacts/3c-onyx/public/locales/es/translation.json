@@ -17,12 +17,13 @@
     "priceExpires": "El precio fundador expira en {{time}}",
     "hero": { "line1": "RESERVA TU", "line2": "PLAZA.", "sub": "Un pago único de 99 $ asegura tu estatus de miembro fundador — para siempre.", "memberIs": "El Miembro #1 es real.", "memberIsDesc": "El primer miembro fundador pagó hoy. Cada número de miembro después es tuyo." },
     "benefits": { "title": "LO QUE TUS 99 $ INCLUYEN — PARA SIEMPRE", "badge": "Insignia de Miembro Fundador", "badgeDetail": "Sellado permanentemente en tu cuenta — para siempre", "pricelock": "Precio Bloqueado en 99 $ — Para Siempre", "pricelockDetail": "Nunca pagues más. Los futuros miembros pagan precio de mercado", "earlyAccess": "Acceso Anticipado — Todo", "earlyAccessDetail": "Primero en cada función antes del lanzamiento público", "guardian": "Guardian V2X Incluido", "guardianDetail": "Seguridad predictiva del vehículo y acceso a red V2X", "commission": "5% Comisión de por Vida", "commissionDetail": "Por cada referido que traigas — para siempre", "wallet": "Prioridad Dynasty Wallet", "walletDetail": "División de primer nivel en cada transacción que realices" },
-    "form": { "title": "ASEGURA TU MEMBRESÍA FUNDADORA", "price": "único · bloqueado para siempre", "name": "NOMBRE COMPLETO", "namePlaceholder": "Tu nombre", "email": "CORREO ELECTRÓNICO", "emailPlaceholder": "tu@ejemplo.com", "referral": "CÓDIGO DE REFERIDO", "referralPlaceholder": "Código de referido opcional", "submit": "ASEGURAR MI PLAZA — 99 $", "ssl": "Cifrado SSL de 256 bits", "stripe": "Asegurado por Stripe · Cumple PCI Nivel 1", "refund": "Reembolso completo disponible antes del lanzamiento" },
+    "form": { "title": "ASEGURA TU MEMBRESÍA FUNDADORA", "price": "único · bloqueado para siempre", "name": "NOMBRE COMPLETO", "namePlaceholder": "Tu nombre", "email": "CORREO ELECTRÓNICO", "emailPlaceholder": "tu@ejemplo.com", "referral": "CÓDIGO DE REFERIDO", "referralPlaceholder": "Código de referido opcional", "submit": "ASEGURAR MI PLAZA — 99 $", "redirecting": "REDIRIGIENDO AL PAGO…", "ssl": "Cifrado SSL de 256 bits", "stripe": "Asegurado por Stripe · Cumple PCI Nivel 1", "refund": "Reembolso completo disponible antes del lanzamiento", "errorRequired": "Por favor ingresa tu nombre completo y correo electrónico.", "errorEmail": "Por favor ingresa un correo electrónico válido." },
     "testimonials": { "title": "LO QUE DICEN LOS PRIMEROS MIEMBROS" },
     "faq": { "title": "RESPUESTAS RÁPIDAS" }
   },
   "home": {
     "greeting": { "morning": "BUENOS DÍAS", "afternoon": "BUENAS TARDES", "evening": "BUENAS NOCHES" },
+    "hero": { "line1": "LA AUTOMOTRIZ", "line2": "CAPA DE INTELIGENCIA.", "sub": "Coordinamos cada parte del ecosistema automotriz. Nos movemos como el agua.", "cta": "HABLAR CON ONYX IA", "howItWorks": "CÓMO FUNCIONA" },
     "platformStatus": "Estado de la Plataforma",
     "platformOnline": "TODOS LOS SISTEMAS EN LÍNEA",
     "quickActions": "Acciones Rápidas",
@@ -42,5 +43,6 @@
   "footer": { "tagline": "\"Nos movemos como el agua.\" — La capa de confianza e inteligencia para la industria automotriz.", "founded": "Fundado en 2024 · 3C Onyx — Desarrollado por CUXTOMCANDYCLUB LLC", "allRights": "Todos los derechos reservados.", "aes": "CIFRADO AES-256", "soc2": "COMPATIBLE SOC2", "blockchain": "VERIFICADO EN BLOCKCHAIN" },
   "common": { "loading": "Cargando...", "error": "Algo salió mal", "retry": "Intentar de nuevo", "save": "Guardar", "cancel": "Cancelar", "confirm": "Confirmar", "delete": "Eliminar", "edit": "Editar", "close": "Cerrar", "back": "Atrás", "next": "Siguiente", "submit": "Enviar", "search": "Buscar", "filter": "Filtrar", "viewAll": "Ver Todo", "learnMore": "Saber Más", "getStarted": "Comenzar", "signIn": "Iniciar Sesión", "signOut": "Cerrar Sesión", "live": "EN VIVO", "active": "ACTIVO", "secure": "SEGURO" },
   "sidebar": { "concierge": "Concierge IA ONYX", "conciergeDesc": "Motor de inteligencia 12 agentes", "guardian": "Guardian V2X", "guardianDesc": "Red de seguridad predictiva", "garage": "Mi Garaje", "garageDesc": "Gestión de vehículos", "marketplace": "Mercado", "marketplaceDesc": "Vehículos de lujo certificados", "wallet": "Dynasty Wallet", "walletDesc": "Motor de pago triple", "neuralMesh": "RED NEURAL EN VIVO" },
-  "langSelector": { "label": "Idioma" }
+  "langSelector": { "label": "Idioma" },
+  "notifications": { "title": "NOTIFICACIONES", "markAllRead": "Marcar todo como leído", "unread": "NO LEÍDAS", "earlier": "ANTERIORES", "empty": "Aún no hay notificaciones.", "emptyDesc": "Estás al día." }
 }

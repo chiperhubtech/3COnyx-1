@@ -46,6 +46,7 @@ function StatCard({ label, value, sub, color }: { label: string; value: string; 
 }
 
 export default function WalletScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
 
   const { data, isLoading, refetch } = useQuery({
@@ -65,8 +66,8 @@ export default function WalletScreen() {
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
         <View>
-          <Text style={styles.headerTitle}>DYNASTY WALLET</Text>
-          <Text style={styles.headerSub}>TRIPLE-SPLIT ENGINE</Text>
+          <Text style={styles.headerTitle}>{t("wallet.title")}</Text>
+          <Text style={styles.headerSub}>{t("wallet.subtitle")}</Text>
         </View>
         <View style={[styles.connectBadge, connected ? styles.connectBadgeOn : styles.connectBadgeOff]}>
           <View style={[styles.dot, { backgroundColor: connected ? "#34D399" : "rgba(255,255,255,0.3)" }]} />

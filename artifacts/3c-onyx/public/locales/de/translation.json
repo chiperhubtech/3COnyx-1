@@ -17,12 +17,13 @@
     "priceExpires": "Gründungspreis läuft ab in {{time}}",
     "hero": { "line1": "SICHERN SIE IHREN", "line2": "PLATZ.", "sub": "Ein einmaliger Betrag von 99 $ sichert Ihren Gründungsmitgliedsstatus — für immer.", "memberIs": "Mitglied #1 ist real.", "memberIsDesc": "Das erste Gründungsmitglied hat heute gezahlt." },
     "benefits": { "title": "WAS IHRE 99 $ BEINHALTEN — FÜR IMMER", "badge": "Gründungsmitglieds-Abzeichen", "badgeDetail": "Dauerhaft auf Ihrem Konto gestempelt", "pricelock": "99 $ Preisgarantie — Für Immer", "pricelockDetail": "Zahlen Sie nie mehr. Zukünftige Mitglieder zahlen Marktpreis", "earlyAccess": "Früher Zugang — Alles", "earlyAccessDetail": "Als Erster bei jeder Funktion vor dem öffentlichen Start", "guardian": "Guardian V2X Enthalten", "guardianDetail": "Prädiktive Fahrzeugsicherheit und V2X-Netzwerkzugang", "commission": "5% Lebenslange Provision", "commissionDetail": "Auf jede Empfehlung, die Sie einbringen — für immer", "wallet": "Dynasty Wallet Priorität", "walletDetail": "Toprangige Aufteilung bei jeder Transaktion" },
-    "form": { "title": "SICHERN SIE IHRE GRÜNDUNGSMITGLIEDSCHAFT", "price": "einmalig · für immer gesperrt", "name": "VOLLSTÄNDIGER NAME", "namePlaceholder": "Ihr Name", "email": "E-MAIL-ADRESSE", "emailPlaceholder": "sie@beispiel.de", "referral": "EMPFEHLUNGSCODE", "referralPlaceholder": "Optionaler Empfehlungscode", "submit": "MEINEN PLATZ SICHERN — 99 $", "ssl": "256-Bit-SSL-Verschlüsselung", "stripe": "Gesichert von Stripe · PCI Level 1", "refund": "Vollständige Rückerstattung vor dem Startdatum verfügbar" },
+    "form": { "title": "SICHERN SIE IHRE GRÜNDUNGSMITGLIEDSCHAFT", "price": "einmalig · für immer gesperrt", "name": "VOLLSTÄNDIGER NAME", "namePlaceholder": "Ihr Name", "email": "E-MAIL-ADRESSE", "emailPlaceholder": "sie@beispiel.de", "referral": "EMPFEHLUNGSCODE", "referralPlaceholder": "Optionaler Empfehlungscode", "submit": "MEINEN PLATZ SICHERN — 99 $", "redirecting": "WEITERLEITUNG ZUR KASSE…", "ssl": "256-Bit-SSL-Verschlüsselung", "stripe": "Gesichert von Stripe · PCI Level 1", "refund": "Vollständige Rückerstattung vor dem Startdatum verfügbar", "errorRequired": "Bitte geben Sie Ihren vollständigen Namen und Ihre E-Mail-Adresse ein.", "errorEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein." },
     "testimonials": { "title": "WAS FRÜHE MITGLIEDER SAGEN" },
     "faq": { "title": "SCHNELLE ANTWORTEN" }
   },
   "home": {
     "greeting": { "morning": "GUTEN MORGEN", "afternoon": "GUTEN NACHMITTAG", "evening": "GUTEN ABEND" },
+    "hero": { "line1": "DIE AUTOMOTIVE", "line2": "INTELLIGENZSCHICHT.", "sub": "Wir koordinieren jeden Teil des Automobilökosystems. Wir fließen wie Wasser.", "cta": "MIT ONYX KI SPRECHEN", "howItWorks": "WIE ES FUNKTIONIERT" },
     "platformStatus": "Plattformstatus",
     "platformOnline": "ALLE SYSTEME ONLINE",
     "quickActions": "Schnellaktionen",

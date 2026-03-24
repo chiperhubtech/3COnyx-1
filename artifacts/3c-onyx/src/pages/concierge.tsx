@@ -173,6 +173,7 @@ function ActionModal({ modal, onClose }: { modal: ActionModal; onClose: () => vo
 }
 
 export default function Concierge() {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = useState<number | null>(1);
   const [modal, setModal] = useState<ActionModal>(null);
 
@@ -183,17 +184,17 @@ export default function Concierge() {
           <div className="w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
             <UserCheck className="w-5 h-5 text-amber-400" />
           </div>
-          <h1 className="text-2xl font-semibold text-white tracking-tight">Concierge</h1>
+          <h1 className="text-2xl font-semibold text-white tracking-tight">{t("concierge.title")}</h1>
         </div>
-        <p className="text-white/40 text-sm ml-[52px]">High-net-worth client profiles with PII protection</p>
+        <p className="text-white/40 text-sm ml-[52px]">{t("concierge.subtitle")}</p>
       </div>
 
       {/* Stats row */}
       <div className="grid grid-cols-3 gap-3 mb-6">
         {[
-          { label: "Active Deals", value: "2", color: "text-emerald-400" },
-          { label: "This Month", value: "$812K", color: "text-amber-400" },
-          { label: "Avg. Response", value: "< 2h", color: "text-white" },
+          { label: t("concierge.agents"), value: "2", color: "text-emerald-400" },
+          { label: t("concierge.history"), value: "$812K", color: "text-amber-400" },
+          { label: t("guardian.monitoring"), value: "< 2h", color: "text-white" },
         ].map((s) => (
           <div key={s.label} className="rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3">
             <p className={`text-lg font-bold ${s.color}`}>{s.value}</p>

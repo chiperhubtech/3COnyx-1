@@ -113,6 +113,7 @@ const WHO_WE_SERVE = [
 ];
 
 export default function TrustPage() {
+  const { t } = useTranslation();
   const [activeWho, setActiveWho] = useState(0);
 
   return (
@@ -121,14 +122,14 @@ export default function TrustPage() {
       {/* Hero */}
       <div style={{ padding: "48px 0 60px", textAlign: "center", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
         <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "5px 14px", borderRadius: 20, background: "rgba(96,165,250,0.08)", border: "1px solid rgba(96,165,250,0.2)", fontSize: 10, fontWeight: 700, color: "#60A5FA", letterSpacing: "0.12em", marginBottom: 24 }}>
-          <Layers size={11} /> TRUST LAYER
+          <Layers size={11} /> {t("trust.badge")}
         </div>
         <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "clamp(36px, 8vw, 64px)", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.04em", lineHeight: 1, margin: "0 0 20px" }}>
-          WE DON'T COMPETE.<br />
-          <span style={{ color: "#60A5FA" }}>WE COORDINATE.</span>
+          {t("trust.title")}<br />
+          <span style={{ color: "#60A5FA" }}>{t("trust.titleGold")}</span>
         </h1>
         <p style={{ fontSize: 16, color: "rgba(255,255,255,0.5)", lineHeight: 1.8, maxWidth: 520, margin: "0 auto 36px" }}>
-          3C Onyx sits between consumers and the automotive industry — handling coordination, decision-making, and execution so both sides win. We move like water.
+          {t("trust.sub")}
         </p>
         <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
           <a href="/concierge" style={{ padding: "12px 24px", borderRadius: 12, background: "rgba(96,165,250,0.9)", border: "none", color: "#000", fontWeight: 800, fontSize: 13, letterSpacing: "0.06em", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6 }}>
@@ -142,7 +143,7 @@ export default function TrustPage() {
 
       {/* Trust Layer Diagram */}
       <div style={{ padding: "48px 0" }}>
-        <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.35)", letterSpacing: "0.14em", textAlign: "center", marginBottom: 32 }}>HOW THE TRUST LAYER SITS</p>
+        <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.35)", letterSpacing: "0.14em", textAlign: "center", marginBottom: 32 }}>{t("trust.principles")}</p>
         <div style={{ display: "flex", alignItems: "stretch", gap: 0 }}>
           {PARTIES.map((party, i) => {
             const Icon = party.icon;

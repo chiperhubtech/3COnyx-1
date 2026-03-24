@@ -112,6 +112,7 @@
       "referral": "REFERRAL CODE",
       "referralPlaceholder": "Optional referral code",
       "submit": "SECURE MY SPOT — $99",
+      "redirecting": "REDIRECTING TO CHECKOUT…",
       "ssl": "256-bit SSL encryption",
       "stripe": "Secured by Stripe · PCI Level 1 compliant",
       "refund": "Full refund available before launch date",
@@ -130,6 +131,13 @@
       "morning": "GOOD MORNING",
       "afternoon": "GOOD AFTERNOON",
       "evening": "GOOD EVENING"
+    },
+    "hero": {
+      "line1": "THE AUTOMOTIVE",
+      "line2": "INTELLIGENCE\nLAYER.",
+      "sub": "We coordinate every part of the automotive ecosystem — so you never deal with dealers, phone tags, or markups again. We move like water.",
+      "cta": "TALK TO ONYX AI",
+      "howItWorks": "HOW IT WORKS"
     },
     "platformStatus": "Platform Status",
     "platformOnline": "ALL SYSTEMS ONLINE",
@@ -389,5 +397,13 @@
   },
   "langSelector": {
     "label": "Language"
+  },
+  "notifications": {
+    "title": "NOTIFICATIONS",
+    "markAllRead": "Mark all read",
+    "unread": "UNREAD",
+    "earlier": "EARLIER",
+    "empty": "No notifications yet.",
+    "emptyDesc": "You're all caught up."
   }
 }

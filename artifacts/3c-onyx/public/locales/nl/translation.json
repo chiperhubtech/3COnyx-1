@@ -17,12 +17,13 @@
     "priceExpires": "Oprichtingsprijs verloopt over {{time}}",
     "hero": { "line1": "RESERVEER UW", "line2": "PLEK.", "sub": "Een eenmalige betaling van $99 vergrendelt uw oprichtend ledenstatus — voor altijd.", "memberIs": "Lid #1 is echt.", "memberIsDesc": "Het eerste oprichtend lid betaalde vandaag." },
     "benefits": { "title": "WAT UW $99 OMVAT — VOOR ALTIJD", "badge": "Oprichtend Lid Badge", "badgeDetail": "Permanent gestempeld op uw account", "pricelock": "$99 Prijsvergrendeling — Voor Altijd", "pricelockDetail": "Betaal nooit meer. Toekomstige leden betalen marktprijs", "earlyAccess": "Vroege Toegang — Alles", "earlyAccessDetail": "Als eerste bij elke functie vóór publieke lancering", "guardian": "Guardian V2X Inbegrepen", "guardianDetail": "Voorspellende voertuigveiligheid en V2X-netwerktoegang", "commission": "5% Levenslange Commissie", "commissionDetail": "Op elke doorverwijzing — voor altijd", "wallet": "Dynasty Portemonnee Prioriteit", "walletDetail": "Hoogste splitsing bij elke transactie" },
-    "form": { "title": "ZEKER UW OPRICHTEND LIDMAATSCHAP", "price": "eenmalig · voor altijd vergrendeld", "name": "VOLLEDIGE NAAM", "namePlaceholder": "Uw naam", "email": "E-MAILADRES", "emailPlaceholder": "u@voorbeeld.nl", "referral": "VERWIJZINGSCODE", "referralPlaceholder": "Optionele verwijzingscode", "submit": "MIJN PLEK RESERVEREN — $99", "ssl": "256-bit SSL versleuteling", "stripe": "Beveiligd door Stripe · PCI Niveau 1", "refund": "Volledige terugbetaling beschikbaar vóór lanceerdatum" },
+    "form": { "title": "ZEKER UW OPRICHTEND LIDMAATSCHAP", "price": "eenmalig · voor altijd vergrendeld", "name": "VOLLEDIGE NAAM", "namePlaceholder": "Uw naam", "email": "E-MAILADRES", "emailPlaceholder": "u@voorbeeld.nl", "referral": "VERWIJZINGSCODE", "referralPlaceholder": "Optionele verwijzingscode", "submit": "MIJN PLEK RESERVEREN — $99", "redirecting": "DOORSTUREN NAAR BETALING…", "ssl": "256-bit SSL versleuteling", "stripe": "Beveiligd door Stripe · PCI Niveau 1", "refund": "Volledige terugbetaling beschikbaar vóór lanceerdatum", "errorRequired": "Vul uw volledige naam en e-mailadres in.", "errorEmail": "Vul een geldig e-mailadres in." },
     "testimonials": { "title": "WAT VROEGE LEDEN ZEGGEN" },
     "faq": { "title": "SNELLE ANTWOORDEN" }
   },
   "home": {
     "greeting": { "morning": "GOEDEMORGEN", "afternoon": "GOEDEMIDDAG", "evening": "GOEDENAVOND" },
+    "hero": { "line1": "DE AUTOMOTIVE", "line2": "INTELLIGENTIELAAG.", "sub": "Wij coördineren elk onderdeel van het automotive ecosysteem. We bewegen als water.", "cta": "PRAAT MET ONYX AI", "howItWorks": "HOE HET WERKT" },
     "platformStatus": "Platformstatus",
     "platformOnline": "ALLE SYSTEMEN ONLINE",
     "quickActions": "Snelle Acties",

@@ -463,6 +463,7 @@ function AlertCard({ alert, onApprove, onDismiss }: {
 const VEHICLE_IDS = ["veh-001", "veh-002", "veh-003"];
 
 export default function GuardianPage() {
+  const { t: tl } = useTranslation();
   const qc = useQueryClient();
 
   // Persist active tab across refreshes
@@ -546,8 +547,8 @@ export default function GuardianPage() {
     <div className="h-full overflow-y-auto page-bg">
       <PageHeader
         icon={Shield}
-        title="Guardian"
-        subtitle="V2X Predictive Intelligence · 7-Agent Mesh"
+        title={tl("guardian.title")}
+        subtitle={tl("guardian.subtitle")}
         accent="#10B981"
         badge={stats.critical > 0 ? `${stats.critical} CRITICAL` : undefined}
         actions={

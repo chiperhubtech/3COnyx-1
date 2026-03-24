@@ -26,12 +26,20 @@ i18n
     },
   });
 
-// Apply RTL direction on initial load based on stored language
-const storedLang = localStorage.getItem("onyx-lang");
-if (storedLang) {
-  const isRtl = storedLang === "ar";
-  document.documentElement.dir = isRtl ? "rtl" : "ltr";
-  document.documentElement.lang = storedLang;
+// Apply RTL direction on initial load based on detected language
+const RTL_LANGS = new Set(["ar"]);
+function applyDir(lang: string) {
+  const dir = RTL_LANGS.has(lang) ? "rtl" : "ltr";
+  document.documentElement.dir = dir;
+  document.documentElement.lang = lang;
+  document.body.dir = dir;
 }
+// Check localStorage first, fall back to navigator language
+const initLang = localStorage.getItem("onyx-lang")
+  || navigator.language?.split("-")[0]
+  || "en";
+applyDir(initLang);
+// Also update whenever i18n switches language
+i18n.on("languageChanged", applyDir);
 
 export default i18n;

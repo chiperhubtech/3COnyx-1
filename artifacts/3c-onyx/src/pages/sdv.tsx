@@ -103,6 +103,8 @@ export default function SDVPage() {
     Autonomous: EMERALD, Feature: GOLD, Security: "#3B9EFF", Connectivity: "#9C6BFF",
   };
 
+  const { t: tl } = useTranslation();
+
   return (
     <div className="public-page" style={{ color: "var(--onyx-text-primary)" }}>
       <PublicNavbar />
@@ -111,16 +113,16 @@ export default function SDVPage() {
       <div style={{ maxWidth: 900, margin: "0 auto", padding: "80px 24px 60px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
           <div style={{ width: 6, height: 6, borderRadius: "50%", background: EMERALD }} />
-          <span style={{ color: EMERALD, fontSize: 11, fontWeight: 800, letterSpacing: 3 }}>SDV INTELLIGENCE LAYER</span>
+          <span style={{ color: EMERALD, fontSize: 11, fontWeight: 800, letterSpacing: 3 }}>{tl("sdv.badge")}</span>
         </div>
 
         <h1 style={{ fontSize: "clamp(36px,6vw,72px)", fontWeight: 900, lineHeight: 1.05, margin: "0 0 20px" }}>
-          THE TRUST LAYER<br />
-          <span style={{ color: GOLD }}>EVERY SDV NEEDS.</span>
+          {tl("sdv.hero.line1")}<br />
+          <span style={{ color: GOLD }}>{tl("sdv.hero.line2Gold")}</span>
         </h1>
 
         <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 18, lineHeight: 1.7, maxWidth: 620, margin: "0 0 40px" }}>
-          The automotive software market grows from <strong style={{ color: "#fff" }}>$213B in 2024</strong> to <strong style={{ color: GOLD }}>$1.2T by 2030</strong>. Every software-defined vehicle needs a blockchain-anchored identity layer, an intelligence scoring engine, and a trust infrastructure for OTA updates, V2X communication, and digital ownership. That layer is 3C Onyx.
+          {tl("sdv.hero.sub")}
         </p>
 
         {/* Market numbers */}

@@ -17,12 +17,13 @@
     "priceExpires": "ينتهي سعر المؤسس خلال {{time}}",
     "hero": { "line1": "احجز", "line2": "مكانك.", "sub": "دفعة واحدة بقيمة 99 دولاراً تضمن وضعك كعضو مؤسس — إلى الأبد.", "memberIs": "العضو رقم 1 حقيقي.", "memberIsDesc": "أول عضو مؤسس دفع اليوم." },
     "benefits": { "title": "ما تشمله 99 دولاراً — إلى الأبد", "badge": "شارة عضو مؤسس", "badgeDetail": "مختوم بشكل دائم على حسابك", "pricelock": "سعر مقفل بـ 99 دولاراً — إلى الأبد", "pricelockDetail": "لا تدفع أكثر أبداً. الأعضاء المستقبليون يدفعون سعر السوق", "earlyAccess": "الوصول المبكر — لكل شيء", "earlyAccessDetail": "الأول في كل ميزة قبل الإطلاق العام", "guardian": "Guardian V2X مضمن", "guardianDetail": "سلامة المركبة التنبؤية والوصول إلى شبكة V2X", "commission": "عمولة 5% مدى الحياة", "commissionDetail": "على كل إحالة تجلبها — إلى الأبد", "wallet": "أولوية Dynasty Wallet", "walletDetail": "أعلى مستوى من التقسيم في كل معاملة" },
-    "form": { "title": "أمّن عضويتك التأسيسية", "price": "لمرة واحدة · مقفل إلى الأبد", "name": "الاسم الكامل", "namePlaceholder": "اسمك", "email": "عنوان البريد الإلكتروني", "emailPlaceholder": "you@example.com", "referral": "رمز الإحالة", "referralPlaceholder": "رمز إحالة اختياري", "submit": "أمّن مكاني — 99 دولاراً", "ssl": "تشفير SSL 256 بت", "stripe": "مؤمن بواسطة Stripe · PCI Level 1", "refund": "استرداد كامل متاح قبل تاريخ الإطلاق" },
+    "form": { "title": "أمّن عضويتك التأسيسية", "price": "لمرة واحدة · مقفل إلى الأبد", "name": "الاسم الكامل", "namePlaceholder": "اسمك", "email": "عنوان البريد الإلكتروني", "emailPlaceholder": "you@example.com", "referral": "رمز الإحالة", "referralPlaceholder": "رمز إحالة اختياري", "submit": "أمّن مكاني — 99 دولاراً", "redirecting": "جاري التحويل إلى الدفع…", "ssl": "تشفير SSL 256 بت", "stripe": "مؤمن بواسطة Stripe · PCI Level 1", "refund": "استرداد كامل متاح قبل تاريخ الإطلاق", "errorRequired": "يرجى إدخال اسمك الكامل وعنوان البريد الإلكتروني.", "errorEmail": "يرجى إدخال عنوان بريد إلكتروني صالح." },
     "testimonials": { "title": "ما يقوله الأعضاء الأوائل" },
     "faq": { "title": "إجابات سريعة" }
   },
   "home": {
     "greeting": { "morning": "صباح الخير", "afternoon": "مساء الخير", "evening": "مساء النور" },
+    "hero": { "line1": "طبقة الذكاء", "line2": "السيارات.", "sub": "نحن ننسق كل جزء من النظام البيئي للسيارات. نتحرك مثل الماء.", "cta": "تحدث مع ONYX AI", "howItWorks": "كيف يعمل" },
     "platformStatus": "حالة المنصة",
     "platformOnline": "جميع الأنظمة تعمل",
     "quickActions": "الإجراءات السريعة",

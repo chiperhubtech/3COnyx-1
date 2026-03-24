@@ -608,6 +608,7 @@ function WholesaleStatsBar({ stats }: { stats: WholesaleStats }) {
 type Tab = "all" | "wholesale";
 
 export default function Marketplace() {
+  const { t } = useTranslation();
   const [tab, setTab] = useState<Tab>("all");
   const [filters, setFilters] = useState<SearchFilters>({
     make: "", price_max: "", miles_max: "", year: "",
@@ -703,8 +704,8 @@ export default function Marketplace() {
       <PageHeader
         icon={ShoppingBag}
         accent="#C9A227"
-        title="MARKETPLACE"
-        subtitle="National wholesale engine — live luxury inventory, AI-priced"
+        title={t("marketplace.title")}
+        subtitle={t("marketplace.subtitle")}
         badge={<span className="neural-badge neural-badge-gold"><span className="ai-live-dot-gold mr-1" />MARKETCHECK</span>}
         actions={
           <button

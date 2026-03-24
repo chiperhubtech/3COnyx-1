@@ -17,12 +17,13 @@
     "priceExpires": "创始价格将在{{time}}后到期",
     "hero": { "line1": "拥有您的", "line2": "名额。", "sub": "一次性99美元锁定您的创始会员资格——永久。", "memberIs": "会员#1是真实的。", "memberIsDesc": "第一位创始会员今天付款了。" },
     "benefits": { "title": "您的99美元包含——永久", "badge": "创始会员徽章", "badgeDetail": "永久印在您的账户上", "pricelock": "99美元永久价格锁定", "pricelockDetail": "永不多付。未来会员按市场价格付费", "earlyAccess": "早期访问——一切", "earlyAccessDetail": "在公开发布前第一个使用每项功能", "guardian": "包含Guardian V2X", "guardianDetail": "预测车辆安全和V2X网络访问", "commission": "5%终身佣金", "commissionDetail": "您带来的每次推荐——永久", "wallet": "Dynasty钱包优先级", "walletDetail": "每笔交易的顶级分成" },
-    "form": { "title": "确保您的创始会员资格", "price": "一次性 · 永久锁定", "name": "全名", "namePlaceholder": "您的姓名", "email": "电子邮件地址", "emailPlaceholder": "you@example.com", "referral": "推荐码", "referralPlaceholder": "可选推荐码", "submit": "确保我的名额 — 99美元", "ssl": "256位SSL加密", "stripe": "由Stripe保护 · PCI一级合规", "refund": "发布日期前可获得全额退款" },
+    "form": { "title": "确保您的创始会员资格", "price": "一次性 · 永久锁定", "name": "全名", "namePlaceholder": "您的姓名", "email": "电子邮件地址", "emailPlaceholder": "you@example.com", "referral": "推荐码", "referralPlaceholder": "可选推荐码", "submit": "确保我的名额 — 99美元", "redirecting": "正在跳转到付款页面…", "ssl": "256位SSL加密", "stripe": "由Stripe保护 · PCI一级合规", "refund": "发布日期前可获得全额退款", "errorRequired": "请输入您的全名和电子邮件地址。", "errorEmail": "请输入有效的电子邮件地址。" },
     "testimonials": { "title": "早期会员怎么说" },
     "faq": { "title": "快速答案" }
   },
   "home": {
     "greeting": { "morning": "早上好", "afternoon": "下午好", "evening": "晚上好" },
+    "hero": { "line1": "汽车", "line2": "智能层。", "sub": "我们协调汽车生态系统的每一个环节。我们如水般流动。", "cta": "与ONYX AI对话", "howItWorks": "如何运作" },
     "platformStatus": "平台状态",
     "platformOnline": "所有系统正常运行",
     "quickActions": "快速操作",

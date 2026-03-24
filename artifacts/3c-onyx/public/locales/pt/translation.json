@@ -17,12 +17,13 @@
     "priceExpires": "O preço fundador expira em {{time}}",
     "hero": { "line1": "RESERVE SUA", "line2": "VAGA.", "sub": "Um pagamento único de $99 garante seu status de membro fundador — para sempre.", "memberIs": "O Membro #1 é real.", "memberIsDesc": "O primeiro membro fundador pagou hoje." },
     "benefits": { "title": "O QUE SEUS $99 INCLUEM — PARA SEMPRE", "badge": "Distintivo de Membro Fundador", "badgeDetail": "Permanentemente carimbado em sua conta", "pricelock": "Preço Bloqueado em $99 — Para Sempre", "pricelockDetail": "Nunca pague mais. Futuros membros pagam preço de mercado", "earlyAccess": "Acesso Antecipado — Tudo", "earlyAccessDetail": "Primeiro em cada recurso antes do lançamento público", "guardian": "Guardian V2X Incluído", "guardianDetail": "Segurança preditiva do veículo e acesso à rede V2X", "commission": "5% Comissão Vitalícia", "commissionDetail": "Em cada indicação que você trouxer — para sempre", "wallet": "Prioridade Dynasty Wallet", "walletDetail": "Divisão de primeiro nível em cada transação" },
-    "form": { "title": "GARANTA SUA ASSINATURA FUNDADORA", "price": "único · bloqueado para sempre", "name": "NOME COMPLETO", "namePlaceholder": "Seu nome", "email": "ENDEREÇO DE EMAIL", "emailPlaceholder": "voce@exemplo.com", "referral": "CÓDIGO DE INDICAÇÃO", "referralPlaceholder": "Código de indicação opcional", "submit": "GARANTIR MINHA VAGA — $99", "ssl": "Criptografia SSL de 256 bits", "stripe": "Protegido pelo Stripe · PCI Nível 1", "refund": "Reembolso completo disponível antes do lançamento" },
+    "form": { "title": "GARANTA SUA ASSINATURA FUNDADORA", "price": "único · bloqueado para sempre", "name": "NOME COMPLETO", "namePlaceholder": "Seu nome", "email": "ENDEREÇO DE EMAIL", "emailPlaceholder": "voce@exemplo.com", "referral": "CÓDIGO DE INDICAÇÃO", "referralPlaceholder": "Código de indicação opcional", "submit": "GARANTIR MINHA VAGA — $99", "redirecting": "REDIRECIONANDO PARA O PAGAMENTO…", "ssl": "Criptografia SSL de 256 bits", "stripe": "Protegido pelo Stripe · PCI Nível 1", "refund": "Reembolso completo disponível antes do lançamento", "errorRequired": "Por favor insira seu nome completo e endereço de email.", "errorEmail": "Por favor insira um endereço de email válido." },
     "testimonials": { "title": "O QUE OS PRIMEIROS MEMBROS DIZEM" },
     "faq": { "title": "RESPOSTAS RÁPIDAS" }
   },
   "home": {
     "greeting": { "morning": "BOM DIA", "afternoon": "BOA TARDE", "evening": "BOA NOITE" },
+    "hero": { "line1": "A CAMADA DE INTELIGÊNCIA", "line2": "AUTOMOTIVA.", "sub": "Coordenamos cada parte do ecossistema automotivo. Nos movemos como água.", "cta": "FALAR COM ONYX IA", "howItWorks": "COMO FUNCIONA" },
     "platformStatus": "Status da Plataforma",
     "platformOnline": "TODOS OS SISTEMAS ONLINE",
     "quickActions": "Ações Rápidas",

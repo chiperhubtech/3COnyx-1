@@ -159,6 +159,7 @@ function VehicleCard({ vehicle }: { vehicle: GarageVehicle }) {
 }
 
 export default function GarageScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const isWeb = Platform.OS === "web";
   const topPad = isWeb ? 67 : insets.top;
@@ -177,14 +178,14 @@ export default function GarageScreen() {
       <View style={styles.header}>
         <View style={styles.titleRow}>
           <MaterialCommunityIcons name="garage-open" size={20} color={COLORS.emerald} />
-          <Text style={styles.title}>MY GARAGE</Text>
+          <Text style={styles.title}>{t("garage.title")}</Text>
         </View>
         <Pressable style={styles.connectBtn}>
           <Feather name="plus" size={13} color={COLORS.black} />
-          <Text style={styles.connectBtnText}>Connect</Text>
+          <Text style={styles.connectBtnText}>{t("garage.addVehicle")}</Text>
         </Pressable>
       </View>
-      <Text style={styles.subtitle}>Live telematics via Smartcar Connect</Text>
+      <Text style={styles.subtitle}>{t("garage.subtitle")}</Text>
 
       <ScrollView
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: bottomPad + 90, gap: 14, paddingTop: 14 }}

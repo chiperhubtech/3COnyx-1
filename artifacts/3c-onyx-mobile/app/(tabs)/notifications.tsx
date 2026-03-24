@@ -116,6 +116,7 @@ function NotifItem({ item, onPress }: { item: Notification; onPress: () => void 
 }
 
 export default function NotificationsScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const isWeb = Platform.OS === "web";
   const topPad = isWeb ? 67 : insets.top;
@@ -157,7 +158,7 @@ export default function NotificationsScreen() {
       <View style={styles.header}>
         <View style={styles.titleRow}>
           <Ionicons name="notifications" size={20} color={COLORS.amber} />
-          <Text style={styles.title}>NOTIFICATIONS</Text>
+          <Text style={styles.title}>{t("notifications.title")}</Text>
           {unread.length > 0 && (
             <View style={styles.countBadge}>
               <Text style={styles.countText}>{unread.length}</Text>
@@ -174,7 +175,7 @@ export default function NotificationsScreen() {
             ) : (
               <>
                 <Feather name="check-square" size={13} color={COLORS.gold} />
-                <Text style={styles.markAllText}>Mark all read</Text>
+                <Text style={styles.markAllText}>{t("notifications.markAllRead")}</Text>
               </>
             )}
           </Pressable>

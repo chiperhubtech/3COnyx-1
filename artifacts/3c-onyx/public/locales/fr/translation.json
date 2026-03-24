@@ -17,12 +17,13 @@
     "priceExpires": "Le prix fondateur expire dans {{time}}",
     "hero": { "line1": "RÉSERVEZ VOTRE", "line2": "PLACE.", "sub": "Un paiement unique de 99 $ verrouille votre statut de membre fondateur — pour toujours.", "memberIs": "Le Membre #1 est réel.", "memberIsDesc": "Le premier membre fondateur a payé aujourd'hui." },
     "benefits": { "title": "CE QUE VOS 99 $ INCLUENT — POUR TOUJOURS", "badge": "Badge Membre Fondateur", "badgeDetail": "Estampillé en permanence sur votre compte", "pricelock": "Prix Verrouillé à 99 $ — Pour Toujours", "pricelockDetail": "Ne payez jamais plus. Les futurs membres paient le tarif du marché", "earlyAccess": "Accès Anticipé — Tout", "earlyAccessDetail": "Premier dans chaque fonctionnalité avant le lancement public", "guardian": "Guardian V2X Inclus", "guardianDetail": "Sécurité prédictive du véhicule et accès au réseau V2X", "commission": "5% Commission à Vie", "commissionDetail": "Sur chaque référence que vous apportez — pour toujours", "wallet": "Priorité Dynasty Wallet", "walletDetail": "Division de premier rang sur chaque transaction" },
-    "form": { "title": "SÉCURISEZ VOTRE ADHÉSION FONDATRICE", "price": "unique · verrouillé pour toujours", "name": "NOM COMPLET", "namePlaceholder": "Votre nom", "email": "ADRESSE EMAIL", "emailPlaceholder": "vous@exemple.com", "referral": "CODE DE PARRAINAGE", "referralPlaceholder": "Code de parrainage optionnel", "submit": "SÉCURISER MA PLACE — 99 $", "ssl": "Chiffrement SSL 256 bits", "stripe": "Sécurisé par Stripe · PCI Niveau 1", "refund": "Remboursement complet disponible avant le lancement" },
+    "form": { "title": "SÉCURISEZ VOTRE ADHÉSION FONDATRICE", "price": "unique · verrouillé pour toujours", "name": "NOM COMPLET", "namePlaceholder": "Votre nom", "email": "ADRESSE EMAIL", "emailPlaceholder": "vous@exemple.com", "referral": "CODE DE PARRAINAGE", "referralPlaceholder": "Code de parrainage optionnel", "submit": "SÉCURISER MA PLACE — 99 $", "redirecting": "REDIRECTION VERS LE PAIEMENT…", "ssl": "Chiffrement SSL 256 bits", "stripe": "Sécurisé par Stripe · PCI Niveau 1", "refund": "Remboursement complet disponible avant le lancement", "errorRequired": "Veuillez saisir votre nom complet et votre adresse email.", "errorEmail": "Veuillez saisir une adresse email valide." },
     "testimonials": { "title": "CE QUE DISENT LES PREMIERS MEMBRES" },
     "faq": { "title": "RÉPONSES RAPIDES" }
   },
   "home": {
     "greeting": { "morning": "BONJOUR", "afternoon": "BON APRÈS-MIDI", "evening": "BONSOIR" },
+    "hero": { "line1": "LA COUCHE D'INTELLIGENCE", "line2": "AUTOMOBILE.", "sub": "Nous coordonnons chaque partie de l'écosystème automobile. Nous nous déplaçons comme l'eau.", "cta": "PARLER À ONYX IA", "howItWorks": "COMMENT ÇA MARCHE" },
     "platformStatus": "État de la Plateforme",
     "platformOnline": "TOUS LES SYSTÈMES EN LIGNE",
     "quickActions": "Actions Rapides",

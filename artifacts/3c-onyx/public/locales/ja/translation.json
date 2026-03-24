@@ -17,12 +17,13 @@
     "priceExpires": "創設価格は{{time}}後に終了",
     "hero": { "line1": "スポットを", "line2": "確保。", "sub": "99ドルの1回払いで創設メンバーステータスを永久に確定。", "memberIs": "メンバー#1は本物。", "memberIsDesc": "最初の創設メンバーが今日支払いました。" },
     "benefits": { "title": "99ドルに含まれるもの — 永久", "badge": "創設メンバーバッジ", "badgeDetail": "アカウントに永久に刻印", "pricelock": "99ドル価格ロック — 永久", "pricelockDetail": "それ以上は支払わない。将来のメンバーは市場価格で支払う", "earlyAccess": "早期アクセス — すべて", "earlyAccessDetail": "公開前に全機能に最初にアクセス", "guardian": "Guardian V2X 含む", "guardianDetail": "予測車両安全とV2Xネットワークアクセス", "commission": "5%生涯コミッション", "commissionDetail": "紹介ごとに — 永久", "wallet": "Dynasty ウォレット優先", "walletDetail": "すべての取引でトップ分割" },
-    "form": { "title": "創設メンバーシップを確保", "price": "1回払い · 永久ロック", "name": "氏名", "namePlaceholder": "お名前", "email": "メールアドレス", "emailPlaceholder": "you@example.com", "referral": "紹介コード", "referralPlaceholder": "任意の紹介コード", "submit": "スポットを確保 — 99ドル", "ssl": "256ビットSSL暗号化", "stripe": "Stripeで保護 · PCIレベル1", "refund": "発売日前は全額返金可能" },
+    "form": { "title": "創設メンバーシップを確保", "price": "1回払い · 永久ロック", "name": "氏名", "namePlaceholder": "お名前", "email": "メールアドレス", "emailPlaceholder": "you@example.com", "referral": "紹介コード", "referralPlaceholder": "任意の紹介コード", "submit": "スポットを確保 — 99ドル", "redirecting": "お支払いページへ移動中…", "ssl": "256ビットSSL暗号化", "stripe": "Stripeで保護 · PCIレベル1", "refund": "発売日前は全額返金可能", "errorRequired": "フルネームとメールアドレスを入力してください。", "errorEmail": "有効なメールアドレスを入力してください。" },
     "testimonials": { "title": "初期メンバーの声" },
     "faq": { "title": "よくある質問" }
   },
   "home": {
     "greeting": { "morning": "おはようございます", "afternoon": "こんにちは", "evening": "こんばんは" },
+    "hero": { "line1": "自動車", "line2": "インテリジェンス層。", "sub": "私たちは自動車エコシステムのすべての部分を調整します。水のように動きます。", "cta": "ONYX AIと話す", "howItWorks": "仕組み" },
     "platformStatus": "プラットフォーム状態",
     "platformOnline": "全システム正常稼働",
     "quickActions": "クイックアクション",

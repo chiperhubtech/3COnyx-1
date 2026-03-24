@@ -106,6 +106,7 @@ const PERFORMANCE_TARGETS = [
 ];
 
 export default function TechnologyPage() {
+  const { t } = useTranslation();
   return (
     <div className="public-page" style={{ color: "var(--onyx-text-primary)" }}>
       <PublicNavbar />
@@ -119,7 +120,7 @@ export default function TechnologyPage() {
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
           <div style={{ width: 4, height: 4, borderRadius: "50%", background: "#34D399", animation: "pulse 2s infinite" }} />
-          <span style={{ fontSize: 10, fontWeight: 800, color: "#34D399", letterSpacing: "0.2em" }}>ARCHITECTURE — TECHNICAL BRIEF</span>
+          <span style={{ fontSize: 10, fontWeight: 800, color: "#34D399", letterSpacing: "0.2em" }}>{t("technology.badge")}</span>
         </div>
         <h1 style={{
           fontFamily: "'Barlow Condensed', sans-serif",
@@ -127,22 +128,22 @@ export default function TechnologyPage() {
           textTransform: "uppercase", lineHeight: 0.95,
           letterSpacing: "-0.01em", margin: "0 0 20px",
         }}>
-          BUILT LIKE<br />
+          {t("technology.hero.line1")}<br />
           <span style={{ background: "linear-gradient(90deg, #34D399, #059669)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-            INFRASTRUCTURE.
+            {t("technology.hero.line2Green")}
           </span>
         </h1>
         <p style={{ fontSize: 16, color: "rgba(255,255,255,0.4)", lineHeight: 1.7, maxWidth: 560 }}>
-          Every layer of 3C Onyx is production-grade from day one. This is the technical brief for investors, partners, and CTOs who want to look under the hood.
+          {t("technology.hero.sub")}
         </p>
 
         {/* Stats row */}
         <div style={{ display: "flex", gap: 40, marginTop: 40, flexWrap: "wrap" }}>
           {[
-            { icon: Server,   value: `${API_ROUTES}`,  label: "API endpoints" },
-            { icon: Code2,    value: `${WEB_PAGES}`,   label: "Web + mobile screens" },
-            { icon: Database, value: `${DB_TABLES}`,   label: "PostgreSQL tables" },
-            { icon: Brain,    value: `${AI_MODELS}`,   label: "AI models in router" },
+            { icon: Server,   value: `${API_ROUTES}`,  label: t("technology.apiEndpoints") },
+            { icon: Code2,    value: `${WEB_PAGES}`,   label: t("technology.webMobileScreens") },
+            { icon: Database, value: `${DB_TABLES}`,   label: t("technology.postgresqlTables") },
+            { icon: Brain,    value: `${AI_MODELS}`,   label: t("technology.aiModels") },
           ].map((s) => (
             <div key={s.label} style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <div style={{

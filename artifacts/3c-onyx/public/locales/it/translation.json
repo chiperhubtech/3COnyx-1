@@ -17,12 +17,13 @@
     "priceExpires": "Il prezzo fondatore scade in {{time}}",
     "hero": { "line1": "ASSICURA IL TUO", "line2": "POSTO.", "sub": "Un pagamento unico di $99 blocca il tuo status di membro fondatore — per sempre.", "memberIs": "Il Membro #1 è reale.", "memberIsDesc": "Il primo membro fondatore ha pagato oggi." },
     "benefits": { "title": "COSA INCLUDONO I TUOI $99 — PER SEMPRE", "badge": "Badge Membro Fondatore", "badgeDetail": "Timbrato permanentemente sul tuo account", "pricelock": "Prezzo Bloccato a $99 — Per Sempre", "pricelockDetail": "Non pagare mai di più. I futuri membri pagano il prezzo di mercato", "earlyAccess": "Accesso Anticipato — Tutto", "earlyAccessDetail": "Primo in ogni funzionalità prima del lancio pubblico", "guardian": "Guardian V2X Incluso", "guardianDetail": "Sicurezza predittiva del veicolo e accesso alla rete V2X", "commission": "5% Commissione a Vita", "commissionDetail": "Su ogni referral che porti — per sempre", "wallet": "Priorità Dynasty Wallet", "walletDetail": "Divisione di primo livello su ogni transazione" },
-    "form": { "title": "ASSICURA LA TUA ISCRIZIONE FONDATRICE", "price": "unico · bloccato per sempre", "name": "NOME COMPLETO", "namePlaceholder": "Il tuo nome", "email": "INDIRIZZO EMAIL", "emailPlaceholder": "tu@esempio.it", "referral": "CODICE REFERRAL", "referralPlaceholder": "Codice referral opzionale", "submit": "ASSICURA IL MIO POSTO — $99", "ssl": "Crittografia SSL a 256 bit", "stripe": "Protetto da Stripe · PCI Livello 1", "refund": "Rimborso completo disponibile prima della data di lancio" },
+    "form": { "title": "ASSICURA LA TUA ISCRIZIONE FONDATRICE", "price": "unico · bloccato per sempre", "name": "NOME COMPLETO", "namePlaceholder": "Il tuo nome", "email": "INDIRIZZO EMAIL", "emailPlaceholder": "tu@esempio.it", "referral": "CODICE REFERRAL", "referralPlaceholder": "Codice referral opzionale", "submit": "ASSICURA IL MIO POSTO — $99", "redirecting": "REINDIRIZZAMENTO AL PAGAMENTO…", "ssl": "Crittografia SSL a 256 bit", "stripe": "Protetto da Stripe · PCI Livello 1", "refund": "Rimborso completo disponibile prima della data di lancio", "errorRequired": "Inserisci il tuo nome completo e l'indirizzo email.", "errorEmail": "Inserisci un indirizzo email valido." },
     "testimonials": { "title": "COSA DICONO I PRIMI MEMBRI" },
     "faq": { "title": "RISPOSTE RAPIDE" }
   },
   "home": {
     "greeting": { "morning": "BUONGIORNO", "afternoon": "BUON POMERIGGIO", "evening": "BUONASERA" },
+    "hero": { "line1": "IL LIVELLO DI INTELLIGENZA", "line2": "AUTOMOTIVE.", "sub": "Coordiniamo ogni parte dell'ecosistema automotive. Ci muoviamo come l'acqua.", "cta": "PARLA CON ONYX AI", "howItWorks": "COME FUNZIONA" },
     "platformStatus": "Stato della Piattaforma",
     "platformOnline": "TUTTI I SISTEMI ONLINE",
     "quickActions": "Azioni Rapide",

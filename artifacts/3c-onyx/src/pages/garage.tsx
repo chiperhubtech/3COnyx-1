@@ -467,6 +467,7 @@ function VehicleCard({ vehicle, onUnlink }: { vehicle: Vehicle; onUnlink: (id: s
 
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 export default function Garage() {
+  const { t } = useTranslation();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
   const [connectModal, setConnectModal] = useState(false);
@@ -498,8 +499,8 @@ export default function Garage() {
       <PageHeader
         icon={Car}
         accent="#C9A227"
-        title="MY GARAGE"
-        subtitle="Live telematics via Smartcar Connect"
+        title={t("garage.title")}
+        subtitle={t("garage.subtitle")}
         badge={<span className="neural-badge"><span className="ai-live-dot mr-1" />SMARTCAR</span>}
         actions={
           <button

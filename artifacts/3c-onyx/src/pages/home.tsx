@@ -329,21 +329,21 @@ export default function Home() {
                 textTransform: "uppercase",
                 margin: "0 0 20px",
               }}>
-                THE AUTOMOTIVE<br />
+                {t("home.hero.line1")}<br />
                 <span style={{
                   background: "linear-gradient(90deg, #C9A227 0%, #60A5FA 50%, #A78BFA 100%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",
                 }}>
-                  INTELLIGENCE<br />LAYER.
+                  {t("home.hero.line2")}
                 </span>
               </h1>
 
               <div style={{ width: 60, height: 2, background: "linear-gradient(90deg, #C9A227, #60A5FA, transparent)", marginBottom: 16 }} />
 
               <p style={{ fontSize: 14, color: "rgba(255,255,255,0.4)", maxWidth: 420, lineHeight: 1.75, marginBottom: 24 }}>
-                We coordinate every part of the automotive ecosystem — so you never deal with dealers, phone tags, or markups again. We move like water.
+                {t("home.hero.sub")}
               </p>
 
               <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
@@ -357,7 +357,7 @@ export default function Home() {
                     boxShadow: "0 4px 20px rgba(201,162,39,0.3)",
                     fontFamily: "'Barlow Condensed', sans-serif",
                   }}>
-                    <Brain size={14} />TALK TO ONYX AI
+                    <Brain size={14} />{t("home.hero.cta")}
                   </button>
                 </Link>
                 <Link href="/trust">
@@ -369,7 +369,7 @@ export default function Home() {
                     display: "flex", alignItems: "center", gap: 7,
                     fontFamily: "'Barlow Condensed', sans-serif",
                   }}>
-                    <Layers size={14} />HOW IT WORKS
+                    <Layers size={14} />{t("home.hero.howItWorks")}
                   </button>
                 </Link>
               </div>

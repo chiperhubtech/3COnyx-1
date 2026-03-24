@@ -143,6 +143,7 @@ function SkeletonCard() {
 }
 
 export default function MarketplaceScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const isWeb = Platform.OS === "web";
   const topPad = isWeb ? 67 : insets.top;
@@ -178,10 +179,10 @@ export default function MarketplaceScreen() {
       <View style={styles.header}>
         <View style={styles.titleRow}>
           <MaterialCommunityIcons name="car-multiple" size={20} color={COLORS.gold} />
-          <Text style={styles.title}>MARKETPLACE</Text>
+          <Text style={styles.title}>{t("marketplace.title")}</Text>
         </View>
         <Text style={styles.subtitle}>
-          {data ? `${data.totalCount} certified listings` : "Loading inventory..."}
+          {data ? `${data.totalCount} ${t("marketplace.blockchainVerified")}` : t("common.loading")}
         </Text>
       </View>
 
