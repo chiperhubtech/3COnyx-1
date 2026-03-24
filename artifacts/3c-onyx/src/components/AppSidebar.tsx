@@ -154,8 +154,8 @@ function AIStatusBar() {
       border: "1px solid rgba(201,162,39,0.15)",
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 7 }}>
-        <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#C9A227", animation: "pulse 2s infinite" }} />
-        <span style={{ fontSize: 8, fontWeight: 800, color: "#C9A227", letterSpacing: "0.14em" }}>NEURAL MESH LIVE</span>
+        <div style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--onyx-gold)", animation: "pulse 2s infinite" }} />
+        <span style={{ fontSize: 8, fontWeight: 800, color: "var(--onyx-gold)", letterSpacing: "0.14em" }}>NEURAL MESH LIVE</span>
       </div>
       <div style={{ display: "flex", gap: 0 }}>
         {[
@@ -285,7 +285,7 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
               fontSize: 11, fontWeight: 900, letterSpacing: "0.12em",
               color: "var(--onyx-text-secondary)", lineHeight: 1,
             }}>3C ONYX</p>
-            <p style={{ fontSize: 7, fontWeight: 700, color: "#C9A227", letterSpacing: "0.18em", marginTop: 2 }}>
+            <p style={{ fontSize: 7, fontWeight: 700, color: "var(--onyx-gold)", letterSpacing: "0.18em", marginTop: 2 }}>
               POWERED BY CUXTOMCANDYCLUB LLC
             </p>
           </div>
