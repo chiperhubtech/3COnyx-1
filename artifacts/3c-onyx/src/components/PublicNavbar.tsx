@@ -10,6 +10,7 @@ import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
 const NAV_LINKS = [
+  { label: "Home",       href: "/landing" },
   { label: "Technology", href: "/technology" },
   { label: "SDV Layer",  href: "/sdv" },
   { label: "Join",       href: "/join" },
@@ -78,7 +79,7 @@ export function PublicNavbar() {
               <div style={{
                 fontSize: 8, fontWeight: 700, letterSpacing: "0.2em",
                 color: "#C9A227", lineHeight: 1, marginTop: 2,
-              }}>CUXTOMCANDYCLUB LLC</div>
+              }}>POWERED BY CUXTOMCANDYCLUB LLC</div>
             </div>
           </div>
         </Link>

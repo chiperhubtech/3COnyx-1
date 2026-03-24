@@ -91,9 +91,14 @@ export function GlobalFooter() {
 
         {/* Bottom row */}
         <div style={{ borderTop: `1px solid ${border}`, paddingTop: 20, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
-          <p style={{ color: textDim, fontSize: 10, letterSpacing: "0.08em" }}>
-            © 2026 CUXTOMCANDYCLUB LLC. All rights reserved.
-          </p>
+          <div>
+            <p style={{ color: textDim, fontSize: 10, letterSpacing: "0.08em" }}>
+              © 2026 CUXTOMCANDYCLUB LLC. All rights reserved.
+            </p>
+            <p style={{ color: textDim, fontSize: 9, letterSpacing: "0.08em", marginTop: 3 }}>
+              Founded 2024 · 3C Onyx — Powered by CUXTOMCANDYCLUB LLC
+            </p>
+          </div>
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
             <span style={{ fontSize: 9, color: textDim, letterSpacing: "0.14em" }}>AES-256 ENCRYPTED</span>
             <span style={{ fontSize: 9, color: textDim, letterSpacing: "0.14em" }}>SOC2 COMPLIANT</span>

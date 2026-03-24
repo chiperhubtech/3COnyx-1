@@ -286,7 +286,7 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
               color: "var(--onyx-text-secondary)", lineHeight: 1,
             }}>3C ONYX</p>
             <p style={{ fontSize: 7, fontWeight: 700, color: "#C9A227", letterSpacing: "0.18em", marginTop: 2 }}>
-              CUXTOMCANDYCLUB LLC
+              POWERED BY CUXTOMCANDYCLUB LLC
             </p>
           </div>
           <ThemeToggle size="sm" />
