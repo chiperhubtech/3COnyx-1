@@ -425,14 +425,37 @@ async function executeTool(name: string, args: Record<string, any>): Promise<str
   }
 }
 
-function buildContextPrompt(garageVehicles?: Array<{ make: string; model: string; year: number; vin: string; odometer: number }>): string {
+const MODE_APPENDIX: Record<string, string> = {
+  consumer: `
+RESPONSE MODE: CONSUMER
+- Speak with warmth and confidence. Sound like a trusted friend who knows the automotive world.
+- Skip jargon and internal reasoning. Never expose tool names or routing logic.
+- Lead every response with the outcome: what this means for the user, not how you got there.
+- Use "we" — "We found...", "We can handle...", "We booked..."
+- Maximum clarity in minimum words. Make every response feel effortless.`,
+
+  professional: `
+RESPONSE MODE: PROFESSIONAL
+- The user is an industry professional (dealer, specialist, fleet manager, or sophisticated buyer).
+- Show your reasoning. Expose pricing logic, confidence percentages, option comparisons.
+- Use precise terminology. Include specific numbers, ranges, and tradeoffs.
+- Format complex answers as structured breakdowns when appropriate.
+- Be direct and data-driven. These users want signal, not reassurance.`,
+};
+
+function buildContextPrompt(
+  garageVehicles?: Array<{ make: string; model: string; year: number; vin: string; odometer: number }>,
+  mode?: string,
+): string {
+  const modeInstructions = MODE_APPENDIX[mode ?? "consumer"] ?? MODE_APPENDIX.consumer;
+
   if (!garageVehicles || garageVehicles.length === 0) {
-    return SYSTEM_PROMPT + "\n\nClient's garage: No vehicles currently linked.";
+    return SYSTEM_PROMPT + modeInstructions + "\n\nClient's garage: No vehicles currently linked.";
   }
   const vehicleList = garageVehicles
     .map((v) => `- ${v.year} ${v.make} ${v.model} (VIN: ****${v.vin.slice(-4)}, Odometer: ${v.odometer.toLocaleString()} mi)`)
     .join("\n");
-  return SYSTEM_PROMPT + `\n\nClient's linked garage vehicles:\n${vehicleList}`;
+  return SYSTEM_PROMPT + modeInstructions + `\n\nClient's linked garage vehicles:\n${vehicleList}`;
 }
 
 router.get("/gemini/conversations", async (_req: Request, res: Response) => {
@@ -472,8 +495,9 @@ router.get("/gemini/conversations/:id/messages", async (req: Request, res: Respo
 
 router.post("/gemini/conversations/:id/messages", async (req: Request, res: Response) => {
   const id = parseInt(req.params.id, 10);
-  const { content, garageVehicles } = req.body as {
+  const { content, garageVehicles, mode } = req.body as {
     content?: string;
+    mode?: string;
     garageVehicles?: Array<{ make: string; model: string; year: number; vin: string; odometer: number }>;
   };
 
@@ -490,7 +514,7 @@ router.post("/gemini/conversations/:id/messages", async (req: Request, res: Resp
     .where(eq(messages.conversationId, id))
     .orderBy(messages.createdAt);
 
-  const systemContext = buildContextPrompt(garageVehicles);
+  const systemContext = buildContextPrompt(garageVehicles, mode);
 
   const geminiContents = chatHistory.map((m) => ({
     role: m.role === "assistant" ? "model" as const : "user" as const,

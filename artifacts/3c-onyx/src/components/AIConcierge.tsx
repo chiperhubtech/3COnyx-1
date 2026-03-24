@@ -2,8 +2,10 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import {
   X, Sparkles, Send, ChevronDown, Car, Zap, MapPin, RotateCcw,
   AlertTriangle, CheckCircle2, Wrench, DollarSign, ArrowRight,
-  Brain, Route, Shield, Users, TrendingDown, PlayCircle,
+  Brain, Route, Shield, Users, TrendingDown, PlayCircle, ChevronRight,
 } from "lucide-react";
+
+type AIMode = "consumer" | "professional";
 
 interface Message {
   id: string;
@@ -179,7 +181,34 @@ function IntentChip({ d }: { d: IntentResult }) {
   );
 }
 
-function RecommendationCard({ r }: { r: RecommendationResult }) {
+function RecommendationCard({ r, onExplain }: { r: RecommendationResult; onExplain?: () => void }) {
+  const [explaining, setExplaining] = useState(false);
+  const [explanation, setExplanation] = useState<string | null>(null);
+
+  async function handleExplain() {
+    if (explanation || explaining) return;
+    setExplaining(true);
+    try {
+      const mode = (localStorage.getItem("onyx-mode") as AIMode) ?? "consumer";
+      const res = await fetch(`${BASE}/api/enhance`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          structuredOutput: r,
+          mode,
+          context: r.headline,
+        }),
+      });
+      const d = await res.json();
+      setExplanation(d.enhancedText ?? null);
+    } catch {
+      setExplanation("Unable to load explanation right now.");
+    } finally {
+      setExplaining(false);
+    }
+    onExplain?.();
+  }
+
   if (r.escalated) {
     return (
       <div style={{ margin: "6px 0", borderRadius: 12, background: "rgba(249,115,22,0.05)", border: "1px solid rgba(249,115,22,0.25)", overflow: "hidden" }}>
@@ -252,6 +281,39 @@ function RecommendationCard({ r }: { r: RecommendationResult }) {
         <div style={{ padding: "8px 12px", borderTop: "1px solid rgba(52,211,153,0.1)", display: "flex", alignItems: "center", gap: 6 }}>
           <PlayCircle size={12} style={{ color: "#34D399" }} />
           <span style={{ fontSize: 10, color: "#34D399", fontWeight: 600 }}>Ready to execute — confirm above or say "proceed"</span>
+        </div>
+      )}
+
+      {/* Enhancement Layer — Explain More */}
+      {!explanation ? (
+        <div style={{ padding: "8px 12px", borderTop: "1px solid rgba(255,255,255,0.04)", display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
+          <button
+            onClick={handleExplain}
+            disabled={explaining}
+            style={{
+              display: "flex", alignItems: "center", gap: 4,
+              background: "none", border: "none", cursor: explaining ? "wait" : "pointer",
+              color: "rgba(255,255,255,0.25)", fontSize: 10, padding: 0,
+              fontFamily: "inherit", transition: "color 0.2s",
+            }}
+            onMouseEnter={(e) => { (e.target as HTMLElement).closest("button")!.style.color = "rgba(255,255,255,0.55)"; }}
+            onMouseLeave={(e) => { (e.target as HTMLElement).closest("button")!.style.color = "rgba(255,255,255,0.25)"; }}
+          >
+            {explaining
+              ? "Thinking…"
+              : <><ChevronRight size={10} /> Explain this</>
+            }
+          </button>
+        </div>
+      ) : (
+        <div style={{
+          padding: "10px 12px",
+          borderTop: "1px solid rgba(201,162,39,0.12)",
+          background: "rgba(201,162,39,0.04)",
+        }}>
+          <p style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", lineHeight: 1.55, margin: 0, fontStyle: "italic" }}>
+            {explanation}
+          </p>
         </div>
       )}
     </div>
@@ -390,8 +452,15 @@ export function AIConcierge() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [pulse, setPulse] = useState(true);
   const [routingIntent, setRoutingIntent] = useState<IntentResult | null>(null);
+  const [mode, setMode] = useState<AIMode>(() => (localStorage.getItem("onyx-mode") as AIMode) ?? "consumer");
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  function toggleMode() {
+    const next: AIMode = mode === "consumer" ? "professional" : "consumer";
+    setMode(next);
+    localStorage.setItem("onyx-mode", next);
+  }
 
   useEffect(() => {
     const t = setTimeout(() => setPulse(false), 5000);
@@ -459,7 +528,7 @@ export function AIConcierge() {
         const res = await fetch(`${BASE}/api/gemini/conversations/${conversationId}/messages`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ content: text, garageVehicles }),
+          body: JSON.stringify({ content: text, garageVehicles, mode }),
         });
 
         if (!res.ok || !res.body) throw new Error("Stream failed");
@@ -629,7 +698,7 @@ export function AIConcierge() {
               </div>
             </div>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             {routingIntent && (
               <div style={{
                 display: "flex", alignItems: "center", gap: 4,
@@ -643,6 +712,35 @@ export function AIConcierge() {
                 </span>
               </div>
             )}
+
+            {/* Consumer / Pro Mode Toggle */}
+            <button
+              onClick={toggleMode}
+              title={mode === "consumer" ? "Switch to Professional mode" : "Switch to Consumer mode"}
+              style={{
+                display: "flex", alignItems: "center", gap: 0,
+                borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)",
+                background: "rgba(255,255,255,0.04)",
+                cursor: "pointer", overflow: "hidden", padding: 0,
+              }}
+            >
+              {(["consumer", "professional"] as AIMode[]).map((m) => (
+                <span
+                  key={m}
+                  style={{
+                    padding: "3px 7px", fontSize: 8, fontWeight: 800,
+                    letterSpacing: "0.1em", transition: "all 0.18s",
+                    color: mode === m ? "#000" : "rgba(255,255,255,0.3)",
+                    background: mode === m
+                      ? (m === "consumer" ? "#34D399" : "#C9A227")
+                      : "transparent",
+                  }}
+                >
+                  {m === "consumer" ? "CONSUMER" : "PRO"}
+                </span>
+              ))}
+            </button>
+
             <button onClick={handleReset} title="New conversation"
               style={{ padding: 6, borderRadius: 8, background: "none", border: "none", cursor: "pointer", color: "#9CA3AF" }}>
               <RotateCcw size={13} />
@@ -693,7 +791,7 @@ export function AIConcierge() {
               {msg.diagnostic && <div style={{ marginTop: 6, width: "90%" }}><DiagnosticCard d={msg.diagnostic} /></div>}
               {msg.recommendation && !msg.recommendation.escalated && (
                 <div style={{ marginTop: 6, width: "92%" }}>
-                  <RecommendationCard r={msg.recommendation} />
+                  <RecommendationCard r={msg.recommendation} onExplain={() => {}} />
                 </div>
               )}
               {(msg.escalation || msg.recommendation?.escalated) && (
