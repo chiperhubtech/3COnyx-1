@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { PageHeader } from "@/components/PageHeader";
@@ -91,8 +90,8 @@ export default function VehicleHistory() {
     ? data.condition_score >= 85 ? "#34D399" : data.condition_score >= 70 ? "#C9A227" : "#F87171"
     : "#C9A227";
 
-  const trend = data?.market_value
-    ? data.market_value > 130000 ? "appreciating" : "stable"
+  const trend: "appreciating" | "stable" | "declining" = data?.market_value
+    ? data.market_value > 130000 ? "appreciating" : data.market_value < 80000 ? "declining" : "stable"
     : "stable";
 
   return (

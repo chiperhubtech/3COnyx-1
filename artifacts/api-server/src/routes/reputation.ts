@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * 3C Onyx — Two-Way Integrity Mesh (Reputation Ledger)
  *
@@ -336,8 +335,8 @@ router.post("/professionals/:id/rate", (req: Request, res: Response) => {
   };
 
   // AI accuracy: did the work match the Guardian diagnosis?
-  const diagnosisMatch = diagnosedComponent && actualPartInstalled &&
-    diagnosedComponent.toLowerCase().split(" ").some(w => actualPartInstalled.toLowerCase().includes(w));
+  const diagnosisMatch = Boolean(diagnosedComponent && actualPartInstalled &&
+    diagnosedComponent.toLowerCase().split(" ").some(w => actualPartInstalled.toLowerCase().includes(w)));
   const accuracyDelta = diagnosisMatch ? 1 : -2;
   const satisfactionDelta = memberRating >= 4 ? 1 : memberRating <= 2 ? -2 : 0;
 

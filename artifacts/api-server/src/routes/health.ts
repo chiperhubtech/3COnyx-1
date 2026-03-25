@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * 3C Onyx — Deep Health Check
  *
@@ -34,7 +33,7 @@ async function checkDatabase(): Promise<ServiceStatus> {
 function checkWebSocket(): ServiceStatus {
   try {
     const s = wsHub.stats();
-    return typeof s.connections === "number" ? "healthy" : "degraded";
+    return typeof s.totalConnections === "number" ? "healthy" : "degraded";
   } catch {
     return "unknown";
   }

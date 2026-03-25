@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Router, type Request, type Response } from "express";
 import { db } from "@workspace/db";
 import {
@@ -271,7 +270,7 @@ async function executeTool(name: string, args: Record<string, any>): Promise<str
 
         const [task] = await db.insert(gigTasksTable).values({ title, taskType: taskType as any, status: "Open", payoutUsd: "850.00" }).returning();
         await db.insert(notificationsTable).values({
-          type: "Delivery",
+          type: "DELIVERY",
           title: "Runner Booked via Concierge",
           body: `Task #T-${String(task.id).padStart(4, "0")} created for ${vehicleLabel} (${taskType}).${notes ? " Note: " + notes : ""}`,
           read: false,
@@ -472,7 +471,7 @@ router.post("/gemini/conversations", async (req: Request, res: Response) => {
 });
 
 router.get("/gemini/conversations/:id", async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt((req.params["id"] as string), 10);
   const [conv] = await db.select().from(conversations).where(eq(conversations.id, id));
   if (!conv) { res.status(404).json({ error: "Conversation not found" }); return; }
   const msgs = await db.select().from(messages).where(eq(messages.conversationId, id)).orderBy(messages.createdAt);
@@ -480,7 +479,7 @@ router.get("/gemini/conversations/:id", async (req: Request, res: Response) => {
 });
 
 router.delete("/gemini/conversations/:id", async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt((req.params["id"] as string), 10);
   const [conv] = await db.select().from(conversations).where(eq(conversations.id, id));
   if (!conv) { res.status(404).json({ error: "Conversation not found" }); return; }
   await db.delete(messages).where(eq(messages.conversationId, id));
@@ -489,13 +488,13 @@ router.delete("/gemini/conversations/:id", async (req: Request, res: Response) =
 });
 
 router.get("/gemini/conversations/:id/messages", async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt((req.params["id"] as string), 10);
   const msgs = await db.select().from(messages).where(eq(messages.conversationId, id)).orderBy(messages.createdAt);
   res.json(msgs);
 });
 
 router.post("/gemini/conversations/:id/messages", async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt((req.params["id"] as string), 10);
   const { content, garageVehicles, mode } = req.body as {
     content?: string;
     mode?: string;
@@ -535,7 +534,7 @@ router.post("/gemini/conversations/:id/messages", async (req: Request, res: Resp
       config: {
         maxOutputTokens: 8192,
         systemInstruction: systemContext,
-        tools: [{ functionDeclarations: TOOL_DECLARATIONS }],
+        tools: [{ functionDeclarations: TOOL_DECLARATIONS as any }],
       },
     });
 

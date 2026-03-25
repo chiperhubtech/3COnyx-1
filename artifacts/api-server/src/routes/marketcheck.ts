@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Router, type IRouter, type Request, type Response } from "express";
 
 const router: IRouter = Router();
@@ -439,9 +438,9 @@ router.get("/marketcheck/search", async (req: Request, res: Response) => {
       return;
     }
 
-    const data = await response.json();
+    const data = await response.json() as Record<string, unknown>;
     // Enrich live listings too
-    const enriched = (data.listings ?? []).map((l: BaseListing) => enrichListing(l));
+    const enriched = ((data.listings as BaseListing[]) ?? []).map((l: BaseListing) => enrichListing(l));
     res.json({ ...data, listings: enriched });
   } catch (err) {
     req.log.error({ err }, "MarketCheck fetch failed — falling back to curated data");
@@ -473,7 +472,7 @@ router.get("/marketcheck/wholesale", async (_req: Request, res: Response) => {
 // NHTSA VIN Decode — free US government database, no API key required
 // Decodes make, model, year, body class, engine, fuel type from a 17-char VIN
 router.get("/marketcheck/vin/:vin", async (req: Request, res: Response) => {
-  const { vin } = req.params;
+  const vin = req.params["vin"] as string;
   const clean = vin.trim().toUpperCase();
 
   if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(clean)) {
@@ -486,7 +485,7 @@ router.get("/marketcheck/vin/:vin", async (req: Request, res: Response) => {
     const response = await fetch(url, { signal: AbortSignal.timeout(8000) });
     if (!response.ok) throw new Error(`NHTSA returned ${response.status}`);
 
-    const raw = await response.json();
+    const raw = await response.json() as { Results?: Array<{ Variable: string; Value: string | null }> };
     const results: Array<{ Variable: string; Value: string | null }> = raw.Results ?? [];
 
     const get = (variable: string) =>

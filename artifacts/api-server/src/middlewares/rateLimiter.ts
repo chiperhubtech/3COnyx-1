@@ -1,7 +1,6 @@
-// @ts-nocheck
-import rateLimit from "express-rate-limit";
+import rateLimit, { type RateLimitExceededEventHandler } from "express-rate-limit";
 
-const json429 = (_req: unknown, res: { status: (n: number) => { json: (b: unknown) => void } }) =>
+const json429: RateLimitExceededEventHandler = (_req, res) =>
   res.status(429).json({
     error: "Too many requests. Please slow down.",
     code: "RATE_LIMITED",
@@ -13,7 +12,7 @@ export const generalLimiter = rateLimit({
   max: 200,
   standardHeaders: true,
   legacyHeaders: false,
-  handler: json429 as Parameters<typeof rateLimit>[0]["handler"],
+  handler: json429,
 });
 
 export const authLimiter = rateLimit({
@@ -22,7 +21,7 @@ export const authLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: undefined,
-  handler: json429 as Parameters<typeof rateLimit>[0]["handler"],
+  handler: json429,
   skipSuccessfulRequests: true,
 });
 
@@ -31,5 +30,5 @@ export const aiLimiter = rateLimit({
   max: 30,
   standardHeaders: true,
   legacyHeaders: false,
-  handler: json429 as Parameters<typeof rateLimit>[0]["handler"],
+  handler: json429,
 });

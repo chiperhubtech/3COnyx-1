@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect, useRef } from "react";
 import {
   Bell, X, CheckCheck, Truck, BadgeCheck, CreditCard,
@@ -85,7 +84,7 @@ export function NotificationBell() {
   useEffect(() => {
     const init = async () => {
       const token = localStorage.getItem("3c_auth_token");
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
       const res = await fetch(`${BASE}/api/notifications`, { headers });
       const data = await res.json();
       if ((data.notifications?.length ?? 0) === 0 && !seeded) {
@@ -114,14 +113,14 @@ export function NotificationBell() {
 
   const markRestRead = async (id: number) => {
     const token = localStorage.getItem("3c_auth_token");
-    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
     await fetch(`${BASE}/api/notifications/${id}/read`, { method: "PATCH", headers });
     setRestNotifs((prev) => prev.map((n) => n.id === id ? { ...n, read: true } : n));
   };
 
   const markAllRestRead = async () => {
     const token = localStorage.getItem("3c_auth_token");
-    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
     await fetch(`${BASE}/api/notifications/read-all`, { method: "POST", headers });
     setRestNotifs((prev) => prev.map((n) => ({ ...n, read: true })));
     wsMarkAllRead();

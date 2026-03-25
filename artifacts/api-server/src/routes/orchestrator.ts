@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * 3C Onyx — Agent Orchestrator API
  *
@@ -45,7 +44,7 @@ router.post("/orchestrator/task", async (req: Request, res: Response) => {
 });
 
 router.get("/orchestrator/session/:id", (req: Request, res: Response) => {
-  const summary = getSessionSummary(req.params.id);
+  const summary = getSessionSummary((req.params["id"] as string));
   if (!summary) {
     res.status(404).json({ error: "Session not found" });
     return;

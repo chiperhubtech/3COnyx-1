@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Router, type IRouter, type Request, type Response } from "express";
 import crypto from "crypto";
 
@@ -60,7 +59,7 @@ function generateHistory(vin: string) {
 
 // GET /api/motor/history/:vin
 router.get("/motor/history/:vin", async (req: Request, res: Response) => {
-  const { vin } = req.params;
+  const vin = req.params["vin"] as string;
   if (!vin || vin.length < 5) { res.status(400).json({ error: "Valid VIN required" }); return; }
 
   if (isLive()) {
@@ -81,7 +80,7 @@ router.get("/motor/history/:vin", async (req: Request, res: Response) => {
 
 // GET /api/motor/market-value/:vin
 router.get("/motor/market-value/:vin", async (req: Request, res: Response) => {
-  const { vin } = req.params;
+  const vin = req.params["vin"] as string;
   if (!vin) { res.status(400).json({ error: "VIN required" }); return; }
 
   const hash = crypto.createHash("sha256").update(vin).digest("hex");

@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * 3C Onyx — Runner Task Management
  *
@@ -182,7 +181,7 @@ router.get("/runner/tasks/mine", requireAuth, (req: Request, res: Response) => {
 /* ─── POST /runner/tasks/:id/accept ──────────────────────────────────────── */
 router.post("/runner/tasks/:id/accept", requireAuth, (req: Request, res: Response) => {
   const user = (req as any).user;
-  const task = TASKS.get(req.params.id);
+  const task = TASKS.get((req.params["id"] as string));
   if (!task) { res.status(404).json({ error: "Task not found" }); return; }
   if (task.status !== "available") { res.status(409).json({ error: "Task already taken" }); return; }
 
@@ -205,7 +204,7 @@ router.post("/runner/tasks/:id/accept", requireAuth, (req: Request, res: Respons
 /* ─── POST /runner/tasks/:id/complete ────────────────────────────────────── */
 router.post("/runner/tasks/:id/complete", requireAuth, (req: Request, res: Response) => {
   const { deliveryCode } = req.body as { deliveryCode: string };
-  const task = TASKS.get(req.params.id);
+  const task = TASKS.get((req.params["id"] as string));
   if (!task) { res.status(404).json({ error: "Task not found" }); return; }
 
   if (deliveryCode !== task.deliveryCode) {

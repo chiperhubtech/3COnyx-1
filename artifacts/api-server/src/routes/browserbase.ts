@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Router, type IRouter, type Request, type Response } from "express";
 
 const router: IRouter = Router();
@@ -41,7 +40,7 @@ router.post("/browserbase/task", async (req: Request, res: Response) => {
         },
         body: JSON.stringify({ projectId: BROWSERBASE_PROJECT_ID }),
       });
-      const session = await sessionResp.json();
+      const session = await sessionResp.json() as { id: string };
 
       const task: BrowserTask = {
         id: taskId,
@@ -110,7 +109,7 @@ router.post("/browserbase/task", async (req: Request, res: Response) => {
 
 // GET /api/browserbase/task/:id
 router.get("/browserbase/task/:id", (req: Request, res: Response) => {
-  const task = taskStore.get(req.params.id);
+  const task = taskStore.get((req.params["id"] as string));
   if (!task) { res.status(404).json({ error: "Task not found" }); return; }
   res.json(task);
 });

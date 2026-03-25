@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Router, type IRouter, type Request, type Response } from "express";
 
 const router: IRouter = Router();
@@ -151,7 +150,7 @@ router.post("/gumloop/run", async (req: Request, res: Response) => {
         },
         body: JSON.stringify({ workflow_id, inputs }),
       });
-      const data = await resp.json();
+      const data = await resp.json() as Record<string, unknown>;
       runStore.set(runId, { id: runId, workflow_id, workflow_name: wf.name, status: "running", inputs: inputs || {}, started_at: new Date().toISOString() });
       res.json({ runId, ...data, live: true });
       return;
@@ -186,7 +185,7 @@ router.post("/gumloop/run", async (req: Request, res: Response) => {
 
 // GET /api/gumloop/run/:id
 router.get("/gumloop/run/:id", (req: Request, res: Response) => {
-  const run = runStore.get(req.params.id);
+  const run = runStore.get((req.params["id"] as string));
   if (!run) { res.status(404).json({ error: "Run not found" }); return; }
   res.json({ ...run, simulated: !isLive() });
 });

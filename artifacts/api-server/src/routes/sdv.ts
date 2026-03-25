@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * 3C Onyx — Software-Defined Vehicle (SDV) Intelligence Layer
  *
@@ -187,7 +186,7 @@ router.get("/sdv/market", (_req: Request, res: Response) => {
 });
 
 router.get("/sdv/profile/:vehicleId", async (req: Request, res: Response) => {
-  const { vehicleId } = req.params;
+  const vehicleId = req.params["vehicleId"] as string;
   try {
     const [profile] = await db.select().from(sdvProfiles).where(eq(sdvProfiles.vehicleId, vehicleId));
     if (!profile) {
@@ -206,7 +205,7 @@ router.get("/sdv/profile/:vehicleId", async (req: Request, res: Response) => {
 });
 
 router.post("/sdv/profile/:vehicleId/register", async (req: Request, res: Response) => {
-  const { vehicleId } = req.params;
+  const vehicleId = req.params["vehicleId"] as string;
   const body = req.body as SDVInput & { vin?: string; make?: string; model?: string; year?: number };
 
   const scored = calculateSDVScore({ ...body, vehicleId });
@@ -255,11 +254,8 @@ router.post("/sdv/profile/:vehicleId/register", async (req: Request, res: Respon
 
     // Stamp on blockchain
     try {
-      await chainOfCustody.addEntry(vehicleId, {
-        type: "sdv_registration",
-        actor: "3C-SDV-LAYER",
-        data: { sdvScore: scored.sdvScore, tier: scored.tierLabel, capabilities: scored.capabilities },
-      });
+      await chainOfCustody.addEntry(vehicleId, body.vin ?? "", "sdv_registration", "3C-SDV-LAYER", "system",
+        { sdvScore: scored.sdvScore, tier: scored.tierLabel, capabilities: scored.capabilities });
     } catch { /* non-fatal */ }
 
     res.json({ profile, score: scored });
@@ -278,11 +274,8 @@ router.post("/sdv/ota/report", async (req: Request, res: Response) => {
   // Blockchain-stamp every OTA event
   let blockchainHash: string | undefined;
   try {
-    const entry = await chainOfCustody.addEntry(vehicleId, {
-      type: "ota_update",
-      actor: "OTA-SYSTEM",
-      data: { fromVersion, toVersion, updateType, description },
-    });
+    const entry = await chainOfCustody.addEntry(vehicleId, vin ?? "", "ota_update", "OTA-SYSTEM", "system",
+      { fromVersion, toVersion, updateType, description });
     blockchainHash = entry?.sha256;
   } catch { /* non-fatal */ }
 
@@ -317,14 +310,15 @@ router.post("/sdv/ota/report", async (req: Request, res: Response) => {
 });
 
 router.get("/sdv/ota/:vehicleId", async (req: Request, res: Response) => {
+  const vehicleId = req.params["vehicleId"] as string;
   try {
     const events = await db.select().from(sdvOtaEvents)
-      .where(eq(sdvOtaEvents.vehicleId, req.params.vehicleId))
+      .where(eq(sdvOtaEvents.vehicleId, vehicleId))
       .orderBy(desc(sdvOtaEvents.installedAt))
       .limit(50);
-    res.json({ vehicleId: req.params.vehicleId, events, total: events.length });
+    res.json({ vehicleId, events, total: events.length });
   } catch {
-    res.json({ vehicleId: req.params.vehicleId, events: [], total: 0 });
+    res.json({ vehicleId, events: [], total: 0 });
   }
 });
 

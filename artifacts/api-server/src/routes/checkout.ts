@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * 3C Onyx — Checkout Routes
  *
@@ -67,6 +66,7 @@ router.post("/checkout/vehicle", requireAuth, async (req: Request, res: Response
     // Attempt real Stripe PaymentIntent
     try {
       const stripe = await getUncachableStripeClient();
+      if (!stripe) throw new Error("Stripe unavailable");
       const pi = await stripe.paymentIntents.create({
         amount: Math.round((totalAmount ?? price + (platformFee ?? 0)) * 100),
         currency: "usd",
@@ -194,7 +194,7 @@ router.get("/checkout/orders", requireAuth, (req: Request, res: Response) => {
 
 /* ─── GET /checkout/orders/:id ──────────────────────────────────────────── */
 router.get("/checkout/orders/:id", requireAuth, (req: Request, res: Response) => {
-  const order = ORDERS.get(req.params.id);
+  const order = ORDERS.get((req.params["id"] as string));
   if (!order) { res.status(404).json({ error: "Order not found" }); return; }
   res.json({ order });
 });

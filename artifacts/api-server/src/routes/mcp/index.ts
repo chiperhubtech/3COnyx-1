@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Router, type Request, type Response } from "express";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
@@ -226,7 +225,7 @@ function createMcpServer() {
             .returning();
 
           await db.insert(notificationsTable).values({
-            type: "Delivery",
+            type: "DELIVERY",
             title: "Runner Booked",
             body: `A Runner has been assigned for your ${vehicleLabel}. Task #T-${String(task.id).padStart(4, "0")} is now Open.${notes ? " Note: " + notes : ""}`,
             read: false,
@@ -285,7 +284,7 @@ function createMcpServer() {
 
           const list = rows
             .map((ins) => {
-              const scores = [ins.conditionFront, ins.conditionRear, ins.conditionDriver, ins.conditionPassenger, ins.conditionInterior];
+              const scores = [ins.conditionFront, ins.conditionRear, ins.conditionDriverSide, ins.conditionPassengerSide, ins.conditionInterior];
               const avg = (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1);
               return `• ${ins.vehicleLabel} — Inspector: ${ins.inspectorName} — Avg Condition: ${avg}/10 — Signed: ${ins.signed ? "Yes" : "No"}`;
             })

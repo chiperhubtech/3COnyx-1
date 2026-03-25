@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Founding Member API
  * ──────────────────────────────────────────────────────────────────
@@ -191,7 +190,7 @@ router.post("/founding/checkout", async (req: Request, res: Response) => {
  * Returns member number and referral code for the success page.
  */
 router.get("/founding/verify/:sessionId", async (req: Request, res: Response) => {
-  const { sessionId } = req.params;
+  const sessionId = req.params["sessionId"] as string;
 
   try {
     const stripe = await getUncachableStripeClient();

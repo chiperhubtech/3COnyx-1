@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * 3C Onyx — Human-in-the-Loop Escalation System
  *
@@ -97,12 +96,12 @@ router.post("/escalation/create", async (req: Request, res: Response) => {
 
   ESCALATION_STORE.set(esc.id, esc);
 
-  await writeAudit("ADMIN", "WARN", `Escalation created: ${esc.id} — ${esc.trigger}`, {
+  await writeAudit({ eventType: "ADMIN", action: `Escalation created: ${esc.id} — ${esc.trigger}`, severity: "WARN", metadata: {
     id: esc.id, trigger: esc.trigger, estimatedValue, confidence,
-  });
+  } });
 
   // Push real-time alert to supervisor room
-  wsHub.broadcast("admin", {
+  wsHub.broadcast("alerts", {
     type: "ESCALATION_CREATED",
     escalation: esc,
     ts: new Date().toISOString(),
@@ -156,7 +155,7 @@ router.get("/escalation/stats", async (_req: Request, res: Response) => {
 
 // ─── GET /api/escalation/:id ──────────────────────────────────────────────────
 router.get("/escalation/:id", async (req: Request, res: Response) => {
-  const esc = ESCALATION_STORE.get(req.params.id);
+  const esc = ESCALATION_STORE.get((req.params["id"] as string));
   if (!esc) { res.status(404).json({ error: "Escalation not found" }); return; }
   res.json({ escalation: esc });
 });
@@ -169,7 +168,7 @@ router.patch("/escalation/:id/resolve", async (req: Request, res: Response) => {
     supervisorId?: string;
   };
 
-  const esc = ESCALATION_STORE.get(req.params.id);
+  const esc = ESCALATION_STORE.get((req.params["id"] as string));
   if (!esc) { res.status(404).json({ error: "Escalation not found" }); return; }
   if (esc.status !== "PENDING") {
     res.status(409).json({ error: `Already resolved as ${esc.status}` }); return;
@@ -184,11 +183,11 @@ router.patch("/escalation/:id/resolve", async (req: Request, res: Response) => {
   esc.resolvedAt    = new Date().toISOString();
   ESCALATION_STORE.set(esc.id, esc);
 
-  await writeAudit("ADMIN", action === "APPROVED" ? "INFO" : "WARN",
-    `Escalation ${esc.id} resolved: ${action} by ${supervisorId ?? "admin"}`,
-    { id: esc.id, action, supervisorNote });
+  await writeAudit({ eventType: "ADMIN", severity: action === "APPROVED" ? "INFO" : "WARN",
+    action: `Escalation ${esc.id} resolved: ${action} by ${supervisorId ?? "admin"}`,
+    metadata: { id: esc.id, action, supervisorNote } });
 
-  wsHub.broadcast("admin", {
+  wsHub.broadcast("alerts", {
     type: "ESCALATION_RESOLVED",
     escalation: esc,
     ts: new Date().toISOString(),

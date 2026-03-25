@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * 3C Onyx — Price Alert Background Job
  *
@@ -91,7 +90,7 @@ async function checkPrices() {
         logger.info(`[priceAlert] FIRED: ${entry.heading} @ $${currentPrice} (target $${entry.targetPrice})`);
       }
     } catch (err) {
-      logger.error(`[priceAlert] Check failed for alert ${id}:`, err);
+      logger.error({ err }, `[priceAlert] Check failed for alert ${id}`);
     }
   }
 }

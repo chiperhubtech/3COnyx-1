@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { PageHeader } from "@/components/PageHeader";
 import {
@@ -222,7 +221,7 @@ export default function AIHub() {
                         <div className="mt-2 p-2 rounded-lg" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
                           {Object.entries(run.outputs).slice(0, 3).map(([k, v]) => (
                             <div key={k} className="flex gap-2">
-                              <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.3)", width: "120px", shrink: 0 }}>{k.replace(/_/g, " ").toUpperCase()}</span>
+                              <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.3)", width: "120px", flexShrink: 0 }}>{k.replace(/_/g, " ").toUpperCase()}</span>
                               <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.65)", flex: 1 }}>
                                 {typeof v === "object" ? JSON.stringify(v) : String(v)}
                               </span>

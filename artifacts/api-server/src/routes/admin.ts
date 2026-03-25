@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * 3C Onyx — Admin Dashboard API
  * All routes require: Auth + Admin role
@@ -94,7 +93,7 @@ router.patch("/users/:id", async (req: Request, res: Response) => {
   if (isActive !== undefined)   updates.isActive   = isActive;
   if (isVerified !== undefined) updates.isVerified = isVerified;
 
-  const [updated] = await db.update(usersTable).set(updates as Parameters<typeof db.update>[0]).where(eq(usersTable.id, userId)).returning();
+  const [updated] = await db.update(usersTable).set(updates as unknown as typeof usersTable.$inferInsert).where(eq(usersTable.id, userId)).returning();
   await writeAudit({ eventType: "ADMIN", severity: "INFO", action: `Admin updated user ${userId}`, metadata: { updates, byAdmin: req.user!.sub } });
   const { passwordHash: _, ...pub } = updated;
   res.json({ user: pub });

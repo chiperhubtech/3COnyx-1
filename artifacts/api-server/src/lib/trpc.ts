@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * 3C Onyx — tRPC Router
  *
@@ -53,7 +52,7 @@ const vehicleRouter = router({
   getById: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {
-      const [v] = await db.select().from(vehiclesTable).where(eq(vehiclesTable.id, input.id)).limit(1);
+      const [v] = await db.select().from(vehiclesTable).where(eq(vehiclesTable.id, Number(input.id))).limit(1);
       return v ?? null;
     }),
 

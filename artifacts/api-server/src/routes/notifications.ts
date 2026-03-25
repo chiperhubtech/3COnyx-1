@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Router, type Request, type Response } from "express";
 import { db, notificationsTable } from "@workspace/db";
 import { eq, desc, sql } from "drizzle-orm";
@@ -34,7 +33,7 @@ router.get("/notifications", async (_req: Request, res: Response) => {
 });
 
 router.patch("/notifications/:id/read", async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt((req.params["id"] as string), 10);
   await db.update(notificationsTable).set({ read: true }).where(eq(notificationsTable.id, id));
   res.json({ ok: true });
 });

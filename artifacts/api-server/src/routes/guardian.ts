@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * 3C Onyx — Guardian Predictive Layer + 7-Agent Mesh
  *
@@ -281,7 +280,7 @@ router.get("/alerts", (_req: Request, res: Response) => {
 
 // GET /api/guardian/telemetry/:vehicleId
 router.get("/telemetry/:vehicleId", (req: Request, res: Response) => {
-  const tel = V2X_DATA[req.params.vehicleId];
+  const tel = V2X_DATA[(req.params["vehicleId"] as string)];
   if (!tel) return res.status(404).json({ error: "Vehicle not found" });
 
   // Refresh ping time
@@ -310,7 +309,7 @@ function scoreHealth(obd: OBD): number {
 // POST /api/guardian/alerts/:id/approve — 7-Agent Mesh
 router.post("/alerts/:id/approve", async (req: Request, res: Response) => {
   seedAlerts();
-  const alert = ALERT_STORE.get(req.params.id);
+  const alert = ALERT_STORE.get((req.params["id"] as string));
   if (!alert) return res.status(404).json({ error: "Alert not found" });
   if (alert.status !== "pending") return res.status(409).json({ error: "Alert already resolved" });
 
@@ -472,7 +471,7 @@ router.post("/alerts/:id/approve", async (req: Request, res: Response) => {
 // POST /api/guardian/alerts/:id/dismiss
 router.post("/alerts/:id/dismiss", (req: Request, res: Response) => {
   seedAlerts();
-  const alert = ALERT_STORE.get(req.params.id);
+  const alert = ALERT_STORE.get((req.params["id"] as string));
   if (!alert) return res.status(404).json({ error: "Alert not found" });
   alert.status = "dismissed";
   alert.dismissedAt = new Date().toISOString();
@@ -616,19 +615,18 @@ router.get("/strikes", (_req: Request, res: Response) => {
 // POST /api/guardian/strikes/:id/deploy — 7-Agent Strike Mesh
 // Fires: Guardian → Concierge → Stripe($500 hold) → MarketCheck → Mission → Vault → Dynasty
 router.post("/strikes/:id/deploy", async (req: Request, res: Response) => {
-  const strike = STRIKE_STORE.get(req.params.id);
+  const strike = STRIKE_STORE.get((req.params["id"] as string));
   if (!strike) return res.status(404).json({ error: "Strike not found" });
   if (strike.status !== "live") return res.json({ alreadyDeployed: true, strike });
 
   const meshId = crypto.randomBytes(6).toString("hex").toUpperCase();
   const decisions: AgentDecision[] = [];
-  const stripe = getUncachableStripeClient();
+  const stripe = await getUncachableStripeClient();
 
   const log = (agent: string, action: string, data?: any) => {
     const d: AgentDecision = {
-      agent, timestamp: new Date().toISOString(),
-      decision: action, confidence: 0.97, reasoning: action,
-      outcome: "success", metadata: data ?? {},
+      agent, agentIndex: decisions.length, action, result: "success",
+      timestamp: new Date().toISOString(), durationMs: 0, metadata: data ?? {},
     };
     decisions.push(d);
     MESH_LOG.push(d);
@@ -668,6 +666,7 @@ End with a call to action aligned with the gap and urgency.`,
   // ── Agent 3: Stripe — $500 authorization hold ────────────────────────────
   let holdId = `pi_hold_${meshId}_mock`;
   try {
+    if (!stripe) throw new Error("Stripe unavailable");
     const pi = await stripe.paymentIntents.create({
       amount: 50000,              // $500.00 in cents
       currency: "usd",
@@ -787,7 +786,7 @@ router.post("/strikes/detect", (req: Request, res: Response) => {
       tier: top.strikeScore >= 90 ? "S" : top.strikeScore >= 80 ? "A" : "B",
       strikeScore: top.strikeScore,
       vehicle: {
-        vinMasked: vin ? maskPii(vin).replace(/^.{6}/, vin.slice(0, 6)) : "•••••••••••••••",
+        vinMasked: vin ? maskPii(vin, "vin").replace(/^.{6}/, vin.slice(0, 6)) : "•••••••••••••••",
         year, make, model, trim: trim ?? "", mileage, color: color ?? "Unknown",
         wholesalePrice, estimatedRetail, gap: estimatedRetail - wholesalePrice,
       },

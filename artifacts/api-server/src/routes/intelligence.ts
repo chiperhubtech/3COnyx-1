@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Intelligence Engine — Proactive AI Automotive Operating System
  * ─────────────────────────────────────────────────────────────
@@ -337,12 +336,12 @@ router.post("/intelligence/execute", requireAuth, async (req: Request, res: Resp
   };
 
   const sessionId = (req as any).user?.id ?? req.ip ?? "anon";
-  const profile = UAID_STORE.get(sessionId) ?? {
+  const profile: UAIDProfile = UAID_STORE.get(sessionId) ?? {
     userId: sessionId,
     sessionId,
     vehiclePreferences: { makes: [] },
-    dismissedAlerts: new Set(),
-    actedOnAlerts: [],
+    dismissedAlerts: new Set<string>(),
+    actedOnAlerts: [] as string[],
     alertsResolved: 0,
     totalDealSavingsIdentified: 0,
     weekStartSavings: 0,
@@ -378,7 +377,7 @@ router.post("/intelligence/execute", requireAuth, async (req: Request, res: Resp
 
 router.post("/intelligence/dismiss/:id", requireAuth, (req: Request, res: Response) => {
   const sessionId = (req as any).user?.id ?? req.ip ?? "anon";
-  const alertId = req.params.id;
+  const alertId = req.params["id"] as string;
 
   if (!DISMISSED_STORE.has(sessionId)) {
     DISMISSED_STORE.set(sessionId, new Set());

@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * 3C Onyx — Chain of Custody API
  *
@@ -29,7 +28,7 @@ router.get("/blockchain/status", (_req: Request, res: Response) => {
   });
 });
 
-router.get("/blockchain/chain/:vehicleId", (req: Request, res: Response) => {
+router.get("/blockchain/chain/:vehicleId", (req: Request<{ vehicleId: string }>, res: Response) => {
   const { vehicleId } = req.params;
   const chain = getChain(vehicleId);
   if (!chain.length) {
@@ -42,7 +41,7 @@ router.get("/blockchain/chain/:vehicleId", (req: Request, res: Response) => {
     latestHash: chain.at(-1)?.sha256,
     entries: chain.map(e => ({
       ...e,
-      actor: maskPii(e.actor),
+      actor: maskPii(e.actor, "name"),
     })),
   });
 });
@@ -63,10 +62,10 @@ router.post("/blockchain/entry", async (req: Request, res: Response) => {
   }
 
   const entry = await addEntry(vehicleId, vinMasked ?? "•••masked•••", type, actor, actorRole ?? "member", data ?? {});
-  res.status(201).json({ entry: { ...entry, actor: maskPii(entry.actor) } });
+  res.status(201).json({ entry: { ...entry, actor: maskPii(entry.actor, "name") } });
 });
 
-router.get("/blockchain/verify/:vehicleId", (req: Request, res: Response) => {
+router.get("/blockchain/verify/:vehicleId", (req: Request<{ vehicleId: string }>, res: Response) => {
   const { vehicleId } = req.params;
   const result = verifyChain(vehicleId);
   res.json({
@@ -77,14 +76,14 @@ router.get("/blockchain/verify/:vehicleId", (req: Request, res: Response) => {
   });
 });
 
-router.get("/blockchain/entry/:hash", (req: Request, res: Response) => {
+router.get("/blockchain/entry/:hash", (req: Request<{ hash: string }>, res: Response) => {
   const { hash } = req.params;
   const entry = verifyEntry(hash);
   if (!entry) {
     res.status(404).json({ error: "Entry not found" });
     return;
   }
-  res.json({ ...entry, actor: maskPii(entry.actor) });
+  res.json({ ...entry, actor: maskPii(entry.actor, "name") });
 });
 
 /**
@@ -92,7 +91,7 @@ router.get("/blockchain/entry/:hash", (req: Request, res: Response) => {
  * Public, no-auth proof certificate for a single entry.
  * Anyone — investor, regulator, buyer — can verify any hash independently.
  */
-router.get("/blockchain/proof/:hash", (req: Request, res: Response) => {
+router.get("/blockchain/proof/:hash", (req: Request<{ hash: string }>, res: Response) => {
   const { hash } = req.params;
 
   if (!/^[a-f0-9]{64}$/.test(hash)) {

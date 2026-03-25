@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Router, type IRouter, type Request, type Response } from "express";
 
 const router: IRouter = Router();
@@ -411,7 +410,7 @@ router.post("/agents/superagi/goal", (req: Request, res: Response) => {
 
 // ─── GET /api/agents/superagi/goal/:id ─────────────────────────────────────
 router.get("/agents/superagi/goal/:id", (req: Request, res: Response) => {
-  const goal = goalStore.get(req.params.id);
+  const goal = goalStore.get(req.params["id"] as string);
   if (!goal) { res.status(404).json({ error: "Goal not found" }); return; }
   res.json({ goal });
 });

@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * 3C Onyx — First-Time Onboarding Modal
  * Shown once after registration. 3 steps:
@@ -31,7 +30,9 @@ interface OnboardingModalProps {
 export function OnboardingModal({ onComplete }: OnboardingModalProps) {
   const { user } = useAuth();
   const [step, setStep] = useState(1);
-  const [selectedRole, setSelectedRole] = useState(user?.role ?? "Member");
+  const [selectedRole, setSelectedRole] = useState<"Member" | "Dealer" | "Runner" | "Specialist" | "Admin">(
+    (user?.role as "Member" | "Dealer" | "Runner" | "Specialist" | "Admin") ?? "Member"
+  );
   const [loading, setLoading] = useState(false);
 
   const STEPS = [
@@ -129,7 +130,7 @@ export function OnboardingModal({ onComplete }: OnboardingModalProps) {
                   const Icon = r.icon;
                   const selected = selectedRole === r.value;
                   return (
-                    <button key={r.value} onClick={() => setSelectedRole(r.value)} style={{
+                    <button key={r.value} onClick={() => setSelectedRole(r.value as "Member" | "Dealer" | "Runner" | "Specialist" | "Admin")} style={{
                       display: "flex", alignItems: "center", gap: 14,
                       padding: "14px 16px", borderRadius: 14,
                       background: selected ? `${r.color}10` : "rgba(255,255,255,0.03)",

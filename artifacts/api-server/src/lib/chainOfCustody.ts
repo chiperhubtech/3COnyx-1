@@ -26,7 +26,9 @@ export type EntryType =
   | "maintenance"
   | "v2x_alert"
   | "bgc_verified"
-  | "bol_issued";
+  | "bol_issued"
+  | "sdv_registration"
+  | "ota_update";
 
 export interface CustodyEntry {
   entryId: string;

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Router, type IRouter, type Request, type Response } from "express";
 import crypto from "crypto";
 
@@ -97,11 +96,11 @@ router.get("/garage/vehicles/:id/telemetry", async (req: Request, res: Response)
       ]);
 
       if (odometerRes.status === "fulfilled" && odometerRes.value.ok) {
-        const data = await odometerRes.value.json();
+        const data = await odometerRes.value.json() as { distance: number };
         vehicle.odometer = Math.round(data.distance * 0.621371); // km → miles
       }
       if (fuelRes.status === "fulfilled" && fuelRes.value.ok) {
-        const data = await fuelRes.value.json();
+        const data = await fuelRes.value.json() as { percentRemaining: number };
         vehicle.fuelPercent = Math.round(data.percentRemaining * 100);
       }
       vehicle.lastSync = new Date().toISOString();

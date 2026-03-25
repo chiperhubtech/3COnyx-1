@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * 3C Onyx — Authentication API
  *
@@ -69,7 +68,7 @@ router.post("/auth/register", async (req: Request, res: Response) => {
     name:  user.name,
   });
 
-  await writeAudit("AUTH", "INFO", `New ${role} registered: ${email}`, { userId: user.id });
+  await writeAudit({ eventType: "AUTH", action: `New ${role} registered: ${email}`, actorId: user.id, severity: "INFO" });
 
   res.status(201).json({ token, user: sanitize(user) });
 });
@@ -113,7 +112,7 @@ router.post("/auth/login", async (req: Request, res: Response) => {
     name:  user.name,
   });
 
-  await writeAudit("AUTH", "INFO", `Login: ${email} (${user.role})`, { userId: user.id });
+  await writeAudit({ eventType: "AUTH", action: `Login: ${email} (${user.role})`, actorId: user.id, severity: "INFO" });
 
   res.json({ token, user: sanitize(user) });
 });
@@ -164,11 +163,12 @@ router.post("/auth/onboarding-complete", requireAuth, async (req: Request, res: 
     // Mark onboarding complete on user record if the column exists
     // For now, log and ack — the localStorage flag is the primary gate
     await writeAudit({
-      userId: String(user.id),
+      eventType: "AUTH",
       action: "ONBOARDING_COMPLETE",
-      resource: "user",
+      actorId: String(user.id),
+      resourceType: "user",
       resourceId: String(user.id),
-      meta: { completedAt: new Date().toISOString() },
+      metadata: { completedAt: new Date().toISOString() },
     });
     res.json({ success: true });
   } catch {

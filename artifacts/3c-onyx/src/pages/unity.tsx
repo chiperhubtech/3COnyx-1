@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect, useRef } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import {
@@ -400,7 +399,7 @@ export default function Unity() {
 
                 {/* Alert */}
                 <div style={{ background: `rgba(${scanResult.alert.severity === "CRITICAL" ? "239,68,68" : "245,158,11"},0.06)`, border: `1px solid rgba(${scanResult.alert.severity === "CRITICAL" ? "239,68,68" : "245,158,11"},0.2)`, borderRadius: 14, padding: "16px 20px" }}>
-                  <div style={{ display: "flex", items: "center", gap: 10 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
                       <AlertTriangle size={15} style={{ color: SEV_COLOR[scanResult.alert.severity] }} />
                       <span style={{ color: SEV_COLOR[scanResult.alert.severity], fontSize: 10, fontWeight: 900, letterSpacing: "0.14em" }}>{scanResult.alert.severity}</span>
@@ -525,7 +524,7 @@ export default function Unity() {
             {txnResult && (
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 {/* Transaction header */}
-                <div style={{ display: "flex", items: "center", justifyContent: "space-between", padding: "16px 20px", background: "rgba(16,185,129,0.06)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: 14, flexWrap: "wrap", gap: 8 }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", background: "rgba(16,185,129,0.06)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: 14, flexWrap: "wrap", gap: 8 }}>
                   <div>
                     <div style={{ color: "rgba(16,185,129,0.6)", fontSize: 9, fontWeight: 700, letterSpacing: "0.14em" }}>TRANSACTION SETTLED</div>
                     <div style={{ color: "#fff", fontSize: 16, fontWeight: 800, marginTop: 2 }}>{txnResult.vehicle.year} {txnResult.vehicle.make} {txnResult.vehicle.model}</div>
@@ -890,7 +889,7 @@ export default function Unity() {
 
                 {/* Member Slices */}
                 <div style={{ padding: "14px 16px", background: "rgba(201,162,39,0.04)", border: "1px solid rgba(201,162,39,0.12)", borderRadius: 12 }}>
-                  <div style={{ display: "flex", align: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
                     <div>
                       <div style={{ color: "rgba(201,162,39,0.6)", fontSize: 9, fontWeight: 700, letterSpacing: "0.14em", marginBottom: 4 }}>MEMBER SLICES — TOKENIZED EQUITY POOL</div>
                       <div style={{ color: "#fff", fontSize: 12, fontWeight: 700 }}>0.001% per Active Member · Auto-allocates at 10,000 members</div>

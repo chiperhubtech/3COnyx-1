@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Shield, Zap, AlertTriangle, CheckCircle, XCircle, Activity,
@@ -274,7 +273,7 @@ function StrikeCard({ strike, onDeploy }: { strike: HighValueStrike; onDeploy: (
                     </div>
                     <div style={{ flex: 1 }}>
                       <span style={{ color: "#fff", fontSize: 11, fontWeight: 700 }}>{d.agent}</span>
-                      <p style={{ color: color, fontSize: 10, marginTop: 2 }}>{d.decision ?? d.action}</p>
+                      <p style={{ color: color, fontSize: 10, marginTop: 2 }}>{d.action ?? d.result}</p>
                     </div>
                   </div>
                 );

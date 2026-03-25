@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useRef, useEffect } from "react";
 import {
   Shield, CheckCircle2, AlertTriangle, ChevronRight, Eye, EyeOff,
@@ -159,7 +158,7 @@ function BgcResultCard({
 
       {simulated && (
         <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/[0.04] p-3 mb-4 flex items-start gap-2.5">
-          <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
           <p className="text-[11px] text-emerald-400/60">
             <span className="font-semibold text-emerald-400">Checkr BGC processing</span> — Results are typically delivered within 24–72 hours per FCRA guidelines.
           </p>

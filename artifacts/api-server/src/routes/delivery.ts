@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Router, type IRouter, type Request, type Response } from "express";
 import crypto from "crypto";
 import QRCode from "qrcode";
@@ -114,7 +113,7 @@ DEMO_TASKS.forEach((task) => {
 
 // ─── POST /api/delivery/qr/:taskId ────────────────────────────────────────────
 router.post("/delivery/qr/:taskId", async (req: Request, res: Response) => {
-  const { taskId } = req.params;
+  const taskId = req.params["taskId"] as string;
 
   // Find or create token for this task
   let entry = tokenStore.get(`taskid:${taskId}`);
@@ -264,7 +263,7 @@ router.post("/delivery/verify", (req: Request, res: Response) => {
 
 // ─── GET /api/delivery/receipt/:taskId ────────────────────────────────────────
 router.get("/delivery/receipt/:taskId", (req: Request, res: Response) => {
-  const audit = auditLog.get(req.params.taskId);
+  const audit = auditLog.get((req.params["taskId"] as string));
   if (!audit) {
     res.status(404).json({ error: "No audit record found for this task" });
     return;
