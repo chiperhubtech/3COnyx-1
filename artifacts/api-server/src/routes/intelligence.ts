@@ -10,7 +10,7 @@
  * POST /intelligence/dismiss/:id     Dismiss an alert (auth)
  */
 import { Router, type IRouter, type Request, type Response } from "express";
-import { requireAuth } from "../middlewares/requireAuth";
+import { requireAuth, optionalAuth } from "../middlewares/requireAuth";
 import * as wsHub from "../lib/wsHub";
 import { logger } from "../lib/logger";
 
@@ -384,6 +384,40 @@ router.post("/intelligence/dismiss/:id", requireAuth, (req: Request, res: Respon
   }
   DISMISSED_STORE.get(sessionId)!.add(alertId);
 
+  res.json({ success: true, dismissed: alertId });
+});
+
+// ─── PUBLIC FEED endpoint (optionalAuth) ─────────────────────────────────────
+// Bundles alerts + savings + digest in one call for the mobile home feed.
+// Works without auth — unauthenticated users get IP-scoped session data.
+router.get("/intelligence/feed", optionalAuth, (req: Request, res: Response) => {
+  const sessionId = String((req as Request & { user?: { id: string } }).user?.id ?? req.ip ?? "anon");
+  const dismissed = DISMISSED_STORE.get(sessionId) ?? new Set<string>();
+  const alerts    = generateAlerts(sessionId, dismissed);
+  const savings   = computePersonalSavings(sessionId);
+  const digest    = generateWeeklyDigest(sessionId);
+
+  res.json({
+    alerts,
+    savings,
+    digest,
+    meta: {
+      totalAlerts:       alerts.length,
+      totalOpportunity:  savings.totalIdentified,
+      lifetimeSavings:   savings.lifetimeSavings,
+      weekSavings:       savings.weekSavings,
+      alertsResolved:    savings.alertsResolved,
+    },
+    ts: new Date().toISOString(),
+  });
+});
+
+// Public dismiss — works without auth (IP-scoped)
+router.post("/intelligence/dismiss-public/:id", optionalAuth, (req: Request, res: Response) => {
+  const sessionId = String((req as Request & { user?: { id: string } }).user?.id ?? req.ip ?? "anon");
+  const alertId   = String(req.params["id"] ?? "");
+  if (!DISMISSED_STORE.has(sessionId)) DISMISSED_STORE.set(sessionId, new Set());
+  DISMISSED_STORE.get(sessionId)!.add(alertId);
   res.json({ success: true, dismissed: alertId });
 });
 
