@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
-  RefreshControl, ActivityIndicator, Animated, Platform,
+  RefreshControl, ActivityIndicator, Animated, Platform, Pressable, Vibration,
 } from "react-native";
 import { Ionicons, MaterialCommunityIcons, Feather } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -9,6 +9,139 @@ import { apiFetch } from "@/lib/api";
 import { COLORS } from "@/constants/colors";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { OnyxLogo } from "@/components/OnyxLogo";
+
+// ─── Admin PIN ─────────────────────────────────────────────────────────────────
+// Change this PIN to restrict Command Center access. Keep it secret.
+const ADMIN_PIN = "5555";
+
+// ─── PIN Gate Screen ───────────────────────────────────────────────────────────
+function AdminPinGate({ onUnlock }: { onUnlock: () => void }) {
+  const [pin, setPin]           = useState<string[]>([]);
+  const [error, setError]       = useState(false);
+  const shakeAnim               = useRef(new Animated.Value(0)).current;
+  const insets                  = useSafeAreaInsets();
+
+  const KEYS = ["1","2","3","4","5","6","7","8","9","","0","⌫"];
+
+  const shake = () => {
+    Vibration.vibrate(200);
+    setError(true);
+    Animated.sequence([
+      Animated.timing(shakeAnim, { toValue: 8,  duration: 60, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: -8, duration: 60, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: 6,  duration: 60, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: -6, duration: 60, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: 0,  duration: 60, useNativeDriver: true }),
+    ]).start(() => { setTimeout(() => { setPin([]); setError(false); }, 400); });
+  };
+
+  const handleKey = (key: string) => {
+    if (key === "⌫") { setPin(p => p.slice(0, -1)); setError(false); return; }
+    if (key === "")   return;
+    const next = [...pin, key];
+    if (next.length > 4) return;
+    setPin(next);
+    if (next.length === 4) {
+      const entered = next.join("");
+      if (entered === ADMIN_PIN) {
+        onUnlock();
+      } else {
+        shake();
+      }
+    }
+  };
+
+  return (
+    <View style={[pinStyles.container, { paddingTop: insets.top + 40 }]}>
+      {/* Logo */}
+      <OnyxLogo size={72} variant="app-icon" />
+
+      {/* Labels */}
+      <View style={pinStyles.labels}>
+        <Text style={pinStyles.title}>COMMAND CENTER</Text>
+        <Text style={pinStyles.subtitle}>INTERNAL ACCESS ONLY</Text>
+        <Text style={pinStyles.hint}>CUXTOMCANDYCLUB LLC ADMIN</Text>
+      </View>
+
+      {/* PIN dots */}
+      <Animated.View style={[pinStyles.dotsRow, { transform: [{ translateX: shakeAnim }] }]}>
+        {[0,1,2,3].map(i => (
+          <View
+            key={i}
+            style={[
+              pinStyles.dot,
+              pin.length > i && { backgroundColor: error ? "#EF4444" : COLORS.gold, borderColor: error ? "#EF4444" : COLORS.gold },
+            ]}
+          />
+        ))}
+      </Animated.View>
+      {error && <Text style={pinStyles.errorText}>INCORRECT PIN</Text>}
+
+      {/* Keypad */}
+      <View style={pinStyles.keypad}>
+        {KEYS.map((key, idx) => (
+          <Pressable
+            key={idx}
+            onPress={() => handleKey(key)}
+            style={({ pressed }) => [
+              pinStyles.key,
+              key === "" && pinStyles.keyInvisible,
+              key === "⌫" && pinStyles.keyBack,
+              pressed && key !== "" && pinStyles.keyPressed,
+            ]}
+          >
+            <Text style={[
+              pinStyles.keyText,
+              key === "⌫" && { color: "rgba(255,255,255,0.5)", fontSize: 20 },
+            ]}>
+              {key}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
+
+      {/* Footer */}
+      <Text style={pinStyles.footer}>3C ONYX · Secured by CUXTOMCANDYCLUB LLC</Text>
+    </View>
+  );
+}
+
+const pinStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#050505",
+    alignItems: "center",
+    paddingBottom: 40,
+  },
+  labels: { alignItems: "center", marginTop: 28, marginBottom: 36, gap: 6 },
+  title: { fontSize: 20, fontWeight: "900", letterSpacing: 4, color: "#fff" },
+  subtitle: { fontSize: 10, fontWeight: "700", letterSpacing: 3, color: "rgba(255,255,255,0.4)" },
+  hint: { fontSize: 9, fontWeight: "600", letterSpacing: 2, color: "rgba(255,255,255,0.2)", marginTop: 4 },
+  dotsRow: { flexDirection: "row", gap: 18, marginBottom: 14 },
+  dot: {
+    width: 13, height: 13, borderRadius: 7,
+    borderWidth: 1.5, borderColor: "rgba(255,255,255,0.2)",
+    backgroundColor: "transparent",
+  },
+  errorText: { fontSize: 9, fontWeight: "900", color: "#EF4444", letterSpacing: 2, marginBottom: 10 },
+  keypad: {
+    flexDirection: "row", flexWrap: "wrap",
+    width: 260, gap: 14, justifyContent: "center",
+    marginTop: 20,
+  },
+  key: {
+    width: 72, height: 72, borderRadius: 36,
+    backgroundColor: "rgba(255,255,255,0.06)",
+    borderWidth: 1, borderColor: "rgba(255,255,255,0.08)",
+    alignItems: "center", justifyContent: "center",
+  },
+  keyBack: { backgroundColor: "transparent", borderColor: "transparent" },
+  keyInvisible: { opacity: 0 },
+  keyPressed: { backgroundColor: "rgba(201,162,39,0.15)", borderColor: `${COLORS.gold}40` },
+  keyText: { fontSize: 24, fontWeight: "300", color: "#fff", letterSpacing: -0.5 },
+  footer: { position: "absolute", bottom: 30, fontSize: 9, color: "rgba(255,255,255,0.18)", letterSpacing: 1 },
+});
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Pulse {
@@ -218,6 +351,7 @@ function KillSwitchCard({ txn, onAction }: {
 export default function CommandScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+  const [isUnlocked, setIsUnlocked] = useState(false);
   const [pulse, setPulse] = useState<Pulse | null>(null);
   const [missions, setMissions] = useState<Mission[]>([]);
   const [flagged, setFlagged] = useState<FlaggedTxn[]>([]);
@@ -226,6 +360,7 @@ export default function CommandScreen() {
   const [activeSection, setActiveSection] = useState<"pulse" | "missions" | "killswitch">("pulse");
 
   const fetchAll = useCallback(async () => {
+    if (!isUnlocked) return;
     try {
       const [p, m, f] = await Promise.all([
         apiFetch<Pulse>("/command/pulse"),
@@ -241,7 +376,7 @@ export default function CommandScreen() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [isUnlocked]);
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
 
@@ -256,6 +391,11 @@ export default function CommandScreen() {
   const unresolvedFlagged = flagged.filter(t => !t.resolvedAt);
   const kTrend = pulse?.kFactor.trend ?? "healthy";
   const kColor = kTrend === "viral" ? "#34D399" : kTrend === "healthy" ? "#FBBF24" : "#EF4444";
+
+  // ── Guard: show PIN gate until admin authenticates ──────────────────────────
+  if (!isUnlocked) {
+    return <AdminPinGate onUnlock={() => setIsUnlocked(true)} />;
+  }
 
   if (loading) {
     return (

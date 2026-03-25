@@ -4,12 +4,12 @@
  * Sticky · blur backdrop · dual theme
  */
 import { Link } from "wouter";
-import { Shield } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import LanguageSelector from "./LanguageSelector";
+import { OnyxLogo } from "./OnyxLogo";
 
 export function PublicNavbar() {
   const { theme } = useTheme();
@@ -56,15 +56,7 @@ export function PublicNavbar() {
         {/* Brand */}
         <Link href="/landing">
           <div style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer", textDecoration: "none" }}>
-            <div style={{
-              width: 32, height: 32, borderRadius: 9,
-              background: "linear-gradient(135deg, #C9A227 0%, #5B3A00 100%)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              boxShadow: "0 0 16px rgba(201,162,39,0.25)",
-              flexShrink: 0,
-            }}>
-              <Shield size={14} style={{ color: "#000" }} />
-            </div>
+            <OnyxLogo size={36} variant={isDark ? "gold" : "dark"} />
             <div>
               <div style={{
                 fontFamily: "'Barlow Condensed', system-ui, sans-serif",

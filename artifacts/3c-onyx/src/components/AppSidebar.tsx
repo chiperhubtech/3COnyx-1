@@ -17,6 +17,7 @@ import { useTranslation } from "react-i18next";
 import { NotificationBell } from "./NotificationBell";
 import { ThemeToggle } from "./ThemeToggle";
 import LanguageSelector from "./LanguageSelector";
+import { OnyxLogo } from "./OnyxLogo";
 
 /* ─── NavItem ─────────────────────────────────────────────────── */
 function NavItem({ label, path, icon: Icon, description, accent = "#C9A227", onClose }: {
@@ -198,25 +199,8 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <Link href="/" onClick={onClose}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
-              {/* Logo mark */}
-              <div style={{ position: "relative", width: 38, height: 38, flexShrink: 0 }}>
-                <div style={{
-                  width: 38, height: 38, borderRadius: 11,
-                  background: "linear-gradient(135deg, #C9A227 0%, #5B3A00 100%)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  boxShadow: "0 0 24px rgba(201,162,39,0.28)",
-                }}>
-                  <Shield size={17} style={{ color: "#000" }} />
-                </div>
-                {/* Live pulse ring */}
-                <div style={{
-                  position: "absolute", inset: -3,
-                  borderRadius: 14,
-                  border: "1px solid rgba(201,162,39,0.25)",
-                  animation: "slow-pulse-ring 3s ease-in-out infinite",
-                  pointerEvents: "none",
-                }} />
-              </div>
+              {/* Peace sign logo mark */}
+              <OnyxLogo size={42} variant="gold" />
               <div>
                 <p style={{
                   fontFamily: "'Barlow Condensed', sans-serif",

@@ -18,6 +18,7 @@ import { COLORS } from "@/constants/colors";
 import { apiFetch } from "@/lib/api";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/src/theme";
+import { OnyxLogo } from "@/components/OnyxLogo";
 
 /* ─── Types ──────────────────────────────────────────────────────────────── */
 
@@ -714,9 +715,7 @@ export default function HomeScreen() {
       {/* ── Branded header ──────────────────────────────────────────────── */}
       <View style={[styles.headerBar, { borderBottomColor: theme.cardBorder }]}>
         <View style={styles.headerLeft}>
-          <View style={[styles.logoMark, { borderColor: theme.goldBorder, backgroundColor: theme.goldGlow }]}>
-            <Text style={[styles.logoGlyph, { color: theme.gold }]}>◆</Text>
-          </View>
+          <OnyxLogo size={38} variant={isDark ? "gold" : "dark"} />
           <View>
             <Text style={[styles.brandWordmark, { color: theme.text }]}>3C ONYX</Text>
             <Text style={[styles.brandTagline, { color: theme.gold }]}>POWERED BY CUXTOMCANDYCLUB LLC</Text>
