@@ -16,6 +16,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { COLORS } from "@/constants/colors";
 import { apiFetch } from "@/lib/api";
 import { useTranslation } from "react-i18next";
+import { useTheme } from "@/src/theme";
 
 type WatchlistItem = { id: number };
 type GigTask = { id: number; status: string };
@@ -37,12 +38,23 @@ function PulseDot() {
   );
 }
 
-function StatCard({ label, value, sub, color }: { label: string; value: string; sub: string; color: string }) {
+function StatCard({
+  label,
+  value,
+  sub,
+  color,
+}: {
+  label: string;
+  value: string;
+  sub: string;
+  color: string;
+}) {
+  const { theme } = useTheme();
   return (
-    <View style={styles.statCard}>
-      <Text style={styles.statLabel}>{label}</Text>
+    <View style={[styles.statCard, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}>
+      <Text style={[styles.statLabel, { color: theme.textSub }]}>{label}</Text>
       <Text style={[styles.statValue, { color }]}>{value}</Text>
-      <Text style={styles.statSub}>{sub}</Text>
+      <Text style={[styles.statSub, { color: theme.textSub }]}>{sub}</Text>
     </View>
   );
 }
@@ -56,8 +68,8 @@ type QuickAction = {
 };
 
 function QuickActionCard({ action }: { action: QuickAction }) {
+  const { theme } = useTheme();
   const scale = useRef(new Animated.Value(1)).current;
-
   const onPressIn = () => Animated.spring(scale, { toValue: 0.96, useNativeDriver: true }).start();
   const onPressOut = () => Animated.spring(scale, { toValue: 1, useNativeDriver: true }).start();
 
@@ -66,14 +78,49 @@ function QuickActionCard({ action }: { action: QuickAction }) {
       onPressIn={onPressIn}
       onPressOut={onPressOut}
       onPress={() => router.push(action.route as never)}
+      style={{ width: "48%" }}
     >
-      <Animated.View style={[styles.quickCard, { transform: [{ scale }] }]}>
-        <View style={[styles.quickIconBox, { backgroundColor: `${action.accent}18`, borderColor: `${action.accent}25` }]}>
+      <Animated.View
+        style={[
+          styles.quickCard,
+          {
+            transform: [{ scale }],
+            backgroundColor: theme.card,
+            borderColor: theme.cardBorder,
+          },
+        ]}
+      >
+        <View
+          style={[
+            styles.quickIconBox,
+            {
+              backgroundColor: `${action.accent}18`,
+              borderColor: `${action.accent}25`,
+            },
+          ]}
+        >
           {action.icon}
         </View>
-        <Text style={styles.quickLabel}>{action.label}</Text>
-        <Text style={styles.quickSub}>{action.sub}</Text>
+        <Text style={[styles.quickLabel, { color: theme.text }]}>{action.label}</Text>
+        <Text style={[styles.quickSub, { color: theme.textSub }]}>{action.sub}</Text>
+        <View style={[styles.quickChevron, { borderColor: `${action.accent}30` }]}>
+          <Feather name="chevron-right" size={10} color={action.accent} />
+        </View>
       </Animated.View>
+    </Pressable>
+  );
+}
+
+function ThemeToggle() {
+  const { mode, isDark, setMode } = useTheme();
+  const cycle = () => {
+    const next = mode === "dark" ? "light" : mode === "light" ? "auto" : "dark";
+    setMode(next);
+  };
+  const icon = mode === "auto" ? "smartphone" : isDark ? "moon" : "sun";
+  return (
+    <Pressable onPress={cycle} style={styles.themeToggle}>
+      <Feather name={icon as any} size={15} color={COLORS.gold} />
     </Pressable>
   );
 }
@@ -84,19 +131,19 @@ export default function HomeScreen() {
   const topPad = isWeb ? 67 : insets.top;
   const bottomPad = isWeb ? 34 : insets.bottom;
   const { t } = useTranslation();
+  const { theme, isDark } = useTheme();
   const h = new Date().getHours();
-  const greeting = h < 12 ? t("greeting.morning") : h < 17 ? t("greeting.afternoon") : t("greeting.evening");
+  const greeting =
+    h < 12 ? t("greeting.morning") : h < 17 ? t("greeting.afternoon") : t("greeting.evening");
 
   const { data: notifications } = useQuery({
     queryKey: ["notifications"],
     queryFn: () => apiFetch<{ unreadCount: number; notifications: unknown[] }>("/notifications"),
   });
-
   const { data: watchlistData } = useQuery({
     queryKey: ["watchlist"],
     queryFn: () => apiFetch<{ watchlist: WatchlistItem[] }>("/watchlist"),
   });
-
   const { data: tasksData } = useQuery({
     queryKey: ["tasks"],
     queryFn: () => apiFetch<{ tasks: GigTask[] }>("/delivery/tasks"),
@@ -104,7 +151,9 @@ export default function HomeScreen() {
 
   const tasks = tasksData?.tasks ?? [];
   const watchlist = watchlistData?.watchlist ?? [];
-  const activeDeliveries = tasks.filter((t) => t.status === "In Progress" || t.status === "Claimed").length;
+  const activeDeliveries = tasks.filter(
+    (t) => t.status === "In Progress" || t.status === "Claimed"
+  ).length;
   const watchlistCount = watchlist.length;
   const unreadCount = notifications?.unreadCount ?? 0;
   const walletTotal = 21200;
@@ -155,48 +204,63 @@ export default function HomeScreen() {
   ];
 
   return (
-    <View style={[styles.container, { paddingTop: topPad }]}>
-      <StatusBar barStyle="light-content" />
+    <View style={[styles.container, { paddingTop: topPad, backgroundColor: theme.bg }]}>
+      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
+
+      {/* ── Branded Header ─────────────────────────────────────────── */}
+      <View style={[styles.headerBar, { borderBottomColor: theme.cardBorder }]}>
+        <View style={styles.headerLeft}>
+          {/* Logo diamond */}
+          <View style={[styles.logoMark, { borderColor: theme.goldBorder, backgroundColor: theme.goldGlow }]}>
+            <Text style={[styles.logoGlyph, { color: theme.gold }]}>◆</Text>
+          </View>
+          <View>
+            <Text style={[styles.brandWordmark, { color: theme.text }]}>3C ONYX</Text>
+            <Text style={[styles.brandTagline, { color: theme.gold }]}>
+              POWERED BY CUXTOMCANDYCLUB LLC
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.headerActions}>
+          <View style={[styles.securityBadge, { backgroundColor: `${COLORS.emerald}15`, borderColor: `${COLORS.emerald}22` }]}>
+            <PulseDot />
+            <Text style={[styles.securityText, { color: COLORS.emerald }]}>
+              {t("home.piiMasked")}
+            </Text>
+          </View>
+          <ThemeToggle />
+          <Pressable
+            onPress={() => router.push("/(tabs)/notifications" as never)}
+            style={[styles.bellBtn, { backgroundColor: theme.goldMuted }]}
+          >
+            <Ionicons name="notifications" size={18} color={theme.gold} />
+            {unreadCount > 0 && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{unreadCount > 9 ? "9+" : unreadCount}</Text>
+              </View>
+            )}
+          </Pressable>
+        </View>
+      </View>
+
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={{ paddingBottom: bottomPad + 90 }}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header Bar */}
-        <View style={styles.headerBar}>
-          <View>
-            <View style={styles.brandRow}>
-              <View style={styles.brandDot} />
-              <Text style={styles.brandName}>3C ONYX</Text>
-            </View>
-            <Text style={styles.brandSub}>{t("home.brandSub")}</Text>
-          </View>
-          <View style={styles.headerRight}>
-            <View style={styles.securityBadge}>
-              <PulseDot />
-              <Text style={styles.securityText}>{t("home.piiMasked")}</Text>
-            </View>
-            <Pressable onPress={() => router.push("/(tabs)/notifications" as never)} style={styles.bellBtn}>
-              <Ionicons name="notifications" size={20} color={COLORS.white} />
-              {unreadCount > 0 && (
-                <View style={styles.badge}>
-                  <Text style={styles.badgeText}>{unreadCount > 9 ? "9+" : unreadCount}</Text>
-                </View>
-              )}
-            </Pressable>
-          </View>
-        </View>
-
-        {/* Hero */}
+        {/* ── Hero ─────────────────────────────────────────────────── */}
         <View style={styles.hero}>
-          <Text style={styles.greeting}>{greeting}, {t("home.heroGreeting")}</Text>
-          <Text style={styles.heroLine1}>{t("home.heroLine1")}</Text>
-          <Text style={styles.heroLine2}>{t("home.heroLine2")}</Text>
-          <View style={styles.heroDivider} />
-          <Text style={styles.heroSub}>{t("home.heroSub")}</Text>
+          <Text style={[styles.greeting, { color: theme.gold }]}>
+            {greeting} — {t("home.heroGreeting")}
+          </Text>
+          <Text style={[styles.heroLine1, { color: theme.text }]}>{t("home.heroLine1")}</Text>
+          <Text style={[styles.heroLine2, { color: theme.gold }]}>{t("home.heroLine2")}</Text>
+          <View style={[styles.heroDivider, { backgroundColor: theme.gold }]} />
+          <Text style={[styles.heroSub, { color: theme.textSub }]}>{t("home.heroSub")}</Text>
         </View>
 
-        {/* Stat Cards */}
+        {/* ── Stat Cards ─────────────────────────────────────────── */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -228,9 +292,12 @@ export default function HomeScreen() {
           />
         </ScrollView>
 
-        {/* Quick Access */}
+        {/* ── Quick Access ───────────────────────────────────────── */}
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>{t("home.quickAccess")}</Text>
+          <Text style={[styles.sectionTitle, { color: theme.textMuted }]}>
+            {t("home.quickAccess")}
+          </Text>
+          <View style={[styles.sectionLine, { backgroundColor: theme.cardBorder }]} />
         </View>
 
         <View style={styles.quickGrid}>
@@ -239,21 +306,35 @@ export default function HomeScreen() {
           ))}
         </View>
 
-        {/* Platform Status */}
+        {/* ── Platform Status ────────────────────────────────────── */}
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>{t("home.platformStatus")}</Text>
+          <Text style={[styles.sectionTitle, { color: theme.textMuted }]}>
+            {t("home.platformStatus")}
+          </Text>
+          <View style={[styles.sectionLine, { backgroundColor: theme.cardBorder }]} />
         </View>
 
-        <View style={styles.statusCard}>
+        <View
+          style={[
+            styles.statusCard,
+            { backgroundColor: theme.card, borderColor: theme.cardBorder },
+          ]}
+        >
           {[
-            { label: t("home.status.mcpServer"), status: t("home.status.online"), color: COLORS.emerald },
-            { label: t("home.status.stripeConnect"), status: t("home.status.live"), color: COLORS.emerald },
+            { label: t("home.status.mcpServer"),    status: t("home.status.online"),   color: COLORS.emerald },
+            { label: t("home.status.stripeConnect"), status: t("home.status.live"),     color: COLORS.emerald },
             { label: t("home.status.blockchainOta"), status: t("home.status.stamping"), color: "#A78BFA" },
-            { label: t("home.status.piiProtection"), status: t("home.status.active"), color: COLORS.gold },
-            { label: t("home.status.soc2AuditVault"), status: t("home.status.logging"), color: "#3B9EFF" },
+            { label: t("home.status.piiProtection"), status: t("home.status.active"),   color: COLORS.gold },
+            { label: t("home.status.soc2AuditVault"),status: t("home.status.logging"),  color: "#3B9EFF" },
           ].map((item, i) => (
-            <View key={item.label} style={[styles.statusRow, i < 4 && styles.statusBorder]}>
-              <Text style={styles.statusLabel}>{item.label}</Text>
+            <View
+              key={item.label}
+              style={[
+                styles.statusRow,
+                i < 4 && { borderBottomWidth: 1, borderBottomColor: theme.textFaint },
+              ]}
+            >
+              <Text style={[styles.statusLabel, { color: theme.textSub }]}>{item.label}</Text>
               <View style={styles.statusRight}>
                 <View style={[styles.statusDot, { backgroundColor: item.color }]} />
                 <Text style={[styles.statusValue, { color: item.color }]}>{item.status}</Text>
@@ -261,64 +342,79 @@ export default function HomeScreen() {
             </View>
           ))}
         </View>
+
+        {/* ── Footer ────────────────────────────────────────────── */}
+        <View style={styles.footerBranding}>
+          <Text style={[styles.footerText, { color: theme.textFaint }]}>
+            3C ONYX · CUXTOMCANDYCLUB LLC · AES-256
+          </Text>
+        </View>
       </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.black },
+  container: { flex: 1 },
   scroll: { flex: 1 },
+
+  // Header
   headerBar: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingTop: 8,
-    paddingBottom: 4,
+    paddingHorizontal: 16,
+    paddingTop: 10,
+    paddingBottom: 10,
+    borderBottomWidth: 1,
   },
-  brandRow: { flexDirection: "row", alignItems: "center", gap: 6 },
-  brandDot: {
-    width: 8, height: 8, borderRadius: 4,
-    backgroundColor: COLORS.gold,
+  headerLeft: { flexDirection: "row", alignItems: "center", gap: 10 },
+  logoMark: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    borderWidth: 1,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  brandName: {
-    fontFamily: "Inter_700Bold",
+  logoGlyph: { fontSize: 14 },
+  brandWordmark: {
     fontSize: 13,
-    color: COLORS.white,
-    letterSpacing: 2,
+    fontWeight: "900",
+    letterSpacing: 3,
   },
-  brandSub: {
-    fontFamily: "Inter_400Regular",
-    fontSize: 9,
-    color: COLORS.whiteDim,
-    letterSpacing: 2,
+  brandTagline: {
+    fontSize: 7,
+    fontWeight: "700",
+    letterSpacing: 1.5,
     marginTop: 1,
   },
-  headerRight: { flexDirection: "row", alignItems: "center", gap: 10 },
+  headerActions: { flexDirection: "row", alignItems: "center", gap: 8 },
   securityBadge: {
     flexDirection: "row",
     alignItems: "center",
     gap: 5,
-    backgroundColor: `${COLORS.emerald}15`,
     borderWidth: 1,
-    borderColor: `${COLORS.emerald}20`,
     borderRadius: 20,
     paddingHorizontal: 8,
     paddingVertical: 4,
   },
-  securityText: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 9,
-    color: COLORS.emerald,
-    letterSpacing: 1,
+  securityText: { fontSize: 8, fontWeight: "700", letterSpacing: 0.5 },
+  themeToggle: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    backgroundColor: "rgba(201,162,39,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(201,162,39,0.20)",
+    alignItems: "center",
+    justifyContent: "center",
   },
   bellBtn: {
     position: "relative",
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: COLORS.muted,
+    width: 32,
+    height: 32,
+    borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -328,129 +424,87 @@ const styles = StyleSheet.create({
     right: -2,
     backgroundColor: COLORS.gold,
     borderRadius: 8,
-    minWidth: 16,
-    height: 16,
+    minWidth: 15,
+    height: 15,
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 3,
+    paddingHorizontal: 2,
   },
-  badgeText: { fontFamily: "Inter_700Bold", fontSize: 9, color: COLORS.black },
-  hero: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 20 },
-  greeting: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 10,
-    color: COLORS.gold,
-    letterSpacing: 2.5,
-    marginBottom: 8,
-  },
-  heroLine1: {
-    fontFamily: "Inter_700Bold",
-    fontSize: 48,
-    color: COLORS.white,
-    letterSpacing: -1,
-    lineHeight: 50,
-  },
-  heroLine2: {
-    fontFamily: "Inter_700Bold",
-    fontSize: 48,
-    color: COLORS.gold,
-    letterSpacing: -1,
-    lineHeight: 52,
-  },
-  heroDivider: {
-    width: 40,
-    height: 2,
-    backgroundColor: COLORS.gold,
-    borderRadius: 1,
-    marginTop: 12,
-    marginBottom: 12,
-  },
-  heroSub: {
-    fontFamily: "Inter_400Regular",
-    fontSize: 13,
-    color: COLORS.whiteDim,
-    lineHeight: 20,
-    maxWidth: 300,
-  },
-  statsRow: { paddingLeft: 20, paddingRight: 8, gap: 10, paddingBottom: 8 },
+  badgeText: { fontSize: 8, fontWeight: "800", color: "#000" },
+
+  // Hero
+  hero: { paddingHorizontal: 20, paddingTop: 22, paddingBottom: 16 },
+  greeting: { fontSize: 9, fontWeight: "700", letterSpacing: 2.5, marginBottom: 8 },
+  heroLine1: { fontSize: 44, fontWeight: "900", letterSpacing: -1, lineHeight: 46 },
+  heroLine2: { fontSize: 44, fontWeight: "900", letterSpacing: -1, lineHeight: 48 },
+  heroDivider: { width: 36, height: 2, borderRadius: 1, marginTop: 14, marginBottom: 12 },
+  heroSub: { fontSize: 13, fontWeight: "400", lineHeight: 20, maxWidth: 300 },
+
+  // Stats
+  statsRow: { paddingLeft: 16, paddingRight: 8, gap: 10, paddingBottom: 4, paddingTop: 4 },
   statCard: {
-    backgroundColor: COLORS.card,
     borderWidth: 1,
-    borderColor: COLORS.cardBorder,
     borderRadius: 16,
     padding: 16,
-    minWidth: 140,
+    minWidth: 138,
   },
-  statLabel: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 9,
-    color: COLORS.whiteDim,
-    letterSpacing: 1.5,
-    marginBottom: 8,
-  },
-  statValue: {
-    fontFamily: "Inter_700Bold",
-    fontSize: 28,
-    lineHeight: 30,
-  },
-  statSub: {
-    fontFamily: "Inter_400Regular",
-    fontSize: 10,
-    color: COLORS.whiteDim,
-    marginTop: 4,
-  },
+  statLabel: { fontSize: 9, fontWeight: "700", letterSpacing: 1.5, marginBottom: 8 },
+  statValue: { fontSize: 26, fontWeight: "800", lineHeight: 28 },
+  statSub: { fontSize: 10, fontWeight: "400", marginTop: 4 },
+
+  // Section headers
   sectionHeader: {
-    paddingHorizontal: 20,
-    paddingTop: 24,
-    paddingBottom: 12,
+    paddingHorizontal: 16,
+    paddingTop: 22,
+    paddingBottom: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
   },
-  sectionTitle: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 10,
-    color: COLORS.whiteDim,
-    letterSpacing: 2,
-  },
+  sectionTitle: { fontSize: 9, fontWeight: "800", letterSpacing: 2.5 },
+  sectionLine: { flex: 1, height: 1 },
+
+  // Quick actions grid
   quickGrid: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 10,
   },
   quickCard: {
-    backgroundColor: COLORS.card,
     borderWidth: 1,
-    borderColor: COLORS.cardBorder,
-    borderRadius: 16,
+    borderRadius: 18,
     padding: 16,
-    width: "47%",
-    minWidth: 155,
+    position: "relative",
   },
   quickIconBox: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
+    width: 42,
+    height: 42,
+    borderRadius: 13,
     borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 12,
   },
-  quickLabel: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 14,
-    color: COLORS.white,
-    marginBottom: 2,
-  },
-  quickSub: {
-    fontFamily: "Inter_400Regular",
-    fontSize: 11,
-    color: COLORS.whiteDim,
-  },
-  statusCard: {
-    marginHorizontal: 20,
-    backgroundColor: COLORS.card,
+  quickLabel: { fontSize: 13, fontWeight: "700", marginBottom: 2 },
+  quickSub: { fontSize: 10, fontWeight: "400" },
+  quickChevron: {
+    position: "absolute",
+    top: 14,
+    right: 12,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
     borderWidth: 1,
-    borderColor: COLORS.cardBorder,
-    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  // Status card
+  statusCard: {
+    marginHorizontal: 16,
+    borderWidth: 1,
+    borderRadius: 18,
     overflow: "hidden",
     marginBottom: 8,
   },
@@ -461,20 +515,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 13,
   },
-  statusBorder: {
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(255,255,255,0.05)",
-  },
-  statusLabel: {
-    fontFamily: "Inter_500Medium",
-    fontSize: 13,
-    color: COLORS.whiteDim,
-  },
+  statusLabel: { fontSize: 13, fontWeight: "500" },
   statusRight: { flexDirection: "row", alignItems: "center", gap: 6 },
   statusDot: { width: 5, height: 5, borderRadius: 3 },
-  statusValue: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 11,
-    letterSpacing: 1,
+  statusValue: { fontSize: 10, fontWeight: "700", letterSpacing: 1 },
+
+  // Footer
+  footerBranding: {
+    alignItems: "center",
+    paddingVertical: 20,
   },
+  footerText: { fontSize: 9, fontWeight: "600", letterSpacing: 1.5 },
 });
