@@ -1,0 +1,21 @@
+{
+  "greeting": { "morning": "صباح الخير", "afternoon": "مساء الخير", "evening": "مساء الخير" },
+  "nav": { "home": "الرئيسية", "garage": "الجراج", "marketplace": "السوق", "wallet": "المحفظة", "concierge": "الكونسيرج" },
+  "tabs": { "tasks": "المهام", "wallet": "المحفظة", "inVehicle": "في السيارة" },
+  "home": {
+    "platformStatus": "حالة المنصة",
+    "platformOnline": "جميع الأنظمة متصلة",
+    "quickActions": "إجراءات سريعة",
+    "actions": { "concierge": "ذكاء أونيكس", "conciergeDesc": "كونسيرج", "guardian": "غارديان", "guardianDesc": "أمان V2X", "garage": "جراجي", "garageDesc": "المركبات", "marketplace": "السوق", "marketplaceDesc": "شراء وبيع", "wallet": "المحفظة", "walletDesc": "داينستي" },
+    "status": { "neuralMesh": "الشبكة العصبية", "aiAgents": "وكلاء الذكاء الاصطناعي", "blockchainSync": "مزامنة البلوك تشين", "securityLayer": "طبقة الأمان", "otaStamping": "بلوك تشين OTA" }
+  },
+  "marketplace": { "title": "السوق", "blockchainVerified": "قوائم معتمدة", "search": "ابحث عن علامة، موديل، سنة..." },
+  "garage": { "title": "جراجي", "subtitle": "التتبع المباشر عبر Smartcar Connect", "addVehicle": "توصيل" },
+  "wallet": { "title": "محفظة داينستي", "subtitle": "محرك التقسيم الثلاثي", "connected": "متصل", "setupNeeded": "الإعداد مطلوب" },
+  "notifications": { "title": "الإشعارات", "markAllRead": "تحديد الكل كمقروء", "unread": "غير مقروء", "earlier": "سابقاً", "empty": "لا إشعارات بعد.", "emptyDesc": "أنت محدّث." },
+  "carplay": { "title": "CarPlay وأندرويد أوتو", "subtitle": "تجربة سلسة في السيارة", "connected": "CarPlay متصل", "notConnected": "CarPlay غير متصل", "connectHint": "قم بتوصيل iPhone بوحدة رأس متوافقة مع CarPlay عبر USB أو لاسلكي لتفعيل تجربة السيارة." },
+  "command": { "title": "مركز القيادة", "subtitle": "K-Factor · Kill-Switch · Admin" },
+  "runner": { "title": "مهام الركض", "subtitle": "التوصيل والفحص" },
+  "common": { "loading": "جارٍ التحميل...", "error": "حدث خطأ ما", "retry": "حاول مجدداً", "live": "مباشر", "active": "نشط", "secure": "آمن", "connected": "متصل" },
+  "poweredBy": "مدعوم من CUXTOMCANDYCLUB LLC"
+}

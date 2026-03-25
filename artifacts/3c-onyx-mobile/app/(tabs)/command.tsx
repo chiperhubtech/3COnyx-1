@@ -276,7 +276,7 @@ export default function CommandScreen() {
           </View>
           <View>
             <Text style={styles.headerTitle}>{t("command.title")}</Text>
-            <Text style={styles.headerSub}>Founder Access · National Mesh</Text>
+            <Text style={styles.headerSub}>{t("command.subtitle")}</Text>
           </View>
         </View>
         {unresolvedFlagged.length > 0 && (

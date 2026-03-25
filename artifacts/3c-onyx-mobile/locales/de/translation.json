@@ -1,0 +1,21 @@
+{
+  "greeting": { "morning": "GUTEN MORGEN", "afternoon": "GUTEN NACHMITTAG", "evening": "GUTEN ABEND" },
+  "nav": { "home": "Startseite", "garage": "Garage", "marketplace": "Markt", "wallet": "Brieftasche", "concierge": "Concierge" },
+  "tabs": { "tasks": "Aufgaben", "wallet": "Brieftasche", "inVehicle": "Im Fahrzeug" },
+  "home": {
+    "platformStatus": "Plattformstatus",
+    "platformOnline": "ALLE SYSTEME ONLINE",
+    "quickActions": "Schnellaktionen",
+    "actions": { "concierge": "ONYX KI", "conciergeDesc": "Concierge", "guardian": "Guardian", "guardianDesc": "V2X-Sicherheit", "garage": "Meine Garage", "garageDesc": "Fahrzeuge", "marketplace": "Markt", "marketplaceDesc": "Kaufen & Verkaufen", "wallet": "Brieftasche", "walletDesc": "Dynasty" },
+    "status": { "neuralMesh": "NEURALES NETZ", "aiAgents": "KI-AGENTEN", "blockchainSync": "BLOCKCHAIN-SYNC", "securityLayer": "SICHERHEITSSCHICHT", "otaStamping": "BLOCKCHAIN OTA" }
+  },
+  "marketplace": { "title": "MARKTPLATZ", "blockchainVerified": "zertifizierte Angebote", "search": "Marke, Modell, Jahr suchen..." },
+  "garage": { "title": "MEINE GARAGE", "subtitle": "Live-Telematik via Smartcar Connect", "addVehicle": "Verbinden" },
+  "wallet": { "title": "DYNASTY WALLET", "subtitle": "DREIFACH-TEILUNGS-MOTOR", "connected": "VERBUNDEN", "setupNeeded": "EINRICHTUNG ERFORDERLICH" },
+  "notifications": { "title": "BENACHRICHTIGUNGEN", "markAllRead": "Alle als gelesen markieren", "unread": "UNGELESEN", "earlier": "FRÜHER", "empty": "Noch keine Benachrichtigungen.", "emptyDesc": "Sie sind auf dem neuesten Stand." },
+  "carplay": { "title": "CarPlay & Android Auto", "subtitle": "Nahtloses In-Car-Erlebnis", "connected": "CarPlay Verbunden", "notConnected": "CarPlay Nicht Verbunden", "connectHint": "Verbinden Sie Ihr iPhone über USB oder kabellos mit einem CarPlay-kompatiblen Head Unit, um das In-Vehicle-Erlebnis zu aktivieren." },
+  "command": { "title": "BEFEHLSZENTRUM", "subtitle": "K-Factor · Kill-Switch · Admin" },
+  "runner": { "title": "RUNNER-AUFGABEN", "subtitle": "Lieferungen & Inspektionen" },
+  "common": { "loading": "Laden...", "error": "Etwas ist schiefgelaufen", "retry": "Erneut versuchen", "live": "LIVE", "active": "AKTIV", "secure": "SICHER", "connected": "VERBUNDEN" },
+  "poweredBy": "BETRIEBEN VON CUXTOMCANDYCLUB LLC"
+}

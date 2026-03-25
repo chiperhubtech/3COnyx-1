@@ -151,9 +151,7 @@ export default function CarPlayScreen() {
             <Ionicons name="car-sport-outline" size={28} color={COLORS.gold} />
           </View>
           <Text style={styles.headerTitle}>{t("carplay.title")}</Text>
-          <Text style={styles.headerSubtitle}>
-            Drive-safe integration for 3C Onyx. Four scenes available when connected to a CarPlay or Android Auto head unit.
-          </Text>
+          <Text style={styles.headerSubtitle}>{t("carplay.subtitle")}</Text>
         </View>
 
         {/* Connection Status */}
@@ -162,15 +160,13 @@ export default function CarPlayScreen() {
             <View style={styles.statusLeft}>
               <Ionicons name="logo-apple" size={20} color={carPlayConnected ? COLORS.green : COLORS.muted} />
               <Text style={[styles.statusLabel, { color: carPlayConnected ? COLORS.green : COLORS.muted }]}>
-                {carPlayConnected ? "CarPlay Connected" : "CarPlay Not Connected"}
+                {carPlayConnected ? t("carplay.connected", "CarPlay Connected") : t("carplay.notConnected", "CarPlay Not Connected")}
               </Text>
             </View>
             <View style={[styles.connectionDot, { backgroundColor: carPlayConnected ? COLORS.green : COLORS.dim as string }]} />
           </View>
           {!carPlayConnected && (
-            <Text style={styles.statusHint}>
-              Connect your iPhone to a CarPlay-compatible head unit via USB or wireless to activate the in-vehicle experience.
-            </Text>
+            <Text style={styles.statusHint}>{t("carplay.connectHint", "Connect your iPhone to a CarPlay-compatible head unit via USB or wireless to activate the in-vehicle experience.")}</Text>
           )}
         </View>
 

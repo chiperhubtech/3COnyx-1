@@ -13,52 +13,10 @@ import {
   Cpu, Package, Lock, Radio, Users, Sparkles, Heart, Wrench,
   Link2, X, Glasses, Brain, Layers, Activity,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { NotificationBell } from "./NotificationBell";
 import { ThemeToggle } from "./ThemeToggle";
 import LanguageSelector from "./LanguageSelector";
-
-/* ─── Navigation Data ─────────────────────────────────────────── */
-const CUSTOMER_NAV = [
-  { label: "Marketplace",     path: "/marketplace",  icon: ShoppingBag, description: "Certified luxury vehicles",      accent: "#C9A227" },
-  { label: "My Garage",       path: "/garage",        icon: Gauge,       description: "Fleet & telematics",            accent: "#4FC3F7" },
-  { label: "Watchlist",       path: "/watchlist",     icon: Bookmark,    description: "Price alerts & tracking",       accent: "#F87171" },
-  { label: "Live Tracking",   path: "/logistics",     icon: Truck,       description: "Your vehicle — live GPS",       accent: "#A78BFA" },
-  { label: "Dynasty Wallet",  path: "/wallet",        icon: CreditCard,  description: "Triple-split · KYC · payouts", accent: "#34D399" },
-  { label: "Referral Rewards",path: "/referral-wallet",icon: Wallet,     description: "Refer & earn",                 accent: "#818CF8" },
-  { label: "Finance Hub",     path: "/finance",       icon: Landmark,    description: "Plaid · net worth",            accent: "#4FC3F7" },
-  { label: "Insurance Hub",   path: "/insurance",     icon: ShieldPlus,  description: "Insuremo · coverage",          accent: "#34D399" },
-  { label: "Vehicle History", path: "/vehicle-history",icon: FileSearch, description: "Motor.com · VIN report",       accent: "#F97316" },
-];
-
-const SPECIALIST_NAV = [
-  { label: "My Dashboard",          path: "/specialist-dashboard", icon: LayoutDashboard, description: "Earnings · ratings · tasks",   accent: "#4FC3F7" },
-  { label: "Pre-Pickup Inspection", path: "/inspection",           icon: ClipboardCheck,  description: "Condition report · SHA-256",   accent: "#34D399" },
-  { label: "Proof of Delivery",     path: "/delivery",             icon: QrCode,          description: "QR handshake · audit trail",   accent: "#C9A227" },
-  { label: "Dropship Coordinator",  path: "/dropship",             icon: Package,         description: "BOL · 360° Scan · AR Preview", accent: "#F97316" },
-  { label: "Apply as Specialist",   path: "/apply",                icon: BadgeCheck,      description: "Join the 3C Runner fleet",     accent: "#818CF8" },
-];
-
-const PLATFORM_NAV = [
-  { label: "Spatial AR OS",      path: "/ar-viewer",   icon: Glasses,      description: "Rocksolid · Guardian HUD",          accent: "#C9A227" },
-  { label: "3C Impact",          path: "/impact",      icon: Heart,        description: "ESG · Ignorance Tax · Mesh",         accent: "#34D399" },
-  { label: "Pro Mesh",           path: "/pro",         icon: Wrench,       description: "Apprentice → Master",               accent: "#A78BFA" },
-  { label: "Chain of Custody",   path: "/custody",     icon: Link2,        description: "SHA-256 · Ethereum anchor",          accent: "#818CF8" },
-  { label: "Trust Layer",        path: "/trust",       icon: Layers,       description: "How we coordinate",                 accent: "#60A5FA" },
-  { label: "Agentic OS",         path: "/agentic-os",  icon: Cpu,          description: "12-Agent Neural Mesh",              accent: "#818CF8" },
-  { label: "Guardian V2X",       path: "/guardian",    icon: ShieldPlus,   description: "Predictive · 7-Agent Mesh",         accent: "#10B981" },
-  { label: "Command Center",     path: "/command",     icon: Radio,        description: "K-Factor · Kill-Switch",            accent: "#EF4444" },
-  { label: "Partner Network",    path: "/partners",    icon: Users,        description: "I-95 Spine · Reputation Mesh",      accent: "#E5E7EB" },
-  { label: "Share & Invest",     path: "/share",       icon: QrCode,       description: "F&F Round · QR pitch",             accent: "#C9A227" },
-  { label: "Unity Demo",         path: "/unity",       icon: Sparkles,     description: "Investor Demo · Full Corridor",     accent: "#C9A227" },
-  { label: "Membership",         path: "/subscribe",   icon: Settings,     description: "$99/mo · All Features",            accent: "#C9A227" },
-  { label: "Concierge",          path: "/concierge",   icon: UserCheck,    description: "Client management",                accent: "#4FC3F7" },
-  { label: "Inventory",          path: "/inventory",   icon: Car,          description: "Vehicle catalog",                  accent: "#C9A227" },
-  { label: "Analytics",          path: "/analytics",   icon: BarChart3,    description: "Revenue & GMV",                    accent: "#818CF8" },
-  { label: "Audit Vault",        path: "/audit-vault", icon: ShieldCheck,  description: "SOC2 log",                         accent: "#34D399" },
-  { label: "Security Layer",     path: "/security",    icon: Lock,         description: "AES-256 · Transient Access",       accent: "#10B981" },
-  { label: "AI Hub",             path: "/ai-hub",      icon: Cpu,          description: "Gumloop · Browserbase",            accent: "#818CF8" },
-  { label: "CI / CD",            path: "/ci-cd",       icon: GitBranch,    description: "Pipeline & MCP",                  accent: "#60A5FA" },
-];
 
 /* ─── NavItem ─────────────────────────────────────────────────── */
 function NavItem({ label, path, icon: Icon, description, accent = "#C9A227", onClose }: {
@@ -140,6 +98,7 @@ function Divider() {
 
 /* ─── Live AI Status Widget ───────────────────────────────────── */
 function AIStatusBar() {
+  const { t } = useTranslation();
   const [agents, setAgents] = useState(9);
   useEffect(() => {
     const id = setInterval(() => setAgents(8 + Math.floor(Math.random() * 5)), 4500);
@@ -156,12 +115,12 @@ function AIStatusBar() {
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 7 }}>
         <div style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--onyx-gold)", animation: "pulse 2s infinite" }} />
-        <span style={{ fontSize: 8, fontWeight: 800, color: "var(--onyx-gold)", letterSpacing: "0.14em" }}>NEURAL MESH LIVE</span>
+        <span style={{ fontSize: 8, fontWeight: 800, color: "var(--onyx-gold)", letterSpacing: "0.14em" }}>{t("sidebar.neuralMesh")}</span>
       </div>
       <div style={{ display: "flex", gap: 0 }}>
         {[
-          { label: "AGENTS", value: `${agents}/12`,  color: "#C9A227" },
-          { label: "STATUS", value: "ACTIVE",         color: "#34D399" },
+          { label: t("sidebar.agents"), value: `${agents}/12`,  color: "#C9A227" },
+          { label: t("sidebar.status"), value: t("sidebar.statusActive", "ACTIVE"), color: "#34D399" },
         ].map((item, i) => (
           <div key={item.label} style={{ flex: 1, padding: i === 0 ? "0 12px 0 0" : "0 0 0 12px", borderRight: i === 0 ? "1px solid rgba(255,255,255,0.07)" : "none" }}>
             <p style={{ fontSize: 7, color: "rgba(255,255,255,0.25)", letterSpacing: "0.12em", fontWeight: 700, marginBottom: 2 }}>{item.label}</p>
@@ -175,7 +134,50 @@ function AIStatusBar() {
 
 /* ─── AppSidebar ──────────────────────────────────────────────── */
 export function AppSidebar({ onClose }: { onClose?: () => void }) {
+  const { t } = useTranslation();
   const [showPlatform, setShowPlatform] = useState(false);
+
+  const CUSTOMER_NAV = [
+    { label: t("sidebar.marketplace"),    path: "/marketplace",    icon: ShoppingBag, description: t("sidebar.marketplaceDesc"),    accent: "#C9A227" },
+    { label: t("sidebar.garage"),         path: "/garage",          icon: Gauge,       description: t("sidebar.garageDesc"),         accent: "#4FC3F7" },
+    { label: t("sidebar.watchlist"),      path: "/watchlist",       icon: Bookmark,    description: t("sidebar.watchlistDesc"),      accent: "#F87171" },
+    { label: t("sidebar.logistics"),      path: "/logistics",       icon: Truck,       description: t("sidebar.logisticsDesc"),      accent: "#A78BFA" },
+    { label: t("sidebar.wallet"),         path: "/wallet",          icon: CreditCard,  description: t("sidebar.walletDesc"),         accent: "#34D399" },
+    { label: t("sidebar.referral"),       path: "/referral-wallet", icon: Wallet,      description: t("sidebar.referralDesc"),       accent: "#818CF8" },
+    { label: t("sidebar.finance"),        path: "/finance",         icon: Landmark,    description: t("sidebar.financeDesc"),        accent: "#4FC3F7" },
+    { label: t("sidebar.insurance"),      path: "/insurance",       icon: ShieldPlus,  description: t("sidebar.insuranceDesc"),      accent: "#34D399" },
+    { label: t("sidebar.vehicleHistory"), path: "/vehicle-history", icon: FileSearch,  description: t("sidebar.vehicleHistoryDesc"), accent: "#F97316" },
+  ];
+
+  const SPECIALIST_NAV = [
+    { label: t("sidebar.specialistDash"), path: "/specialist-dashboard", icon: LayoutDashboard, description: t("sidebar.specialistDashDesc"), accent: "#4FC3F7" },
+    { label: t("sidebar.inspection"),     path: "/inspection",           icon: ClipboardCheck,  description: t("sidebar.inspectionDesc"),     accent: "#34D399" },
+    { label: t("sidebar.delivery"),       path: "/delivery",             icon: QrCode,          description: t("sidebar.deliveryDesc"),       accent: "#C9A227" },
+    { label: t("sidebar.dropship"),       path: "/dropship",             icon: Package,         description: t("sidebar.dropshipDesc"),       accent: "#F97316" },
+    { label: t("sidebar.apply"),          path: "/apply",                icon: BadgeCheck,      description: t("sidebar.applyDesc"),          accent: "#818CF8" },
+  ];
+
+  const PLATFORM_NAV = [
+    { label: t("sidebar.arViewer"),    path: "/ar-viewer",   icon: Glasses,      description: t("sidebar.arViewerDesc"),    accent: "#C9A227" },
+    { label: t("sidebar.impact"),      path: "/impact",      icon: Heart,        description: t("sidebar.impactDesc"),      accent: "#34D399" },
+    { label: t("sidebar.pro"),         path: "/pro",         icon: Wrench,       description: t("sidebar.proDesc"),         accent: "#A78BFA" },
+    { label: t("sidebar.custody"),     path: "/custody",     icon: Link2,        description: t("sidebar.custodyDesc"),     accent: "#818CF8" },
+    { label: t("sidebar.trust"),       path: "/trust",       icon: Layers,       description: t("sidebar.trustDesc"),       accent: "#60A5FA" },
+    { label: t("sidebar.agenticOs"),   path: "/agentic-os",  icon: Cpu,          description: t("sidebar.agenticOsDesc"),   accent: "#818CF8" },
+    { label: t("sidebar.guardian"),    path: "/guardian",    icon: ShieldPlus,   description: t("sidebar.guardianDesc"),    accent: "#10B981" },
+    { label: t("sidebar.command"),     path: "/command",     icon: Radio,        description: t("sidebar.commandDesc"),     accent: "#EF4444" },
+    { label: t("sidebar.partners"),    path: "/partners",    icon: Users,        description: t("sidebar.partnersDesc"),    accent: "#E5E7EB" },
+    { label: t("sidebar.share"),       path: "/share",       icon: QrCode,       description: t("sidebar.shareDesc"),       accent: "#C9A227" },
+    { label: t("sidebar.unity"),       path: "/unity",       icon: Sparkles,     description: t("sidebar.unityDesc"),       accent: "#C9A227" },
+    { label: t("sidebar.subscribe"),   path: "/subscribe",   icon: Settings,     description: t("sidebar.subscribeDesc"),   accent: "#C9A227" },
+    { label: t("sidebar.conciergeNav"),path: "/concierge",   icon: UserCheck,    description: t("sidebar.conciergeNavDesc"),accent: "#4FC3F7" },
+    { label: t("sidebar.inventory"),   path: "/inventory",   icon: Car,          description: t("sidebar.inventoryDesc"),   accent: "#C9A227" },
+    { label: t("sidebar.analytics"),   path: "/analytics",   icon: BarChart3,    description: t("sidebar.analyticsDesc"),   accent: "#818CF8" },
+    { label: t("sidebar.auditVault"),  path: "/audit-vault", icon: ShieldCheck,  description: t("sidebar.auditVaultDesc"),  accent: "#34D399" },
+    { label: t("sidebar.security"),    path: "/security",    icon: Lock,         description: t("sidebar.securityDesc"),    accent: "#10B981" },
+    { label: t("sidebar.aiHub"),       path: "/ai-hub",      icon: Cpu,          description: t("sidebar.aiHubDesc"),       accent: "#818CF8" },
+    { label: t("sidebar.ciCd"),        path: "/ci-cd",       icon: GitBranch,    description: t("sidebar.ciCdDesc"),        accent: "#60A5FA" },
+  ];
 
   return (
     <aside style={{
@@ -218,7 +220,7 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
                   fontSize: 19, fontWeight: 900, color: "#fff",
                   letterSpacing: "0.1em", lineHeight: 1,
                 }}>3C ONYX</p>
-                <p style={{ fontSize: 8, color: "rgba(201,162,39,0.5)", letterSpacing: "0.28em", fontWeight: 700, marginTop: 2 }}>SECURE PLATFORM</p>
+                <p style={{ fontSize: 8, color: "rgba(201,162,39,0.5)", letterSpacing: "0.28em", fontWeight: 700, marginTop: 2 }}>{t("sidebar.securePlatform")}</p>
               </div>
             </div>
           </Link>
@@ -240,13 +242,13 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
       {/* ── Navigation ───────────────────────────────────────── */}
       <nav style={{ flex: 1, overflowY: "auto", padding: "0 6px 10px", scrollbarWidth: "none" }}>
 
-        <SectionLabel>MY ACCOUNT</SectionLabel>
+        <SectionLabel>{t("sidebar.sectionMyAccount")}</SectionLabel>
         {CUSTOMER_NAV.map((item) => (
           <NavItem key={item.path} {...item} onClose={onClose} />
         ))}
 
         <Divider />
-        <SectionLabel>SPECIALIST</SectionLabel>
+        <SectionLabel>{t("sidebar.sectionSpecialist")}</SectionLabel>
         {SPECIALIST_NAV.map((item) => (
           <NavItem key={item.path} {...item} onClose={onClose} />
         ))}
@@ -263,7 +265,7 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
         >
           <Cpu size={9} style={{ color: "rgba(255,255,255,0.18)" }} />
           <span style={{ fontSize: 8, letterSpacing: "0.28em", color: "rgba(255,255,255,0.18)", fontWeight: 800, fontFamily: "'Barlow Condensed', sans-serif", flex: 1, textAlign: "left" }}>
-            PLATFORM
+            {t("sidebar.sectionPlatform")}
           </span>
           <ChevronDown size={10} style={{ color: "rgba(255,255,255,0.18)", transform: showPlatform ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
         </button>
@@ -287,7 +289,7 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
               color: "var(--onyx-text-secondary)", lineHeight: 1,
             }}>3C ONYX</p>
             <p style={{ fontSize: 7, fontWeight: 700, color: "var(--onyx-gold)", letterSpacing: "0.18em", marginTop: 2 }}>
-              POWERED BY CUXTOMCANDYCLUB LLC
+              {t("sidebar.poweredBy")}
             </p>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -304,8 +306,8 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
         }}>
           <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#34D399", flexShrink: 0, animation: "pulse 2s infinite" }} />
           <div>
-            <p style={{ fontSize: 8, color: "rgba(52,211,153,0.8)", fontWeight: 700, letterSpacing: "0.1em", lineHeight: 1 }}>PII Protection Active</p>
-            <p style={{ fontSize: 7, color: "var(--onyx-text-dim)", marginTop: 2, letterSpacing: "0.06em" }}>AES-256 · SOC2 Compliant</p>
+            <p style={{ fontSize: 8, color: "rgba(52,211,153,0.8)", fontWeight: 700, letterSpacing: "0.1em", lineHeight: 1 }}>{t("sidebar.piiActive")}</p>
+            <p style={{ fontSize: 7, color: "var(--onyx-text-dim)", marginTop: 2, letterSpacing: "0.06em" }}>{t("sidebar.piiDesc")}</p>
           </div>
         </div>
       </div>

@@ -1,0 +1,92 @@
+{
+  "greeting": {
+    "morning": "GOOD MORNING",
+    "afternoon": "GOOD AFTERNOON",
+    "evening": "GOOD EVENING"
+  },
+  "nav": {
+    "home": "Home",
+    "garage": "Garage",
+    "marketplace": "Market",
+    "wallet": "Wallet",
+    "concierge": "Concierge"
+  },
+  "tabs": {
+    "tasks": "Tasks",
+    "wallet": "Wallet",
+    "inVehicle": "In-Vehicle"
+  },
+  "home": {
+    "platformStatus": "Platform Status",
+    "platformOnline": "ALL SYSTEMS ONLINE",
+    "quickActions": "Quick Actions",
+    "actions": {
+      "concierge": "ONYX AI",
+      "conciergeDesc": "Concierge",
+      "guardian": "Guardian",
+      "guardianDesc": "V2X Safety",
+      "garage": "My Garage",
+      "garageDesc": "Vehicles",
+      "marketplace": "Market",
+      "marketplaceDesc": "Buy & Sell",
+      "wallet": "Wallet",
+      "walletDesc": "Dynasty"
+    },
+    "status": {
+      "neuralMesh": "NEURAL MESH",
+      "aiAgents": "AI AGENTS",
+      "blockchainSync": "BLOCKCHAIN SYNC",
+      "securityLayer": "SECURITY LAYER",
+      "otaStamping": "BLOCKCHAIN OTA"
+    }
+  },
+  "marketplace": {
+    "title": "MARKETPLACE",
+    "blockchainVerified": "certified listings",
+    "search": "Search make, model, year..."
+  },
+  "garage": {
+    "title": "MY GARAGE",
+    "subtitle": "Live telematics via Smartcar Connect",
+    "addVehicle": "Connect"
+  },
+  "wallet": {
+    "title": "DYNASTY WALLET",
+    "subtitle": "TRIPLE-SPLIT ENGINE",
+    "connected": "CONNECTED",
+    "setupNeeded": "SETUP NEEDED"
+  },
+  "notifications": {
+    "title": "NOTIFICATIONS",
+    "markAllRead": "Mark all read",
+    "unread": "UNREAD",
+    "earlier": "EARLIER",
+    "empty": "No notifications yet.",
+    "emptyDesc": "You're all caught up."
+  },
+  "carplay": {
+    "title": "CarPlay & Android Auto",
+    "subtitle": "Seamless in-car experience",
+    "connected": "CarPlay Connected",
+    "notConnected": "CarPlay Not Connected",
+    "connectHint": "Connect your iPhone to a CarPlay-compatible head unit via USB or wireless to activate the in-vehicle experience."
+  },
+  "command": {
+    "title": "COMMAND CENTER",
+    "subtitle": "K-Factor · Kill-Switch · Admin"
+  },
+  "runner": {
+    "title": "RUNNER TASKS",
+    "subtitle": "Deliveries & inspections"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Try Again",
+    "live": "LIVE",
+    "active": "ACTIVE",
+    "secure": "SECURE",
+    "connected": "CONNECTED"
+  },
+  "poweredBy": "POWERED BY CUXTOMCANDYCLUB LLC"
+}
