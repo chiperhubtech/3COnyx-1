@@ -412,6 +412,48 @@ router.get("/intelligence/feed", optionalAuth, (req: Request, res: Response) => 
   });
 });
 
+// ─── FLEET STATUS — vehicle health + driver score ─────────────────────────────
+router.get("/intelligence/fleet-status", optionalAuth, (_req: Request, res: Response) => {
+  const vehicles = DEMO_VEHICLES.map((v) => {
+    const seed        = v.id.charCodeAt(1);
+    const oilLifePct  = Math.max(5,  100 - Math.round((v.mileage % 7_500)  / 75));
+    const fuelPct     = 30 + (seed * 17 % 60);
+    const tirePct     = Math.max(10, 100 - Math.round((v.mileage % 45_000) / 450));
+    const epaRange    = v.make === "BMW" ? 280 : v.make === "Mercedes" ? 340 : 190;
+    const driverScore = Math.max(65, Math.min(99,
+      97
+      - (v.mileage > 25_000 ? 8 : 0)
+      - Math.round((100 - oilLifePct) / 10)
+      + (v.mileage < 10_000 ? 4 : 0)
+    ));
+    return {
+      id:               v.id,
+      year:             v.year,
+      make:             v.make,
+      model:            v.model,
+      vin:              v.vin,
+      mileage:          v.mileage,
+      estimatedValue:   v.estimatedValue,
+      oilLifePct,
+      fuelLevelPct:     fuelPct,
+      tirePct,
+      batteryPct:       null as number | null,
+      lockStatus:       "locked" as const,
+      isOnline:         true,
+      lastSeen:         "Just now",
+      driverScore,
+      rangeRemaining:   Math.round(epaRange * (fuelPct / 100)),
+      nextServiceMiles: Math.max(0, 7_500 - (v.mileage % 7_500)),
+    };
+  });
+
+  const overallDriverScore = Math.round(
+    vehicles.reduce((s, v) => s + v.driverScore, 0) / vehicles.length
+  );
+
+  res.json({ vehicles, overallDriverScore, ts: new Date().toISOString() });
+});
+
 // Public dismiss — works without auth (IP-scoped)
 router.post("/intelligence/dismiss-public/:id", optionalAuth, (req: Request, res: Response) => {
   const sessionId = String((req as Request & { user?: { id: string } }).user?.id ?? req.ip ?? "anon");

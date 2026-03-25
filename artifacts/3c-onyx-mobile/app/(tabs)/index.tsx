@@ -79,6 +79,29 @@ interface FeedData {
   ts: string;
 }
 
+interface VehicleFleetStatus {
+  id: string;
+  year: number;
+  make: string;
+  model: string;
+  mileage: number;
+  estimatedValue: number;
+  oilLifePct: number;
+  fuelLevelPct: number;
+  tirePct: number;
+  lockStatus: "locked" | "unlocked";
+  isOnline: boolean;
+  driverScore: number;
+  rangeRemaining: number;
+  nextServiceMiles: number;
+}
+
+interface FleetData {
+  vehicles: VehicleFleetStatus[];
+  overallDriverScore: number;
+  ts: string;
+}
+
 /* ─── Color maps ─────────────────────────────────────────────────────────── */
 
 const PRIORITY_COLOR: Record<AlertPriority, string> = {
@@ -162,7 +185,7 @@ function SavingsCounter({ target }: { target: number }) {
 
 /* ─── Savings hero ────────────────────────────────────────────────────────── */
 
-function SavingsHero({ meta, isLoading }: { meta: FeedMeta | null; isLoading: boolean }) {
+function SavingsHero({ meta, isLoading, driverScore }: { meta: FeedMeta | null; isLoading: boolean; driverScore?: number }) {
   const { theme } = useTheme();
   const shimmer = useRef(new Animated.Value(0)).current;
 
@@ -218,6 +241,15 @@ function SavingsHero({ meta, isLoading }: { meta: FeedMeta | null; isLoading: bo
           <Text style={[styles.savingsStatValue, { color: "#3B82F6" }]}>{alertsResolved}</Text>
           <Text style={[styles.savingsStatLabel, { color: theme.textMuted }]}>actions done</Text>
         </View>
+        {driverScore !== undefined && (
+          <>
+            <View style={[styles.savingsStatDivider, { backgroundColor: theme.cardBorder }]} />
+            <View style={styles.savingsStat}>
+              <Text style={[styles.savingsStatValue, { color: scoreColor(driverScore) }]}>{driverScore}</Text>
+              <Text style={[styles.savingsStatLabel, { color: theme.textMuted }]}>driver score</Text>
+            </View>
+          </>
+        )}
       </View>
     </View>
   );
@@ -443,6 +475,152 @@ function SectionHeader({ title, action, onAction }: { title: string; action?: st
   );
 }
 
+/* ─── Emergency SOS strip ────────────────────────────────────────────────── */
+
+function EmergencySOSStrip() {
+  const { theme } = useTheme();
+  const pulse = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulse, { toValue: 0.7, duration: 800, useNativeDriver: true }),
+        Animated.timing(pulse, { toValue: 1,   duration: 800, useNativeDriver: true }),
+      ])
+    ).start();
+  }, [pulse]);
+
+  return (
+    <Pressable
+      onPress={() => router.push("/roadside" as never)}
+      style={[styles.sosStrip, { backgroundColor: "#EF444408", borderColor: "#EF444422" }]}
+    >
+      <View style={styles.sosLeft}>
+        <Animated.View style={[styles.sosDot, { backgroundColor: "#EF4444", opacity: pulse }]} />
+        <View>
+          <Text style={styles.sosTitle}>SOS EMERGENCY</Text>
+          <Text style={[styles.sosSub, { color: theme.textMuted }]}>Roadside · 911 · Emergency Contacts</Text>
+        </View>
+      </View>
+      <View style={[styles.sosArrow, { backgroundColor: "#EF444415", borderColor: "#EF444430" }]}>
+        <Feather name="chevron-right" size={14} color="#EF4444" />
+      </View>
+    </Pressable>
+  );
+}
+
+/* ─── Fleet status card ───────────────────────────────────────────────────── */
+
+function HealthBar({ pct, color }: { pct: number; color: string }) {
+  return (
+    <View style={styles.fleetBarBg}>
+      <View style={[styles.fleetBarFill, { width: `${Math.min(100, Math.max(0, pct))}%` as any, backgroundColor: color }]} />
+    </View>
+  );
+}
+
+function scoreColor(score: number) {
+  if (score >= 90) return COLORS.emerald;
+  if (score >= 75) return COLORS.gold;
+  return "#EF4444";
+}
+
+function healthColor(pct: number) {
+  if (pct >= 60) return COLORS.emerald;
+  if (pct >= 30) return COLORS.gold;
+  return "#EF4444";
+}
+
+function FleetCard({ v }: { v: VehicleFleetStatus }) {
+  const { theme } = useTheme();
+
+  const handleCmd = (cmd: string) => {
+    router.push({
+      pathname: "/(tabs)/command" as never,
+      params: { prompt: `${cmd} my ${v.year} ${v.make} ${v.model}` },
+    } as never);
+  };
+
+  return (
+    <View style={[styles.fleetCard, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}>
+      {/* Header row */}
+      <View style={styles.fleetCardHeader}>
+        <View style={styles.fleetCardTitle}>
+          <Text style={[styles.fleetMake, { color: theme.text }]}>{v.make} {v.model}</Text>
+          <Text style={[styles.fleetYear, { color: theme.textMuted }]}>{v.year} · {v.mileage.toLocaleString()} mi</Text>
+        </View>
+        <View style={styles.fleetOnlineRow}>
+          <PulseDot color={v.isOnline ? COLORS.emerald : "#6B7280"} />
+          <Text style={[styles.fleetOnlineText, { color: v.isOnline ? COLORS.emerald : theme.textFaint }]}>
+            {v.isOnline ? "ONLINE" : "OFFLINE"}
+          </Text>
+        </View>
+      </View>
+
+      {/* Value row */}
+      <Text style={[styles.fleetValue, { color: theme.gold }]}>
+        ${v.estimatedValue.toLocaleString()}
+      </Text>
+
+      {/* Status meters */}
+      <View style={[styles.fleetDivider, { backgroundColor: theme.cardBorder }]} />
+      <View style={styles.fleetMeters}>
+        <View style={styles.fleetMeter}>
+          <Text style={[styles.fleetMeterLabel, { color: theme.textFaint }]}>OIL</Text>
+          <HealthBar pct={v.oilLifePct} color={healthColor(v.oilLifePct)} />
+          <Text style={[styles.fleetMeterVal, { color: healthColor(v.oilLifePct) }]}>{v.oilLifePct}%</Text>
+        </View>
+        <View style={styles.fleetMeter}>
+          <Text style={[styles.fleetMeterLabel, { color: theme.textFaint }]}>FUEL</Text>
+          <HealthBar pct={v.fuelLevelPct} color={healthColor(v.fuelLevelPct)} />
+          <Text style={[styles.fleetMeterVal, { color: healthColor(v.fuelLevelPct) }]}>{v.fuelLevelPct}%</Text>
+        </View>
+        <View style={styles.fleetMeter}>
+          <Text style={[styles.fleetMeterLabel, { color: theme.textFaint }]}>TIRES</Text>
+          <HealthBar pct={v.tirePct} color={healthColor(v.tirePct)} />
+          <Text style={[styles.fleetMeterVal, { color: healthColor(v.tirePct) }]}>{v.tirePct}%</Text>
+        </View>
+      </View>
+
+      {/* Range + score row */}
+      <View style={styles.fleetStatsRow}>
+        <View style={[styles.fleetStat, { backgroundColor: "#3B82F610", borderColor: "#3B82F625" }]}>
+          <Feather name="navigation" size={10} color="#3B82F6" />
+          <Text style={[styles.fleetStatText, { color: "#3B82F6" }]}>{v.rangeRemaining} mi range</Text>
+        </View>
+        <View style={[styles.fleetStat, { backgroundColor: `${scoreColor(v.driverScore)}10`, borderColor: `${scoreColor(v.driverScore)}25` }]}>
+          <Feather name="award" size={10} color={scoreColor(v.driverScore)} />
+          <Text style={[styles.fleetStatText, { color: scoreColor(v.driverScore) }]}>Score {v.driverScore}</Text>
+        </View>
+        <View style={[styles.fleetStat, { backgroundColor: `${COLORS.emerald}10`, borderColor: `${COLORS.emerald}25` }]}>
+          <Feather name="lock" size={10} color={COLORS.emerald} />
+          <Text style={[styles.fleetStatText, { color: COLORS.emerald }]}>{v.lockStatus}</Text>
+        </View>
+      </View>
+
+      {/* Action buttons */}
+      <View style={[styles.fleetDivider, { backgroundColor: theme.cardBorder }]} />
+      <View style={styles.fleetActions}>
+        {[
+          { icon: "lock"      as const, label: "Lock",    cmd: "Lock" },
+          { icon: "wind"      as const, label: "Climate", cmd: "Set climate in" },
+          { icon: "map-pin"   as const, label: "Find",    cmd: "Find where I parked" },
+          { icon: "zap"       as const, label: "Ask AI",  cmd: "Give me a status report for" },
+        ].map((btn) => (
+          <Pressable
+            key={btn.label}
+            onPress={() => handleCmd(btn.cmd)}
+            style={[styles.fleetActionBtn, { backgroundColor: theme.goldMuted, borderColor: theme.goldBorder }]}
+          >
+            <Feather name={btn.icon} size={11} color={theme.gold} />
+            <Text style={[styles.fleetActionLabel, { color: theme.gold }]}>{btn.label}</Text>
+          </Pressable>
+        ))}
+      </View>
+    </View>
+  );
+}
+
 /* ─── Main HomeScreen ─────────────────────────────────────────────────────── */
 
 export default function HomeScreen() {
@@ -463,6 +641,14 @@ export default function HomeScreen() {
     queryFn:  () => apiFetch<FeedData>("/intelligence/feed"),
     refetchInterval: 60_000,
     staleTime: 30_000,
+  });
+
+  // ── Fleet status ───────────────────────────────────────────────────────
+  const { data: fleetData } = useQuery({
+    queryKey: ["fleet-status"],
+    queryFn:  () => apiFetch<FleetData>("/intelligence/fleet-status"),
+    refetchInterval: 120_000,
+    staleTime: 60_000,
   });
 
   // ── Notifications (for bell badge) ────────────────────────────────────
@@ -554,6 +740,9 @@ export default function HomeScreen() {
         </View>
       </View>
 
+      {/* ── Emergency SOS strip (always visible, never inside scroll) ──── */}
+      <EmergencySOSStrip />
+
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={{ paddingBottom: botPad + 90 }}
@@ -572,12 +761,32 @@ export default function HomeScreen() {
 
         {/* ── Savings hero ────────────────────────────────────────────── */}
         <View style={styles.heroWrap}>
-          <SavingsHero meta={meta} isLoading={feedLoading} />
+          <SavingsHero meta={meta} isLoading={feedLoading} driverScore={fleetData?.overallDriverScore} />
         </View>
 
         {/* ── Quick access rail ────────────────────────────────────────── */}
         <SectionHeader title={t("home.quickAccess")} />
         <QuickRail actions={quickItems} />
+
+        {/* ── MY FLEET ─────────────────────────────────────────────────── */}
+        {fleetData && fleetData.vehicles.length > 0 && (
+          <>
+            <SectionHeader
+              title="MY FLEET"
+              action={`${fleetData.vehicles.length} vehicles`}
+              onAction={() => router.push("/(tabs)/garage" as never)}
+            />
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.fleetRailRow}
+            >
+              {fleetData.vehicles.map((v) => (
+                <FleetCard key={v.id} v={v} />
+              ))}
+            </ScrollView>
+          </>
+        )}
 
         {/* ── Intelligence feed ────────────────────────────────────────── */}
         <SectionHeader
@@ -811,4 +1020,36 @@ const styles = StyleSheet.create({
   // Footer
   footer:     { alignItems: "center", paddingVertical: 20 },
   footerText: { fontSize: 9, fontWeight: "600", letterSpacing: 1.5 },
+
+  // Emergency SOS strip
+  sosStrip:  { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginHorizontal: 16, marginTop: 8, marginBottom: 2, borderWidth: 1, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10 },
+  sosLeft:   { flexDirection: "row", alignItems: "center", gap: 10 },
+  sosDot:    { width: 8, height: 8, borderRadius: 4 },
+  sosTitle:  { fontSize: 11, fontWeight: "800", letterSpacing: 1.5, color: "#EF4444" },
+  sosSub:    { fontSize: 9, fontWeight: "500", letterSpacing: 0.3, marginTop: 2 },
+  sosArrow:  { width: 28, height: 28, borderRadius: 8, borderWidth: 1, alignItems: "center", justifyContent: "center" },
+
+  // Fleet rail
+  fleetRailRow: { paddingLeft: 16, paddingRight: 8, gap: 10, paddingBottom: 4 },
+  fleetCard:    { borderWidth: 1, borderRadius: 18, padding: 14, width: 228, gap: 10 },
+  fleetCardHeader: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between" },
+  fleetCardTitle:  { gap: 2 },
+  fleetMake:       { fontSize: 14, fontWeight: "800", letterSpacing: 0.2 },
+  fleetYear:       { fontSize: 10, fontWeight: "500" },
+  fleetOnlineRow:  { flexDirection: "row", alignItems: "center", gap: 5 },
+  fleetOnlineText: { fontSize: 8, fontWeight: "800", letterSpacing: 1 },
+  fleetValue:      { fontSize: 18, fontWeight: "900", letterSpacing: -0.5 },
+  fleetDivider:    { height: 1 },
+  fleetMeters:     { gap: 8 },
+  fleetMeter:      { flexDirection: "row", alignItems: "center", gap: 8 },
+  fleetMeterLabel: { fontSize: 8, fontWeight: "700", letterSpacing: 1, width: 34 },
+  fleetBarBg:      { flex: 1, height: 5, borderRadius: 3, backgroundColor: "rgba(255,255,255,0.08)" },
+  fleetBarFill:    { height: 5, borderRadius: 3 },
+  fleetMeterVal:   { fontSize: 9, fontWeight: "700", width: 28, textAlign: "right" },
+  fleetStatsRow:   { flexDirection: "row", gap: 6, flexWrap: "wrap" },
+  fleetStat:       { flexDirection: "row", alignItems: "center", gap: 4, borderWidth: 1, borderRadius: 6, paddingHorizontal: 7, paddingVertical: 3 },
+  fleetStatText:   { fontSize: 8, fontWeight: "700", letterSpacing: 0.3 },
+  fleetActions:    { flexDirection: "row", gap: 6 },
+  fleetActionBtn:  { flex: 1, flexDirection: "column", alignItems: "center", gap: 4, borderWidth: 1, borderRadius: 10, paddingVertical: 8 },
+  fleetActionLabel: { fontSize: 8, fontWeight: "700", letterSpacing: 0.3 },
 });
