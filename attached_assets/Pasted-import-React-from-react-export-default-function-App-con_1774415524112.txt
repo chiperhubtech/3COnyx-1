@@ -1,0 +1,154 @@
+import React from "react";
+
+export default function App() {
+  const feed = [
+    {
+      type: "savings",
+      title: "Better insurance found",
+      value: "Save $180/year",
+    },
+    {
+      type: "prevent",
+      title: "Service recommended",
+      value: "Avoid $500 repair",
+    },
+    {
+      type: "market",
+      title: "Vehicle value increased",
+      value: "+$900",
+    },
+    {
+      type: "status",
+      title: "Runner assigned",
+      value: "ETA: 18 minutes",
+    },
+    {
+      type: "weekly",
+      title: "This week",
+      value: "Saved $420 • 3 tasks completed",
+    },
+  ];
+
+  return (
+    <div style={styles.container}>
+      {/* HEADER */}
+      <div style={styles.header}>
+        <div>3C</div>
+        <div style={{ fontWeight: "600" }}>Your Garage</div>
+        <div>⚙️</div>
+      </div>
+
+      {/* SAVINGS BAR */}
+      <div style={styles.savingsBar}>
+        Total Saved: <span style={{ color: "#22c55e" }}>$2,340</span>
+      </div>
+
+      {/* FEED */}
+      <div style={styles.feed}>
+        {feed.map((item, index) => (
+          <div key={index} style={styles.card}>
+            <div style={styles.cardTitle}>{item.title}</div>
+            <div style={styles.cardValue}>{item.value}</div>
+
+            <button style={styles.button}>
+              Handle This
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {/* FLOATING AI BUTTON */}
+      <button style={styles.fab}>Ask 3C</button>
+
+      {/* BOTTOM NAV */}
+      <div style={styles.nav}>
+        <div>Home</div>
+        <div>Garage</div>
+        <div>AI</div>
+        <div>Activity</div>
+        <div>Profile</div>
+      </div>
+    </div>
+  );
+}
+
+const styles = {
+  container: {
+    fontFamily: "sans-serif",
+    background: "#0B0B0F",
+    color: "white",
+    height: "100vh",
+    display: "flex",
+    flexDirection: "column",
+  },
+
+  header: {
+    display: "flex",
+    justifyContent: "space-between",
+    padding: "16px",
+    borderBottom: "1px solid #222",
+  },
+
+  savingsBar: {
+    padding: "12px 16px",
+    background: "#111",
+    borderBottom: "1px solid #222",
+    fontSize: "14px",
+  },
+
+  feed: {
+    flex: 1,
+    overflowY: "auto",
+    padding: "16px",
+  },
+
+  card: {
+    background: "#16161C",
+    borderRadius: "16px",
+    padding: "16px",
+    marginBottom: "12px",
+    boxShadow: "0 0 20px rgba(0,0,0,0.3)",
+  },
+
+  cardTitle: {
+    fontSize: "14px",
+    color: "#aaa",
+  },
+
+  cardValue: {
+    fontSize: "18px",
+    fontWeight: "600",
+    margin: "8px 0",
+  },
+
+  button: {
+    background: "#4F46E5",
+    border: "none",
+    padding: "10px",
+    borderRadius: "10px",
+    color: "white",
+    cursor: "pointer",
+    width: "100%",
+  },
+
+  fab: {
+    position: "fixed",
+    bottom: "80px",
+    right: "20px",
+    background: "#A855F7",
+    border: "none",
+    padding: "14px 16px",
+    borderRadius: "999px",
+    color: "white",
+    cursor: "pointer",
+    boxShadow: "0 0 20px rgba(168,85,247,0.6)",
+  },
+
+  nav: {
+    display: "flex",
+    justifyContent: "space-around",
+    padding: "12px",
+    borderTop: "1px solid #222",
+    background: "#0B0B0F",
+  },
+};

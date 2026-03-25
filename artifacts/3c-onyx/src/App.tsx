@@ -38,6 +38,7 @@ import AIHub from "@/pages/ai-hub";
 import Dropship from "@/pages/dropship";
 import Security from "@/pages/security";
 import Command from "@/pages/command";
+import IntelligenceFeed from "@/pages/intelligence";
 import Guardian from "@/pages/guardian";
 import Subscription from "@/pages/subscription";
 import Partners from "@/pages/partners";
@@ -129,6 +130,7 @@ function AppRoutes() {
           <Switch>
             {/* Core Dashboard */}
             <Route path="/"                     component={Home} />
+            <Route path="/intelligence"         component={IntelligenceFeed} />
             <Route path="/trust"                component={TrustPage} />
 
             {/* Consumer */}
