@@ -1,21 +1,127 @@
 {
-  "greeting": { "morning": "BUENOS DÍAS", "afternoon": "BUENAS TARDES", "evening": "BUENAS NOCHES" },
-  "nav": { "home": "Inicio", "garage": "Garaje", "marketplace": "Mercado", "wallet": "Cartera", "concierge": "Conserjería" },
-  "tabs": { "tasks": "Tareas", "wallet": "Cartera", "inVehicle": "En Vehículo" },
+  "greeting": {
+    "morning": "BUENOS DÍAS",
+    "afternoon": "BUENAS TARDES",
+    "evening": "BUENAS NOCHES"
+  },
+  "nav": {
+    "home": "Inicio",
+    "garage": "Garaje",
+    "marketplace": "Mercado",
+    "wallet": "Cartera",
+    "concierge": "Conserjería"
+  },
+  "tabs": {
+    "tasks": "Tareas",
+    "wallet": "Cartera",
+    "inVehicle": "En Vehículo"
+  },
   "home": {
     "platformStatus": "Estado de la Plataforma",
     "platformOnline": "TODOS LOS SISTEMAS EN LÍNEA",
     "quickActions": "Acciones Rápidas",
-    "actions": { "concierge": "ONYX IA", "conciergeDesc": "Conserjería", "guardian": "Guardian", "guardianDesc": "Seguridad V2X", "garage": "Mi Garaje", "garageDesc": "Vehículos", "marketplace": "Mercado", "marketplaceDesc": "Comprar y Vender", "wallet": "Cartera", "walletDesc": "Dynasty" },
-    "status": { "neuralMesh": "RED NEURAL", "aiAgents": "AGENTES IA", "blockchainSync": "SINCRONIZACIÓN BLOCKCHAIN", "securityLayer": "CAPA DE SEGURIDAD", "otaStamping": "OTA BLOCKCHAIN" }
+    "actions": {
+      "concierge": "ONYX IA",
+      "conciergeDesc": "Conserjería",
+      "guardian": "Guardian",
+      "guardianDesc": "Seguridad V2X",
+      "garage": "Mi Garaje",
+      "garageDesc": "Vehículos",
+      "marketplace": "Mercado",
+      "marketplaceDesc": "Comprar y Vender",
+      "wallet": "Cartera",
+      "walletDesc": "Dynasty",
+      "marketplaceSub": "Comprar vehículos certificados",
+      "garageSub": "Telemática en vivo",
+      "documentVault": "Bóveda de Documentos",
+      "documentVaultSub": "Escanear ID y seguro",
+      "inviteFriends": "Invitar Amigos",
+      "inviteFriendsSub": "Ganar recompensas",
+      "notificationsLabel": "Notificaciones",
+      "unreadAlerts": "{{count}} alertas no leídas",
+      "inVehicle": "En Vehículo",
+      "inVehicleSub": "CarPlay y SDV OTA"
+    },
+    "status": {
+      "neuralMesh": "RED NEURAL",
+      "aiAgents": "AGENTES IA",
+      "blockchainSync": "SINCRONIZACIÓN BLOCKCHAIN",
+      "securityLayer": "CAPA DE SEGURIDAD",
+      "otaStamping": "OTA BLOCKCHAIN",
+      "mcpServer": "Servidor MCP",
+      "stripeConnect": "Stripe Connect",
+      "blockchainOta": "Blockchain OTA",
+      "piiProtection": "Protección PII",
+      "soc2AuditVault": "Bóveda SOC2",
+      "online": "EN LÍNEA",
+      "live": "EN VIVO",
+      "stamping": "SELLANDO",
+      "active": "ACTIVO",
+      "logging": "REGISTRANDO"
+    },
+    "heroGreeting": "MIEMBRO",
+    "heroLine1": "TU FLOTA,",
+    "heroLine2": "TUS REGLAS.",
+    "heroSub": "Servicios automotrices de lujo, vehículos certificados y entregas en tiempo real.",
+    "quickAccess": "ACCESO RÁPIDO",
+    "piiMasked": "PII ENMASCARADO",
+    "brandSub": "CUXTOMCANDYCLUB LLC",
+    "walletBalance": "SALDO DE CARTERA",
+    "walletSub": "Después del 5% Member Slice",
+    "activeDeliveries": "ENTREGAS ACTIVAS",
+    "inTransit": "En tránsito ahora",
+    "watchlistLabel": "LISTA DE SEGUIMIENTO",
+    "vehiclesTracked": "Vehículos rastreados",
+    "notificationsLabel": "NOTIFICACIONES",
+    "unreadAlerts": "Alertas no leídas"
   },
-  "marketplace": { "title": "MERCADO", "blockchainVerified": "listados certificados", "search": "Buscar marca, modelo, año..." },
-  "garage": { "title": "MI GARAJE", "subtitle": "Telemática en vivo vía Smartcar Connect", "addVehicle": "Conectar" },
-  "wallet": { "title": "DYNASTY WALLET", "subtitle": "MOTOR DE TRIPLE DIVISIÓN", "connected": "CONECTADO", "setupNeeded": "CONFIGURACIÓN NECESARIA" },
-  "notifications": { "title": "NOTIFICACIONES", "markAllRead": "Marcar todo como leído", "unread": "NO LEÍDAS", "earlier": "ANTERIORES", "empty": "Aún no hay notificaciones.", "emptyDesc": "Estás al día." },
-  "carplay": { "title": "CarPlay y Android Auto", "subtitle": "Experiencia en el coche perfecta", "connected": "CarPlay Conectado", "notConnected": "CarPlay No Conectado", "connectHint": "Conecta tu iPhone a una unidad central compatible con CarPlay via USB o inalámbrico para activar la experiencia en el vehículo." },
-  "command": { "title": "CENTRO DE COMANDO", "subtitle": "K-Factor · Kill-Switch · Admin" },
-  "runner": { "title": "TAREAS DE RUNNER", "subtitle": "Entregas e inspecciones" },
-  "common": { "loading": "Cargando...", "error": "Algo salió mal", "retry": "Intentar de nuevo", "live": "EN VIVO", "active": "ACTIVO", "secure": "SEGURO", "connected": "CONECTADO" },
+  "marketplace": {
+    "title": "MERCADO",
+    "blockchainVerified": "listados certificados",
+    "search": "Buscar marca, modelo, año..."
+  },
+  "garage": {
+    "title": "MI GARAJE",
+    "subtitle": "Telemática en vivo vía Smartcar Connect",
+    "addVehicle": "Conectar"
+  },
+  "wallet": {
+    "title": "DYNASTY WALLET",
+    "subtitle": "MOTOR DE TRIPLE DIVISIÓN",
+    "connected": "CONECTADO",
+    "setupNeeded": "CONFIGURACIÓN NECESARIA"
+  },
+  "notifications": {
+    "title": "NOTIFICACIONES",
+    "markAllRead": "Marcar todo como leído",
+    "unread": "NO LEÍDAS",
+    "earlier": "ANTERIORES",
+    "empty": "Aún no hay notificaciones.",
+    "emptyDesc": "Estás al día."
+  },
+  "carplay": {
+    "title": "CarPlay y Android Auto",
+    "subtitle": "Experiencia en el coche perfecta",
+    "connected": "CarPlay Conectado",
+    "notConnected": "CarPlay No Conectado",
+    "connectHint": "Conecta tu iPhone a una unidad central compatible con CarPlay via USB o inalámbrico para activar la experiencia en el vehículo."
+  },
+  "command": {
+    "title": "CENTRO DE COMANDO",
+    "subtitle": "K-Factor · Kill-Switch · Admin"
+  },
+  "runner": {
+    "title": "TAREAS DE RUNNER",
+    "subtitle": "Entregas e inspecciones"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "error": "Algo salió mal",
+    "retry": "Intentar de nuevo",
+    "live": "EN VIVO",
+    "active": "ACTIVO",
+    "secure": "SEGURO",
+    "connected": "CONECTADO"
+  },
   "poweredBy": "DESARROLLADO POR CUXTOMCANDYCLUB LLC"
 }

@@ -112,43 +112,43 @@ export default function HomeScreen() {
   const quickActions: QuickAction[] = [
     {
       icon: <MaterialCommunityIcons name="car-multiple" size={22} color={COLORS.gold} />,
-      label: "Marketplace",
-      sub: "Shop certified vehicles",
+      label: t("nav.marketplace"),
+      sub: t("home.actions.marketplaceSub"),
       route: "/(tabs)/marketplace",
       accent: COLORS.gold,
     },
     {
       icon: <MaterialCommunityIcons name="garage-open" size={22} color={COLORS.emerald} />,
-      label: "My Garage",
-      sub: "Live telematics",
+      label: t("nav.garage"),
+      sub: t("home.actions.garageSub"),
       route: "/(tabs)/garage",
       accent: COLORS.emerald,
     },
     {
       icon: <Feather name="shield" size={20} color={COLORS.gold} />,
-      label: "Document Vault",
-      sub: "Scan ID & insurance",
+      label: t("home.actions.documentVault"),
+      sub: t("home.actions.documentVaultSub"),
       route: "/documents",
       accent: COLORS.gold,
     },
     {
       icon: <Feather name="users" size={20} color="#3B9EFF" />,
-      label: "Invite Friends",
-      sub: "Earn rewards",
+      label: t("home.actions.inviteFriends"),
+      sub: t("home.actions.inviteFriendsSub"),
       route: "/invite",
       accent: "#3B9EFF",
     },
     {
       icon: <Feather name="bell" size={20} color={COLORS.amber} />,
-      label: "Notifications",
-      sub: `${unreadCount} unread alerts`,
+      label: t("home.actions.notificationsLabel"),
+      sub: t("home.actions.unreadAlerts", { count: unreadCount }),
       route: "/(tabs)/notifications",
       accent: COLORS.amber,
     },
     {
       icon: <Feather name="cpu" size={20} color="#A78BFA" />,
-      label: "In-Vehicle",
-      sub: "CarPlay & SDV OTA",
+      label: t("home.actions.inVehicle"),
+      sub: t("home.actions.inVehicleSub"),
       route: "/(tabs)/carplay",
       accent: "#A78BFA",
     },
@@ -169,12 +169,12 @@ export default function HomeScreen() {
               <View style={styles.brandDot} />
               <Text style={styles.brandName}>3C ONYX</Text>
             </View>
-            <Text style={styles.brandSub}>CUXTOMCANDYCLUB LLC</Text>
+            <Text style={styles.brandSub}>{t("home.brandSub")}</Text>
           </View>
           <View style={styles.headerRight}>
             <View style={styles.securityBadge}>
               <PulseDot />
-              <Text style={styles.securityText}>PII MASKED</Text>
+              <Text style={styles.securityText}>{t("home.piiMasked")}</Text>
             </View>
             <Pressable onPress={() => router.push("/(tabs)/notifications" as never)} style={styles.bellBtn}>
               <Ionicons name="notifications" size={20} color={COLORS.white} />
@@ -189,13 +189,11 @@ export default function HomeScreen() {
 
         {/* Hero */}
         <View style={styles.hero}>
-          <Text style={styles.greeting}>{greeting}, MEMBER</Text>
-          <Text style={styles.heroLine1}>YOUR FLEET,</Text>
-          <Text style={styles.heroLine2}>YOUR RULES.</Text>
+          <Text style={styles.greeting}>{greeting}, {t("home.heroGreeting")}</Text>
+          <Text style={styles.heroLine1}>{t("home.heroLine1")}</Text>
+          <Text style={styles.heroLine2}>{t("home.heroLine2")}</Text>
           <View style={styles.heroDivider} />
-          <Text style={styles.heroSub}>
-            White-glove automotive services, certified luxury vehicles, and real-time delivery.
-          </Text>
+          <Text style={styles.heroSub}>{t("home.heroSub")}</Text>
         </View>
 
         {/* Stat Cards */}
@@ -205,34 +203,34 @@ export default function HomeScreen() {
           contentContainerStyle={styles.statsRow}
         >
           <StatCard
-            label="WALLET BALANCE"
+            label={t("home.walletBalance")}
             value={`$${Math.round(walletTotal).toLocaleString()}`}
-            sub="After 5% Member Slice"
+            sub={t("home.walletSub")}
             color={COLORS.emerald}
           />
           <StatCard
-            label="ACTIVE DELIVERIES"
+            label={t("home.activeDeliveries")}
             value={String(activeDeliveries)}
-            sub="In transit now"
+            sub={t("home.inTransit")}
             color={COLORS.gold}
           />
           <StatCard
-            label="WATCHLIST"
+            label={t("home.watchlistLabel")}
             value={String(watchlistCount)}
-            sub="Vehicles tracked"
+            sub={t("home.vehiclesTracked")}
             color="#3B9EFF"
           />
           <StatCard
-            label="NOTIFICATIONS"
+            label={t("home.notificationsLabel")}
             value={String(unreadCount)}
-            sub="Unread alerts"
+            sub={t("home.unreadAlerts")}
             color={COLORS.amber}
           />
         </ScrollView>
 
         {/* Quick Access */}
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>QUICK ACCESS</Text>
+          <Text style={styles.sectionTitle}>{t("home.quickAccess")}</Text>
         </View>
 
         <View style={styles.quickGrid}>
@@ -241,18 +239,18 @@ export default function HomeScreen() {
           ))}
         </View>
 
-        {/* Recent Activity */}
+        {/* Platform Status */}
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>PLATFORM STATUS</Text>
+          <Text style={styles.sectionTitle}>{t("home.platformStatus")}</Text>
         </View>
 
         <View style={styles.statusCard}>
           {[
-            { label: "MCP Server", status: "ONLINE", color: COLORS.emerald },
-            { label: "Stripe Connect", status: "LIVE", color: COLORS.emerald },
-            { label: "Blockchain OTA", status: "STAMPING", color: "#A78BFA" },
-            { label: "PII Protection", status: "ACTIVE", color: COLORS.gold },
-            { label: "SOC2 Audit Vault", status: "LOGGING", color: "#3B9EFF" },
+            { label: t("home.status.mcpServer"), status: t("home.status.online"), color: COLORS.emerald },
+            { label: t("home.status.stripeConnect"), status: t("home.status.live"), color: COLORS.emerald },
+            { label: t("home.status.blockchainOta"), status: t("home.status.stamping"), color: "#A78BFA" },
+            { label: t("home.status.piiProtection"), status: t("home.status.active"), color: COLORS.gold },
+            { label: t("home.status.soc2AuditVault"), status: t("home.status.logging"), color: "#3B9EFF" },
           ].map((item, i) => (
             <View key={item.label} style={[styles.statusRow, i < 4 && styles.statusBorder]}>
               <Text style={styles.statusLabel}>{item.label}</Text>
