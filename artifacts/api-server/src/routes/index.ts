@@ -54,6 +54,8 @@ import roadsideRouter from "./roadside";
 import rentalsRouter from "./rentals";
 import placesRouter from "./places";
 import aftermarketRouter from "./aftermarket";
+import racingRouter from "./racing";
+import gamificationRouter from "./gamification";
 
 const router: IRouter = Router();
 
@@ -109,6 +111,8 @@ router.use("/roadside", roadsideRouter);
 router.use("/rentals", rentalsRouter);
 router.use("/places", placesRouter);
 router.use(aftermarketRouter);
+router.use(racingRouter);
+router.use(gamificationRouter);
 router.use(orchestratorRouter);
 
 router.use(

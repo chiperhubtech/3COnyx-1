@@ -699,6 +699,7 @@ export default function HomeScreen() {
     { icon: <MaterialCommunityIcons name="garage-open"  size={18} color={COLORS.emerald} />, label: "Garage",    route: "/(tabs)/garage",       color: COLORS.emerald },
     { icon: <Feather name="shield"     size={16} color={COLORS.gold}    />,                 label: "Vault",     route: "/documents",           color: COLORS.gold    },
     { icon: <Feather name="shopping-bag" size={16} color="#8B5CF6"      />,                 label: "Shop",      route: "/aftermarket",         color: "#8B5CF6"      },
+    { icon: <Feather name="flag"         size={16} color="#EF4444"      />,                 label: "Race Mode", route: "/race-mode",           color: "#EF4444"      },
     { icon: <Feather name="users"      size={16} color="#3B9EFF"        />,                 label: "Invite",    route: "/invite",              color: "#3B9EFF"      },
     { icon: <Feather name="globe"      size={16} color={COLORS.emerald} />,                 label: "Ecosystem", route: "/ecosystem",           color: COLORS.emerald },
     { icon: <Feather name="bell"       size={16} color={COLORS.amber}   />,                 label: "Alerts",    route: "/(tabs)/notifications",color: COLORS.amber   },
