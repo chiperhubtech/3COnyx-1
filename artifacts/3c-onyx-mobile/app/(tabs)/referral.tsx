@@ -47,6 +47,7 @@ const TIERS: TierMeta[] = [
 type ContactItem = { id: string; name: string; phone: string };
 
 function TierCard({ tier, referralCount }: { tier: TierMeta; referralCount: number }) {
+  const { theme } = useTheme();
   const completed = referralCount >= tier.refs;
   const idx = TIERS.indexOf(tier);
   const active = !completed && (idx === 0 || referralCount >= TIERS[idx - 1]!.refs);
@@ -74,12 +75,12 @@ function TierCard({ tier, referralCount }: { tier: TierMeta; referralCount: numb
             <Text style={[styles.tierName, { color: tier.color }]}>{tier.name}</Text>
             <Text style={[styles.tierLabel, { color: tier.color, opacity: 0.6 }]}>{tier.label}</Text>
           </View>
-          <Text style={styles.tierReward}>{tier.reward}</Text>
-          <Text style={styles.tierRequirement}>{tier.refs} referral{tier.refs !== 1 ? "s" : ""} required</Text>
+          <Text style={[styles.tierReward, { color: theme.text }]}>{tier.reward}</Text>
+          <Text style={[styles.tierRequirement, { color: theme.textMuted }]}>{tier.refs} referral{tier.refs !== 1 ? "s" : ""} required</Text>
         </View>
       </View>
       <View style={styles.tierProgressRow}>
-        <View style={[styles.tierBar, { backgroundColor: "rgba(255,255,255,0.06)" }]}>
+        <View style={[styles.tierBar, { backgroundColor: theme.cardBorder }]}>
           <Animated.View style={[styles.tierFill, { backgroundColor: tier.color, width: `${progress}%` as `${number}%` }]} />
         </View>
         <Text style={[styles.tierProgressText, { color: tier.color }]}>{Math.min(referralCount, tier.refs)}/{tier.refs}</Text>

@@ -173,7 +173,7 @@ export default function ScanTab() {
   }
 
   return (
-    <View style={[styles.container, { paddingTop: safeInsets.top, backgroundColor: "#080810" }]}>
+    <View style={[styles.container, { paddingTop: safeInsets.top, backgroundColor: theme.bg }]}>
       <Animated.View style={[styles.flashOverlay, { opacity: flashAnim }]} pointerEvents="none" />
 
       {/* Simulated camera view */}
@@ -206,21 +206,21 @@ export default function ScanTab() {
       </View>
 
       {/* Progress */}
-      <View style={styles.progressContainer}>
-        <View style={styles.progressTrack}>
+      <View style={[styles.progressContainer, { backgroundColor: theme.bg, borderBottomColor: theme.cardBorder }]}>
+        <View style={[styles.progressTrack, { backgroundColor: theme.cardBorder }]}>
           <Animated.View style={[styles.progressFill, { width: progressAnim.interpolate({ inputRange: [0, 1], outputRange: ["0%", "100%"] }) }]} />
         </View>
-        <Text style={styles.progressText}>{capturedCount}/8 captured</Text>
+        <Text style={[styles.progressText, { color: theme.textMuted }]}>{capturedCount}/8 captured</Text>
       </View>
 
       {/* Bottom panel */}
-      <View style={[styles.bottomPanel, { paddingBottom: safeInsets.bottom + 16 }]}>
+      <View style={[styles.bottomPanel, { paddingBottom: safeInsets.bottom + 16, backgroundColor: theme.bg, borderTopColor: theme.cardBorder }]}>
         {/* Radar */}
         <View style={styles.radarContainer}>
           <View style={styles.radarRing} /><View style={styles.radarInnerRing} />
-          <View style={styles.radarCenter}>
-            <Text style={styles.radarCenterText}>{capturedCount}</Text>
-            <Text style={styles.radarCenterSub}>/ 8</Text>
+          <View style={[styles.radarCenter, { backgroundColor: theme.goldGlow, borderColor: theme.goldBorder }]}>
+            <Text style={[styles.radarCenterText, { color: theme.gold }]}>{capturedCount}</Text>
+            <Text style={[styles.radarCenterSub, { color: theme.textMuted }]}>/ 8</Text>
           </View>
           {POSITIONS.map((pos, idx) => (
             <RadarDot key={idx} angle={pos.angle} captured={captured[idx]} active={activeIdx === idx} onPress={() => setActiveIdx(idx)} />
@@ -230,9 +230,9 @@ export default function ScanTab() {
         {/* Position quick-select */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.positionScroll} contentContainerStyle={{ gap: 8, paddingHorizontal: 16 }}>
           {POSITIONS.map((pos, idx) => (
-            <Pressable key={idx} onPress={() => setActiveIdx(idx)} style={[styles.positionChip, activeIdx === idx && styles.positionChipActive, captured[idx] && styles.positionChipDone]}>
+            <Pressable key={idx} onPress={() => setActiveIdx(idx)} style={[styles.positionChip, { borderColor: theme.cardBorder }, activeIdx === idx && [styles.positionChipActive, { borderColor: theme.textMuted }], captured[idx] && [styles.positionChipDone, { borderColor: theme.goldBorder }]]}>
               {captured[idx] && <Feather name="check" size={10} color={COLORS.gold} style={{ marginRight: 3 }} />}
-              <Text style={[styles.positionChipText, activeIdx === idx && styles.positionChipTextActive, captured[idx] && styles.positionChipTextDone]}>{pos.shortLabel}</Text>
+              <Text style={[styles.positionChipText, { color: theme.textFaint }, activeIdx === idx && styles.positionChipTextActive, captured[idx] && styles.positionChipTextDone]}>{pos.shortLabel}</Text>
             </Pressable>
           ))}
         </ScrollView>
@@ -253,7 +253,7 @@ export default function ScanTab() {
             </Pressable>
           )}
         </View>
-        {!allCaptured && <Text style={styles.captureHint}>{captured[activeIdx] ? `${POSITIONS[activeIdx].label} captured ✓ — tap another` : `Tap to capture ${POSITIONS[activeIdx].label}`}</Text>}
+        {!allCaptured && <Text style={[styles.captureHint, { color: theme.textFaint }]}>{captured[activeIdx] ? `${POSITIONS[activeIdx].label} captured ✓ — tap another` : `Tap to capture ${POSITIONS[activeIdx].label}`}</Text>}
       </View>
     </View>
   );

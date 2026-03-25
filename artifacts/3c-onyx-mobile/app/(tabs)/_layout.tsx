@@ -20,7 +20,7 @@ function TabIcon({
 }) {
   return (
     <View style={styles.tabItem}>
-      {focused && <View style={styles.activeIndicator} />}
+      {focused && <View style={[styles.activeIndicator, { backgroundColor: color }]} />}
       <View style={[styles.iconWrap, focused && styles.iconWrapActive]}>{icon}</View>
       <Text style={[styles.tabLabel, { color }]} numberOfLines={1}>
         {label}
@@ -164,7 +164,6 @@ const styles = StyleSheet.create({
     width: 28,
     height: 2.5,
     borderRadius: 1.5,
-    backgroundColor: "#C9A227",
   },
   iconWrap: {
     width: 38,
