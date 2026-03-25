@@ -39,6 +39,7 @@ import Dropship from "@/pages/dropship";
 import Security from "@/pages/security";
 import Command from "@/pages/command";
 import IntelligenceFeed from "@/pages/intelligence";
+import AftermarketPage from "@/pages/aftermarket";
 import Guardian from "@/pages/guardian";
 import Subscription from "@/pages/subscription";
 import Partners from "@/pages/partners";
@@ -131,6 +132,7 @@ function AppRoutes() {
             {/* Core Dashboard */}
             <Route path="/"                     component={Home} />
             <Route path="/intelligence"         component={IntelligenceFeed} />
+            <Route path="/aftermarket"          component={AftermarketPage} />
             <Route path="/trust"                component={TrustPage} />
 
             {/* Consumer */}

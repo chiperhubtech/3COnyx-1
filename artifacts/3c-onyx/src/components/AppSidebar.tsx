@@ -139,6 +139,7 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
 
   const CUSTOMER_NAV = [
     { label: "Intelligence Feed",         path: "/intelligence",   icon: Activity,    description: "AI savings · live opportunities",  accent: "#C9A227" },
+    { label: "Aftermarket Shop",          path: "/aftermarket",    icon: ShoppingBag, description: "SEMA · API2Cart · APEXX dropship",  accent: "#8B5CF6" },
     { label: t("sidebar.marketplace"),    path: "/marketplace",    icon: ShoppingBag, description: t("sidebar.marketplaceDesc"),    accent: "#C9A227" },
     { label: t("sidebar.garage"),         path: "/garage",          icon: Gauge,       description: t("sidebar.garageDesc"),         accent: "#4FC3F7" },
     { label: t("sidebar.watchlist"),      path: "/watchlist",       icon: Bookmark,    description: t("sidebar.watchlistDesc"),      accent: "#F87171" },
