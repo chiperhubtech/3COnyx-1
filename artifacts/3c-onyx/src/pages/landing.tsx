@@ -10,12 +10,156 @@ import {
   Shield, Brain, ArrowRight, CheckCircle2, Zap,
   Lock, Users, BarChart3, Truck, DollarSign,
   ChevronDown, Star, Layers, Route, Cpu,
-  TrendingDown, Eye, Heart,
+  TrendingDown, Eye, Heart, UserCheck, Briefcase, Car, Crown,
 } from "lucide-react";
 import { NeuralMesh } from "@/components/NeuralMesh";
 import { PublicNavbar } from "@/components/PublicNavbar";
 import { GlobalFooter } from "@/components/GlobalFooter";
 import { useTranslation } from "react-i18next";
+
+/* ─── Industry Ticker ──────────────────────────────────────────────────────── */
+const TICKER_ITEMS = [
+  "VinSolutions · DealerSocket · Tekion · CDK Drive · Reynolds & Reynolds · Salesforce · elead · HubSpot",
+  "BDC Reps · F&I Managers · Service Advisors · Master Techs · Appraisers · Runners · GMs · Dealer Principals",
+  "F1 · NASCAR · NHRA · Motorsport Universe · 8-Tier ONYX Points System",
+  "CUXTOMCANDYCLUB LLC · Founded by Ron · I-95 Dynasty · Mission: 132M Members",
+];
+
+function Ticker() {
+  const [tickerIdx, setTickerIdx] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setTickerIdx(i => (i + 1) % TICKER_ITEMS.length), 5000);
+    return () => clearInterval(id);
+  }, []);
+  return (
+    <div style={{ background: "rgba(9,9,11,0.95)", borderTop: "1px solid #27272a", borderBottom: "1px solid #27272a", padding: "8px 24px", textAlign: "center" }}>
+      <div style={{ fontSize: 10, fontFamily: "monospace", color: "#52525b", letterSpacing: "0.15em", textTransform: "uppercase", transition: "opacity 0.5s" }}>
+        {TICKER_ITEMS[tickerIdx]}
+      </div>
+    </div>
+  );
+}
+
+/* ─── Front Door Selector ──────────────────────────────────────────────────── */
+const DOOR_TYPES = [
+  {
+    id: "consumer",   icon: Car,       color: "#3B82F6",
+    label: "I Own or Buy Cars",
+    sub: "Consumer · Enthusiast · Car Owner",
+    desc: "Track vehicles, access AI-powered deals, find verified specialists, join the marketplace.",
+    cta: "Join as a Member",
+    perks: ["Vehicle AI insights", "Verified specialist network", "Marketplace access", "ONYX Points rewards"],
+  },
+  {
+    id: "specialist", icon: UserCheck, color: "#C9A227",
+    label: "I Work in the Industry",
+    sub: "BDC · F&I · Service · Sales · Tech · Appraiser · Runner",
+    desc: "All 16 automotive professional roles. Your career network, CRM integrations, and Dynasty Wallet — built for you.",
+    cta: "Claim Your Founding Slice",
+    perks: ["16 role-specific AI tools", "CRM integration", "Lead management", "Dynasty Wallet"],
+    highlight: true,
+  },
+  {
+    id: "business",   icon: Briefcase, color: "#10B981",
+    label: "I Run a Business",
+    sub: "Dealer · OEM · Lender · Warranty · Vendor · Bank Rep",
+    desc: "Enterprise CRM hub, real-time analytics, founding pilot program, and direct access to the I-95 professional network.",
+    cta: "Activate Dealer Portal",
+    perks: ["9 CRM platforms", "Live lead management", "Real-time analytics", "90-day free pilot"],
+  },
+];
+
+function FrontDoor() {
+  const [selected, setSelected] = useState<string | null>(null);
+  const pick = DOOR_TYPES.find(d => d.id === selected);
+  return (
+    <div style={{ padding: "72px 24px 80px", maxWidth: 1100, margin: "0 auto" }}>
+      <div style={{ textAlign: "center", marginBottom: 40 }}>
+        <p style={{ fontSize: 9, letterSpacing: "0.3em", color: "#C9A227", fontWeight: 700, marginBottom: 10, textTransform: "uppercase" }}>The Front Door</p>
+        <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "clamp(28px,5vw,44px)", fontWeight: 900, color: "#fff", textTransform: "uppercase", lineHeight: 1, marginBottom: 8 }}>
+          Everyone Walks Through the Same Door
+        </h2>
+        <p style={{ fontSize: 13, color: "#71717a" }}>Consumer. Specialist. Business. Choose your path.</p>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16 }}>
+        {DOOR_TYPES.map(t => {
+          const Icon = t.icon;
+          const active = selected === t.id;
+          return (
+            <button key={t.id} onClick={() => setSelected(active ? null : t.id)}
+              style={{ textAlign: "left", padding: 24, borderRadius: 20, border: `2px solid ${active ? t.color : "#27272a"}`, background: active ? `${t.color}10` : "#18181b", cursor: "pointer", transition: "all 0.25s", transform: active ? "scale(1.02)" : "scale(1)", position: "relative" }}>
+              {t.highlight && (
+                <div style={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", background: "#C9A227", color: "#000", fontSize: 9, fontWeight: 800, letterSpacing: "0.15em", padding: "3px 12px", borderRadius: 20, textTransform: "uppercase", whiteSpace: "nowrap" }}>
+                  Most Popular · Founding Slice
+                </div>
+              )}
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+                <div style={{ padding: 10, borderRadius: 12, background: `${t.color}20` }}>
+                  <Icon size={18} style={{ color: t.color }} />
+                </div>
+                <div>
+                  <div style={{ fontWeight: 800, color: "#fff", fontSize: 14 }}>{t.label}</div>
+                  <div style={{ fontSize: 10, color: t.color, fontFamily: "monospace" }}>{t.sub}</div>
+                </div>
+              </div>
+              <p style={{ fontSize: 12, color: "#a1a1aa", lineHeight: 1.7, marginBottom: active ? 12 : 0 }}>{t.desc}</p>
+              {active && (
+                <div style={{ marginBottom: 12 }}>
+                  {t.perks.map(p => (
+                    <div key={p} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: "#d4d4d8", marginBottom: 4 }}>
+                      <span style={{ color: t.color }}>✓</span> {p}
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 800, color: t.color, marginTop: 4 }}>
+                {t.cta} <ArrowRight size={14} />
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      <div style={{ textAlign: "center", marginTop: 32 }}>
+        <Link href="/join">
+          <button style={{ padding: "15px 36px", borderRadius: 16, background: pick ? pick.color : "linear-gradient(135deg,#C9A227,#8B6914)", border: "none", color: pick?.id === "specialist" ? "#000" : pick ? "#fff" : "#000", fontWeight: 900, fontSize: 15, cursor: "pointer", boxShadow: "0 8px 32px rgba(201,162,39,0.25)", letterSpacing: "0.05em", fontFamily: "'Barlow Condensed', sans-serif" }}>
+            {pick ? `${pick.cta} →` : "Claim Your Founding Member Slice →"}
+          </button>
+        </Link>
+        <div style={{ fontSize: 10, color: "#52525b", marginTop: 8, fontFamily: "monospace" }}>
+          No credit card required · Founding price locked forever · Industry Pro · Consumer · Business — all welcome
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── I-95 Dynasty Quote ───────────────────────────────────────────────────── */
+function DynastyQuote() {
+  return (
+    <div style={{ padding: "72px 24px", borderTop: "1px solid #1f1f22", background: "linear-gradient(180deg, #0a0a0d 0%, #18181b 100%)" }}>
+      <div style={{ maxWidth: 760, margin: "0 auto", textAlign: "center" }}>
+        <Crown size={28} style={{ color: "#C9A227", marginBottom: 20 }} />
+        <blockquote style={{ fontSize: "clamp(17px,3vw,22px)", fontWeight: 700, color: "#e4e4e7", lineHeight: 1.7, margin: "0 0 20px", fontStyle: "italic" }}>
+          "The I-95 Dynasty is live. Every service advisor, mechanic, F&I manager, appraiser,
+          runner, and dealer I've built relationships with — your slice is pre-reserved.
+          The platform is built. The AI is running. Now it's time to claim your piece of it."
+        </blockquote>
+        <div style={{ fontSize: 13, color: "#71717a" }}>
+          — <strong style={{ color: "#d4d4d8" }}>Ron</strong> · Founder · <span style={{ color: "#C9A227" }}>CUXTOMCANDYCLUB LLC</span>
+        </div>
+        <div style={{ marginTop: 28 }}>
+          <Link href="/join">
+            <button style={{ padding: "14px 32px", borderRadius: 14, background: "#C9A227", color: "#000", fontWeight: 900, fontSize: 14, cursor: "pointer", border: "none", letterSpacing: "0.06em", fontFamily: "'Barlow Condensed', sans-serif" }}>
+              Claim My Founding Slice →
+            </button>
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 /* ─── Animated Counter ──────────────────────────────────────────────────── */
 function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
@@ -72,6 +216,7 @@ export default function LandingPage() {
   return (
     <div className="public-page">
       <PublicNavbar />
+      <Ticker />
 
       {/* ── HERO ─────────────────────────────────────────────────────── */}
       <div style={{ position: "relative", minHeight: "100vh", display: "flex", alignItems: "center", overflow: "hidden", background: "var(--onyx-page-bg)" }}>
@@ -155,6 +300,9 @@ export default function LandingPage() {
         </div>
       </div>
 
+      {/* ── FRONT DOOR — Who Are You? ────────────────────────────────── */}
+      <FrontDoor />
+
       {/* ── HOW IT WORKS ─────────────────────────────────────────────── */}
       <div style={{ padding: "80px 24px", maxWidth: 1100, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 56 }}>
@@ -215,6 +363,9 @@ export default function LandingPage() {
           ))}
         </div>
       </div>
+
+      {/* ── I-95 DYNASTY QUOTE ───────────────────────────────────────── */}
+      <DynastyQuote />
 
       {/* ── FINAL CTA ────────────────────────────────────────────────── */}
       <div style={{ padding: "80px 24px 100px", textAlign: "center", maxWidth: 700, margin: "0 auto" }}>

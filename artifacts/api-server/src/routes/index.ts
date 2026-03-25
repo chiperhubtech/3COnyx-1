@@ -59,6 +59,8 @@ import gamificationRouter from "./gamification";
 import crmRouter from "./crm";
 import telemetryRouter from "./telemetry";
 import strategyRouter from "./strategy";
+import outreachRouter from "./outreach";
+import ownerRouter from "./owner";
 
 const router: IRouter = Router();
 
@@ -119,6 +121,8 @@ router.use(gamificationRouter);
 router.use("/crm", crmRouter);
 router.use("/telemetry", telemetryRouter);
 router.use("/strategy", strategyRouter);
+router.use("/outreach", outreachRouter);
+router.use("/owner", ownerRouter);
 router.use(orchestratorRouter);
 
 router.use(

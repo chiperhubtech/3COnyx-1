@@ -64,6 +64,7 @@ import LoginPage    from "@/pages/login";
 import RegisterPage from "@/pages/register";
 import WaitlistPage from "@/pages/waitlist";
 import AdminPage    from "@/pages/admin";
+import OwnerPortal  from "@/pages/owner-portal";
 import TermsPage    from "@/pages/legal/terms";
 import PrivacyPage  from "@/pages/legal/privacy";
 import TrustPage    from "@/pages/trust";
@@ -104,7 +105,7 @@ function AppRoutes() {
   const [location] = useLocation();
 
   // Public pages — no sidebar, no auth required
-  const PUBLIC_PATHS = ["/landing", "/login", "/register", "/waitlist", "/legal/terms", "/legal/privacy", "/join", "/m/", "/technology", "/sdv"];
+  const PUBLIC_PATHS = ["/landing", "/login", "/register", "/waitlist", "/legal/terms", "/legal/privacy", "/join", "/m/", "/technology", "/sdv", "/oa"];
   const isPublic = PUBLIC_PATHS.some((p) => location === p || location.startsWith(p));
 
   if (isPublic) {
@@ -125,6 +126,7 @@ function AppRoutes() {
         <Route path="/waitlist"        component={WaitlistPage} />
         <Route path="/legal/terms"     component={TermsPage} />
         <Route path="/legal/privacy"   component={PrivacyPage} />
+        <Route path="/oa"              component={OwnerPortal} />
       </Switch>
     );
   }
