@@ -117,10 +117,10 @@ function ThemeToggle() {
     const next = mode === "dark" ? "light" : mode === "light" ? "auto" : "dark";
     setMode(next);
   };
-  const icon = mode === "auto" ? "smartphone" : isDark ? "moon" : "sun";
+  const icon: keyof typeof Feather.glyphMap = mode === "auto" ? "smartphone" : isDark ? "moon" : "sun";
   return (
     <Pressable onPress={cycle} style={styles.themeToggle}>
-      <Feather name={icon as any} size={15} color={COLORS.gold} />
+      <Feather name={icon} size={15} color={COLORS.gold} />
     </Pressable>
   );
 }

@@ -146,7 +146,7 @@ function TierCard({
               styles.tierFill,
               {
                 backgroundColor: tier.color,
-                width: `${progress}%` as any,
+                width: `${progress}%` as `${number}%`,
               },
             ]}
           />

@@ -149,7 +149,7 @@ function KillSwitchCard({ txn, onAction }: {
             {/* Risk bar */}
             <View style={styles.riskBarWrap}>
               <View style={styles.riskBg}>
-                <View style={[styles.riskFill, { width: `${txn.riskScore}%` as any, backgroundColor: riskColor }]} />
+                <View style={[styles.riskFill, { width: `${txn.riskScore}%` as `${number}%`, backgroundColor: riskColor }]} />
               </View>
               <Text style={[styles.riskScore, { color: riskColor }]}>{txn.riskScore}</Text>
             </View>
@@ -421,11 +421,11 @@ export default function CommandScreen() {
 
 // ─── Metric Card ──────────────────────────────────────────────────────────────
 function MetricCard({ label, icon, iconColor, value, sub }: {
-  label: string; icon: string; iconColor: string; value: string; sub: string;
+  label: string; icon: keyof typeof MaterialCommunityIcons.glyphMap; iconColor: string; value: string; sub: string;
 }) {
   return (
     <View style={styles.metricCard}>
-      <MaterialCommunityIcons name={icon as any} size={16} color={iconColor} style={{ marginBottom: 8 }} />
+      <MaterialCommunityIcons name={icon} size={16} color={iconColor} style={{ marginBottom: 8 }} />
       <Text style={styles.metricLabel}>{label}</Text>
       <Text style={styles.metricValue}>{value}</Text>
       <Text style={styles.metricSub}>{sub}</Text>

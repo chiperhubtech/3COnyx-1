@@ -204,10 +204,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const resolvedDark = mode === "auto" ? systemScheme !== "light" : mode === "dark";
   const theme = resolvedDark ? DARK : LIGHT;
 
-  return (
-    <ThemeContext.Provider value={{ theme, mode, isDark: resolvedDark, setMode }}>
-      {children}
-    </ThemeContext.Provider>
+  return React.createElement(
+    ThemeContext.Provider,
+    { value: { theme, mode, isDark: resolvedDark, setMode } },
+    children
   );
 }
 

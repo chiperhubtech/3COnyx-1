@@ -61,13 +61,13 @@ function EmptyState({ onStartScan }: { onStartScan: () => void }) {
 
       <View style={[styles.emptyFeatures, { borderColor: theme.cardBorder, backgroundColor: theme.card }]}>
         {[
-          { icon: "lock",       text: "AES-256 encryption at rest" },
-          { icon: "eye-off",    text: "Zero-knowledge — we never see your data" },
-          { icon: "shield",     text: "PII Protection Active" },
+          { icon: "lock"    as keyof typeof Feather.glyphMap, text: "AES-256 encryption at rest" },
+          { icon: "eye-off" as keyof typeof Feather.glyphMap, text: "Zero-knowledge — we never see your data" },
+          { icon: "shield"  as keyof typeof Feather.glyphMap, text: "PII Protection Active" },
         ].map((f) => (
           <View key={f.text} style={styles.emptyFeatureRow}>
             <View style={[styles.emptyFeatureIcon, { backgroundColor: theme.goldMuted }]}>
-              <Feather name={f.icon as any} size={12} color={theme.gold} />
+              <Feather name={f.icon} size={12} color={theme.gold} />
             </View>
             <Text style={[styles.emptyFeatureText, { color: theme.textSub }]}>{f.text}</Text>
           </View>
