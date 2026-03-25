@@ -83,13 +83,36 @@
   "garage": {
     "title": "MI GARAJE",
     "subtitle": "Telemática en vivo vía Smartcar Connect",
-    "addVehicle": "Conectar"
+    "addVehicle": "Conectar",
+    "live": "EN VIVO",
+    "odometer": "Odómetro",
+    "fuel": "Combustible",
+    "battery": "Batería",
+    "lastSynced": "Última sincronización",
+    "requestSpecialist": "Solicitar un Especialista 3C",
+    "serviceAlert": "El odómetro lee {{count}} mi — supera el umbral de servicio de 50,000 mi.",
+    "smartcarConnected": "Smartcar Conectado",
+    "endToEnd": "Cifrado de extremo a extremo · OAuth 2.0"
   },
   "wallet": {
     "title": "DYNASTY WALLET",
     "subtitle": "MOTOR DE TRIPLE DIVISIÓN",
     "connected": "CONECTADO",
-    "setupNeeded": "CONFIGURACIÓN NECESARIA"
+    "setupNeeded": "CONFIGURACIÓN NECESARIA",
+    "pending": "PENDIENTE",
+    "processing": "Procesando",
+    "lifetime": "TOTAL",
+    "allTime": "Todo el tiempo",
+    "howSplitWorks": "CÓMO FUNCIONA LA DIVISIÓN",
+    "splitSeller": "Al Vendedor / Distribuidor",
+    "splitMember": "Tu Parte (Miembro)",
+    "splitRunner": "Runner / Logística",
+    "splitPlatform": "Plataforma 3C",
+    "connectBank": "Conectar tu Banco",
+    "connectBankDesc": "Vincula tu cuenta bancaria via Stripe para recibir tu parte como Miembro en cada transacción.",
+    "connectViaStripe": "Conectar via Stripe",
+    "transactionHistory": "HISTORIAL DE TRANSACCIONES",
+    "txEmpty": "Las transacciones aparecen al cerrar acuerdos"
   },
   "notifications": {
     "title": "NOTIFICACIONES",

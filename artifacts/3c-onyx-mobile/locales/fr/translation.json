@@ -83,13 +83,36 @@
   "garage": {
     "title": "MON GARAGE",
     "subtitle": "Télématique en direct via Smartcar Connect",
-    "addVehicle": "Connecter"
+    "addVehicle": "Connecter",
+    "live": "EN DIRECT",
+    "odometer": "Odomètre",
+    "fuel": "Carburant",
+    "battery": "Batterie",
+    "lastSynced": "Dernière synchronisation",
+    "requestSpecialist": "Demander un Spécialiste 3C",
+    "serviceAlert": "L'odomètre indique {{count}} mi — dépasse le seuil de service de 50 000 mi.",
+    "smartcarConnected": "Smartcar Connecté",
+    "endToEnd": "Chiffrement de bout en bout · OAuth 2.0"
   },
   "wallet": {
     "title": "DYNASTY WALLET",
     "subtitle": "MOTEUR TRIPLE DIVISION",
     "connected": "CONNECTÉ",
-    "setupNeeded": "CONFIGURATION REQUISE"
+    "setupNeeded": "CONFIGURATION REQUISE",
+    "pending": "EN ATTENTE",
+    "processing": "En traitement",
+    "lifetime": "TOTAL",
+    "allTime": "Tout le temps",
+    "howSplitWorks": "COMMENT LE PARTAGE FONCTIONNE",
+    "splitSeller": "Au Vendeur / Concessionnaire",
+    "splitMember": "Part Membre (Vous)",
+    "splitRunner": "Runner / Logistique",
+    "splitPlatform": "Plateforme 3C",
+    "connectBank": "Connecter votre Banque",
+    "connectBankDesc": "Reliez votre compte bancaire via Stripe pour recevoir votre Part Membre sur chaque transaction.",
+    "connectViaStripe": "Connecter via Stripe",
+    "transactionHistory": "HISTORIQUE DES TRANSACTIONS",
+    "txEmpty": "Les transactions apparaissent à la clôture des deals"
   },
   "notifications": {
     "title": "NOTIFICATIONS",

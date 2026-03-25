@@ -83,13 +83,36 @@
   "garage": {
     "title": "MY GARAGE",
     "subtitle": "Live telematics via Smartcar Connect",
-    "addVehicle": "Connect"
+    "addVehicle": "Connect",
+    "live": "LIVE",
+    "odometer": "Odometer",
+    "fuel": "Fuel",
+    "battery": "Battery",
+    "lastSynced": "Last synced",
+    "requestSpecialist": "Request a 3C Specialist",
+    "serviceAlert": "Odometer reads {{count}} mi — exceeds 50,000 mi service threshold.",
+    "smartcarConnected": "Smartcar Connected",
+    "endToEnd": "End-to-end encrypted · OAuth 2.0"
   },
   "wallet": {
     "title": "DYNASTY WALLET",
     "subtitle": "TRIPLE-SPLIT ENGINE",
     "connected": "CONNECTED",
-    "setupNeeded": "SETUP NEEDED"
+    "setupNeeded": "SETUP NEEDED",
+    "pending": "PENDING",
+    "processing": "Processing",
+    "lifetime": "LIFETIME",
+    "allTime": "All time",
+    "howSplitWorks": "HOW THE SPLIT WORKS",
+    "splitSeller": "To Seller / Dealer",
+    "splitMember": "Member Slice (You)",
+    "splitRunner": "Runner / Logistics",
+    "splitPlatform": "3C Platform",
+    "connectBank": "Connect Your Bank",
+    "connectBankDesc": "Link your bank account via Stripe to receive your Member Slice on every transaction.",
+    "connectViaStripe": "Connect via Stripe",
+    "transactionHistory": "TRANSACTION HISTORY",
+    "txEmpty": "Transactions appear as deals close"
   },
   "notifications": {
     "title": "NOTIFICATIONS",

@@ -83,13 +83,36 @@
   "garage": {
     "title": "جراجي",
     "subtitle": "التتبع المباشر عبر Smartcar Connect",
-    "addVehicle": "توصيل"
+    "addVehicle": "توصيل",
+    "live": "مباشر",
+    "odometer": "عداد المسافات",
+    "fuel": "الوقود",
+    "battery": "البطارية",
+    "lastSynced": "آخر مزامنة",
+    "requestSpecialist": "طلب متخصص 3C",
+    "serviceAlert": "عداد المسافات يقرأ {{count}} ميل — يتجاوز حد الخدمة البالغ 50,000 ميل.",
+    "smartcarConnected": "Smartcar متصل",
+    "endToEnd": "تشفير من طرف إلى طرف · OAuth 2.0"
   },
   "wallet": {
     "title": "محفظة داينستي",
     "subtitle": "محرك التقسيم الثلاثي",
     "connected": "متصل",
-    "setupNeeded": "الإعداد مطلوب"
+    "setupNeeded": "الإعداد مطلوب",
+    "pending": "معلق",
+    "processing": "قيد المعالجة",
+    "lifetime": "الإجمالي",
+    "allTime": "طوال الوقت",
+    "howSplitWorks": "كيف يعمل التقسيم",
+    "splitSeller": "للبائع / الوكيل",
+    "splitMember": "حصة العضو (أنت)",
+    "splitRunner": "Runner / اللوجستيات",
+    "splitPlatform": "منصة 3C",
+    "connectBank": "ربط حسابك البنكي",
+    "connectBankDesc": "اربط حسابك البنكي عبر Stripe لتلقي حصة عضويتك في كل معاملة.",
+    "connectViaStripe": "الربط عبر Stripe",
+    "transactionHistory": "تاريخ المعاملات",
+    "txEmpty": "تظهر المعاملات عند إغلاق الصفقات"
   },
   "notifications": {
     "title": "الإشعارات",

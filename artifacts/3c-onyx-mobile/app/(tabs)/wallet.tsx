@@ -84,20 +84,20 @@ export default function WalletScreen() {
       >
         {/* Balance cards */}
         <View style={styles.statsGrid}>
-          <StatCard label="PENDING" value={`$${pending.toLocaleString()}`} sub="Processing" color="#C9A227" />
-          <StatCard label="LIFETIME" value={`$${lifetime.toLocaleString()}`} sub="All time" color="#34D399" />
+          <StatCard label={t("wallet.pending")} value={`$${pending.toLocaleString()}`} sub={t("wallet.processing")} color="#C9A227" />
+          <StatCard label={t("wallet.lifetime")} value={`$${lifetime.toLocaleString()}`} sub={t("wallet.allTime")} color="#34D399" />
         </View>
 
         {/* Triple-split explainer */}
         <View style={styles.splitCard}>
-          <Text style={styles.splitTitle}>HOW THE SPLIT WORKS</Text>
+          <Text style={styles.splitTitle}>{t("wallet.howSplitWorks")}</Text>
           {[
-            { pct: "85%", label: "To Seller / Dealer",    color: "#60A5FA" },
-            { pct: "5%",  label: "Member Slice (You)",    color: "#C9A227" },
-            { pct: "2.5%",label: "Runner / Logistics",   color: "#A78BFA" },
-            { pct: "7.5%",label: "3C Platform",          color: "#34D399" },
+            { pct: "85%",  label: t("wallet.splitSeller"),   color: "#60A5FA" },
+            { pct: "5%",   label: t("wallet.splitMember"),   color: "#C9A227" },
+            { pct: "2.5%", label: t("wallet.splitRunner"),   color: "#A78BFA" },
+            { pct: "7.5%", label: t("wallet.splitPlatform"), color: "#34D399" },
           ].map(({ pct, label, color }) => (
-            <View key={label} style={styles.splitRow}>
+            <View key={pct} style={styles.splitRow}>
               <Text style={[styles.splitPct, { color }]}>{pct}</Text>
               <Text style={styles.splitLabel}>{label}</Text>
             </View>
@@ -108,22 +108,22 @@ export default function WalletScreen() {
         {!connected && (
           <View style={styles.connectCta}>
             <Ionicons name="card-outline" size={20} color="#C9A227" style={{ marginBottom: 10 }} />
-            <Text style={{ color: "#fff", fontSize: 14, fontWeight: "800", marginBottom: 6 }}>Connect Your Bank</Text>
+            <Text style={{ color: "#fff", fontSize: 14, fontWeight: "800", marginBottom: 6 }}>{t("wallet.connectBank")}</Text>
             <Text style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, textAlign: "center", lineHeight: 18, marginBottom: 16 }}>
-              Link your bank account via Stripe to receive your Member Slice on every transaction.
+              {t("wallet.connectBankDesc")}
             </Text>
             <View style={{ padding: 10, paddingHorizontal: 20, backgroundColor: "#C9A227", borderRadius: 12 }}>
-              <Text style={{ color: "#000", fontWeight: "800", fontSize: 13 }}>Connect via Stripe</Text>
+              <Text style={{ color: "#000", fontWeight: "800", fontSize: 13 }}>{t("wallet.connectViaStripe")}</Text>
             </View>
           </View>
         )}
 
         {/* Transaction history */}
-        <Text style={styles.sectionTitle}>TRANSACTION HISTORY</Text>
+        <Text style={styles.sectionTitle}>{t("wallet.transactionHistory")}</Text>
         {!data || data.sliceTransactions.length === 0 ? (
           <View style={styles.empty}>
             <Ionicons name="receipt-outline" size={32} color="rgba(255,255,255,0.1)" />
-            <Text style={styles.emptyText}>Transactions appear as deals close</Text>
+            <Text style={styles.emptyText}>{t("wallet.txEmpty")}</Text>
           </View>
         ) : (
           data.sliceTransactions.map((tx) => (

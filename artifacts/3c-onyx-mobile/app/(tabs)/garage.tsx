@@ -81,6 +81,7 @@ function GaugeCircle({ value, max, color, label, unit }: { value: number; max: n
 }
 
 function VehicleCard({ vehicle }: { vehicle: GarageVehicle }) {
+  const { t } = useTranslation();
   const needsService = vehicle.odometer > 50000;
   const isElectric = vehicle.fuelType === "electric";
 
@@ -101,7 +102,7 @@ function VehicleCard({ vehicle }: { vehicle: GarageVehicle }) {
         </View>
         <View style={styles.livePill}>
           <View style={styles.liveDot} />
-          <Text style={styles.liveText}>LIVE</Text>
+          <Text style={styles.liveText}>{t("garage.live")}</Text>
         </View>
       </View>
 
@@ -111,14 +112,14 @@ function VehicleCard({ vehicle }: { vehicle: GarageVehicle }) {
           value={vehicle.odometer}
           max={100000}
           color="rgba(255,255,255,0.4)"
-          label="Odometer"
+          label={t("garage.odometer")}
         />
         {vehicle.fuelPercent != null && (
           <GaugeCircle
             value={vehicle.fuelPercent}
             max={100}
             color={COLORS.gold}
-            label="Fuel"
+            label={t("garage.fuel")}
             unit="%"
           />
         )}
@@ -127,7 +128,7 @@ function VehicleCard({ vehicle }: { vehicle: GarageVehicle }) {
             value={vehicle.batteryPercent}
             max={100}
             color={COLORS.emerald}
-            label="Battery"
+            label={t("garage.battery")}
             unit="%"
           />
         )}
@@ -136,7 +137,7 @@ function VehicleCard({ vehicle }: { vehicle: GarageVehicle }) {
       {/* Sync */}
       <View style={styles.syncRow}>
         <Feather name="clock" size={10} color={COLORS.whiteDim} />
-        <Text style={styles.syncText}>Last synced {formatLastSync(vehicle.lastSync)}</Text>
+        <Text style={styles.syncText}>{t("garage.lastSynced")} {formatLastSync(vehicle.lastSync)}</Text>
       </View>
 
       {/* Service Alert */}
@@ -145,12 +146,12 @@ function VehicleCard({ vehicle }: { vehicle: GarageVehicle }) {
           <View style={styles.alertBox}>
             <MaterialCommunityIcons name="alert" size={14} color={COLORS.red} />
             <Text style={styles.alertText}>
-              Odometer reads {vehicle.odometer.toLocaleString()} mi — exceeds 50,000 mi service threshold.
+              {t("garage.serviceAlert", { count: vehicle.odometer.toLocaleString() })}
             </Text>
           </View>
           <Pressable style={styles.specialistBtn}>
             <MaterialCommunityIcons name="tools" size={14} color={COLORS.black} />
-            <Text style={styles.specialistBtnText}>Request a 3C Specialist</Text>
+            <Text style={styles.specialistBtnText}>{t("garage.requestSpecialist")}</Text>
           </Pressable>
         </>
       )}
@@ -206,8 +207,8 @@ export default function GarageScreen() {
         <View style={styles.smartcarBanner}>
           <MaterialCommunityIcons name="shield-link-variant" size={18} color={COLORS.gold} />
           <View style={{ flex: 1 }}>
-            <Text style={styles.bannerTitle}>Smartcar Connected</Text>
-            <Text style={styles.bannerSub}>End-to-end encrypted · OAuth 2.0</Text>
+            <Text style={styles.bannerTitle}>{t("garage.smartcarConnected")}</Text>
+            <Text style={styles.bannerSub}>{t("garage.endToEnd")}</Text>
           </View>
           <Feather name="chevron-right" size={16} color={COLORS.whiteDim} />
         </View>

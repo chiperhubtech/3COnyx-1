@@ -83,13 +83,36 @@
   "garage": {
     "title": "MEINE GARAGE",
     "subtitle": "Live-Telematik via Smartcar Connect",
-    "addVehicle": "Verbinden"
+    "addVehicle": "Verbinden",
+    "live": "LIVE",
+    "odometer": "Kilometerzähler",
+    "fuel": "Kraftstoff",
+    "battery": "Batterie",
+    "lastSynced": "Zuletzt synchronisiert",
+    "requestSpecialist": "Einen 3C-Spezialisten anfordern",
+    "serviceAlert": "Kilometerzähler zeigt {{count}} mi — überschreitet den 50.000-mi-Service-Schwellenwert.",
+    "smartcarConnected": "Smartcar Verbunden",
+    "endToEnd": "Ende-zu-Ende verschlüsselt · OAuth 2.0"
   },
   "wallet": {
     "title": "DYNASTY WALLET",
     "subtitle": "DREIFACH-TEILUNGS-MOTOR",
     "connected": "VERBUNDEN",
-    "setupNeeded": "EINRICHTUNG ERFORDERLICH"
+    "setupNeeded": "EINRICHTUNG ERFORDERLICH",
+    "pending": "AUSSTEHEND",
+    "processing": "In Bearbeitung",
+    "lifetime": "GESAMT",
+    "allTime": "Insgesamt",
+    "howSplitWorks": "WIE DIE AUFTEILUNG FUNKTIONIERT",
+    "splitSeller": "An Verkäufer / Händler",
+    "splitMember": "Mitgliederanteil (Sie)",
+    "splitRunner": "Runner / Logistik",
+    "splitPlatform": "3C Plattform",
+    "connectBank": "Bank verbinden",
+    "connectBankDesc": "Verknüpfen Sie Ihr Bankkonto über Stripe, um Ihren Mitgliederanteil bei jeder Transaktion zu erhalten.",
+    "connectViaStripe": "Über Stripe verbinden",
+    "transactionHistory": "TRANSAKTIONSHISTORIE",
+    "txEmpty": "Transaktionen erscheinen, wenn Deals abgeschlossen werden"
   },
   "notifications": {
     "title": "BENACHRICHTIGUNGEN",
