@@ -42,6 +42,7 @@ import IntelligenceFeed from "@/pages/intelligence";
 import AftermarketPage from "@/pages/aftermarket";
 import RaceHubPage from "@/pages/race-hub";
 import CRMHubPage  from "@/pages/crm-hub";
+import PlatformIntelligence from "@/pages/platform-intelligence";
 import Guardian from "@/pages/guardian";
 import Subscription from "@/pages/subscription";
 import Partners from "@/pages/partners";
@@ -138,6 +139,7 @@ function AppRoutes() {
             <Route path="/aftermarket"          component={AftermarketPage} />
             <Route path="/race-hub"             component={RaceHubPage} />
             <Route path="/crm-hub"             component={CRMHubPage}  />
+            <Route path="/platform-intelligence" component={PlatformIntelligence} />
             <Route path="/trust"                component={TrustPage} />
 
             {/* Consumer */}

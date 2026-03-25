@@ -155,6 +155,7 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
 
   const SPECIALIST_NAV = [
     { label: "CRM Hub",                   path: "/crm-hub",              icon: Link2,           description: "VinSolutions · DealerSocket · Tekion · 9 CRMs", accent: "#C9A227" },
+    { label: "Platform Intelligence",     path: "/platform-intelligence", icon: Brain,           description: "ONYX Neural Engine · AI insights · Live telemetry", accent: "#7C3AED" },
     { label: t("sidebar.specialistDash"), path: "/specialist-dashboard", icon: LayoutDashboard, description: t("sidebar.specialistDashDesc"), accent: "#4FC3F7" },
     { label: t("sidebar.inspection"),     path: "/inspection",           icon: ClipboardCheck,  description: t("sidebar.inspectionDesc"),     accent: "#34D399" },
     { label: t("sidebar.delivery"),       path: "/delivery",             icon: QrCode,          description: t("sidebar.deliveryDesc"),       accent: "#C9A227" },

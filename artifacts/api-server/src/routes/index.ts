@@ -57,6 +57,7 @@ import aftermarketRouter from "./aftermarket";
 import racingRouter from "./racing";
 import gamificationRouter from "./gamification";
 import crmRouter from "./crm";
+import telemetryRouter from "./telemetry";
 
 const router: IRouter = Router();
 
@@ -115,6 +116,7 @@ router.use(aftermarketRouter);
 router.use(racingRouter);
 router.use(gamificationRouter);
 router.use("/crm", crmRouter);
+router.use("/telemetry", telemetryRouter);
 router.use(orchestratorRouter);
 
 router.use(
