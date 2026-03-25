@@ -282,7 +282,7 @@ function computeMetrics(): PlatformMetrics {
 // ─── Routes ───────────────────────────────────────────────────────────────────
 
 // GET /telemetry/pulse — real-time snapshot of everything
-router.get("/telemetry/pulse", (_req: Request, res: Response) => {
+router.get("/pulse", (_req: Request, res: Response) => {
   const metrics   = computeMetrics();
   metrics.network.dauMauRatio = parseFloat((metrics.network.dau / metrics.network.mau).toFixed(2));
   const insights  = generateInsights(metrics);
@@ -291,7 +291,7 @@ router.get("/telemetry/pulse", (_req: Request, res: Response) => {
 });
 
 // GET /telemetry/events — immutable event ledger (last 50)
-router.get("/telemetry/events", (req: Request, res: Response) => {
+router.get("/events", (req: Request, res: Response) => {
   const { limit = "30", category } = req.query as Record<string, string>;
   let events = [...eventLedger].reverse();
   if (category) events = events.filter(e => e.category === category);
@@ -299,7 +299,7 @@ router.get("/telemetry/events", (req: Request, res: Response) => {
 });
 
 // POST /telemetry/events — push a new platform event (Apple-style silent logging)
-router.post("/telemetry/events", (req: Request, res: Response) => {
+router.post("/events", (req: Request, res: Response) => {
   const { category, action, actor, value, metadata } = req.body as Partial<TelemetryEvent>;
   if (!category || !action) { res.status(400).json({ error: "category and action required" }); return; }
   const event: TelemetryEvent = {
@@ -315,21 +315,21 @@ router.post("/telemetry/events", (req: Request, res: Response) => {
 });
 
 // GET /telemetry/insights — AI insight engine only
-router.get("/telemetry/insights", (_req: Request, res: Response) => {
+router.get("/insights", (_req: Request, res: Response) => {
   const metrics  = computeMetrics();
   const insights = generateInsights(metrics);
   res.json({ insights, generatedAt: new Date().toISOString(), engineVersion: "ONYX-Neural-v2.4" });
 });
 
 // GET /telemetry/forecast — predictive analytics
-router.get("/telemetry/forecast", (_req: Request, res: Response) => {
+router.get("/forecast", (_req: Request, res: Response) => {
   const metrics   = computeMetrics();
   const forecasts = generatePredictions(metrics);
   res.json({ forecasts, modelVersion: "ONYX-Neural-v2.4", confidence: "high", generatedAt: new Date().toISOString() });
 });
 
 // GET /telemetry/network — viral coefficient + network health
-router.get("/telemetry/network", (_req: Request, res: Response) => {
+router.get("/network", (_req: Request, res: Response) => {
   const metrics = computeMetrics();
   const { network, members } = metrics;
   res.json({

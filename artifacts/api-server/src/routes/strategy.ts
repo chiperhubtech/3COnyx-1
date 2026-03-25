@@ -215,7 +215,7 @@ export const STRATEGY = {
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
 
-router.get("/strategy/overview", (_req: Request, res: Response) => {
+router.get("/overview", (_req: Request, res: Response) => {
   const current = STRATEGY.currentState;
   const y1      = STRATEGY.yearlyModel[0];
   const progress = {
@@ -238,15 +238,15 @@ router.get("/strategy/overview", (_req: Request, res: Response) => {
   });
 });
 
-router.get("/strategy/model", (_req: Request, res: Response) => {
+router.get("/model", (_req: Request, res: Response) => {
   res.json({ yearlyModel: STRATEGY.yearlyModel, revenueStreams: STRATEGY.revenueStreams });
 });
 
-router.get("/strategy/flywheel", (_req: Request, res: Response) => {
+router.get("/flywheel", (_req: Request, res: Response) => {
   res.json({ flywheel: STRATEGY.flywheel, roles: STRATEGY.roles });
 });
 
-router.get("/strategy/valuation", (_req: Request, res: Response) => {
+router.get("/valuation", (_req: Request, res: Response) => {
   const milestones = STRATEGY.yearlyModel.map(y => ({
     year: y.year,
     label: y.label,
@@ -266,7 +266,7 @@ router.get("/strategy/valuation", (_req: Request, res: Response) => {
   });
 });
 
-router.get("/strategy/founding-pilot", (_req: Request, res: Response) => {
+router.get("/founding-pilot", (_req: Request, res: Response) => {
   res.json({ foundingPilot: STRATEGY.foundingPilot, roles: STRATEGY.roles });
 });
 
