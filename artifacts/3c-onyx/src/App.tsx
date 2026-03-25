@@ -64,6 +64,7 @@ import AdminPage    from "@/pages/admin";
 import TermsPage    from "@/pages/legal/terms";
 import PrivacyPage  from "@/pages/legal/privacy";
 import TrustPage    from "@/pages/trust";
+import { AccessGate } from "@/components/AccessGate";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -195,22 +196,24 @@ function AppRoutes() {
 
 function App() {
   return (
-    <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-            <AuthProvider>
-              <ErrorBoundary>
-                <AppRoutes />
-              </ErrorBoundary>
-              <AIConcierge />
-              <RewardToast />
-            </AuthProvider>
-          </WouterRouter>
-          <Toaster />
-        </TooltipProvider>
-      </QueryClientProvider>
-    </ErrorBoundary>
+    <AccessGate>
+      <ErrorBoundary>
+        <QueryClientProvider client={queryClient}>
+          <TooltipProvider>
+            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+              <AuthProvider>
+                <ErrorBoundary>
+                  <AppRoutes />
+                </ErrorBoundary>
+                <AIConcierge />
+                <RewardToast />
+              </AuthProvider>
+            </WouterRouter>
+            <Toaster />
+          </TooltipProvider>
+        </QueryClientProvider>
+      </ErrorBoundary>
+    </AccessGate>
   );
 }
 
