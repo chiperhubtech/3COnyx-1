@@ -8,13 +8,14 @@ import {
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import OnboardingFlow, { checkOnboardingComplete } from "@/components/OnboardingFlow";
 import "@/lib/i18n";
 import { DARK, ThemeProvider, useTheme } from "@/src/theme";
 
@@ -57,15 +58,24 @@ export default function RootLayout() {
     Inter_600SemiBold,
     Inter_700Bold,
   });
+  const [onboardingDone, setOnboardingDone] = useState<boolean | null>(null);
 
   useEffect(() => {
     if (fontsLoaded || fontError) {
       SplashScreen.hideAsync();
+      checkOnboardingComplete().then(done => setOnboardingDone(done));
     }
   }, [fontsLoaded, fontError]);
 
-  if (!fontsLoaded && !fontError) {
-    return <BrandedLoader />;
+  if (!fontsLoaded && !fontError) return <BrandedLoader />;
+  if (onboardingDone === null)     return <BrandedLoader />;
+
+  if (!onboardingDone) {
+    return (
+      <SafeAreaProvider>
+        <OnboardingFlow onComplete={() => setOnboardingDone(true)} />
+      </SafeAreaProvider>
+    );
   }
 
   return (
