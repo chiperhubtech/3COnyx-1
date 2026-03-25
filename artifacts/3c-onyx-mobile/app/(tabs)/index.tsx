@@ -306,6 +306,81 @@ export default function HomeScreen() {
           ))}
         </View>
 
+        {/* ── Ecosystem ──────────────────────────────────────────── */}
+        <View style={styles.sectionHeader}>
+          <Text style={[styles.sectionTitle, { color: theme.textMuted }]}>ECOSYSTEM</Text>
+          <View style={[styles.sectionLine, { backgroundColor: theme.cardBorder }]} />
+          <Pressable onPress={() => router.push("/ecosystem" as never)}>
+            <Text style={[styles.sectionSeeAll, { color: theme.gold }]}>All →</Text>
+          </Pressable>
+        </View>
+
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.ecoRow}
+        >
+          {/* Roadside */}
+          <Pressable
+            onPress={() => router.push("/roadside" as never)}
+            style={[styles.ecoCard, { backgroundColor: "#EF444412", borderColor: "#EF444428" }]}
+          >
+            <View style={[styles.ecoIconWrap, { backgroundColor: "#EF444420" }]}>
+              <Feather name="alert-triangle" size={22} color="#EF4444" />
+            </View>
+            <Text style={[styles.ecoLabel, { color: theme.text }]}>Roadside</Text>
+            <Text style={[styles.ecoSub, { color: theme.textMuted }]}>HONK Network</Text>
+            <View style={[styles.ecoBadge, { backgroundColor: "#EF444418", borderColor: "#EF444430" }]}>
+              <Text style={[styles.ecoBadgeText, { color: "#EF4444" }]}>24/7</Text>
+            </View>
+          </Pressable>
+
+          {/* Rentals */}
+          <Pressable
+            onPress={() => router.push("/rentals" as never)}
+            style={[styles.ecoCard, { backgroundColor: `${COLORS.gold}0E`, borderColor: `${COLORS.gold}28` }]}
+          >
+            <View style={[styles.ecoIconWrap, { backgroundColor: `${COLORS.gold}18` }]}>
+              <Feather name="key" size={22} color={COLORS.gold} />
+            </View>
+            <Text style={[styles.ecoLabel, { color: theme.text }]}>Rentals</Text>
+            <Text style={[styles.ecoSub, { color: theme.textMuted }]}>CarCrawler</Text>
+            <View style={[styles.ecoBadge, { backgroundColor: `${COLORS.gold}15`, borderColor: `${COLORS.gold}30` }]}>
+              <Text style={[styles.ecoBadgeText, { color: COLORS.gold }]}>30+ Partners</Text>
+            </View>
+          </Pressable>
+
+          {/* Nearby */}
+          <Pressable
+            onPress={() => router.push("/nearby" as never)}
+            style={[styles.ecoCard, { backgroundColor: "#3B82F612", borderColor: "#3B82F628" }]}
+          >
+            <View style={[styles.ecoIconWrap, { backgroundColor: "#3B82F620" }]}>
+              <Feather name="map-pin" size={22} color="#3B82F6" />
+            </View>
+            <Text style={[styles.ecoLabel, { color: theme.text }]}>Find Auto</Text>
+            <Text style={[styles.ecoSub, { color: theme.textMuted }]}>Google Maps</Text>
+            <View style={[styles.ecoBadge, { backgroundColor: "#3B82F615", borderColor: "#3B82F630" }]}>
+              <Text style={[styles.ecoBadgeText, { color: "#3B82F6" }]}>Any Business</Text>
+            </View>
+          </Pressable>
+
+          {/* Ecosystem Hub */}
+          <Pressable
+            onPress={() => router.push("/ecosystem" as never)}
+            style={[styles.ecoCard, { backgroundColor: `${COLORS.emerald}0E`, borderColor: `${COLORS.emerald}28` }]}
+          >
+            <View style={[styles.ecoIconWrap, { backgroundColor: `${COLORS.emerald}18` }]}>
+              <Feather name="globe" size={22} color={COLORS.emerald} />
+            </View>
+            <Text style={[styles.ecoLabel, { color: theme.text }]}>Ecosystem</Text>
+            <Text style={[styles.ecoSub, { color: theme.textMuted }]}>All Services</Text>
+            <View style={[styles.ecoBadge, { backgroundColor: `${COLORS.emerald}15`, borderColor: `${COLORS.emerald}30` }]}>
+              <Text style={[styles.ecoBadgeText, { color: COLORS.emerald }]}>Explore All</Text>
+            </View>
+          </Pressable>
+        </ScrollView>
+
         {/* ── Platform Status ────────────────────────────────────── */}
         <View style={styles.sectionHeader}>
           <Text style={[styles.sectionTitle, { color: theme.textMuted }]}>
@@ -519,6 +594,30 @@ const styles = StyleSheet.create({
   statusRight: { flexDirection: "row", alignItems: "center", gap: 6 },
   statusDot: { width: 5, height: 5, borderRadius: 3 },
   statusValue: { fontSize: 10, fontWeight: "700", letterSpacing: 1 },
+
+  // Ecosystem section
+  sectionSeeAll: { fontSize: 10, fontWeight: "700" },
+  ecoRow: { paddingLeft: 16, paddingRight: 8, gap: 10, paddingBottom: 4 },
+  ecoCard: {
+    borderWidth: 1,
+    borderRadius: 18,
+    padding: 14,
+    width: 128,
+    alignItems: "flex-start",
+    gap: 4,
+  },
+  ecoIconWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 6,
+  },
+  ecoLabel: { fontSize: 13, fontWeight: "700" },
+  ecoSub:   { fontSize: 10, fontWeight: "500" },
+  ecoBadge: { marginTop: 6, paddingHorizontal: 7, paddingVertical: 3, borderRadius: 6, borderWidth: 1 },
+  ecoBadgeText: { fontSize: 8, fontWeight: "800", letterSpacing: 0.5 },
 
   // Footer
   footerBranding: {

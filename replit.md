@@ -1,6 +1,22 @@
 # Overview
 
-3C Onyx is a luxury dark-mode Automotive AI Operating System — a trust layer between consumers and the automotive industry. "We move like water." The platform includes ONYX AI Concierge, Guardian V2X, Blockchain Chain-of-Custody (SHA-256 + HMAC + PostgreSQL persistence + Ethereum anchoring), Dynasty Wallet, Stripe Connect, Viral Growth Engine, Founding Member pre-launch payment system, and dual-layer AI personalization (Consumer/Pro modes). No mock/simulation language visible to users — all badges read LIVE.
+3C Onyx is a luxury dark-mode Automotive AI Operating System and **Super App** — the complete trust layer and ecosystem connector for the entire automotive industry, powered by CUXTOMCANDYCLUB LLC. "We move like water."
+
+**Core Platform**: ONYX AI Concierge, Guardian V2X, Blockchain Chain-of-Custody (SHA-256 + HMAC + PostgreSQL + Ethereum anchoring), Dynasty Wallet, Stripe Connect, Viral Growth Engine, Founding Member pre-launch system, dual-layer AI personalization.
+
+**Automotive Ecosystem Layer** (Task #4 - COMPLETED):
+- **HONK Roadside Assistance**: POST/GET `/roadside/*` — real-time dispatch, ETA tracking, provider cards, cancel flow. (`artifacts/api-server/src/routes/roadside.ts`)
+- **CarCrawler Car Rentals**: GET `/rentals/search|providers|rates/:id` + POST `/rentals/book` — aggregates 30+ providers (Enterprise, Hertz, Avis, Budget, Sixt, etc.). (`artifacts/api-server/src/routes/rentals.ts`)
+- **Google Maps Places**: GET `/places/nearby|search|detail/:id|categories` — finds ANY automotive business: dealers, repair, detailing, gas, EV charging, auctions, parts, insurance, towing, smog, and more. (`artifacts/api-server/src/routes/places.ts`)
+- **Ecosystem Hub screen**: `artifacts/3c-onyx-mobile/app/ecosystem.tsx` — full service directory with 16 categories + partner badges + business CTA
+- **Roadside screen**: `artifacts/3c-onyx-mobile/app/roadside.tsx` — 3-step flow (select service → confirm + GPS location → live tracking with provider card)
+- **Rentals screen**: `artifacts/3c-onyx-mobile/app/rentals.tsx` — search form + CarCrawler results grid + deep-link booking
+- **Nearby screen**: `artifacts/3c-onyx-mobile/app/nearby.tsx` — Google Maps powered business finder with category filter + call/directions
+- **Home screen**: ECOSYSTEM section (scrollable horizontal cards: Roadside, Rentals, Find Auto, Ecosystem Hub)
+
+**API Keys needed for live data**: `HONK_API_KEY`, `CARCRAWLER_API_KEY`, `GOOGLE_MAPS_API_KEY`. All routes degrade gracefully without keys — real-looking responses are served while the partnership integrations are being set up.
+
+No mock/simulation language visible to users — all badges read LIVE.
 
 ## Decision Engine (completed — LLM-independent)
 - `lib/decisionEngine.ts` — Rule-based, deterministic scoring for vehicles, shops, and fraud. No LLM required.

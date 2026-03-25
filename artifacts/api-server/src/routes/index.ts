@@ -50,6 +50,9 @@ import enhanceRouter from "./enhance";
 import documentsRouter from "./documents";
 import engineRouter from "./engine";
 import sdvRouter from "./sdv";
+import roadsideRouter from "./roadside";
+import rentalsRouter from "./rentals";
+import placesRouter from "./places";
 
 const router: IRouter = Router();
 
@@ -101,6 +104,9 @@ router.use(enhanceRouter);
 router.use(documentsRouter);
 router.use(engineRouter);
 router.use(sdvRouter);
+router.use("/roadside", roadsideRouter);
+router.use("/rentals", rentalsRouter);
+router.use("/places", placesRouter);
 router.use(orchestratorRouter);
 
 router.use(
