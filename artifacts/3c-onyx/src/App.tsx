@@ -41,6 +41,7 @@ import Command from "@/pages/command";
 import IntelligenceFeed from "@/pages/intelligence";
 import AftermarketPage from "@/pages/aftermarket";
 import RaceHubPage from "@/pages/race-hub";
+import CRMHubPage  from "@/pages/crm-hub";
 import Guardian from "@/pages/guardian";
 import Subscription from "@/pages/subscription";
 import Partners from "@/pages/partners";
@@ -136,6 +137,7 @@ function AppRoutes() {
             <Route path="/intelligence"         component={IntelligenceFeed} />
             <Route path="/aftermarket"          component={AftermarketPage} />
             <Route path="/race-hub"             component={RaceHubPage} />
+            <Route path="/crm-hub"             component={CRMHubPage}  />
             <Route path="/trust"                component={TrustPage} />
 
             {/* Consumer */}
