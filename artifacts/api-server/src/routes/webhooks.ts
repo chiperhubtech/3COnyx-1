@@ -19,7 +19,7 @@
 import { Router, type Request, type Response } from "express";
 import type Stripe from "stripe";
 import { getUncachableStripeClient } from "../lib/stripeClient";
-import { db, usersTable, transactionsTable } from "@workspace/db";
+import { db, usersTable, transactionsTable, kycVerificationsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { writeAudit } from "../lib/auditService";
 import { logger } from "../lib/logger";
@@ -182,6 +182,36 @@ async function handleEvent(event: Stripe.Event) {
     case "customer.subscription.trial_will_end": {
       logger.info({ customer: obj.customer }, "Trial ending soon");
       await writeAudit({ eventType: "SYSTEM", severity: "INFO", action: `Trial ending for customer ${obj.customer as string}` });
+      break;
+    }
+
+    case "identity.verification_session.verified": {
+      // KYC gate: mark user as VERIFIED in our DB when Stripe confirms identity
+      const session = obj as unknown as Stripe.Identity.VerificationSession;
+      if (session.id) {
+        await db
+          .update(kycVerificationsTable)
+          .set({ status: "VERIFIED", verifiedAt: new Date() })
+          .where(eq(kycVerificationsTable.stripeVerifSessionId, session.id));
+        logger.info({ sessionId: session.id }, "KYC verification_session.verified — status updated");
+        await writeAudit({
+          eventType: "AUTH",
+          severity: "INFO",
+          action: `KYC verified via Stripe Identity session ${session.id}`,
+        });
+      }
+      break;
+    }
+
+    case "identity.verification_session.requires_input": {
+      const session = obj as unknown as Stripe.Identity.VerificationSession;
+      if (session.id) {
+        await db
+          .update(kycVerificationsTable)
+          .set({ status: "FAILED" })
+          .where(eq(kycVerificationsTable.stripeVerifSessionId, session.id));
+        logger.warn({ sessionId: session.id }, "KYC verification requires_input — marked FAILED");
+      }
       break;
     }
 

@@ -22,6 +22,7 @@ import Marketplace from "@/pages/marketplace";
 import Garage from "@/pages/garage";
 import Logistics from "@/pages/logistics";
 import BayDashboard from "@/pages/bay-dashboard";
+import ComplianceDashboard from "@/pages/compliance";
 import Delivery from "@/pages/delivery";
 import Wallet from "@/pages/wallet";
 import AuditVault from "@/pages/audit-vault";
@@ -154,6 +155,7 @@ function AppRoutes() {
             <Route path="/garage"               component={Garage} />
             <Route path="/logistics"            component={Logistics} />
             <Route path="/bay-dashboard"        component={BayDashboard} />
+            <Route path="/compliance"           component={ComplianceDashboard} />
             <Route path="/delivery"             component={Delivery} />
             <Route path="/wallet"               component={Wallet} />
             <Route path="/referral-wallet"      component={ReferralWallet} />

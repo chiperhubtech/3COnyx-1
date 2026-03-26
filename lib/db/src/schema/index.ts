@@ -19,3 +19,7 @@ export * from "./sdv-profiles";
 export * from "./bay-transactions";
 export * from "./bay-slots";
 export * from "./vin-passports";
+export * from "./member-charters";
+export * from "./kyc-verifications";
+export * from "./ip-anchors";
+export * from "./user-tax-info";

@@ -115,6 +115,9 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const [password, setPassword]     = useState("");
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError]   = useState("");
+  // ── Digital Charter acknowledgements ────────────────────────────
+  const [ackSlice, setAckSlice]     = useState(false);
+  const [ackData, setAckData]       = useState(false);
 
   // ── Ghost Gate (Golden Key) ──────────────────────────────────────
   const [ghostUnlocked, setGhostUnlocked] = useState(false);
@@ -151,6 +154,10 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     if (!name.trim()) { setAuthError("Enter your full name."); return; }
     if (!email.trim() || !email.includes("@")) { setAuthError("Enter a valid email address."); return; }
     if (password.length < 8) { setAuthError("Password must be at least 8 characters."); return; }
+    if (!ackSlice || !ackData) {
+      setAuthError("You must accept both Smart Membership Agreement acknowledgements to proceed.");
+      return;
+    }
     setAuthLoading(true);
     try {
       const res = await fetch(`${BASE}/auth/register`, {
@@ -169,9 +176,19 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         setAuthError(data.error ?? "Registration failed. Please try again.");
         return;
       }
+      let token = "";
       if (data.token) {
-        await SecureStore.setItemAsync(TOKEN_KEY, data.token);
+        token = data.token;
+        await SecureStore.setItemAsync(TOKEN_KEY, token);
         await SecureStore.setItemAsync(USER_KEY, JSON.stringify(data.user));
+      }
+      // Fire-and-forget: record digital charter signature
+      if (token) {
+        void fetch(`${BASE}/compliance/charter/sign`, {
+          method:  "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body:    JSON.stringify({ sliceAckd: true, dataAckd: true }),
+        }).catch(() => { /* non-blocking */ });
       }
       await finish();
     } catch {
@@ -495,6 +512,42 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               />
             </View>
 
+            {/* ── Smart Membership Agreement ── */}
+            <View style={[s.charterCard, { borderColor: `${GOLD}30`, backgroundColor: `${GOLD}08` }]}>
+              <Text style={[s.charterTitle, { color: GOLD }]}>◆  SMART MEMBERSHIP AGREEMENT</Text>
+              <Text style={s.charterBody}>
+                By joining 3C ONYX, you acknowledge that all platform-generated Slice payouts and referral dividends
+                are loyalty credits, not wages. Your personal data is never sold — you retain full data sovereignty.
+                Binding arbitration applies. Charter v1.0.0-2026.
+              </Text>
+              {[
+                {
+                  key:     "slice" as const,
+                  checked: ackSlice,
+                  toggle:  setAckSlice,
+                  label:   "I understand the Member Slice is a loyalty dividend, not employment income.",
+                },
+                {
+                  key:     "data" as const,
+                  checked: ackData,
+                  toggle:  setAckData,
+                  label:   "I acknowledge my data sovereignty rights and accept the platform terms.",
+                },
+              ].map(item => (
+                <TouchableOpacity
+                  key={item.key}
+                  style={s.charterRow}
+                  onPress={() => item.toggle(!item.checked)}
+                  activeOpacity={0.7}
+                >
+                  <View style={[s.checkbox, { borderColor: item.checked ? GOLD : "rgba(255,255,255,0.2)", backgroundColor: item.checked ? GOLD : "transparent" }]}>
+                    {item.checked && <Text style={s.checkmark}>✓</Text>}
+                  </View>
+                  <Text style={s.charterRowText}>{item.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
             {!!authError && (
               <View style={s.authErrBox}>
                 <Text style={s.authErrText}>{authError}</Text>
@@ -504,9 +557,9 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             <View style={s.gap16} />
 
             <TouchableOpacity
-              style={[s.primaryBtn, { backgroundColor: GOLD }, authLoading && { opacity: 0.6 }]}
+              style={[s.primaryBtn, { backgroundColor: GOLD }, (authLoading || !ackSlice || !ackData) && { opacity: 0.5 }]}
               onPress={() => void createAccount()}
-              disabled={authLoading}
+              disabled={authLoading || !ackSlice || !ackData}
             >
               {authLoading
                 ? <ActivityIndicator color="#000" />
@@ -637,6 +690,13 @@ const s = StyleSheet.create({
   primaryBtnText:{ fontSize: 14, fontWeight: "900", color: "#000", letterSpacing: 2, fontFamily: "Inter_700Bold" },
 
   input:         { width: "100%", backgroundColor: CARD, borderWidth: 1, borderColor: `${GOLD}30`, borderRadius: 12, padding: 15, color: "#fff", fontSize: 15, marginBottom: 16 },
+  charterCard:   { borderWidth: 1, borderRadius: 14, padding: 16, marginBottom: 16 },
+  charterTitle:  { fontSize: 10, fontWeight: "800", letterSpacing: 1.5, marginBottom: 10 },
+  charterBody:   { fontSize: 11, lineHeight: 17, color: "rgba(255,255,255,0.4)", marginBottom: 14 },
+  charterRow:    { flexDirection: "row", alignItems: "flex-start", gap: 12, marginBottom: 10 },
+  charterRowText:{ flex: 1, fontSize: 12, lineHeight: 18, color: "rgba(255,255,255,0.6)" },
+  checkbox:      { width: 22, height: 22, borderRadius: 6, borderWidth: 1.5, alignItems: "center", justifyContent: "center", marginTop: 1 },
+  checkmark:     { color: "#000", fontSize: 12, fontWeight: "900" },
   authField:     { marginBottom: 16 },
   authLabel:     { fontSize: 9, fontWeight: "700", letterSpacing: 2, color: "rgba(255,255,255,0.3)", marginBottom: 8 },
   authInput:     { backgroundColor: CARD, borderWidth: 1, borderColor: BORDER, borderRadius: 12, padding: 15, color: "#fff", fontSize: 15 },

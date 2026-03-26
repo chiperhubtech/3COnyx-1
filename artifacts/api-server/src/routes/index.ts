@@ -65,6 +65,9 @@ import neuralRouter from "./neural";
 import usersRouter from "./users";
 import vinRouter from "./vin";
 import bayRouter from "./bay";
+import complianceRouter from "./compliance";
+import kycRouter from "./kyc";
+import ipAnchorRouter from "./ip-anchor";
 
 const router: IRouter = Router();
 
@@ -151,5 +154,8 @@ router.get("/ai-router/status", (_req: Request, res: Response) => {
 router.use(usersRouter);
 router.use(vinRouter);
 router.use(bayRouter);
+router.use(complianceRouter);
+router.use(kycRouter);
+router.use(ipAnchorRouter);
 
 export default router;
