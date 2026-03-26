@@ -170,6 +170,7 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
     { label: t("sidebar.pro"),         path: "/pro",         icon: Wrench,       description: t("sidebar.proDesc"),         accent: "#A78BFA" },
     { label: t("sidebar.custody"),     path: "/custody",     icon: Link2,        description: t("sidebar.custodyDesc"),     accent: "#818CF8" },
     { label: t("sidebar.trust"),       path: "/trust",       icon: Layers,       description: t("sidebar.trustDesc"),       accent: "#60A5FA" },
+    { label: "ONYX Neural Brain",      path: "/onyx-brain",  icon: Brain,        description: "Narrow × Generative × Agentic × General AI — all 4 types live", accent: "#C9A227" },
     { label: t("sidebar.agenticOs"),   path: "/agentic-os",  icon: Cpu,          description: t("sidebar.agenticOsDesc"),   accent: "#818CF8" },
     { label: t("sidebar.guardian"),    path: "/guardian",    icon: ShieldPlus,   description: t("sidebar.guardianDesc"),    accent: "#10B981" },
     { label: t("sidebar.command"),     path: "/command",     icon: Radio,        description: t("sidebar.commandDesc"),     accent: "#EF4444" },

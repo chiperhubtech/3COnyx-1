@@ -50,6 +50,7 @@ import Partners from "@/pages/partners";
 import Unity from "@/pages/unity";
 import Share from "@/pages/share";
 import AgenticOS from "@/pages/agentic-os";
+import ONYXBrain from "@/pages/onyx-brain";
 import Impact from "@/pages/impact";
 import Pro from "@/pages/pro";
 import Custody from "@/pages/custody";
@@ -181,6 +182,7 @@ function AppRoutes() {
             <Route path="/unity"                component={Unity} />
             <Route path="/share"                component={Share} />
             <Route path="/agentic-os"           component={AgenticOS} />
+            <Route path="/onyx-brain"           component={ONYXBrain} />
             <Route path="/impact"               component={Impact} />
             <Route path="/pro"                  component={Pro} />
             <Route path="/custody"              component={Custody} />
