@@ -43,7 +43,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken]       = useState<string | null>(null);
   const [user, setUser]         = useState<AuthUser | null>(null);
   const [isLoading, setLoading] = useState(true);
-  const logoutRef               = useRef<() => Promise<void>>();
+  const logoutRef               = useRef<(() => Promise<void>) | undefined>(undefined);
 
   useEffect(() => {
     (async () => {
