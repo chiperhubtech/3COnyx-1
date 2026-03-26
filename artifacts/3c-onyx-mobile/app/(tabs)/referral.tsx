@@ -6,6 +6,7 @@
 import { Feather } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
 import * as Contacts from "expo-contacts";
+import { useQuery } from "@tanstack/react-query";
 import React, { useCallback, useState } from "react";
 import {
   Alert,
@@ -21,6 +22,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { COLORS } from "@/constants/colors";
+import { apiFetch } from "@/lib/api";
 import { useTheme } from "@/src/theme";
 import { useAuth } from "@/lib/authStore";
 
@@ -94,8 +96,19 @@ export default function ReferralTab() {
   const [contacts, setContacts] = useState<ContactItem[]>([]);
   const [search, setSearch] = useState("");
   const [contactsGranted, setContactsGranted] = useState(false);
-  const [referralCount] = useState(0);
   const [copied, setCopied] = useState(false);
+
+  // Live referral data from the impact API
+  const { data: impactData } = useQuery({
+    queryKey: ["impact-referral", user?.id],
+    queryFn:  () => apiFetch<{ referral: { referralsCount: number; tier: string; tierColor: string; tierReward: string; nextMilestone: number | null }; earnings: { referralBonusUsd: string } }>("/impact"),
+    enabled:  !!user,
+    staleTime: 120_000,
+    retry: false,
+  });
+
+  const referralCount = impactData?.referral?.referralsCount ?? 0;
+  const liveEarned    = impactData?.earnings?.referralBonusUsd ?? "$0.00";
 
   const REFERRAL_CODE = user?.referralCode ?? "—";
   const REFERRAL_LINK = `https://cuxtomcandyclub.ai/join/${REFERRAL_CODE}`;
@@ -163,7 +176,7 @@ export default function ReferralTab() {
               <View style={styles.statsRow}>
                 {[
                   { val: String(referralCount), lbl: "Referred" },
-                  { val: "$0",                   lbl: "Earned"   },
+                  { val: liveEarned,             lbl: "Earned"   },
                   { val: "GOLD",                 lbl: "Next Tier" },
                 ].map((s, i) => (
                   <React.Fragment key={s.lbl}>

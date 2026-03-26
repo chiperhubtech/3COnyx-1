@@ -1,0 +1,19 @@
+Maintain and enhance the current 3C / CUXTOMCANDYCLUB platform exactly as it is, without removing or breaking any existing features, workflows, or user experience.
+
+The system must operate as an AI-powered coordination layer for the automotive industry that connects consumers with existing businesses (dealers, service shops, body shops, insurance providers, lenders, parts vendors, and gig workers), with the goal of making all parties more money, not replacing them.
+
+Core requirements:
+
+1. Keep the current user experience simple, mobile-first, feed-based, and action-driven (“Handle this for me”).
+2. Continue building around real-world workflows: vehicle buying, service/repair, insurance, financing, parts, customization, and roadside assistance.
+3. Ensure every action creates value by saving time, saving money, or increasing convenience for the user.
+4. Track and display user value (example: total savings, completed tasks, successful actions).
+5. Support an affiliate/referral system where industry professionals and members can earn from real transactions generated through the platform.
+6. Enable the platform to coordinate tasks across vendors and gig workers (pickup, delivery, service, etc.) while keeping the experience seamless for the end user.
+7. Do not position the platform as a marketplace or competitor—position it as a trusted layer that routes business to vendors and helps them convert more customers.
+8. Maintain transparency, trust, and fairness across all participants (users and partners).
+9. Allow manual or semi-automated execution behind the scenes if needed, while presenting a smooth, fully functional experience to the user.
+10. Design the system to scale over time into a broader “life management” platform, but keep the primary focus on dominating the automotive use case first.
+
+Final goal:
+Create a system where users feel like everything related to their vehicle is handled for them, and where industry professionals earn more by participating in the platform rather than being replaced by it.

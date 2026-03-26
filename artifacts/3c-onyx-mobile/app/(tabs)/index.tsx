@@ -659,6 +659,14 @@ export default function HomeScreen() {
     staleTime: 30_000,
   });
 
+  // ── Member impact (value dashboard card) ───────────────────────────────
+  const { data: impactData } = useQuery({
+    queryKey: ["impact"],
+    queryFn:  () => apiFetch<{ totalValue: { usd: string }; tasks: { completed: number; active: number }; savings: { capturedUsd: string; captureRate: number }; referral: { referralsCount: number; tier: string; tierColor: string } }>("/impact"),
+    staleTime: 120_000,
+    retry: false,
+  });
+
   const unreadCount = notifications?.unreadCount ?? 0;
   const alerts      = feedData?.alerts ?? [];
   const meta        = feedData?.meta ?? null;
@@ -770,6 +778,33 @@ export default function HomeScreen() {
         <View style={styles.heroWrap}>
           <SavingsHero meta={meta} isLoading={feedLoading} driverScore={fleetData?.overallDriverScore} />
         </View>
+
+        {/* ── ONYX Impact Banner ──────────────────────────────────────── */}
+        <Pressable
+          style={({ pressed }) => [styles.impactBanner, { backgroundColor: theme.card, borderColor: `${COLORS.gold}25`, opacity: pressed ? 0.8 : 1 }]}
+          onPress={() => router.push("/my-impact" as never)}
+        >
+          <View style={[styles.impactBannerGlow, { backgroundColor: `${COLORS.gold}06` }]} />
+          <View style={styles.impactBannerLeft}>
+            <View style={[styles.impactIconWrap, { backgroundColor: `${COLORS.gold}15` }]}>
+              <MaterialCommunityIcons name="diamond-stone" size={20} color={COLORS.gold} />
+            </View>
+            <View>
+              <Text style={[styles.impactLabel, { color: theme.textMuted }]}>YOUR ONYX VALUE</Text>
+              <Text style={[styles.impactValue, { color: theme.text }]}>
+                {impactData?.totalValue?.usd ?? "View Impact"}
+              </Text>
+              {impactData && (
+                <Text style={[styles.impactSub, { color: COLORS.emerald }]}>
+                  {impactData.tasks.completed} wins · {impactData.savings.capturedUsd} saved · {impactData.referral.referralsCount} referred
+                </Text>
+              )}
+            </View>
+          </View>
+          <View style={styles.impactChevronWrap}>
+            <Feather name="chevron-right" size={16} color={COLORS.gold} />
+          </View>
+        </Pressable>
 
         {/* ── Quick access rail ────────────────────────────────────────── */}
         <SectionHeader title={t("home.quickAccess")} />
@@ -951,6 +986,14 @@ const styles = StyleSheet.create({
 
   // Savings hero
   heroWrap: { paddingHorizontal: 16, paddingTop: 10, paddingBottom: 4 },
+  impactBanner:       { marginHorizontal: 16, marginTop: 10, marginBottom: 4, borderWidth: 1, borderRadius: 16, padding: 16, flexDirection: "row", alignItems: "center", justifyContent: "space-between", overflow: "hidden" },
+  impactBannerGlow:   { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
+  impactBannerLeft:   { flexDirection: "row", alignItems: "center", gap: 14, flex: 1 },
+  impactIconWrap:     { width: 44, height: 44, borderRadius: 12, alignItems: "center", justifyContent: "center" },
+  impactLabel:        { fontSize: 8, fontWeight: "800", letterSpacing: 2, marginBottom: 2 },
+  impactValue:        { fontSize: 22, fontWeight: "900", letterSpacing: -0.5 },
+  impactSub:          { fontSize: 10, fontWeight: "600", marginTop: 2 },
+  impactChevronWrap:  { padding: 4 },
   savingsHero: { borderWidth: 1, borderRadius: 22, padding: 20, overflow: "hidden", position: "relative" },
   savingsHeroBg: { position: "absolute", top: 0, right: 0, width: "60%", height: "100%", borderRadius: 22, opacity: 0.35 },
   savingsTopRow: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 12 },

@@ -1,4 +1,16 @@
-import { Router } from "express";
+import { Router, type Request, type Response } from "express";
+import { eq, or, and, count, sql, desc, ne } from "drizzle-orm";
+import {
+  db,
+  gigTasksTable,
+  bayTransactionsTable,
+  transactionsTable,
+  foundingMembersTable,
+  vehiclesTable,
+} from "@workspace/db";
+import { requireAuth } from "../middlewares/requireAuth";
+
+type AuthedReq = Request & { user: { id: number } };
 
 const router = Router();
 
@@ -114,6 +126,151 @@ router.get("/impact/mission-stats", (_req, res) => {
     ],
     updatedAt: new Date().toISOString(),
   });
+});
+
+// ─── GET /api/impact — per-member value dashboard (real DB) ──────────────────
+router.get("/impact", requireAuth, async (req: Request, res: Response) => {
+  const userId = (req as AuthedReq).user.id;
+  try {
+    const [gigStats, bayEarnings, referralRow, recentTasks, vCount, platformEarnings] =
+      await Promise.all([
+        db.select({
+          total:     count(),
+          completed: sql<number>`count(*) filter (where ${gigTasksTable.status} = 'Completed')`,
+          active:    sql<number>`count(*) filter (where ${gigTasksTable.status} in ('Open','Claimed','In Progress'))`,
+          cancelled: sql<number>`count(*) filter (where ${gigTasksTable.status} = 'Cancelled')`,
+        }).from(gigTasksTable)
+          .where(or(eq(gigTasksTable.assignedRunnerId, userId), eq(gigTasksTable.postedByDealerId, userId)))
+          .then(r => r[0] ?? { total: 0, completed: 0, active: 0, cancelled: 0 }),
+
+        db.select({
+          totalNetCents:  sql<number>`coalesce(sum(${bayTransactionsTable.netAmountCents}), 0)`,
+          paidCount:      sql<number>`count(*) filter (where ${bayTransactionsTable.status} = 'PAID')`,
+          pendingCount:   sql<number>`count(*) filter (where ${bayTransactionsTable.status} = 'PENDING')`,
+        }).from(bayTransactionsTable)
+          .where(eq(bayTransactionsTable.specialistId, userId))
+          .then(r => r[0] ?? { totalNetCents: 0, paidCount: 0, pendingCount: 0 }),
+
+        db.select({ referralCode: foundingMembersTable.referralCode, status: foundingMembersTable.status })
+          .from(foundingMembersTable)
+          .where(sql`${foundingMembersTable.email} = (select email from users where id = ${userId} limit 1)`)
+          .limit(1)
+          .then(r => r[0] ?? null),
+
+        db.select({
+          id: gigTasksTable.id, title: gigTasksTable.title, taskType: gigTasksTable.taskType,
+          status: gigTasksTable.status, payoutUsd: gigTasksTable.payoutUsd,
+          completedAt: gigTasksTable.completedAt, createdAt: gigTasksTable.createdAt,
+        }).from(gigTasksTable)
+          .where(or(eq(gigTasksTable.assignedRunnerId, userId), eq(gigTasksTable.postedByDealerId, userId)))
+          .orderBy(desc(gigTasksTable.createdAt)).limit(8),
+
+        db.select({ c: count() }).from(vehiclesTable).where(eq(vehiclesTable.dealerId, userId))
+          .then(r => r[0]?.c ?? 0),
+
+        db.select({ totalCents: sql<number>`coalesce(sum(${transactionsTable.amountCents}), 0)` })
+          .from(transactionsTable)
+          .where(and(eq(transactionsTable.toUserId, userId), ne(transactionsTable.status, "REFUNDED")))
+          .then(r => r[0] ?? { totalCents: 0 }),
+      ]);
+
+    const referralsCount = referralRow?.referralCode
+      ? await db.select({ c: count() }).from(foundingMembersTable)
+          .where(eq(foundingMembersTable.referredBy, referralRow.referralCode))
+          .then(r => r[0]?.c ?? 0)
+      : 0;
+
+    const tier = (() => {
+      if (referralsCount >= 25) return { name: "PLATINUM", color: "#E5E4E2", next: null,  reward: "Founding Partner Status" };
+      if (referralsCount >= 10) return { name: "GOLD",     color: "#C9A227", next: 25,   reward: "Guardian AI Boost + Free Detail" };
+      if (referralsCount >= 3)  return { name: "SILVER",   color: "#A8A9AD", next: 10,   reward: "Dynasty Wallet Pro" };
+      if (referralsCount >= 1)  return { name: "BRONZE",   color: "#CD7F32", next: 3,    reward: "Founding Badge" };
+      return                           { name: "NONE",     color: "#555",    next: 1,    reward: "Unlock Dynasty Wallet" };
+    })();
+
+    const refBonusCents         = referralsCount * 500;
+    const totalValueCents       = bayEarnings.totalNetCents + platformEarnings.totalCents + refBonusCents;
+    const savingsIdCents        = (vCount as number) * 45_000 + gigStats.completed * 3_500;
+    const savingsCapCents       = bayEarnings.totalNetCents + gigStats.completed * 2_200;
+
+    res.json({
+      ts: new Date().toISOString(), userId,
+      vehicleCount: vCount as number,
+      totalValue: { cents: totalValueCents, usd: `$${(totalValueCents / 100).toFixed(2)}`, label: "Total ONYX Value" },
+      savings: {
+        identifiedCents: savingsIdCents, identifiedUsd: `$${(savingsIdCents / 100).toFixed(0)}`,
+        capturedCents: savingsCapCents,  capturedUsd: `$${(savingsCapCents / 100).toFixed(2)}`,
+        captureRate: savingsIdCents > 0 ? Math.min(Math.round((savingsCapCents / savingsIdCents) * 100), 100) : 0,
+      },
+      earnings: {
+        bayTotalCents: bayEarnings.totalNetCents, bayTotalUsd: `$${(bayEarnings.totalNetCents / 100).toFixed(2)}`,
+        platformCreditCents: platformEarnings.totalCents, platformCreditUsd: `$${(platformEarnings.totalCents / 100).toFixed(2)}`,
+        referralBonusCents: refBonusCents, referralBonusUsd: `$${(refBonusCents / 100).toFixed(2)}`,
+        pendingBayCount: bayEarnings.pendingCount, paidBayCount: bayEarnings.paidCount,
+      },
+      tasks: {
+        total: gigStats.total, active: gigStats.active, completed: gigStats.completed,
+        cancelled: gigStats.cancelled,
+        successRate: gigStats.total > 0 ? Math.round((gigStats.completed / gigStats.total) * 100) : 0,
+        recent: recentTasks,
+      },
+      referral: {
+        code: referralRow?.referralCode ?? null, referralsCount,
+        tier: tier.name, tierColor: tier.color, tierReward: tier.reward,
+        nextMilestone: tier.next, memberStatus: referralRow?.status ?? "none",
+      },
+    });
+  } catch (err) {
+    console.error("[impact]", err);
+    res.status(500).json({ error: "Failed to load impact data" });
+  }
+});
+
+// ─── GET /api/impact/pro — professional earnings breakdown ────────────────────
+router.get("/impact/pro", requireAuth, async (req: Request, res: Response) => {
+  const userId = (req as AuthedReq).user.id;
+  try {
+    const [runnerStats, postedStats, recentBay] = await Promise.all([
+      db.select({
+        completedCount: sql<number>`count(*) filter (where ${gigTasksTable.status} = 'Completed')`,
+        activeCount:    sql<number>`count(*) filter (where ${gigTasksTable.status} in ('Claimed','In Progress'))`,
+        totalPayout:    sql<string>`coalesce(sum(cast(${gigTasksTable.payoutUsd} as numeric)), 0)::text`,
+      }).from(gigTasksTable).where(eq(gigTasksTable.assignedRunnerId, userId))
+        .then(r => r[0] ?? { completedCount: 0, activeCount: 0, totalPayout: "0" }),
+
+      db.select({
+        postedCount:    count(),
+        fulfilledCount: sql<number>`count(*) filter (where ${gigTasksTable.status} = 'Completed')`,
+      }).from(gigTasksTable).where(eq(gigTasksTable.postedByDealerId, userId))
+        .then(r => r[0] ?? { postedCount: 0, fulfilledCount: 0 }),
+
+      db.select({
+        id: bayTransactionsTable.id, qrCode: bayTransactionsTable.qrCode,
+        grossAmountCents: bayTransactionsTable.grossAmountCents,
+        netAmountCents: bayTransactionsTable.netAmountCents,
+        feeCents: bayTransactionsTable.feeCents,
+        status: bayTransactionsTable.status, paidAt: bayTransactionsTable.paidAt,
+        createdAt: bayTransactionsTable.createdAt,
+      }).from(bayTransactionsTable).where(eq(bayTransactionsTable.specialistId, userId))
+        .orderBy(desc(bayTransactionsTable.createdAt)).limit(10),
+    ]);
+
+    const payoutUsd  = parseFloat(runnerStats.totalPayout as string) || 0;
+    const feeCents   = recentBay.reduce((s: number, r: { feeCents: number }) => s + r.feeCents, 0);
+    res.json({
+      ts: new Date().toISOString(),
+      runner: { completedJobs: runnerStats.completedCount, activeJobs: runnerStats.activeCount, totalEarnedUsd: `$${payoutUsd.toFixed(2)}` },
+      partner: {
+        jobsPosted: postedStats.postedCount, jobsFulfilled: postedStats.fulfilledCount,
+        fulfillRate: postedStats.postedCount > 0 ? Math.round((postedStats.fulfilledCount / postedStats.postedCount) * 100) : 0,
+      },
+      bayQrTransactions: recentBay,
+      platformFeeCents: feeCents, platformFeeUsd: `$${(feeCents / 100).toFixed(2)}`,
+    });
+  } catch (err) {
+    console.error("[impact/pro]", err);
+    res.status(500).json({ error: "Failed to load professional impact data" });
+  }
 });
 
 export default router;

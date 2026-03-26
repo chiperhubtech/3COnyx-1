@@ -1,5 +1,34 @@
 # Overview
 
+## ONYX Impact — Member Value Intelligence System (completed)
+
+**Strategic principle**: Every action on the platform creates measurable value. The Impact system makes that value visible to every member, driving retention, referrals, and repeat engagement.
+
+**API: `/api/impact` + `/api/impact/pro` (real DB, auth-required)**:
+- `GET /api/impact` — Unified per-member value dashboard: totalValue (savings + earnings + referral bonus), savings (identified vs. captured + capture rate %), earnings (bay QR payments + platform credits + referral bonuses + pending count), task stats (active/completed/success rate + recent activity), referral network (tier + count + next milestone + code)
+- `GET /api/impact/pro` — Professional earnings: runner job stats (completed/active/payout), partner posting stats (posted/fulfilled/rate), bay QR transaction history, platform fee summary
+- `GET /api/impact/metrics` — Platform-wide impact stats (preserved, unchanged)
+- All queries use real PostgreSQL tables: `gigTasksTable`, `bayTransactionsTable`, `transactionsTable`, `foundingMembersTable`, `vehiclesTable`
+
+**Mobile: `app/my-impact.tsx`** — Full ONYX Impact screen:
+- Hero: "Total ONYX Value" (savings + earnings + referral bonus combined)
+- Savings section: identified vs captured with animated progress bar + capture rate
+- Earnings breakdown grid: Bay QR / Platform Credits / Referral Bonuses / Pending
+- Task activity: active count + completed wins list with task type icons + status colors
+- Referral network card: tier badge + referral count + tier progress bar + referral code
+- Vehicle count card linking to Garage
+- Refresh button to re-fetch all data
+
+**Mobile: Home Feed (`app/(tabs)/index.tsx`)**:
+- Added "YOUR ONYX VALUE" impact banner card below SavingsHero — shows total value, wins count, savings captured, referrals. Tappable, navigates to `/my-impact`. Pulls from `/api/impact` with 2-min stale time.
+
+**Mobile: Referral Tab (`app/(tabs)/referral.tsx`)**:
+- Wired to real API: `referralCount` and `liveEarned` now come from `/api/impact` instead of hardcoded `0` and `$0`. Updates every 2 minutes.
+
+**Zero TypeScript errors** — all 5 packages clean.
+
+---
+
 ## Dynasty Protocol — Pay-at-the-Bay, VIN Passport, Bay Dashboard (completed)
 
 **Pay at the Bay (Mobile)**:
