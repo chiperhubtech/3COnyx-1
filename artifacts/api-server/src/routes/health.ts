@@ -13,6 +13,7 @@ import { Router, type IRouter } from "express";
 import { sql } from "drizzle-orm";
 import { db } from "@workspace/db";
 import * as wsHub from "../lib/wsHub";
+import { blockedIpCount } from "../middlewares/scannerDetector";
 import os from "os";
 
 const router: IRouter = Router();
@@ -69,12 +70,25 @@ router.get("/healthz", async (_req, res) => {
   const uptimeSec = Math.round((Date.now() - START_TIME) / 1000);
   const metrics = getSystemMetrics();
 
+  const securityPosture = {
+    tokenBlacklist:    "active",
+    inputSanitization: "active",
+    scannerDetector:   "active",
+    csp:               "enforced",
+    hsts:              "enforced",
+    rateLimiting:      "active",
+    blockedIps:        blockedIpCount(),
+    loginLockout:      "active",
+    secretsValidated:  "startup",
+  };
+
   res.status(degraded ? 503 : 200).json({
     status:      degraded ? "degraded" : "healthy",
     version:     PLATFORM_VERSION,
     environment: process.env.NODE_ENV ?? "development",
     uptimeSec,
     services,
+    security:    securityPosture,
     metrics,
     ts: new Date().toISOString(),
   });

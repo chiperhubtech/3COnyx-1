@@ -21,11 +21,12 @@ export interface TokenPayload extends JWTPayload {
 }
 
 export async function signToken(payload: Omit<TokenPayload, "iat" | "exp" | "jti">): Promise<string> {
-  return new SignJWT({ ...payload, jti: randomUUID() })
+  const jti = randomUUID();
+  return new SignJWT({ ...payload, jti })
     .setProtectedHeader({ alg: ALGORITHM })
     .setIssuedAt()
     .setExpirationTime(EXPIRY)
-    .setJti(randomUUID())
+    .setJti(jti)
     .sign(SECRET);
 }
 

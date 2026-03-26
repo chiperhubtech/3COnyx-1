@@ -4,6 +4,11 @@ import { logger } from "./lib/logger";
 import * as wsHub from "./lib/wsHub";
 import { startPriceAlertJob } from "./lib/priceAlertJob";
 import { initChains } from "./lib/chainOfCustody";
+import { runStartupSecurityChecks } from "./lib/startupGuard";
+import { startMaintenanceScheduler } from "./lib/maintenanceScheduler";
+
+// ── Security: validate all required secrets BEFORE binding the port ──────────
+runStartupSecurityChecks();
 
 const rawPort = process.env["PORT"];
 
@@ -27,6 +32,7 @@ server.listen(port, () => {
   logger.info({ port }, "Server listening");
   logger.info("WebSocket hub active at /ws");
   startPriceAlertJob();
+  startMaintenanceScheduler();
   initChains().catch((err) => logger.warn({ err }, "initChains failed"));
 });
 

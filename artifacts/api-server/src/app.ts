@@ -9,8 +9,9 @@ import webhookRouter from "./routes/webhooks";
 import { logger } from "./lib/logger";
 import { auditMiddleware } from "./lib/auditMiddleware";
 import { requestTimeout } from "./middlewares/timeout";
-import { generalLimiter, authLimiter } from "./middlewares/rateLimiter";
+import { generalLimiter, authLimiter, strictLimiter, adminLimiter } from "./middlewares/rateLimiter";
 import { sanitizeInputs } from "./middlewares/sanitize";
+import { scannerDetector } from "./middlewares/scannerDetector";
 import { pruneExpiredBlacklistEntries } from "./lib/tokenBlacklist";
 
 const app: Express = express();
@@ -46,28 +47,43 @@ app.use(helmet({
     },
   },
   hsts: {
-    maxAge:            63072000,
+    maxAge:            63072000,     // 2 years
     includeSubDomains: true,
     preload:           true,
   },
-  referrerPolicy:             { policy: "strict-origin-when-cross-origin" },
+  referrerPolicy:               { policy: "strict-origin-when-cross-origin" },
   permittedCrossDomainPolicies: { permittedPolicies: "none" },
-  xContentTypeOptions:        true,
-  xFrameOptions:              { action: "deny" },
+  xContentTypeOptions:          true,
+  xFrameOptions:                { action: "deny" },
 }));
 
-// ── Nightly cleanup: prune expired blacklist entries on startup ───────────────
-void pruneExpiredBlacklistEntries().catch(() => { /* non-fatal */ });
+// ── Permissions-Policy — disable hardware sensor APIs from web context ────────
+// Prevents rogue scripts from accessing camera, mic, gyro, etc.
+app.use((_req: Request, res: Response, next: NextFunction) => {
+  res.set(
+    "Permissions-Policy",
+    "camera=(), microphone=(), geolocation=(), payment=(self), gyroscope=(), accelerometer=(), magnetometer=()",
+  );
+  next();
+});
 
 // ── CORS ──────────────────────────────────────────────────────────────────────
-const rawOrigins    = process.env.ALLOWED_ORIGINS;
+const rawOrigins     = process.env.ALLOWED_ORIGINS;
+const isProduction   = process.env.NODE_ENV === "production";
 const allowedOrigins = rawOrigins ? rawOrigins.split(",").map((o) => o.trim()) : [];
 
 app.use(
   cors({
     origin: (origin, callback) => {
+      // No origin = same-origin / server-to-server — always allow
       if (!origin) return callback(null, true);
-      if (allowedOrigins.length === 0) return callback(null, true);
+      // In production without explicit ALLOWED_ORIGINS, lock to known domains
+      if (isProduction && allowedOrigins.length === 0) {
+        const knownProd = ["https://cuxtomcandyclub.ai", "https://www.cuxtomcandyclub.ai"];
+        if (knownProd.some(d => origin.startsWith(d))) return callback(null, true);
+        return callback(new Error(`CORS: origin '${origin}' not permitted in production`));
+      }
+      if (allowedOrigins.length === 0) return callback(null, true); // dev: open
       if (allowedOrigins.includes("*") || allowedOrigins.includes(origin)) return callback(null, true);
       callback(new Error(`CORS: origin '${origin}' is not permitted`));
     },
@@ -75,17 +91,27 @@ app.use(
   }),
 );
 
-// ── Logging ───────────────────────────────────────────────────────────────────
+// ── Logging (sanitized — no auth headers in logs) ────────────────────────────
 app.use(pinoHttp({
   logger,
   serializers: {
-    req(req) { return { id: req.id, method: req.method, url: req.url?.split("?")[0] }; },
+    req(req) {
+      return {
+        id:     req.id,
+        method: req.method,
+        url:    req.url?.split("?")[0],
+        // Deliberately omit Authorization header from logs
+      };
+    },
     res(res) { return { statusCode: res.statusCode }; },
   },
 }));
 
+// ── Scanner / reconnaissance detector ─────────────────────────────────────────
+// Blocks any IP that probes 10+ distinct 404 paths in 60 seconds
+app.use(scannerDetector);
+
 // ── Stripe Webhooks — MUST be before body parsers (needs raw body) ────────────
-// Stripe requires the raw body buffer to verify webhook signatures.
 app.use("/api/webhooks/stripe", (req: Request, res: Response, next: NextFunction) => {
   let raw = Buffer.alloc(0);
   req.on("data", (chunk: Buffer) => { raw = Buffer.concat([raw, chunk]); });
@@ -93,7 +119,9 @@ app.use("/api/webhooks/stripe", (req: Request, res: Response, next: NextFunction
 });
 app.use("/api/webhooks", webhookRouter);
 
-// ── Body parsing ──────────────────────────────────────────────────────────────
+// ── Body parsing (auth routes capped at 16KB to prevent oversized payloads) ──
+app.use("/api/auth", express.json({ limit: "16kb" }));
+app.use("/api/auth", express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true, limit: "2mb" }));
 app.use(cookieParser());
@@ -101,15 +129,18 @@ app.use(cookieParser());
 // ── Input sanitization (XSS / injection prevention) ──────────────────────────
 app.use(sanitizeInputs);
 
-// ── Rate limiting ─────────────────────────────────────────────────────────────
-app.use("/api/auth", authLimiter);
-app.use("/api", generalLimiter);
+// ── Rate limiting — defense-in-depth with route-specific tiers ───────────────
+app.use("/api/auth",           authLimiter);    // 15/15min (failed only)
+app.use("/api/compliance",     strictLimiter);  // 10/min — PII routes
+app.use("/api/kyc",            strictLimiter);  // 10/min — identity verification
+app.use("/api/bay/transact",   strictLimiter);  // 10/min — payment execution
+app.use("/api/command/admin",  adminLimiter);   // 5/min  — admin operations
+app.use("/api",                generalLimiter); // 200/15min — everything else
 
 // ── Per-request timeout (15 s) ────────────────────────────────────────────────
 app.use(requestTimeout(15_000));
 
 // ── CDN / Cache headers ───────────────────────────────────────────────────────
-// Public read routes get short CDN cache; mutations / auth routes remain private
 app.use((req: Request, res: Response, next: NextFunction) => {
   const isPublicReadRoute =
     req.method === "GET" &&
@@ -141,9 +172,13 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   res.status(500).json({
     error:   "Internal server error",
     code:    "INTERNAL_ERROR",
+    // Never expose stack traces or internal messages in production
     message: process.env.NODE_ENV !== "production" ? err.message : undefined,
     ts:      new Date().toISOString(),
   });
 });
+
+// ── Startup cleanup: prune expired blacklist entries ─────────────────────────
+void pruneExpiredBlacklistEntries().catch(() => { /* non-fatal */ });
 
 export default app;

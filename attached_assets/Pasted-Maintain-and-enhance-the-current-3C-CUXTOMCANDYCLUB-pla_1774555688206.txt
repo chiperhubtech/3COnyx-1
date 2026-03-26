@@ -1,0 +1,66 @@
+Maintain and enhance the current 3C / CUXTOMCANDYCLUB platform exactly as it is, without removing, rebuilding, or breaking any existing features, workflows, or user experience.
+
+Primary objective:
+Support rapid growth and scaling of the platform WITHOUT slowing down development speed, overcomplicating the system, or forcing unnecessary rewrites.
+
+Core rules:
+
+1. PRESERVE SPEED
+- Do NOT rebuild or redesign the system unless absolutely necessary
+- Do NOT introduce complex architecture that slows iteration
+- Allow continuous fast updates and deployment from the current system
+
+2. STABILITY LAYER (ADD, DON’T REPLACE)
+- Add a lightweight backend structure that improves:
+  - Reliability
+  - Data consistency
+  - Error handling
+- Ensure the system can handle increasing users and transactions without breaking
+
+3. TRANSACTION + DATA INTEGRITY
+- Ensure all key actions are properly logged:
+  - User actions
+  - Transactions
+  - Partner referrals
+  - Payout events
+- Prevent duplication, loss of data, or incorrect calculations
+
+4. INTEGRATION READINESS
+- Prepare clean integration points (APIs) for:
+  - Payments
+  - Insurance providers
+  - Financing partners
+  - Vendor systems
+- Do NOT fully rebuild — create modular connection points
+
+5. MANUAL + AUTOMATED HYBRID SUPPORT
+- Allow workflows to be:
+  - Fully automated OR
+  - Manually handled behind the scenes
+- Ensure both paths are tracked equally in the system
+
+6. PERFORMANCE PROTECTION
+- Optimize for:
+  - Fast load times
+  - Smooth mobile experience
+- Avoid heavy frameworks or unnecessary dependencies
+
+7. NO OVER-ENGINEERING
+- Avoid:
+  - Premature scaling complexity
+  - Enterprise-level architecture too early
+- Focus only on what is needed for current and near-term growth
+
+8. FOUNDER CONTROL
+- Maintain current product logic, user flow, and vision
+- Do NOT change core experience (feed-based, “handle this for me” system)
+- All improvements must support the existing direction, not redirect it
+
+9. SCALABLE FOUNDATION (SILENTLY)
+- Structure the system so it can later:
+  - Move to AWS or cloud infrastructure
+  - Handle larger user bases
+- Do this without disrupting current operations
+
+Final goal:
+Create a system where the platform can grow quickly in users, transactions, and revenue while remaining fast, simple, and under full control — with technical improvements happening in the background, not slowing down execution.

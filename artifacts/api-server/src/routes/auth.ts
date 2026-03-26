@@ -71,6 +71,14 @@ router.post("/auth/register", async (req: Request, res: Response) => {
     res.status(400).json({ error: "Password must be at least 8 characters", code: "VALIDATION" });
     return;
   }
+  if (!/[A-Z]/.test(password)) {
+    res.status(400).json({ error: "Password must contain at least one uppercase letter", code: "VALIDATION" });
+    return;
+  }
+  if (!/[0-9]/.test(password)) {
+    res.status(400).json({ error: "Password must contain at least one number", code: "VALIDATION" });
+    return;
+  }
   const validRoles = ["Member", "Dealer", "Runner", "Specialist"];
   if (!validRoles.includes(role)) {
     res.status(400).json({ error: `Role must be one of: ${validRoles.join(", ")}`, code: "VALIDATION" });
@@ -146,9 +154,14 @@ router.post("/auth/login", async (req: Request, res: Response) => {
     .where(eq(usersTable.email, email.toLowerCase()))
     .limit(1);
 
+  // ── Timing-attack defense: ALWAYS run bcrypt regardless of whether the
+  // user exists. Without this, a missing user returns in ~0ms while a
+  // wrong password takes ~100ms (bcrypt cost 12) — allowing email enumeration.
+  const DUMMY_HASH = "$2a$12$invalidhashpadtodummycomparison.xxxxxxxxxxxxxxxxxxxxxxxx";
+  const valid = await bcrypt.compare(password, user?.passwordHash ?? DUMMY_HASH);
+
   if (!user || !user.passwordHash) {
     await recordAttempt(email, ip, false, userAgent, "USER_NOT_FOUND");
-    // Return same message as wrong password to prevent user enumeration
     res.status(401).json({ error: "Invalid credentials", code: "INVALID_CREDENTIALS" });
     return;
   }
@@ -158,7 +171,6 @@ router.post("/auth/login", async (req: Request, res: Response) => {
     return;
   }
 
-  const valid = await bcrypt.compare(password, user.passwordHash);
   if (!valid) {
     await recordAttempt(email, ip, false, userAgent, "WRONG_PASSWORD");
     await writeAudit({ eventType: "AUTH", action: `Failed login: ${email} from ${ip}`, actorId: user.id, severity: "WARN" });
