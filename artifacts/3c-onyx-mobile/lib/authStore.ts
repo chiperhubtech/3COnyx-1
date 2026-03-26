@@ -1,14 +1,60 @@
 /**
  * 3C Onyx — Auth Store
- * Persists JWT + user profile in SecureStore.
+ * Persists JWT + user profile in SecureStore (hardware-backed on device).
  * All API calls auto-inject the Bearer token via lib/api.ts
+ *
+ * Security hardening:
+ * - All SecureStore operations wrapped in try/catch (crash fix)
+ * - Token expiry validated on restore (no stale sessions)
+ * - Server-side logout: POST /api/auth/logout revokes the JTI blacklist entry
+ * - 401 events auto-trigger full logout
  */
 import * as SecureStore from "expo-secure-store";
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
-import { authEvents } from "./api";
+import { authEvents, apiFetch } from "./api";
 
 const TOKEN_KEY  = "3c_auth_token";
 const USER_KEY   = "3c_auth_user";
+
+/** Parse JWT exp claim without a library (just read the payload JSON). */
+function tokenIsExpired(token: string): boolean {
+  try {
+    const parts   = token.split(".");
+    if (parts.length !== 3) return true;
+    const payload = JSON.parse(atob(parts[1]!.replace(/-/g, "+").replace(/_/g, "/"))) as { exp?: number };
+    if (!payload.exp) return false;
+    return Date.now() >= payload.exp * 1000;
+  } catch {
+    return true;
+  }
+}
+
+/** Safe SecureStore.getItemAsync — returns null on any error */
+async function safeGet(key: string): Promise<string | null> {
+  try {
+    return await SecureStore.getItemAsync(key);
+  } catch {
+    return null;
+  }
+}
+
+/** Safe SecureStore.setItemAsync — silently swallows errors */
+async function safeSet(key: string, value: string): Promise<void> {
+  try {
+    await SecureStore.setItemAsync(key, value);
+  } catch {
+    // Non-fatal: session still works in-memory
+  }
+}
+
+/** Safe SecureStore.deleteItemAsync — silently swallows errors */
+async function safeDelete(key: string): Promise<void> {
+  try {
+    await SecureStore.deleteItemAsync(key);
+  } catch {
+    // Key may not exist — not an error
+  }
+}
 
 export interface AuthUser {
   id:                 number;
@@ -45,22 +91,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setLoading] = useState(true);
   const logoutRef               = useRef<(() => Promise<void>) | undefined>(undefined);
 
+  // ── Restore session from SecureStore on mount ────────────────────────────
   useEffect(() => {
     (async () => {
       try {
         const [storedToken, storedUser] = await Promise.all([
-          SecureStore.getItemAsync(TOKEN_KEY),
-          SecureStore.getItemAsync(USER_KEY),
+          safeGet(TOKEN_KEY),
+          safeGet(USER_KEY),
         ]);
-        if (storedToken && storedUser) {
+        if (storedToken && storedUser && !tokenIsExpired(storedToken)) {
           setToken(storedToken);
           setUser(JSON.parse(storedUser) as AuthUser);
+        } else if (storedToken) {
+          // Expired token — clean up silently
+          await Promise.all([safeDelete(TOKEN_KEY), safeDelete(USER_KEY)]);
         }
-      } catch {}
+      } catch {
+        // Boot failure — start unauthenticated
+      }
       setLoading(false);
     })();
   }, []);
 
+  // ── Auto-logout on 401 from any API call ─────────────────────────────────
   useEffect(() => {
     const handle401 = () => { void logoutRef.current?.(); };
     authEvents.on("auth:401", handle401);
@@ -69,18 +122,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = useCallback(async (newToken: string, newUser: AuthUser) => {
     await Promise.all([
-      SecureStore.setItemAsync(TOKEN_KEY, newToken),
-      SecureStore.setItemAsync(USER_KEY, JSON.stringify(newUser)),
+      safeSet(TOKEN_KEY, newToken),
+      safeSet(USER_KEY, JSON.stringify(newUser)),
     ]);
     setToken(newToken);
     setUser(newUser);
   }, []);
 
   const logout = useCallback(async () => {
-    await Promise.all([
-      SecureStore.deleteItemAsync(TOKEN_KEY),
-      SecureStore.deleteItemAsync(USER_KEY),
-    ]);
+    // 1. Tell the server to revoke the token (server-side blacklist)
+    try {
+      await apiFetch<{ success: boolean }>("/auth/logout", { method: "POST" });
+    } catch {
+      // Non-fatal: client cleanup still proceeds
+    }
+    // 2. Clear secure storage
+    await Promise.all([safeDelete(TOKEN_KEY), safeDelete(USER_KEY)]);
+    // 3. Clear in-memory state
     setToken(null);
     setUser(null);
   }, []);
@@ -91,13 +149,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(prev => {
       if (!prev) return prev;
       const updated = { ...prev, ...patch };
-      void SecureStore.setItemAsync(USER_KEY, JSON.stringify(updated));
+      void safeSet(USER_KEY, JSON.stringify(updated));
       return updated;
     });
   }, []);
 
   const getToken = useCallback(async (): Promise<string | null> => {
-    return token ?? SecureStore.getItemAsync(TOKEN_KEY);
+    if (token) return token;
+    const stored = await safeGet(TOKEN_KEY);
+    return stored && !tokenIsExpired(stored) ? stored : null;
   }, [token]);
 
   return React.createElement(

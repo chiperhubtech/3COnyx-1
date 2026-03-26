@@ -1,9 +1,11 @@
 /**
  * 3C Onyx — JWT Utilities
  * Uses `jose` (pure ESM, no native deps) for signing and verification.
+ * Every issued token carries a `jti` (JWT ID) for blacklist revocation.
  * Secret loaded from JWT_SECRET env var — must be ≥32 chars in production.
  */
 import { SignJWT, jwtVerify, type JWTPayload } from "jose";
+import { randomUUID } from "crypto";
 
 const RAW_SECRET = process.env.JWT_SECRET ?? "3c-onyx-dev-secret-change-in-production-min32ch";
 const SECRET     = new TextEncoder().encode(RAW_SECRET);
@@ -15,13 +17,15 @@ export interface TokenPayload extends JWTPayload {
   email: string;
   role:  string;
   name:  string;
+  jti:   string;   // unique token ID — used for blacklisting on logout
 }
 
-export async function signToken(payload: Omit<TokenPayload, "iat" | "exp">): Promise<string> {
-  return new SignJWT({ ...payload })
+export async function signToken(payload: Omit<TokenPayload, "iat" | "exp" | "jti">): Promise<string> {
+  return new SignJWT({ ...payload, jti: randomUUID() })
     .setProtectedHeader({ alg: ALGORITHM })
     .setIssuedAt()
     .setExpirationTime(EXPIRY)
+    .setJti(randomUUID())
     .sign(SECRET);
 }
 

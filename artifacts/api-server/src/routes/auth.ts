@@ -1,11 +1,13 @@
 /**
  * 3C Onyx — Authentication API
  *
- * POST /api/auth/register  — Create account (name, email, password, role)
- * POST /api/auth/login     — Authenticate → JWT
- * GET  /api/auth/me        — Current user from token
- * POST /api/auth/logout    — Invalidate (client-side; token is stateless)
- * POST /api/auth/refresh   — Issue a fresh token while current is valid
+ * POST /api/auth/register          — Create account (name, email, password, role)
+ * POST /api/auth/login             — Authenticate → JWT (brute-force locked)
+ * GET  /api/auth/me                — Current user from token
+ * POST /api/auth/logout            — Revoke token server-side (blacklist JTI)
+ * POST /api/auth/refresh           — Issue a fresh token while current is valid
+ * GET  /api/auth/validate-code     — Validate a referral / Golden Key code
+ * POST /api/auth/onboarding-complete — Mark onboarding done in audit log
  */
 import { Router, type Request, type Response } from "express";
 import bcrypt from "bcryptjs";
@@ -14,6 +16,8 @@ import { eq } from "drizzle-orm";
 import { signToken, verifyToken, extractBearerToken } from "../lib/jwt";
 import { requireAuth } from "../middlewares/requireAuth";
 import { writeAudit } from "../lib/auditService";
+import { revokeToken } from "../lib/tokenBlacklist";
+import { checkLockout, recordAttempt } from "../lib/loginGuard";
 
 function generateReferralCode(name: string, id: number): string {
   const prefix = name.trim().toUpperCase().replace(/[^A-Z]/g, "").slice(0, 3) || "3CO";
@@ -27,6 +31,12 @@ const BCRYPT_ROUNDS = 12;
 function sanitize(user: typeof usersTable.$inferSelect): PublicUser {
   const { passwordHash: _, ...pub } = user;
   return pub;
+}
+
+function clientIp(req: Request): string {
+  const forwarded = req.headers["x-forwarded-for"];
+  if (typeof forwarded === "string") return forwarded.split(",")[0]?.trim() ?? "unknown";
+  return req.socket.remoteAddress ?? "unknown";
 }
 
 // ─── GET /api/auth/validate-code ─────────────────────────────────────────────
@@ -113,9 +123,22 @@ router.post("/auth/register", async (req: Request, res: Response) => {
 // ─── POST /api/auth/login ─────────────────────────────────────────────────────
 router.post("/auth/login", async (req: Request, res: Response) => {
   const { email, password } = req.body as { email?: string; password?: string };
+  const ip        = clientIp(req);
+  const userAgent = req.headers["user-agent"];
 
   if (!email || !password) {
     res.status(400).json({ error: "email and password are required", code: "VALIDATION" });
+    return;
+  }
+
+  // ── Brute-force check ─────────────────────────────────────────────────────
+  const lockout = await checkLockout(email, ip);
+  if (lockout.locked) {
+    res.status(429).json({
+      error: `Too many failed attempts. Try again in ${Math.ceil(lockout.retryAfter / 60)} minutes.`,
+      code: "ACCOUNT_LOCKED",
+      retryAfter: lockout.retryAfter,
+    });
     return;
   }
 
@@ -124,20 +147,27 @@ router.post("/auth/login", async (req: Request, res: Response) => {
     .limit(1);
 
   if (!user || !user.passwordHash) {
+    await recordAttempt(email, ip, false, userAgent, "USER_NOT_FOUND");
+    // Return same message as wrong password to prevent user enumeration
     res.status(401).json({ error: "Invalid credentials", code: "INVALID_CREDENTIALS" });
     return;
   }
   if (!user.isActive) {
+    await recordAttempt(email, ip, false, userAgent, "ACCOUNT_SUSPENDED");
     res.status(403).json({ error: "Account is suspended. Contact support.", code: "ACCOUNT_SUSPENDED" });
     return;
   }
 
   const valid = await bcrypt.compare(password, user.passwordHash);
   if (!valid) {
+    await recordAttempt(email, ip, false, userAgent, "WRONG_PASSWORD");
+    await writeAudit({ eventType: "AUTH", action: `Failed login: ${email} from ${ip}`, actorId: user.id, severity: "WARN" });
     res.status(401).json({ error: "Invalid credentials", code: "INVALID_CREDENTIALS" });
     return;
   }
 
+  // ── Successful login ───────────────────────────────────────────────────────
+  await recordAttempt(email, ip, true, userAgent);
   await db.update(usersTable)
     .set({ lastLoginAt: new Date(), updatedAt: new Date() })
     .where(eq(usersTable.id, user.id));
@@ -149,7 +179,7 @@ router.post("/auth/login", async (req: Request, res: Response) => {
     name:  user.name,
   });
 
-  await writeAudit({ eventType: "AUTH", action: `Login: ${email} (${user.role})`, actorId: user.id, severity: "INFO" });
+  await writeAudit({ eventType: "AUTH", action: `Login: ${email} (${user.role}) from ${ip}`, actorId: user.id, severity: "INFO" });
 
   res.json({ token, user: sanitize(user) });
 });
@@ -176,6 +206,11 @@ router.post("/auth/refresh", async (req: Request, res: Response) => {
   }
   try {
     const payload = await verifyToken(token);
+    // Blacklist the old token when issuing a refresh
+    if (payload.jti) {
+      const oldExpiry = payload.exp ? new Date(payload.exp * 1000) : new Date(Date.now() + 7 * 86400 * 1000);
+      void revokeToken(payload.jti, Number(payload.sub), oldExpiry);
+    }
     const newToken = await signToken({
       sub:   payload.sub,
       email: payload.email,
@@ -189,27 +224,36 @@ router.post("/auth/refresh", async (req: Request, res: Response) => {
 });
 
 // ─── POST /api/auth/logout ────────────────────────────────────────────────────
-router.post("/auth/logout", requireAuth, (_req: Request, res: Response) => {
-  res.json({ success: true, message: "Logged out. Discard your token client-side." });
+// Revokes the JWT server-side so it cannot be replayed even if intercepted.
+router.post("/auth/logout", requireAuth, async (req: Request, res: Response) => {
+  const payload = req.user!;
+  if (payload.jti && payload.exp) {
+    const expiresAt = new Date(payload.exp * 1000);
+    await revokeToken(payload.jti, Number(payload.sub), expiresAt);
+    await writeAudit({
+      eventType: "AUTH",
+      action:    `Logout: user ${payload.sub} — token ${payload.jti} revoked`,
+      actorId:   Number(payload.sub),
+      severity:  "INFO",
+    });
+  }
+  res.json({ success: true, message: "Token revoked. You have been securely logged out." });
 });
 
 // ─── POST /api/auth/onboarding-complete ──────────────────────────────────────
 router.post("/auth/onboarding-complete", requireAuth, async (req: Request, res: Response) => {
   try {
-    const user = (req as any).user as { id: number };
-    // Mark onboarding complete on user record if the column exists
-    // For now, log and ack — the localStorage flag is the primary gate
+    const user = req.user!;
     await writeAudit({
       eventType: "AUTH",
       action: "ONBOARDING_COMPLETE",
-      actorId: String(user.id),
+      actorId: String(user.sub),
       resourceType: "user",
-      resourceId: String(user.id),
+      resourceId: String(user.sub),
       metadata: { completedAt: new Date().toISOString() },
     });
     res.json({ success: true });
   } catch {
-    // Non-blocking — client still marks complete
     res.json({ success: true });
   }
 });
