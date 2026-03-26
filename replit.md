@@ -1,5 +1,29 @@
 # Overview
 
+## Real Authentication + Push Notifications + Subscription Billing (completed — closes the 3 remaining production gaps)
+
+**Persistent User Accounts (LIVE)**:
+- `artifacts/3c-onyx-mobile/lib/authStore.ts` — Auth context using `expo-secure-store` to persist JWT + user profile across app restarts. Provides `login`, `logout`, `updateUser`, `getToken`.
+- `artifacts/3c-onyx-mobile/lib/api.ts` — Updated: every API call now auto-injects `Authorization: Bearer <token>` from SecureStore.
+- `artifacts/3c-onyx-mobile/components/OnboardingFlow.tsx` — Step 4 added: name + email + password form calls `/api/auth/register`, stores JWT + user in SecureStore. Skip option available.
+- `artifacts/3c-onyx-mobile/app/login.tsx` — Full login screen for returning users.
+- `artifacts/3c-onyx-mobile/app/_layout.tsx` — Wrapped with `<AuthProvider>` on both onboarding and main app paths. Push notification registration triggers on first authenticated app load.
+- `artifacts/api-server/src/routes/users.ts` — New: `PATCH /api/users/push-token`, `GET /api/users/profile`, `PATCH /api/users/profile`.
+
+**Push Notifications (LIVE)**:
+- `artifacts/3c-onyx-mobile/lib/notifications.ts` — Registers for Expo push token, saves to API, sets up notification handler. Sends local notifications. Triggered post-onboarding.
+- `expo-notifications` and `expo-secure-store` installed in mobile app.
+
+**Subscription Upgrade Screen (LIVE)**:
+- `artifacts/3c-onyx-mobile/app/(tabs)/upgrade.tsx` — Full 5-tier upgrade screen: Member Free / Consumer Pro ($9/mo) / Specialist ($49/mo) / Business ($299/mo) / Dealer ($999/mo). Connects to Stripe checkout via `/api/subscription/checkout`. Accessible via `router.push("/(tabs)/upgrade")` from any screen.
+
+**DB Schema Extended**:
+- Added to `users` table: `stripe_sub_id`, `subscription_tier`, `subscription_status`, `subscription_ends_at`, `push_token`, `push_token_updated_at`, `onboarding_role`, `referral_code`, `referred_by`, `points`.
+- Applied to PostgreSQL via direct SQL (bypassing drizzle prompt on existing data).
+- DB package rebuilt with `tsc --build` so TypeScript types are correct across all packages.
+
+
+
 3C Onyx is a luxury dark-mode Automotive AI Operating System and **Super App** — the complete trust layer and ecosystem connector for the entire automotive industry, powered by CUXTOMCANDYCLUB LLC. "We move like water."
 
 **Core Platform**: ONYX AI Concierge, Guardian V2X, Blockchain Chain-of-Custody (SHA-256 + HMAC + PostgreSQL + Ethereum anchoring), Dynasty Wallet, Stripe Connect, Viral Growth Engine, Founding Member pre-launch system, dual-layer AI personalization.

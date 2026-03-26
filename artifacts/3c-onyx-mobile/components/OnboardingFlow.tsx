@@ -11,9 +11,11 @@
 import React, { useState } from "react";
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  SafeAreaView, Dimensions, Animated,
+  SafeAreaView, Dimensions, Animated, TextInput, ActivityIndicator, Alert,
+  KeyboardAvoidingView, Platform,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
 import Svg, { Circle, Line } from "react-native-svg";
 
 const { width: SW } = Dimensions.get("window");
@@ -30,6 +32,17 @@ const PINK    = "#F472B6";
 
 const ONBOARDING_KEY = "3c_onboarding_complete";
 const ROLE_KEY       = "3c_user_role_detail";
+const TOKEN_KEY      = "3c_auth_token";
+const USER_KEY       = "3c_auth_user";
+
+const BASE = `https://${process.env.EXPO_PUBLIC_DOMAIN}/api`;
+
+function roleToApiRole(roleId: string): "Member" | "Dealer" | "Runner" | "Specialist" {
+  if (["dealer_principal", "dealer_gm", "sales_manager", "sales_consultant", "finance_manager", "service_advisor", "bdc_rep", "parts_specialist"].includes(roleId)) return "Dealer";
+  if (["transport_driver", "runner_owner_op"].includes(roleId)) return "Runner";
+  if (["independent_mechanic", "detailer", "mobile_tech", "body_shop"].includes(roleId)) return "Specialist";
+  return "Member";
+}
 
 // ─── Types & Role Data ────────────────────────────────────────────────────────
 
@@ -94,11 +107,51 @@ function OnyxLogoSmall() {
 interface OnboardingFlowProps { onComplete: () => void; }
 
 export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
-  const [step, setStep]             = useState(0); // 0=intro, 1=category, 2=role, 3=preview
+  const [step, setStep]             = useState(0); // 0=intro, 1=category, 2=role, 3=preview, 4=account
   const [category, setCategory]     = useState<RoleCategory | null>(null);
   const [role, setRole]             = useState<RoleOption | null>(null);
+  const [name, setName]             = useState("");
+  const [email, setEmail]           = useState("");
+  const [password, setPassword]     = useState("");
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError]   = useState("");
 
   const filteredRoles = category ? ROLES.filter(r => r.category === category) : [];
+
+  async function createAccount() {
+    setAuthError("");
+    if (!name.trim()) { setAuthError("Enter your full name."); return; }
+    if (!email.trim() || !email.includes("@")) { setAuthError("Enter a valid email address."); return; }
+    if (password.length < 8) { setAuthError("Password must be at least 8 characters."); return; }
+    setAuthLoading(true);
+    try {
+      const res = await fetch(`${BASE}/auth/register`, {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({
+          name:     name.trim(),
+          email:    email.toLowerCase().trim(),
+          password,
+          role:     role ? roleToApiRole(role.id) : "Member",
+          phone:    null,
+        }),
+      });
+      const data = await res.json() as { token?: string; user?: unknown; error?: string };
+      if (!res.ok) {
+        setAuthError(data.error ?? "Registration failed. Please try again.");
+        return;
+      }
+      if (data.token) {
+        await SecureStore.setItemAsync(TOKEN_KEY, data.token);
+        await SecureStore.setItemAsync(USER_KEY, JSON.stringify(data.user));
+      }
+      await finish();
+    } catch {
+      setAuthError("Could not connect to server. Check your connection.");
+    } finally {
+      setAuthLoading(false);
+    }
+  }
 
   async function finish() {
     await AsyncStorage.setItem(ONBOARDING_KEY, "true");
@@ -148,7 +201,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     return (
       <SafeAreaView style={[s.safe, { backgroundColor: DARK }]}>
         <ScrollView contentContainerStyle={s.stepWrap} showsVerticalScrollIndicator={false}>
-          <StepHeader current={1} total={3} />
+          <StepHeader current={1} total={4} />
           <Text style={s.stepTitle}>Which world are you in?</Text>
           <Text style={s.stepSub}>Your role unlocks tools built for how you actually work. Free for everyone.</Text>
 
@@ -193,7 +246,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     return (
       <SafeAreaView style={[s.safe, { backgroundColor: DARK }]}>
         <ScrollView contentContainerStyle={s.stepWrap} showsVerticalScrollIndicator={false}>
-          <StepHeader current={2} total={3} />
+          <StepHeader current={2} total={4} />
           <View style={s.row}>
             <Text style={{ fontSize: 20 }}>{catMeta.emoji}</Text>
             <Text style={[s.stepTitle, { marginLeft: 8 }]}>What is your role?</Text>
@@ -240,7 +293,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     return (
       <SafeAreaView style={[s.safe, { backgroundColor: DARK }]}>
         <ScrollView contentContainerStyle={s.stepWrap} showsVerticalScrollIndicator={false}>
-          <StepHeader current={3} total={3} />
+          <StepHeader current={3} total={4} />
           <Text style={s.stepTitle}>Meet ONYX — your AI</Text>
           <Text style={s.stepSub}>
             ONYX knows you are a <Text style={{ color: role.color, fontWeight: "800" }}>{role.title}</Text>. Every prompt and insight is built around your workflow.
@@ -284,14 +337,100 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
           <View style={s.gap16} />
 
-          {/* Final CTA */}
-          <TouchableOpacity style={[s.primaryBtn, { backgroundColor: EMERALD }]} onPress={() => void finish()}>
-            <Text style={[s.primaryBtnText, { color: "#000" }]}>ENTER THE PLATFORM  →</Text>
+          {/* Final CTA → goes to account creation */}
+          <TouchableOpacity style={[s.primaryBtn, { backgroundColor: EMERALD }]} onPress={() => setStep(4)}>
+            <Text style={[s.primaryBtnText, { color: "#000" }]}>CREATE MY FREE ACCOUNT  →</Text>
           </TouchableOpacity>
           <TouchableOpacity style={{ marginTop: 12, alignItems: "center" }} onPress={() => setStep(2)}>
             <Text style={{ fontSize: 12, color: "rgba(255,255,255,0.3)" }}>Back</Text>
           </TouchableOpacity>
         </ScrollView>
+      </SafeAreaView>
+    );
+  }
+
+  // ── Step 4: Account Creation ────────────────────────────────────
+  if (step === 4) {
+    return (
+      <SafeAreaView style={[s.safe, { backgroundColor: DARK }]}>
+        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1 }}>
+          <ScrollView contentContainerStyle={s.stepWrap} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+            <StepHeader current={4} total={4} />
+            <Text style={s.stepTitle}>Create your account</Text>
+            <Text style={s.stepSub}>
+              Your profile is saved securely. Free forever — no credit card needed.
+              {role ? `\nYou're joining as a ${role.title}.` : ""}
+            </Text>
+
+            <View style={s.gap16} />
+
+            <View style={s.authField}>
+              <Text style={s.authLabel}>FULL NAME</Text>
+              <TextInput
+                style={s.authInput}
+                placeholder="Ron Williams"
+                placeholderTextColor="rgba(255,255,255,0.25)"
+                value={name}
+                onChangeText={setName}
+                autoCapitalize="words"
+                autoCorrect={false}
+              />
+            </View>
+
+            <View style={s.authField}>
+              <Text style={s.authLabel}>EMAIL ADDRESS</Text>
+              <TextInput
+                style={s.authInput}
+                placeholder="you@example.com"
+                placeholderTextColor="rgba(255,255,255,0.25)"
+                value={email}
+                onChangeText={setEmail}
+                autoCapitalize="none"
+                keyboardType="email-address"
+                autoCorrect={false}
+              />
+            </View>
+
+            <View style={s.authField}>
+              <Text style={s.authLabel}>PASSWORD</Text>
+              <TextInput
+                style={s.authInput}
+                placeholder="8+ characters"
+                placeholderTextColor="rgba(255,255,255,0.25)"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                autoCapitalize="none"
+              />
+            </View>
+
+            {!!authError && (
+              <View style={s.authErrBox}>
+                <Text style={s.authErrText}>{authError}</Text>
+              </View>
+            )}
+
+            <View style={s.gap16} />
+
+            <TouchableOpacity
+              style={[s.primaryBtn, { backgroundColor: GOLD }, authLoading && { opacity: 0.6 }]}
+              onPress={() => void createAccount()}
+              disabled={authLoading}
+            >
+              {authLoading
+                ? <ActivityIndicator color="#000" />
+                : <Text style={s.primaryBtnText}>ENTER THE PLATFORM  →</Text>}
+            </TouchableOpacity>
+
+            <TouchableOpacity style={{ marginTop: 16, alignItems: "center" }} onPress={() => void finish()}>
+              <Text style={{ fontSize: 11, color: "rgba(255,255,255,0.25)" }}>Skip for now — continue without an account</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={{ marginTop: 10, alignItems: "center" }} onPress={() => setStep(3)}>
+              <Text style={{ fontSize: 12, color: "rgba(255,255,255,0.3)" }}>Back</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </KeyboardAvoidingView>
       </SafeAreaView>
     );
   }
@@ -401,6 +540,12 @@ const s = StyleSheet.create({
 
   primaryBtn:    { width: "100%", padding: 17, borderRadius: 14, backgroundColor: GOLD, alignItems: "center", marginTop: 8 },
   primaryBtnText:{ fontSize: 14, fontWeight: "900", color: "#000", letterSpacing: 2, fontFamily: "Inter_700Bold" },
+
+  authField:     { marginBottom: 16 },
+  authLabel:     { fontSize: 9, fontWeight: "700", letterSpacing: 2, color: "rgba(255,255,255,0.3)", marginBottom: 8 },
+  authInput:     { backgroundColor: CARD, borderWidth: 1, borderColor: BORDER, borderRadius: 12, padding: 15, color: "#fff", fontSize: 15 },
+  authErrBox:    { padding: 12, borderRadius: 10, backgroundColor: "rgba(239,68,68,0.1)", borderWidth: 1, borderColor: "rgba(239,68,68,0.25)", marginTop: 4 },
+  authErrText:   { color: "#F87171", fontSize: 13, lineHeight: 18 },
 });
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────

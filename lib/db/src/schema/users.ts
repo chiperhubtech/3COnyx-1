@@ -1,4 +1,4 @@
-import { pgTable, text, serial, timestamp, pgEnum, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, timestamp, pgEnum, boolean, integer } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -20,11 +20,21 @@ export const usersTable = pgTable("users", {
   avatarUrl:        text("avatar_url"),
   isActive:         boolean("is_active").notNull().default(true),
   isVerified:       boolean("is_verified").notNull().default(false),
-  stripeCustomerId: text("stripe_customer_id"),
-  checkrCandidateId: text("checkr_candidate_id"),
-  lastLoginAt:      timestamp("last_login_at", { withTimezone: true }),
-  createdAt:        timestamp("created_at",  { withTimezone: true }).notNull().defaultNow(),
-  updatedAt:        timestamp("updated_at",  { withTimezone: true }).notNull().defaultNow(),
+  stripeCustomerId:   text("stripe_customer_id"),
+  stripeSubId:        text("stripe_sub_id"),
+  subscriptionTier:   text("subscription_tier").default("free"),
+  subscriptionStatus: text("subscription_status").default("inactive"),
+  subscriptionEndsAt: timestamp("subscription_ends_at", { withTimezone: true }),
+  checkrCandidateId:  text("checkr_candidate_id"),
+  pushToken:          text("push_token"),
+  pushTokenUpdatedAt: timestamp("push_token_updated_at", { withTimezone: true }),
+  onboardingRole:     text("onboarding_role"),
+  referralCode:       text("referral_code").unique(),
+  referredBy:         integer("referred_by"),
+  points:             integer("points").notNull().default(0),
+  lastLoginAt:        timestamp("last_login_at", { withTimezone: true }),
+  createdAt:          timestamp("created_at",  { withTimezone: true }).notNull().defaultNow(),
+  updatedAt:          timestamp("updated_at",  { withTimezone: true }).notNull().defaultNow(),
 });
 
 export const insertUserSchema = createInsertSchema(usersTable).omit({

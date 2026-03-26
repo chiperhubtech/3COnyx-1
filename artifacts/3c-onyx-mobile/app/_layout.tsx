@@ -17,6 +17,8 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import OnboardingFlow, { checkOnboardingComplete } from "@/components/OnboardingFlow";
 import "@/lib/i18n";
+import { AuthProvider } from "@/lib/authStore";
+import { registerForPushNotifications } from "@/lib/notifications";
 import { DARK, ThemeProvider, useTheme } from "@/src/theme";
 
 SplashScreen.preventAutoHideAsync();
@@ -63,7 +65,10 @@ export default function RootLayout() {
   useEffect(() => {
     if (fontsLoaded || fontError) {
       SplashScreen.hideAsync();
-      checkOnboardingComplete().then(done => setOnboardingDone(done));
+      checkOnboardingComplete().then(done => {
+        setOnboardingDone(done);
+        if (done) void registerForPushNotifications();
+      });
     }
   }, [fontsLoaded, fontError]);
 
@@ -73,24 +78,31 @@ export default function RootLayout() {
   if (!onboardingDone) {
     return (
       <SafeAreaProvider>
-        <OnboardingFlow onComplete={() => setOnboardingDone(true)} />
+        <AuthProvider>
+          <OnboardingFlow onComplete={() => {
+            setOnboardingDone(true);
+            void registerForPushNotifications();
+          }} />
+        </AuthProvider>
       </SafeAreaProvider>
     );
   }
 
   return (
     <SafeAreaProvider>
-      <ThemeProvider>
-        <ErrorBoundary>
-          <QueryClientProvider client={queryClient}>
-            <GestureHandlerRootView style={{ flex: 1 }}>
-              <KeyboardProvider>
-                <ThemedStack />
-              </KeyboardProvider>
-            </GestureHandlerRootView>
-          </QueryClientProvider>
-        </ErrorBoundary>
-      </ThemeProvider>
+      <AuthProvider>
+        <ThemeProvider>
+          <ErrorBoundary>
+            <QueryClientProvider client={queryClient}>
+              <GestureHandlerRootView style={{ flex: 1 }}>
+                <KeyboardProvider>
+                  <ThemedStack />
+                </KeyboardProvider>
+              </GestureHandlerRootView>
+            </QueryClientProvider>
+          </ErrorBoundary>
+        </ThemeProvider>
+      </AuthProvider>
     </SafeAreaProvider>
   );
 }

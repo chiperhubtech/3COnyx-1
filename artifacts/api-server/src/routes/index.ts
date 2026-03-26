@@ -62,6 +62,7 @@ import strategyRouter from "./strategy";
 import outreachRouter from "./outreach";
 import ownerRouter from "./owner";
 import neuralRouter from "./neural";
+import usersRouter from "./users";
 
 const router: IRouter = Router();
 
@@ -144,5 +145,7 @@ router.get("/ai-router/status", (_req: Request, res: Response) => {
   const { getRouterStatus } = require("../lib/ai-router") as typeof import("../lib/ai-router");
   res.json(getRouterStatus());
 });
+
+router.use(usersRouter);
 
 export default router;

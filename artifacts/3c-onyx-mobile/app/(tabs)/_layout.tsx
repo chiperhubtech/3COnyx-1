@@ -262,6 +262,7 @@ export default function TabLayout() {
         <Tabs.Screen name="notifications" options={{ href: null }} />
         <Tabs.Screen name="runner"        options={{ href: null }} />
         <Tabs.Screen name="carplay"       options={{ href: null }} />
+        <Tabs.Screen name="upgrade"       options={{ href: null }} />
       </Tabs>
 
       {/* ── Floating "Ask ONYX" AI button (above tab bar, every screen) ── */}

@@ -58,6 +58,8 @@
   "dependencies": {
     "expo-contacts": "^55.0.9",
     "expo-localization": "^55.0.9",
+    "expo-notifications": "^55.0.13",
+    "expo-secure-store": "^55.0.9",
     "i18next": "^25.10.5",
     "react-i18next": "^16.6.2"
   }
