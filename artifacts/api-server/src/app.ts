@@ -1,6 +1,7 @@
 import express, { type Express, type Request, type Response, type NextFunction } from "express";
 import cors from "cors";
 import helmet from "helmet";
+import compression from "compression";
 import cookieParser from "cookie-parser";
 import pinoHttp from "pino-http";
 import router from "./routes";
@@ -12,8 +13,18 @@ import { generalLimiter, authLimiter } from "./middlewares/rateLimiter";
 
 const app: Express = express();
 
-// Trust reverse proxy (Replit/AWS ALB) for rate limiting and IP detection
+// Trust reverse proxy (Replit/AWS ALB/Cloudflare) for rate limiting and IP detection
 app.set("trust proxy", 1);
+
+// ── Compression — gzip/brotli all responses (reduces bandwidth 60-80% at scale) ──
+app.use(compression({
+  level: 6,
+  threshold: 1024,
+  filter: (req, res) => {
+    if (req.headers["x-no-compression"]) return false;
+    return compression.filter(req, res);
+  },
+}));
 
 // ── Security headers (helmet) ─────────────────────────────────────────────────
 app.use(helmet({

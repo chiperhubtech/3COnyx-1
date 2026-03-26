@@ -15,6 +15,12 @@
 
 import { Router, type Request, type Response } from "express";
 import { ai } from "@workspace/integrations-gemini-ai";
+import { cache, TTL } from "../lib/cache";
+import { createHash } from "crypto";
+
+function cacheKey(...parts: unknown[]): string {
+  return createHash("sha256").update(JSON.stringify(parts)).digest("hex").slice(0, 16);
+}
 
 const router = Router();
 
@@ -187,13 +193,22 @@ Style: Professional but personable. LinkedIn-quality. 3 sentences.`,
   const prompt = PROMPTS[type];
   if (!prompt) { res.status(400).json({ error: `Unknown generation type: ${type}. Valid: ${Object.keys(PROMPTS).join(", ")}` }); return; }
 
+  const CACHEABLE = ["market_report", "vehicle_description", "bio"];
+  const cacheHit = CACHEABLE.includes(type) ? cache.get<string>(cacheKey("gen", type, context)) : null;
+  if (cacheHit) {
+    res.json({ type: "GENERATIVE_AI", contentType: type, content: cacheHit, model: GENERATE_MODEL, cached: true, timestamp: new Date().toISOString() });
+    return;
+  }
+
   try {
     const response = await ai.models.generateContent({
       model: GENERATE_MODEL,
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       config: { maxOutputTokens: 8192 },
     });
-    res.json({ type: "GENERATIVE_AI", contentType: type, content: response.text ?? "", model: GENERATE_MODEL, timestamp: new Date().toISOString() });
+    const content = response.text ?? "";
+    if (CACHEABLE.includes(type)) cache.set(cacheKey("gen", type, context), content, TTL.AI_GENERATION);
+    res.json({ type: "GENERATIVE_AI", contentType: type, content, model: GENERATE_MODEL, cached: false, timestamp: new Date().toISOString() });
   } catch (err) {
     res.status(500).json({ error: "Generation failed", detail: String(err) });
   }
@@ -337,6 +352,13 @@ router.post("/analyze", async (req: Request, res: Response) => {
   const { subject, question, data } = req.body as { subject: string; question: string; data?: Record<string, unknown> };
   if (!subject || !question) { res.status(400).json({ error: "subject and question are required" }); return; }
 
+  const ck = cacheKey("analyze", subject, question);
+  const cached = cache.get<string>(ck);
+  if (cached) {
+    res.json({ type: "GENERAL_AI_ANALYSIS", subject, question, analysis: cached, model: BRAIN_MODEL, cached: true, timestamp: new Date().toISOString() });
+    return;
+  }
+
   try {
     const response = await ai.models.generateContent({
       model: BRAIN_MODEL,
@@ -361,7 +383,9 @@ Be direct, specific, and executive-level. This is a $30B company being built.` }
       config: { maxOutputTokens: 8192 },
     });
 
-    res.json({ type: "GENERAL_AI_ANALYSIS", subject, question, analysis: response.text ?? "", model: BRAIN_MODEL, timestamp: new Date().toISOString() });
+    const analysis = response.text ?? "";
+    cache.set(ck, analysis, TTL.AI_GENERATION);
+    res.json({ type: "GENERAL_AI_ANALYSIS", subject, question, analysis, model: BRAIN_MODEL, cached: false, timestamp: new Date().toISOString() });
   } catch (err) {
     res.status(500).json({ error: "Analysis failed", detail: String(err) });
   }
@@ -382,6 +406,7 @@ router.get("/status", (_req: Request, res: Response) => {
       agenticAI:   { status: "ACTIVE", description: "Autonomous multi-step task execution", endpoints: ["/neural/agents/spawn", "/neural/agents"] },
       generalAI:   { status: "ACTIVE", description: "Complex reasoning, strategy, market intelligence", endpoints: ["/neural/think", "/neural/analyze"] },
     },
+    cache: cache.stats(),
     activeAgents: Array.from(activeAgents.values()).filter(a => a.status === "thinking" || a.status === "executing").length,
     timestamp: new Date().toISOString(),
   });

@@ -30,6 +30,9 @@
     "android": {
       "package": "com.cuxtomcandyclub.onyx",
       "versionCode": 1,
+      "compileSdkVersion": 35,
+      "targetSdkVersion": 35,
+      "minSdkVersion": 24,
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.READ_CONTACTS",
@@ -42,7 +45,10 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#050508"
-      }
+      },
+      "blockedPermissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/images/icon.png"
