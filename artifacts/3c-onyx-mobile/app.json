@@ -1,22 +1,49 @@
 {
   "expo": {
-    "name": "3C Onyx Mobile",
+    "name": "3C Onyx",
     "slug": "3c-onyx-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "3c-onyx-mobile",
+    "scheme": "onyx3c",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "privacy": "public",
     "splash": {
       "image": "./assets/images/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#050508"
     },
     "ios": {
-      "supportsTablet": false
+      "supportsTablet": false,
+      "bundleIdentifier": "com.cuxtomcandyclub.onyx",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSCameraUsageDescription": "3C Onyx uses your camera to scan and document vehicle condition for the 360° Vehicle Scanner and secure document vault.",
+        "NSPhotoLibraryUsageDescription": "3C Onyx accesses your photo library to upload vehicle photos and documents to your secure vault.",
+        "NSPhotoLibraryAddUsageDescription": "3C Onyx saves scanned vehicle images to your photo library.",
+        "NSContactsUsageDescription": "3C Onyx uses your contacts to help you invite colleagues and friends to your referral network.",
+        "NSLocationWhenInUseUsageDescription": "3C Onyx uses your location to find nearby auto businesses, roadside assistance providers, and fuel stations.",
+        "NSMicrophoneUsageDescription": "3C Onyx may use your microphone for voice-enabled features within the app."
+      }
     },
-    "android": {},
+    "android": {
+      "package": "com.cuxtomcandyclub.onyx",
+      "versionCode": 1,
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.READ_CONTACTS",
+        "android.permission.READ_MEDIA_IMAGES",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION"
+      ],
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/icon.png",
+        "backgroundColor": "#050508"
+      }
+    },
     "web": {
       "favicon": "./assets/images/icon.png"
     },
@@ -28,7 +55,26 @@
         }
       ],
       "expo-font",
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "3C Onyx accesses your photo library to upload vehicle photos and documents to your secure vault.",
+          "cameraPermission": "3C Onyx uses your camera to scan and document vehicle condition for the 360° Vehicle Scanner."
+        }
+      ],
+      [
+        "expo-contacts",
+        {
+          "contactsPermission": "3C Onyx uses your contacts to help you invite members to your referral network."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "3C Onyx uses your location to find nearby automotive businesses, roadside assistance providers, and fuel stations."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

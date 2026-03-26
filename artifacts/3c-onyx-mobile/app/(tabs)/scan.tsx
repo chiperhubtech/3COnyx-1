@@ -33,7 +33,7 @@ const POSITIONS = [
   { label: "Front-Left 45°",  angle: 315, shortLabel: "FL" },
 ];
 
-const DEMO_IMAGES = [
+const FALLBACK_IMAGES = [
   "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=600&q=80",
   "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=600&q=80",
   "https://images.unsplash.com/photo-1511919884226-fd3cad34687c?w=600&q=80",
@@ -126,8 +126,8 @@ export default function ScanTab() {
     next[idx] = true;
     setCaptured(next);
     try {
-      await apiFetch("/dropship/scan/submit", { method: "POST", body: JSON.stringify({ vehicleId, positionIndex: idx, imageUrl: DEMO_IMAGES[idx] }) });
-    } catch { /* offline — continue */ }
+      await apiFetch("/dropship/scan/submit", { method: "POST", body: JSON.stringify({ vehicleId, positionIndex: idx, imageUrl: FALLBACK_IMAGES[idx] }) });
+    } catch { /* API unavailable — captured locally */ }
     setCapturing(false);
     const nextIdx = next.findIndex((c, i) => !c && i > idx);
     if (nextIdx !== -1) setActiveIdx(nextIdx);

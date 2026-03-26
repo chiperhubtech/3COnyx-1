@@ -728,6 +728,12 @@ export default function HomeScreen() {
           </View>
           <ThemeToggle />
           <Pressable
+            onPress={() => router.push("/settings" as never)}
+            style={[styles.bellBtn, { backgroundColor: theme.goldMuted }]}
+          >
+            <Ionicons name="settings-outline" size={18} color={theme.gold} />
+          </Pressable>
+          <Pressable
             onPress={() => router.push("/(tabs)/notifications" as never)}
             style={[styles.bellBtn, { backgroundColor: theme.goldMuted }]}
           >
@@ -897,6 +903,19 @@ export default function HomeScreen() {
           <Text style={[styles.footerText, { color: theme.textFaint }]}>
             3C ONYX · CUXTOMCANDYCLUB LLC · AES-256 · INTELLIGENCE ENGINE ACTIVE
           </Text>
+          <View style={styles.footerLinks}>
+            <Pressable onPress={() => router.push("/settings" as never)}>
+              <Text style={[styles.footerLink, { color: theme.textFaint }]}>Settings</Text>
+            </Pressable>
+            <Text style={[styles.footerDot, { color: theme.textFaint }]}>·</Text>
+            <Pressable onPress={() => router.push("/legal" as never)}>
+              <Text style={[styles.footerLink, { color: theme.textFaint }]}>Privacy Policy</Text>
+            </Pressable>
+            <Text style={[styles.footerDot, { color: theme.textFaint }]}>·</Text>
+            <Pressable onPress={() => router.push("/legal" as never)}>
+              <Text style={[styles.footerLink, { color: theme.textFaint }]}>Terms</Text>
+            </Pressable>
+          </View>
         </View>
       </ScrollView>
     </View>
@@ -1019,8 +1038,11 @@ const styles = StyleSheet.create({
   statusValue: { fontSize: 10, fontWeight: "700", letterSpacing: 1 },
 
   // Footer
-  footer:     { alignItems: "center", paddingVertical: 20 },
-  footerText: { fontSize: 9, fontWeight: "600", letterSpacing: 1.5 },
+  footer:       { alignItems: "center", paddingVertical: 20, gap: 8 },
+  footerText:   { fontSize: 9, fontWeight: "600", letterSpacing: 1.5 },
+  footerLinks:  { flexDirection: "row", alignItems: "center", gap: 6 },
+  footerLink:   { fontSize: 10, fontFamily: "Inter_400Regular", textDecorationLine: "underline" },
+  footerDot:    { fontSize: 10 },
 
   // Emergency SOS strip
   sosStrip:  { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginHorizontal: 16, marginTop: 8, marginBottom: 2, borderWidth: 1, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10 },

@@ -1,0 +1,52 @@
+When you submit an app, both Apple and Google use a combination of automated scans and human reviewers to audit your code, design, and business model. Roughly 25% of apps are rejected on their first attempt, often for small, fixable technical or metadata errors. [1, 2, 3, 4] 
+Core Areas of Review
+Reviewers generally focus on five main pillars to decide if an app is safe and high-quality: [5, 6] 
+
+* Safety & Content: They look for "objectionable content," including hate speech, realistic violence, or sexually explicit material. Social apps must have built-in tools for users to report and block others to pass this check.
+* Performance (The #1 Rejection Reason): Over 40% of rejections fall under "App Completeness". Reviewers will reject your app instantly if it:
+* Crashes during their test.
+   * Contains placeholder "Lorem Ipsum" text or "Coming Soon" buttons.
+   * Is a "web wrapper" (simply a website inside an app frame) with no native functionality.
+* Privacy & Data: They check if your requested permissions (like Location or Camera) are actually used by a feature. If you ask for data without explaining why in a clear popup, it’s an automatic flag.
+* Business & Payments: For digital goods (e.g., gems in a game, premium features), you must use the platform's official billing system (StoreKit for Apple, Google Play Billing). Trying to bypass this with an external "Pay here" link is a major violation.
+* Design: Apple in particular is strict about "Minimum Functionality" and original ideas. If your app is a "copycat" of a popular existing app or lacks a refined UI, it may be rejected as spam. [1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19] 
+
+Critical "Red Flags" That Prevent Launch
+These issues will almost always stop an app from entering the store:
+
+| Category [2, 5, 6, 12, 14, 16, 19, 20] | Rejection Trigger |
+|---|---|
+| Technical | Crashes on launch, broken links, or non-functional "Buy" buttons. |
+| Legal | Missing a Privacy Policy URL or infringing on another brand's trademarks/logos. |
+| Monetization | Hidden pricing, misleading subscription terms, or missing a "Restore Purchases" button. |
+| Access | Forgetting to provide a demo/test account so reviewers can log in and see the app's features. |
+| Metadata | Screenshots that don't match the app or mentioning "Android" in an Apple listing (and vice-versa). |
+
+Summary of Differences
+
+* Apple focuses heavily on design quality and manual human testing. They are notorious for rejecting apps that feel "unfinished" or unoriginal.
+* Google relies more on automated systems to find malware and technical policy violations. They are especially strict about how you declare and handle user data. [2, 10, 13, 17, 21] 
+
+Would you like a pre-submission checklist for either the [Apple App Store](https://developer.apple.com/app-store/review/guidelines/) or Google Play Store specifically?
+
+[1] [https://onemobile.ai](https://onemobile.ai/common-app-store-rejections-and-how-to-avoid-them/)
+[2] [https://www.taazaa.com](https://www.taazaa.com/blog/understanding-the-different-mobile-app-store-guidelines)
+[3] [https://www.krootl.com](https://www.krootl.com/blog/why-apple-appstore-and-google-play-store-would-remove-your-app)
+[4] [https://www.adalo.com](https://www.adalo.com/posts/common-app-store-rejection-reasons)
+[5] [https://appinstitute.com](https://appinstitute.com/app-store-review-checklist/)
+[6] [https://theapplaunchpad.com](https://theapplaunchpad.com/blog/app-store-review-guidelines)
+[7] [https://developer.apple.com](https://developer.apple.com/app-store/review/guidelines/)
+[8] [https://developer.apple.com](https://developer.apple.com/app-store/review/guidelines/)
+[9] [https://www.youtube.com](https://www.youtube.com/watch?v=_EUbAWiOBf8&t=245)
+[10] [https://www.digia.tech](https://www.digia.tech/post/app-store-approval-process-delays)
+[11] [https://www.youtube.com](https://www.youtube.com/watch?v=CGW3_eRM1G0&t=325)
+[12] [https://support.google.com](https://support.google.com/googleplay/android-developer/answer/15191715?hl=en)
+[13] [https://www.youtube.com](https://www.youtube.com/watch?v=Kuepn6pr6QU&t=192)
+[14] [https://support.google.com](https://support.google.com/googleplay/android-developer/answer/9859455?hl=en)
+[15] [https://www.youtube.com](https://www.youtube.com/shorts/GynIG2kS_S8)
+[16] [https://appfollow.io](https://appfollow.io/blog/app-store-review-guidelines)
+[17] [https://www.promaticsindia.com](https://www.promaticsindia.com/blog/what-goes-behind-the-scenes-for-app-reviews-by-google-and-apple)
+[18] [https://www.youtube.com](https://www.youtube.com/watch?v=i48JgOr2W64&t=233)
+[19] [https://www.youtube.com](https://www.youtube.com/watch?v=r9MHS-WXBKo&t=10)
+[20] [https://help.salesforce.com](https://help.salesforce.com/s/articleView?id=xcloud.branded_apps_app_store_reject.htm&language=en_US&type=5)
+[21] [https://appinstitute.com](https://appinstitute.com/apple-app-store-guidelines-what-you-need-to-know/)

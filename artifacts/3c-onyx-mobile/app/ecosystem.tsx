@@ -19,14 +19,13 @@ import { COLORS } from "@/constants/colors";
 import { useTheme } from "@/src/theme";
 
 type EcoCategory = {
-  id:       string;
-  label:    string;
-  sub:      string;
-  icon:     keyof typeof Feather.glyphMap;
-  color:    string;
-  route?:   string;
-  badge?:   string;
-  comingSoon?: boolean;
+  id:    string;
+  label: string;
+  sub:   string;
+  icon:  keyof typeof Feather.glyphMap;
+  color: string;
+  route: string;
+  badge?: string;
 };
 
 type EcoPartner = {
@@ -42,7 +41,6 @@ const CATEGORIES: EcoCategory[] = [
   { id: "towing",       label: "Towing Services",         sub: "Find tow companies near you",        icon: "truck",          color: "#F97316", route: "/nearby?category=towing" },
   // ─── Mobility ──────────────────────────────────────────────────────────────
   { id: "rentals",      label: "Car Rentals",             sub: "30+ providers via CarCrawler",        icon: "key",            color: "#3B82F6", route: "/rentals",   badge: "NEW" },
-  { id: "rideshare",    label: "Rideshare & Transit",     sub: "Uber, Lyft, public transit",          icon: "navigation",     color: "#8B5CF6", comingSoon: true },
   // ─── Maintenance & Repair ──────────────────────────────────────────────────
   { id: "repair",       label: "Auto Repair",             sub: "Find trusted shops near you",         icon: "tool",           color: COLORS.gold, route: "/nearby?category=repair" },
   { id: "detail",       label: "Detailing & Wash",        sub: "Mobile & in-bay services",            icon: "droplet",        color: "#06B6D4", route: "/nearby?category=detail" },
@@ -53,13 +51,12 @@ const CATEGORIES: EcoCategory[] = [
   { id: "parts",        label: "Auto Parts",              sub: "AutoZone, O'Reilly & more",           icon: "package",        color: "#64748B", route: "/nearby?category=parts" },
   // ─── Insurance & Finance ───────────────────────────────────────────────────
   { id: "insurance",    label: "Auto Insurance",          sub: "Compare rates instantly",             icon: "shield",         color: COLORS.emerald, route: "/nearby?category=insurance" },
-  { id: "finance",      label: "Auto Finance",            sub: "Loans, leases & refinancing",         icon: "credit-card",    color: "#6366F1", comingSoon: true },
   // ─── Fuel & Charging ───────────────────────────────────────────────────────
   { id: "gas",          label: "Gas Stations",            sub: "Find cheapest nearby",                icon: "zap",            color: "#F59E0B", route: "/nearby?category=gas" },
   { id: "ev_charging",  label: "EV Charging",             sub: "Tesla, ChargePoint, EVgo",            icon: "battery",        color: "#10B981", route: "/nearby?category=ev_charging" },
   // ─── Specialty ─────────────────────────────────────────────────────────────
   { id: "wrap_tint",    label: "Wraps & Tint",            sub: "Visual customization studios",        icon: "layers",         color: "#EC4899", route: "/nearby?category=repair" },
-  { id: "stereo",       label: "Audio & Electronics",     sub: "Installation & upgrade shops",        icon: "headphones",     color: "#A78BFA", comingSoon: true },
+  { id: "aftermarket",  label: "Audio & Electronics",     sub: "Installation & upgrade shops",        icon: "headphones",     color: "#A78BFA", route: "/aftermarket" },
 ];
 
 const PARTNERS: EcoPartner[] = [
@@ -75,16 +72,13 @@ function CategoryCard({ cat }: { cat: EcoCategory }) {
   const { theme } = useTheme();
   return (
     <Pressable
-      onPress={() => {
-        if (cat.comingSoon) return;
-        if (cat.route) router.push(cat.route as never);
-      }}
+      onPress={() => router.push(cat.route as never)}
       style={({ pressed }) => [
         styles.catCard,
         {
           backgroundColor: theme.card,
           borderColor: theme.cardBorder,
-          opacity: pressed ? 0.88 : cat.comingSoon ? 0.5 : 1,
+          opacity: pressed ? 0.88 : 1,
         },
       ]}
     >
@@ -95,17 +89,12 @@ function CategoryCard({ cat }: { cat: EcoCategory }) {
         <Text style={[styles.catLabel, { color: theme.text }]}>{cat.label}</Text>
         <Text style={[styles.catSub, { color: theme.textMuted }]}>{cat.sub}</Text>
       </View>
-      {cat.badge && !cat.comingSoon && (
+      {cat.badge && (
         <View style={[styles.catBadge, { backgroundColor: `${cat.color}18`, borderColor: `${cat.color}30` }]}>
           <Text style={[styles.catBadgeText, { color: cat.color }]}>{cat.badge}</Text>
         </View>
       )}
-      {cat.comingSoon && (
-        <View style={[styles.catBadge, { backgroundColor: theme.cardAlt, borderColor: theme.cardBorder }]}>
-          <Text style={[styles.catBadgeText, { color: theme.textMuted }]}>SOON</Text>
-        </View>
-      )}
-      {!cat.comingSoon && <Feather name="chevron-right" size={14} color={theme.textFaint} />}
+      <Feather name="chevron-right" size={14} color={theme.textFaint} />
     </Pressable>
   );
 }
