@@ -63,6 +63,8 @@ import outreachRouter from "./outreach";
 import ownerRouter from "./owner";
 import neuralRouter from "./neural";
 import usersRouter from "./users";
+import vinRouter from "./vin";
+import bayRouter from "./bay";
 
 const router: IRouter = Router();
 
@@ -147,5 +149,7 @@ router.get("/ai-router/status", (_req: Request, res: Response) => {
 });
 
 router.use(usersRouter);
+router.use(vinRouter);
+router.use(bayRouter);
 
 export default router;

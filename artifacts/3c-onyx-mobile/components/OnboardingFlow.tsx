@@ -116,6 +116,34 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError]   = useState("");
 
+  // ── Ghost Gate (Golden Key) ──────────────────────────────────────
+  const [ghostUnlocked, setGhostUnlocked] = useState(false);
+  const [keyCode, setKeyCode]             = useState("");
+  const [keyLoading, setKeyLoading]       = useState(false);
+  const [keyError, setKeyError]           = useState("");
+  const [inviterName, setInviterName]     = useState("");
+
+  async function validateGoldenKey() {
+    const trimmed = keyCode.trim().toUpperCase();
+    if (!trimmed) { setKeyError("Enter your Golden Key code."); return; }
+    setKeyLoading(true);
+    setKeyError("");
+    try {
+      const res  = await fetch(`${BASE}/auth/validate-code?code=${encodeURIComponent(trimmed)}`);
+      const data = await res.json() as { valid?: boolean; inviterName?: string; error?: string };
+      if (!res.ok || !data.valid) {
+        setKeyError(data.error ?? "Invalid code. Get a Golden Key from an existing 3C ONYX member.");
+        return;
+      }
+      setInviterName(data.inviterName ?? "a member");
+      setGhostUnlocked(true);
+    } catch {
+      setKeyError("Could not reach the server. Check your connection.");
+    } finally {
+      setKeyLoading(false);
+    }
+  }
+
   const filteredRoles = category ? ROLES.filter(r => r.category === category) : [];
 
   async function createAccount() {
@@ -159,6 +187,62 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     onComplete();
   }
 
+  // ── Ghost Gate: Golden Key (blocks all of onboarding) ───────────
+  if (!ghostUnlocked) {
+    return (
+      <SafeAreaView style={[s.safe, { backgroundColor: DARK }]}>
+        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
+          <ScrollView contentContainerStyle={s.introWrap} keyboardShouldPersistTaps="handled">
+            <View style={s.ghostLockIcon}>
+              <Text style={s.ghostLockEmoji}>🔑</Text>
+            </View>
+            <Text style={s.introWordmark}>3C ONYX</Text>
+            <Text style={s.introTagline}>INVITE-ONLY ACCESS</Text>
+
+            <View style={s.introDivider} />
+
+            <Text style={s.introHeadline}>Enter Your Golden Key</Text>
+            <Text style={s.introSub}>
+              3C ONYX is invite-only. You need a referral code from an existing member to enter. Your code is your key — every person inside has vouched for the next.
+            </Text>
+
+            <TextInput
+              style={[s.input, { textAlign: "center", letterSpacing: 4, fontSize: 20, color: GOLD, fontWeight: "700" }]}
+              placeholder="e.g.  RON-2KF4"
+              placeholderTextColor="rgba(201,162,39,0.35)"
+              value={keyCode}
+              onChangeText={v => { setKeyCode(v.toUpperCase()); setKeyError(""); }}
+              autoCapitalize="characters"
+              autoCorrect={false}
+              returnKeyType="done"
+              onSubmitEditing={() => void validateGoldenKey()}
+            />
+
+            {!!keyError && (
+              <View style={s.ghostError}>
+                <Text style={s.ghostErrorText}>{keyError}</Text>
+              </View>
+            )}
+
+            <TouchableOpacity
+              style={[s.primaryBtn, keyLoading && { opacity: 0.6 }]}
+              onPress={() => void validateGoldenKey()}
+              disabled={keyLoading}
+            >
+              <Text style={s.primaryBtnText}>
+                {keyLoading ? "VERIFYING…" : "UNLOCK WITH GOLDEN KEY  →"}
+              </Text>
+            </TouchableOpacity>
+
+            <Text style={[s.introTagline, { marginTop: 20, color: "rgba(255,255,255,0.2)", fontSize: 10 }]}>
+              Don't have a code? Ask an existing ONYX member to share theirs from their Invite & Earn tab.
+            </Text>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    );
+  }
+
   // ── Step 0: Intro ───────────────────────────────────────────────
   if (step === 0) {
     return (
@@ -171,6 +255,13 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
           <View style={s.introDivider} />
 
           <Text style={s.introHeadline}>The Automotive Super App</Text>
+          {inviterName ? (
+            <View style={{ marginBottom: 8, paddingHorizontal: 4 }}>
+              <Text style={[s.introTagline, { color: `${GOLD}CC`, fontSize: 11, letterSpacing: 1 }]}>
+                Vouched for by {inviterName.toUpperCase()}. Welcome home.
+              </Text>
+            </View>
+          ) : null}
           <Text style={s.introSub}>
             Free for everyone. Forever. Built for consumers and every automotive professional — from BDC reps to shop owners to transport drivers.
           </Text>
@@ -483,7 +574,11 @@ function NavButtons({ onBack, onNext, nextDisabled }: { onBack?: () => void; onN
 
 const s = StyleSheet.create({
   safe:          { flex: 1 },
-  introWrap:     { flex: 1, alignItems: "center", justifyContent: "center", padding: 32 },
+  introWrap:     { flexGrow: 1, alignItems: "center", justifyContent: "center", padding: 32, paddingTop: 60 },
+  ghostLockIcon: { width: 80, height: 80, borderRadius: 40, backgroundColor: `${GOLD}15`, borderWidth: 1.5, borderColor: `${GOLD}40`, alignItems: "center", justifyContent: "center", marginBottom: 8 },
+  ghostLockEmoji:{ fontSize: 36 },
+  ghostError:    { backgroundColor: "rgba(239,68,68,0.12)", borderRadius: 10, borderWidth: 1, borderColor: "rgba(239,68,68,0.35)", padding: 12, marginBottom: 16, width: "100%" },
+  ghostErrorText:{ color: "#F87171", fontSize: 13, textAlign: "center", lineHeight: 19 },
   introWordmark: { fontSize: 32, fontWeight: "900", color: "#fff", letterSpacing: 8, marginTop: 16, fontFamily: "Inter_700Bold" },
   introTagline:  { fontSize: 9, color: GOLD + "80", letterSpacing: 3, marginTop: 4, textAlign: "center" },
   introDivider:  { width: 60, height: 1, backgroundColor: GOLD + "30", marginVertical: 28 },
@@ -541,6 +636,7 @@ const s = StyleSheet.create({
   primaryBtn:    { width: "100%", padding: 17, borderRadius: 14, backgroundColor: GOLD, alignItems: "center", marginTop: 8 },
   primaryBtnText:{ fontSize: 14, fontWeight: "900", color: "#000", letterSpacing: 2, fontFamily: "Inter_700Bold" },
 
+  input:         { width: "100%", backgroundColor: CARD, borderWidth: 1, borderColor: `${GOLD}30`, borderRadius: 12, padding: 15, color: "#fff", fontSize: 15, marginBottom: 16 },
   authField:     { marginBottom: 16 },
   authLabel:     { fontSize: 9, fontWeight: "700", letterSpacing: 2, color: "rgba(255,255,255,0.3)", marginBottom: 8 },
   authInput:     { backgroundColor: CARD, borderWidth: 1, borderColor: BORDER, borderRadius: 12, padding: 15, color: "#fff", fontSize: 15 },

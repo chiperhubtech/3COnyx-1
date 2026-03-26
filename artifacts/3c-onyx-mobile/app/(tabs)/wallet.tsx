@@ -2,10 +2,12 @@
  * 3C Onyx Mobile — Dynasty Wallet
  * Triple-split transactions, earning slices, Stripe Connect status
  */
-import { Ionicons } from "@expo/vector-icons";
+import { Feather, Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
 import React from "react";
 import {
+  Pressable,
   RefreshControl,
   ScrollView,
   StatusBar,
@@ -88,6 +90,26 @@ export default function WalletScreen() {
           <StatCard label={t("wallet.lifetime")} value={`$${lifetime.toLocaleString()}`} sub={t("wallet.allTime")} color="#34D399" />
         </View>
 
+        {/* Quick Actions */}
+        <View style={styles.quickRow}>
+          <Pressable
+            style={[styles.quickBtn, { borderColor: `${COLORS.gold}40` }]}
+            onPress={() => router.push("/pay-bay")}
+          >
+            <Feather name="grid" size={20} color={COLORS.gold} />
+            <Text style={styles.quickLabel}>Pay at the Bay</Text>
+            <Text style={styles.quickSub}>Generate QR · 3% fee</Text>
+          </Pressable>
+          <Pressable
+            style={[styles.quickBtn, { borderColor: "rgba(139,92,246,0.4)" }]}
+            onPress={() => router.push("/vin-passport")}
+          >
+            <Feather name="shield" size={20} color="#8B5CF6" />
+            <Text style={[styles.quickLabel, { color: "#8B5CF6" }]}>VIN Passport</Text>
+            <Text style={styles.quickSub}>AI decode · EN/ES</Text>
+          </Pressable>
+        </View>
+
         {/* Triple-split explainer */}
         <View style={styles.splitCard}>
           <Text style={styles.splitTitle}>{t("wallet.howSplitWorks")}</Text>
@@ -162,6 +184,10 @@ const styles = StyleSheet.create({
   dot: { width: 6, height: 6, borderRadius: 3 },
   connectText: { fontSize: 8, fontWeight: "800", letterSpacing: 1 },
   statsGrid: { flexDirection: "row", gap: 12, marginBottom: 14 },
+  quickRow: { flexDirection: "row", gap: 10, marginBottom: 16 },
+  quickBtn: { flex: 1, backgroundColor: "rgba(255,255,255,0.03)", borderWidth: 1, borderRadius: 14, padding: 14, alignItems: "center", gap: 6 },
+  quickLabel: { fontSize: 13, fontWeight: "700", color: "#C9A227", textAlign: "center" },
+  quickSub: { fontSize: 10, color: "rgba(255,255,255,0.3)", textAlign: "center" },
   statCard: { flex: 1, padding: 16, borderRadius: 14, backgroundColor: "rgba(255,255,255,0.03)", borderWidth: 1 },
   statValue: { fontSize: 28, fontWeight: "900", lineHeight: 30 },
   statLabel: { fontSize: 9, color: "rgba(255,255,255,0.3)", marginTop: 4, letterSpacing: 1 },

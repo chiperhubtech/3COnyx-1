@@ -78,6 +78,22 @@ app.use("/api", generalLimiter);
 // ── Per-request timeout (15 s) ────────────────────────────────────────────────
 app.use(requestTimeout(15_000));
 
+// ── CDN / Cache headers ───────────────────────────────────────────────────────
+// Public read routes get short CDN cache; mutations / auth routes remain private
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const isPublicReadRoute =
+    req.method === "GET" &&
+    /^\/(vin\/passport|bay\/slots)/.test(req.path.replace(/^\/api\//, ""));
+  if (isPublicReadRoute) {
+    res.set("Cache-Control", "public, max-age=60, s-maxage=120, stale-while-revalidate=30");
+    res.set("CDN-Cache-Control", "public, max-age=120");
+    res.set("Surrogate-Control",  "max-age=120");
+  } else {
+    res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
+  }
+  next();
+});
+
 // ── Audit + Routes ────────────────────────────────────────────────────────────
 app.use(auditMiddleware);
 app.use("/api", router);

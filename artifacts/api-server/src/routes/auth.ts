@@ -29,6 +29,23 @@ function sanitize(user: typeof usersTable.$inferSelect): PublicUser {
   return pub;
 }
 
+// ─── GET /api/auth/validate-code ─────────────────────────────────────────────
+router.get("/auth/validate-code", async (req: Request, res: Response) => {
+  const { code } = req.query as { code?: string };
+  if (!code?.trim()) {
+    res.status(400).json({ valid: false, error: "A Golden Key code is required." });
+    return;
+  }
+  const inviter = await db.select().from(usersTable)
+    .where(eq(usersTable.referralCode, code.trim().toUpperCase()))
+    .limit(1);
+  if (!inviter[0]) {
+    res.status(404).json({ valid: false, error: "That code doesn't exist. You need a valid Golden Key from an existing member." });
+    return;
+  }
+  res.json({ valid: true, inviterName: inviter[0].name.split(" ")[0] ?? "a member" });
+});
+
 // ─── POST /api/auth/register ──────────────────────────────────────────────────
 router.post("/auth/register", async (req: Request, res: Response) => {
   const { name, email, password, role = "Member", phone } = req.body as {

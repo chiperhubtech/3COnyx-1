@@ -1,5 +1,28 @@
 # Overview
 
+## Dynasty Protocol — Pay-at-the-Bay, VIN Passport, Bay Dashboard (completed)
+
+**Pay at the Bay (Mobile)**:
+- `artifacts/3c-onyx-mobile/app/pay-bay.tsx` — QR payment generator for specialists: select service type (9 options), enter amount + customer name + optional VIN. POSTs to `/api/bay/qr`, shows live QR code (react-native-qrcode-svg), fee breakdown (gross / 3% fee / net / runner dividend), share payment link.
+- Accessible from Wallet tab via Quick Actions section (Pay at the Bay + VIN Passport buttons).
+
+**VIN Digital Passport (Mobile)**:
+- `artifacts/3c-onyx-mobile/app/vin-passport.tsx` — 17-char VIN entry → NHTSA decode → Gemini AI summary in EN/ES → chain-of-custody anchor hash. Shows recall status badge, all vehicle specs, bilingual toggle, share button. POSTs to `/api/vin/passport`.
+
+**Smart Bay Traffic Dashboard (Web)**:
+- `artifacts/3c-onyx/src/pages/bay-dashboard.tsx` — Live bay slot table (status filter, rush indicator, ETA), pay-at-the-bay transaction table (gross/fee/net/dividend columns), auto-refreshes every 20 seconds. Route: `/bay-dashboard`.
+- New API endpoint: `GET /api/bay/qr/all` — paginated transaction history (auth required).
+
+**CDN-Ready Cache Headers**:
+- `artifacts/api-server/src/app.ts` — GET VIN/passport and bay/slots routes serve `Cache-Control: public, max-age=60, s-maxage=120, stale-while-revalidate=30`. All auth/mutation routes emit `no-store`.
+
+**Ghost Gate Inviter Welcome**:
+- `artifacts/3c-onyx-mobile/components/OnboardingFlow.tsx` — Intro screen (step 0) shows "Vouched for by [INVITER NAME]. Welcome home." in gold when a valid referral code was entered at Ghost Gate.
+
+**TypeScript**: All 5 packages clean (mockup-sandbox, scripts, mobile, api-server, web).
+
+---
+
 ## Real Authentication + Push Notifications + Subscription Billing (completed — closes the 3 remaining production gaps)
 
 **Persistent User Accounts (LIVE)**:

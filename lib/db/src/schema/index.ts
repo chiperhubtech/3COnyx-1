@@ -16,3 +16,6 @@ export * from "./analytics-events";
 export * from "./blockchain-records";
 export * from "./engine-decisions";
 export * from "./sdv-profiles";
+export * from "./bay-transactions";
+export * from "./bay-slots";
+export * from "./vin-passports";
