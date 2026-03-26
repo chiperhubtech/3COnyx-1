@@ -9,11 +9,17 @@
  */
 import { Router, type Request, type Response } from "express";
 import bcrypt from "bcryptjs";
-import { db, usersTable, type PublicUser } from "@workspace/db";
+import { db, usersTable, notificationsTable, type PublicUser } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { signToken, verifyToken, extractBearerToken } from "../lib/jwt";
 import { requireAuth } from "../middlewares/requireAuth";
 import { writeAudit } from "../lib/auditService";
+
+function generateReferralCode(name: string, id: number): string {
+  const prefix = name.trim().toUpperCase().replace(/[^A-Z]/g, "").slice(0, 3) || "3CO";
+  const suffix = (id * 7919 + 1337).toString(36).toUpperCase().slice(-4).padStart(4, "0");
+  return `${prefix}-${suffix}`;
+}
 
 const router = Router();
 const BCRYPT_ROUNDS = 12;
@@ -61,6 +67,20 @@ router.post("/auth/register", async (req: Request, res: Response) => {
     isVerified: false,
   }).returning();
 
+  const referralCode = generateReferralCode(name.trim(), user.id);
+  await db.update(usersTable)
+    .set({ referralCode, updatedAt: new Date() })
+    .where(eq(usersTable.id, user.id));
+
+  const userWithCode = { ...user, referralCode };
+
+  await db.insert(notificationsTable).values({
+    type:  "SYSTEM",
+    title: "Welcome to 3C ONYX",
+    body:  `You're in. Your referral code is ${referralCode}. Share it — every person you bring earns you ONYX Points and moves you up the dynasty. The platform is free. Forever. Built for you.`,
+    read:  false,
+  });
+
   const token = await signToken({
     sub:   String(user.id),
     email: user.email,
@@ -70,7 +90,7 @@ router.post("/auth/register", async (req: Request, res: Response) => {
 
   await writeAudit({ eventType: "AUTH", action: `New ${role} registered: ${email}`, actorId: user.id, severity: "INFO" });
 
-  res.status(201).json({ token, user: sanitize(user) });
+  res.status(201).json({ token, user: sanitize(userWithCode) });
 });
 
 // ─── POST /api/auth/login ─────────────────────────────────────────────────────

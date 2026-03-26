@@ -4,6 +4,7 @@
  * Powered by CUXTOMCANDYCLUB LLC.
  */
 import { Feather } from "@expo/vector-icons";
+import * as Clipboard from "expo-clipboard";
 import * as Contacts from "expo-contacts";
 import React, { useCallback, useState } from "react";
 import {
@@ -21,10 +22,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { COLORS } from "@/constants/colors";
 import { useTheme } from "@/src/theme";
-
-const REFERRAL_CODE = "ONYX-8827";
-const REFERRAL_LINK = `https://3conyx.com/m/${REFERRAL_CODE}`;
-const INVITE_MSG = `I joined 3C Onyx — the AI-powered automotive super app. Use my code ${REFERRAL_CODE} to skip the waitlist. ${REFERRAL_LINK}`;
+import { useAuth } from "@/lib/authStore";
 
 type TierMeta = {
   refs:        number;
@@ -92,11 +90,16 @@ function TierCard({ tier, referralCount }: { tier: TierMeta; referralCount: numb
 export default function ReferralTab() {
   const safeInsets = useSafeAreaInsets();
   const { theme } = useTheme();
+  const { user } = useAuth();
   const [contacts, setContacts] = useState<ContactItem[]>([]);
   const [search, setSearch] = useState("");
   const [contactsGranted, setContactsGranted] = useState(false);
-  const [referralCount] = useState(2);
+  const [referralCount] = useState(0);
   const [copied, setCopied] = useState(false);
+
+  const REFERRAL_CODE = user?.referralCode ?? "—";
+  const REFERRAL_LINK = `https://cuxtomcandyclub.ai/join/${REFERRAL_CODE}`;
+  const INVITE_MSG    = `I joined 3C Onyx — the AI-powered automotive super app built for the industry. Use my code ${REFERRAL_CODE} to get in. ${REFERRAL_LINK}`;
 
   const filtered = contacts.filter((c) => c.name.toLowerCase().includes(search.toLowerCase()));
 
@@ -108,8 +111,12 @@ export default function ReferralTab() {
     setContacts(data.filter((c) => c.name && c.phoneNumbers?.length).map((c) => ({ id: c.id ?? Math.random().toString(), name: c.name!, phone: c.phoneNumbers![0].number ?? "" })).slice(0, 200));
   }, []);
 
-  function shareNative() { Share.share({ message: INVITE_MSG, url: REFERRAL_LINK }); }
-  function copyCode() { setCopied(true); setTimeout(() => setCopied(false), 2500); }
+  function shareNative() { void Share.share({ message: INVITE_MSG, url: REFERRAL_LINK }); }
+  async function copyCode() {
+    await Clipboard.setStringAsync(REFERRAL_CODE);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500);
+  }
   function inviteContact(c: ContactItem) {
     const encoded = encodeURIComponent(INVITE_MSG);
     const phone = c.phone.replace(/\D/g, "");
@@ -144,7 +151,7 @@ export default function ReferralTab() {
               <Text style={[styles.codeText, { color: theme.gold }]}>{REFERRAL_CODE}</Text>
               <Text style={[styles.codeLink, { color: theme.textMuted }]}>{REFERRAL_LINK}</Text>
               <View style={styles.codeActions}>
-                <Pressable style={[styles.copyBtn, { backgroundColor: theme.card, borderColor: theme.cardBorder }]} onPress={copyCode}>
+                <Pressable style={[styles.copyBtn, { backgroundColor: theme.card, borderColor: theme.cardBorder }]} onPress={() => void copyCode()}>
                   <Feather name={copied ? "check" : "copy"} size={13} color={copied ? COLORS.gold : theme.textMuted} />
                   <Text style={[styles.copyBtnText, { color: copied ? COLORS.gold : theme.textMuted }]}>{copied ? "Copied!" : "Copy Code"}</Text>
                 </Pressable>

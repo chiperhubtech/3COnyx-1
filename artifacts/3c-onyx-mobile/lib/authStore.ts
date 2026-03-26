@@ -4,7 +4,8 @@
  * All API calls auto-inject the Bearer token via lib/api.ts
  */
 import * as SecureStore from "expo-secure-store";
-import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { authEvents } from "./api";
 
 const TOKEN_KEY  = "3c_auth_token";
 const USER_KEY   = "3c_auth_user";
@@ -39,9 +40,10 @@ interface AuthState {
 const AuthContext = createContext<AuthState | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [token, setToken]     = useState<string | null>(null);
-  const [user, setUser]       = useState<AuthUser | null>(null);
+  const [token, setToken]       = useState<string | null>(null);
+  const [user, setUser]         = useState<AuthUser | null>(null);
   const [isLoading, setLoading] = useState(true);
+  const logoutRef               = useRef<() => Promise<void>>();
 
   useEffect(() => {
     (async () => {
@@ -57,6 +59,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } catch {}
       setLoading(false);
     })();
+  }, []);
+
+  useEffect(() => {
+    const handle401 = () => { void logoutRef.current?.(); };
+    authEvents.on("auth:401", handle401);
+    return () => { authEvents.off("auth:401", handle401); };
   }, []);
 
   const login = useCallback(async (newToken: string, newUser: AuthUser) => {
@@ -76,6 +84,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setToken(null);
     setUser(null);
   }, []);
+
+  useEffect(() => { logoutRef.current = logout; }, [logout]);
 
   const updateUser = useCallback((patch: Partial<AuthUser>) => {
     setUser(prev => {
