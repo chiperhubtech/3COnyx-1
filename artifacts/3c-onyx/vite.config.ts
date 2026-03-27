@@ -52,6 +52,20 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    chunkSizeWarningLimit: 600,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "vendor-react":   ["react", "react-dom", "wouter"],
+          "vendor-ui":      ["@radix-ui/react-dialog", "@radix-ui/react-dropdown-menu", "@radix-ui/react-tooltip", "@radix-ui/react-select"],
+          "vendor-charts":  ["recharts"],
+          "vendor-maps":    ["leaflet", "react-leaflet"],
+          "vendor-motion":  ["framer-motion"],
+          "vendor-stripe":  ["@stripe/stripe-js", "@stripe/react-stripe-js"],
+          "vendor-utils":   ["date-fns", "clsx", "tailwind-merge", "lucide-react"],
+        },
+      },
+    },
   },
   server: {
     port,
