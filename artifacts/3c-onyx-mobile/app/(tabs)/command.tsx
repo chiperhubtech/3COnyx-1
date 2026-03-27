@@ -357,10 +357,12 @@ export default function CommandScreen() {
   const [flagged, setFlagged] = useState<FlaggedTxn[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [activeSection, setActiveSection] = useState<"pulse" | "missions" | "killswitch">("pulse");
 
   const fetchAll = useCallback(async () => {
     if (!isUnlocked) return;
+    setFetchError(null);
     try {
       const [p, m, f] = await Promise.all([
         apiFetch<Pulse>("/command/pulse"),
@@ -371,6 +373,8 @@ export default function CommandScreen() {
       setMissions(m.missions ?? []);
       setFlagged(f.flagged ?? []);
     } catch (e) {
+      const msg = e instanceof Error ? e.message : "Failed to load Command Center data";
+      setFetchError(msg);
       console.error("Command fetch error:", e);
     } finally {
       setLoading(false);
@@ -402,6 +406,25 @@ export default function CommandScreen() {
       <SafeAreaView style={[styles.screen, { justifyContent: "center", alignItems: "center" }]}>
         <ActivityIndicator size="large" color={COLORS.gold} />
         <Text style={[styles.sectionLabel, { marginTop: 12 }]}>Loading Command Center…</Text>
+      </SafeAreaView>
+    );
+  }
+
+  if (fetchError || !pulse) {
+    return (
+      <SafeAreaView style={[styles.screen, { justifyContent: "center", alignItems: "center", paddingHorizontal: 32 }]}>
+        <Ionicons name="warning-outline" size={40} color="rgba(239,68,68,0.6)" />
+        <Text style={[styles.sectionLabel, { marginTop: 16, textAlign: "center", fontSize: 13, color: "rgba(255,255,255,0.5)" }]}>
+          {fetchError ?? "Command Center data unavailable"}
+        </Text>
+        <TouchableOpacity
+          style={[styles.approveBtn, { marginTop: 24, paddingHorizontal: 28 }]}
+          onPress={() => { setLoading(true); fetchAll(); }}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="refresh" size={14} color="#34D399" />
+          <Text style={styles.approveText}>RETRY</Text>
+        </TouchableOpacity>
       </SafeAreaView>
     );
   }
