@@ -43,6 +43,7 @@ import Command from "@/pages/command";
 import IntelligenceFeed from "@/pages/intelligence";
 import AftermarketPage from "@/pages/aftermarket";
 import AlibabaDropship from "@/pages/alibaba-dropship";
+import FamilyOfficePage from "@/pages/family-office";
 import RaceHubPage from "@/pages/race-hub";
 import CRMHubPage  from "@/pages/crm-hub";
 import PlatformIntelligence from "@/pages/platform-intelligence";
@@ -146,6 +147,7 @@ function AppRoutes() {
             <Route path="/intelligence"         component={IntelligenceFeed} />
             <Route path="/aftermarket"          component={AftermarketPage} />
             <Route path="/alibaba-dropship"     component={AlibabaDropship} />
+            <Route path="/family-office"        component={FamilyOfficePage} />
             <Route path="/race-hub"             component={RaceHubPage} />
             <Route path="/crm-hub"             component={CRMHubPage}  />
             <Route path="/platform-intelligence" component={PlatformIntelligence} />

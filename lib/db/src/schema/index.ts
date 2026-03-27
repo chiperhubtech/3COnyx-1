@@ -26,3 +26,4 @@ export * from "./user-tax-info";
 export * from "./token-blacklist";
 export * from "./login-attempts";
 export * from "./alibaba-products";
+export * from "./family-office-governance";
