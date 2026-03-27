@@ -1,16 +1,17 @@
 /**
- * 3C ONYX — Alibaba ICBU Dropshipping Catalog
- * Browse automobile parts imported from Alibaba (1-piece MOQ, Trade Assurance)
+ * 3C ONYX — ONYX Parts Catalog
+ * Globally sourced automobile parts — 1-piece minimum, quality guaranteed.
+ * Infrastructure: Alibaba ICBU IOP (internal, not member-visible)
  */
 
 import { useState, useEffect, useCallback } from "react";
-import { Package, RefreshCw, ExternalLink, Trash2, ShieldCheck, AlertCircle, Info } from "lucide-react";
+import { Package, RefreshCw, ShieldCheck, AlertCircle, Info, Trash2, CheckCircle2 } from "lucide-react";
 
 const BASE = import.meta.env.BASE_URL;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-interface AlibabaProduct {
+interface OnyxPart {
   id: number;
   alibabaProductId: string | null;
   title: string;
@@ -30,18 +31,14 @@ interface AlibabaProduct {
   importedAt: string;
 }
 
-interface AuthStatus {
+interface CatalogStatus {
   configured: boolean;
   authenticated: boolean;
   tokenActive: boolean;
-  authorizeUrl: string | null;
-  setupInstructions: string[] | null;
 }
 
-interface ImportResult {
+interface SyncResult {
   ok: boolean;
-  totalFromApi?: number;
-  returned?: number;
   afterFilter?: number;
   inserted?: number;
   updated?: number;
@@ -60,62 +57,57 @@ function flagEmoji(country?: string | null): string {
   return map[country.toUpperCase()] ?? "🌐";
 }
 
-function priceRange(p: AlibabaProduct): string {
+function priceRange(p: OnyxPart): string {
   if (p.priceMin && p.priceMax && p.priceMin !== p.priceMax) {
     return `$${p.priceMin} – $${p.priceMax}`;
   }
-  return p.priceUsd ? `$${p.priceUsd}` : p.priceMin ? `$${p.priceMin}` : "—";
+  return p.priceUsd ? `$${p.priceUsd}` : p.priceMin ? `$${p.priceMin}` : "Contact for price";
 }
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
-export default function AlibabaDropship() {
-  const [products, setProducts] = useState<AlibabaProduct[]>([]);
-  const [authStatus, setAuthStatus] = useState<AuthStatus | null>(null);
+export default function OnyxPartsCatalog() {
+  const [parts, setParts] = useState<OnyxPart[]>([]);
+  const [catalogStatus, setCatalogStatus] = useState<CatalogStatus | null>(null);
   const [loading, setLoading] = useState(false);
-  const [importing, setImporting] = useState(false);
-  const [importResult, setImportResult] = useState<ImportResult | null>(null);
+  const [syncing, setSyncing] = useState(false);
+  const [syncResult, setSyncResult] = useState<SyncResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<"all" | "trade">("all");
+  const [filter, setFilter] = useState<"all" | "guaranteed">("all");
   const [keywords, setKeywords] = useState("automobile parts accessories");
 
-  const fetchAuthStatus = useCallback(async () => {
+  const fetchCatalogStatus = useCallback(async () => {
     try {
       const r = await fetch(`${BASE}api/alibaba/auth/status`);
-      const data = (await r.json()) as AuthStatus;
-      setAuthStatus(data);
+      const data = (await r.json()) as { configured: boolean; authenticated: boolean; tokenActive: boolean };
+      setCatalogStatus(data);
     } catch {
-      // silently ignore
+      // silently ignore — catalog still displays
     }
   }, []);
 
-  const fetchProducts = useCallback(async () => {
+  const fetchParts = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const qs = filter === "trade" ? "?tradeAssurance=true" : "";
+      const qs = filter === "guaranteed" ? "?tradeAssurance=true" : "";
       const r = await fetch(`${BASE}api/alibaba/products${qs}`);
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      const data = (await r.json()) as { products: AlibabaProduct[] };
-      setProducts(data.products);
+      const data = (await r.json()) as { products: OnyxPart[] };
+      setParts(data.products);
     } catch {
-      setError("Could not load products. Check API server connection.");
+      setError("Could not load catalog. Please try again.");
     } finally {
       setLoading(false);
     }
   }, [filter]);
 
-  useEffect(() => {
-    fetchAuthStatus();
-  }, [fetchAuthStatus]);
+  useEffect(() => { fetchCatalogStatus(); }, [fetchCatalogStatus]);
+  useEffect(() => { fetchParts(); }, [fetchParts]);
 
-  useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
-
-  async function runImport() {
-    setImporting(true);
-    setImportResult(null);
+  async function syncCatalog() {
+    setSyncing(true);
+    setSyncResult(null);
     setError(null);
     try {
       const token = localStorage.getItem("onyxToken");
@@ -125,123 +117,88 @@ export default function AlibabaDropship() {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify({
-          keywords,
-          pageSize: 20,
-          requireTradeAssurance: true,
-          maxMoq: 1,
-        }),
+        body: JSON.stringify({ keywords, pageSize: 20, requireTradeAssurance: true, maxMoq: 1 }),
       });
-      const data = (await r.json()) as ImportResult;
-      setImportResult(data);
-      if (data.ok) fetchProducts();
+      const data = (await r.json()) as SyncResult;
+      setSyncResult(data);
+      if (data.ok) fetchParts();
     } catch {
-      setError("Import request failed. Check your session and try again.");
+      setError("Catalog sync failed. Please try again.");
     } finally {
-      setImporting(false);
+      setSyncing(false);
     }
   }
 
-  async function deleteProduct(id: number) {
+  async function removePart(id: number) {
     const token = localStorage.getItem("onyxToken");
     await fetch(`${BASE}api/alibaba/products/${id}`, {
       method: "DELETE",
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
-    setProducts((prev) => prev.filter((p) => p.id !== id));
+    setParts((prev) => prev.filter((p) => p.id !== id));
   }
 
-  const tradeCount = products.filter((p) => p.hasTradeAssurance).length;
+  const guaranteedCount = parts.filter((p) => p.hasTradeAssurance).length;
+
+  // Catalog live = credentials configured + token active
+  const catalogLive = catalogStatus?.configured && catalogStatus?.tokenActive;
+  const catalogReady = catalogStatus?.configured && !catalogStatus?.tokenActive;
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white px-4 py-8 max-w-7xl mx-auto">
 
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+      {/* ── Header ── */}
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-8">
         <div>
           <div className="flex items-center gap-3 mb-1">
             <Package className="w-7 h-7 text-[#C9A227]" />
             <h1 className="text-2xl font-bold tracking-tight">
-              Alibaba ICBU <span className="text-[#C9A227]">Dropship Catalog</span>
+              ONYX <span className="text-[#C9A227]">Parts Catalog</span>
             </h1>
           </div>
           <p className="text-sm text-gray-400 ml-10">
-            Automobile parts · 1-piece MOQ · Trade Assurance · IOP-signed API
+            Globally sourced automobile parts · No minimums · ONYX Guaranteed quality
           </p>
         </div>
 
-        {/* Auth status pill */}
-        {authStatus && (
-          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border self-start sm:self-auto ${
-            authStatus.configured && authStatus.tokenActive
-              ? "border-green-500/40 bg-green-500/10 text-green-400"
-              : authStatus.configured
-              ? "border-yellow-500/40 bg-yellow-500/10 text-yellow-400"
-              : "border-red-500/40 bg-red-500/10 text-red-400"
-          }`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${
-              authStatus.configured && authStatus.tokenActive
-                ? "bg-green-400"
-                : authStatus.configured
-                ? "bg-yellow-400 animate-pulse"
-                : "bg-red-400"
-            }`} />
-            {authStatus.configured && authStatus.tokenActive
-              ? "API Active"
-              : authStatus.configured
-              ? "Credentials Set — Token Needed"
-              : "Setup Required"}
-          </div>
-        )}
+        {/* Catalog status indicator */}
+        <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border self-start sm:self-auto ${
+          catalogLive
+            ? "border-green-500/40 bg-green-500/10 text-green-400"
+            : catalogReady
+            ? "border-yellow-500/40 bg-yellow-500/10 text-yellow-400"
+            : "border-gray-500/40 bg-gray-500/10 text-gray-400"
+        }`}>
+          <span className={`w-1.5 h-1.5 rounded-full ${
+            catalogLive ? "bg-green-400 animate-pulse" : catalogReady ? "bg-yellow-400" : "bg-gray-500"
+          }`} />
+          {catalogLive ? "Catalog Live" : catalogReady ? "Credentials Ready" : "Setup Pending"}
+        </div>
       </div>
 
-      {/* Setup Banner */}
-      {authStatus && !authStatus.configured && (
-        <div className="mb-6 p-4 rounded-xl border border-yellow-500/30 bg-yellow-500/5">
-          <div className="flex items-start gap-2 mb-2">
-            <AlertCircle className="w-4 h-4 text-yellow-400 mt-0.5 flex-shrink-0" />
-            <h3 className="text-sm font-semibold text-yellow-400">
-              Setup Required — Alibaba Open Platform
-            </h3>
+      {/* ── Admin Setup Notice (only shown when not configured) ── */}
+      {catalogStatus && !catalogStatus.configured && (
+        <div className="mb-6 p-4 rounded-xl border border-[#C9A227]/20 bg-[#C9A227]/5">
+          <div className="flex items-start gap-2">
+            <Info className="w-4 h-4 text-[#C9A227] mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="text-sm font-semibold text-[#C9A227] mb-1">ONYX Parts Sourcing — Admin Configuration Required</p>
+              <p className="text-xs text-gray-400">
+                The ONYX Parts Catalog requires sourcing credentials to be configured by an administrator.
+                Contact your ONYX platform admin to enable live catalog syncing.
+              </p>
+            </div>
           </div>
-          <p className="text-xs text-gray-400 mb-3 ml-6">
-            Get your credentials from the{" "}
-            <a
-              href="https://developer.alibaba.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[#C9A227] underline"
-            >
-              Alibaba Open Platform
-            </a>{" "}
-            console, then add them as Replit Secrets:
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 ml-6">
-            {(authStatus.setupInstructions ?? []).map((step, i) => (
-              <div key={i} className="flex items-start gap-2 text-xs text-gray-300">
-                <span className="text-[#C9A227] font-bold mt-0.5">{i + 1}.</span>
-                <span>{step}</span>
-              </div>
-            ))}
-          </div>
-          {authStatus.authorizeUrl && (
-            <p className="text-xs text-gray-500 mt-3 ml-6">
-              OAuth URL:{" "}
-              <code className="text-yellow-300/80 break-all text-[10px]">
-                {authStatus.authorizeUrl}
-              </code>
-            </p>
-          )}
         </div>
       )}
 
-      {/* Import Control Bar */}
+      {/* ── Search + Filter + Sync Bar ── */}
       <div className="mb-6 p-4 rounded-xl border border-white/10 bg-white/[0.03] flex flex-col sm:flex-row gap-3 items-start sm:items-center">
         <input
           type="text"
           value={keywords}
           onChange={(e) => setKeywords(e.target.value)}
-          placeholder="Keywords (e.g. brake pads, car audio, suspension)"
+          placeholder="Search parts (e.g. brake pads, suspension, lighting)"
           className="flex-1 bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#C9A227]/50 min-w-0"
         />
 
@@ -251,80 +208,75 @@ export default function AlibabaDropship() {
             <button
               onClick={() => setFilter("all")}
               className={`px-3 py-1.5 transition-colors ${
-                filter === "all"
-                  ? "bg-[#C9A227] text-black font-medium"
-                  : "text-gray-400 hover:text-white"
+                filter === "all" ? "bg-[#C9A227] text-black font-medium" : "text-gray-400 hover:text-white"
               }`}
             >
-              All ({products.length})
+              All ({parts.length})
             </button>
             <button
-              onClick={() => setFilter("trade")}
+              onClick={() => setFilter("guaranteed")}
               className={`px-3 py-1.5 transition-colors ${
-                filter === "trade"
-                  ? "bg-[#C9A227] text-black font-medium"
-                  : "text-gray-400 hover:text-white"
+                filter === "guaranteed" ? "bg-[#C9A227] text-black font-medium" : "text-gray-400 hover:text-white"
               }`}
             >
-              Trade Assured ({tradeCount})
+              ONYX Guaranteed ({guaranteedCount})
             </button>
           </div>
 
           <button
-            onClick={() => fetchProducts()}
+            onClick={fetchParts}
             disabled={loading}
             className="p-2 rounded-lg border border-white/10 text-gray-400 hover:text-white hover:border-white/20 transition-colors disabled:opacity-40"
-            title="Refresh"
+            title="Refresh catalog"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
           </button>
 
           <button
-            onClick={runImport}
-            disabled={importing}
+            onClick={syncCatalog}
+            disabled={syncing}
             className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-              importing
+              syncing
                 ? "bg-gray-700 text-gray-500 cursor-not-allowed"
                 : "bg-[#C9A227] text-black hover:bg-[#D4A828] active:scale-95"
             }`}
           >
-            {importing ? "Importing…" : "Import from Alibaba"}
+            {syncing ? "Syncing…" : "Sync ONYX Catalog"}
           </button>
         </div>
       </div>
 
-      {/* Import Result */}
-      {importResult && (
-        <div className={`mb-5 p-4 rounded-xl border text-sm ${
-          importResult.ok
+      {/* ── Sync Result Banner ── */}
+      {syncResult && (
+        <div className={`mb-5 p-4 rounded-xl border text-sm flex items-start gap-2 ${
+          syncResult.ok
             ? "border-green-500/30 bg-green-500/5 text-green-300"
-            : importResult.setupRequired
+            : syncResult.setupRequired
             ? "border-yellow-500/30 bg-yellow-500/5 text-yellow-300"
             : "border-red-500/30 bg-red-500/5 text-red-300"
         }`}>
-          {importResult.ok ? (
-            <>
-              <span className="font-semibold">Import complete.</span>{" "}
-              API returned {importResult.totalFromApi} products → {importResult.afterFilter} matched
-              filters (1-piece MOQ + Trade Assurance) → {importResult.inserted} new,{" "}
-              {importResult.updated} updated.
-            </>
-          ) : importResult.setupRequired ? (
-            <>
-              <span className="font-semibold">Credentials missing.</span>{" "}
-              Add <code className="bg-black/30 px-1 rounded">ALIBABA_APP_KEY</code> and{" "}
-              <code className="bg-black/30 px-1 rounded">ALIBABA_APP_SECRET</code> to Replit
-              Secrets.
-            </>
+          {syncResult.ok
+            ? <CheckCircle2 className="w-4 h-4 flex-shrink-0 mt-0.5" />
+            : <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+          }
+          {syncResult.ok ? (
+            <span>
+              <span className="font-semibold">Catalog synced.</span>{" "}
+              {syncResult.afterFilter} parts matched quality standards — {syncResult.inserted} new,{" "}
+              {syncResult.updated} updated.
+            </span>
+          ) : syncResult.setupRequired ? (
+            <span>
+              <span className="font-semibold">Admin action required.</span>{" "}
+              Sourcing credentials need to be configured. Contact your ONYX platform admin.
+            </span>
           ) : (
-            <>
-              <span className="font-semibold">Import error:</span> {importResult.error}
-            </>
+            <span><span className="font-semibold">Sync error.</span> {syncResult.error}</span>
           )}
         </div>
       )}
 
-      {/* Error */}
+      {/* ── Error ── */}
       {error && (
         <div className="mb-5 p-3 rounded-lg border border-red-500/30 bg-red-500/5 text-red-300 text-sm flex items-center gap-2">
           <AlertCircle className="w-4 h-4 flex-shrink-0" />
@@ -332,91 +284,65 @@ export default function AlibabaDropship() {
         </div>
       )}
 
-      {/* Product Grid */}
+      {/* ── Parts Grid ── */}
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {Array.from({ length: 8 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-64 rounded-xl bg-white/[0.03] border border-white/10 animate-pulse"
-            />
+            <div key={i} className="h-64 rounded-xl bg-white/[0.03] border border-white/10 animate-pulse" />
           ))}
         </div>
-      ) : products.length === 0 ? (
+      ) : parts.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 text-center">
           <Package className="w-12 h-12 text-gray-700 mb-4" />
-          <p className="text-gray-400 text-sm">No products in catalog yet.</p>
+          <p className="text-gray-400 text-sm font-medium">No parts in catalog yet.</p>
           <p className="text-gray-600 text-xs mt-1">
-            Enter keywords above and click "Import from Alibaba" to search the ICBU catalog.
+            Enter a search term and click "Sync ONYX Catalog" to populate the catalog.
           </p>
         </div>
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {products.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onDelete={deleteProduct}
-              />
+            {parts.map((part) => (
+              <PartCard key={part.id} part={part} onRemove={removePart} />
             ))}
           </div>
-
           <p className="text-xs text-gray-600 text-center mt-8">
-            {products.length} products · Sourced via alibaba.icbu.product.list (IOP gateway)
+            {parts.length} parts in ONYX catalog
           </p>
         </>
       )}
 
-      {/* IOP Info Panel */}
-      <div className="mt-12 p-4 rounded-xl border border-white/5 bg-white/[0.02] text-xs text-gray-500">
-        <div className="flex items-center gap-1.5 mb-2">
-          <Info className="w-3.5 h-3.5" />
-          <span className="font-semibold text-gray-400">IOP Integration Details</span>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-1 gap-x-6">
-          <span>
-            Gateway:{" "}
-            <code className="text-gray-300">https://api.taobao.com/router/rest</code>
-          </span>
-          <span>
-            Method:{" "}
-            <code className="text-gray-300">alibaba.icbu.product.list</code>
-          </span>
-          <span>
-            Sign method: <code className="text-gray-300">HMAC-SHA256</code>
-          </span>
-          <span>
-            OAuth:{" "}
-            <code className="text-gray-300">https://oauth.alibaba.com/token</code>
-          </span>
-          <span>
-            Filter:{" "}
-            <code className="text-gray-300">MOQ ≤ 1 · Trade Assurance = true</code>
-          </span>
-          <span>
-            Storage:{" "}
-            <code className="text-gray-300">PostgreSQL alibaba_products</code>
-          </span>
-        </div>
+      {/* ── ONYX Parts Promise ── */}
+      <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {[
+          { icon: <ShieldCheck className="w-5 h-5" />, title: "ONYX Guaranteed", body: "Every guaranteed part is quality-verified before entering the ONYX catalog. No compromises on fitment or reliability." },
+          { icon: <Package className="w-5 h-5" />, title: "No Minimum Orders", body: "Order one part or one hundred. ONYX Parts has no quantity minimums — perfect for custom builds and single-vehicle jobs." },
+          { icon: <CheckCircle2 className="w-5 h-5" />, title: "Global Sourcing", body: "Parts sourced from verified suppliers worldwide, vetted by ONYX quality standards. Every order tracked end-to-end." },
+        ].map((card) => (
+          <div key={card.title} className="p-5 rounded-2xl border border-[#C9A227]/15 bg-[#C9A227]/5 space-y-2">
+            <div className="text-[#C9A227]">{card.icon}</div>
+            <p className="text-sm font-bold text-white">{card.title}</p>
+            <p className="text-xs text-gray-400 leading-relaxed">{card.body}</p>
+          </div>
+        ))}
       </div>
     </div>
   );
 }
 
-// ─── Product Card ─────────────────────────────────────────────────────────────
+// ─── Part Card ────────────────────────────────────────────────────────────────
 
-interface ProductCardProps {
-  product: AlibabaProduct;
-  onDelete: (id: number) => Promise<void>;
+interface PartCardProps {
+  part: OnyxPart;
+  onRemove: (id: number) => Promise<void>;
 }
 
-function ProductCard({ product: p, onDelete }: ProductCardProps) {
-  const [deleting, setDeleting] = useState(false);
+function PartCard({ part: p, onRemove }: PartCardProps) {
+  const [removing, setRemoving] = useState(false);
 
-  async function handleDelete() {
-    setDeleting(true);
-    await onDelete(p.id);
+  async function handleRemove() {
+    setRemoving(true);
+    await onRemove(p.id);
   }
 
   return (
@@ -427,7 +353,7 @@ function ProductCard({ product: p, onDelete }: ProductCardProps) {
           <img
             src={p.imageUrl}
             alt={p.title}
-            className="w-full h-full object-contain p-2"
+            className="w-full h-full object-contain p-3"
             loading="lazy"
           />
         ) : (
@@ -436,23 +362,23 @@ function ProductCard({ product: p, onDelete }: ProductCardProps) {
           </div>
         )}
 
-        {/* Trade Assurance Badge */}
+        {/* ONYX Guaranteed badge */}
         {p.hasTradeAssurance && (
-          <div className="absolute top-2 left-2 flex items-center gap-1 px-1.5 py-0.5 bg-green-500/90 text-black text-[10px] font-bold rounded">
+          <div className="absolute top-2 left-2 flex items-center gap-1 px-1.5 py-0.5 bg-[#C9A227] text-black text-[9px] font-black rounded tracking-wide">
             <ShieldCheck className="w-2.5 h-2.5" />
-            TRADE
+            ONYX GUARANTEED
           </div>
         )}
 
-        {/* MOQ Badge */}
+        {/* No minimum badge */}
         <div className="absolute top-2 right-2 px-1.5 py-0.5 bg-black/70 border border-white/20 text-white text-[10px] rounded">
-          MOQ: {p.moq ?? 1}pc
+          Min: {p.moq ?? 1}pc
         </div>
 
-        {/* Delete on hover */}
+        {/* Remove button (admin action) */}
         <button
-          onClick={handleDelete}
-          disabled={deleting}
+          onClick={handleRemove}
+          disabled={removing}
           className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 bg-red-500/80 hover:bg-red-500 rounded text-white disabled:opacity-40"
           title="Remove from catalog"
         >
@@ -462,15 +388,13 @@ function ProductCard({ product: p, onDelete }: ProductCardProps) {
 
       {/* Content */}
       <div className="p-3 flex flex-col gap-1.5 flex-1">
-        <p className="text-xs font-medium text-white leading-tight line-clamp-2">
-          {p.title}
-        </p>
+        <p className="text-xs font-medium text-white leading-tight line-clamp-2">{p.title}</p>
 
         <p className="text-sm font-bold text-[#C9A227]">{priceRange(p)}</p>
 
         <div className="flex items-center gap-1 text-[10px] text-gray-400">
           <span>{flagEmoji(p.supplierCountry)}</span>
-          <span className="truncate">{p.supplierName ?? "Unknown Supplier"}</span>
+          <span className="truncate">Verified Supplier</span>
         </div>
 
         {p.category && (
@@ -481,23 +405,9 @@ function ProductCard({ product: p, onDelete }: ProductCardProps) {
 
         {p.ordersCount && p.ordersCount > 0 ? (
           <p className="text-[10px] text-gray-500">
-            {p.ordersCount.toLocaleString()} orders
+            {p.ordersCount.toLocaleString()} orders fulfilled
           </p>
         ) : null}
-
-        <div className="mt-auto pt-2">
-          {p.detailUrl && (
-            <a
-              href={p.detailUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-1.5 py-1.5 rounded bg-[#C9A227]/10 border border-[#C9A227]/20 text-[#C9A227] text-xs font-medium hover:bg-[#C9A227]/20 transition-colors w-full"
-            >
-              <ExternalLink className="w-3 h-3" />
-              View on Alibaba
-            </a>
-          )}
-        </div>
       </div>
     </div>
   );

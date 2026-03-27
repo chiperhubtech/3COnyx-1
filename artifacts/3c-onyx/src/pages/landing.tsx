@@ -19,7 +19,7 @@ import { useTranslation } from "react-i18next";
 
 /* ─── Industry Ticker ──────────────────────────────────────────────────────── */
 const TICKER_ITEMS = [
-  "VinSolutions · DealerSocket · Tekion · CDK Drive · Reynolds & Reynolds · Salesforce · elead · HubSpot",
+  "ONYX CRM Suite · Compatible with 9 major dealer platforms · Unified pipeline · Real-time sync",
   "BDC Reps · F&I Managers · Service Advisors · Master Techs · Appraisers · Runners · GMs · Dealer Principals",
   "F1 · NASCAR · NHRA · Motorsport Universe · 8-Tier ONYX Points System",
   "CUXTOMCANDYCLUB LLC · Founded by Ron · I-95 Dynasty · Mission: 132M Members",

@@ -141,8 +141,8 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
   const CUSTOMER_NAV = [
     { label: "Intelligence Feed",         path: "/intelligence",   icon: Activity,    description: "AI savings · live opportunities",  accent: "#C9A227" },
     { label: "Race Hub",                  path: "/race-hub",       icon: Flag,        description: "F1 · NASCAR · NHRA · Live Motorsport", accent: "#EF4444" },
-    { label: "Aftermarket Shop",          path: "/aftermarket",    icon: ShoppingBag, description: "SEMA · API2Cart · APEXX dropship",  accent: "#8B5CF6" },
-    { label: "Alibaba Dropship",          path: "/alibaba-dropship", icon: Package,   description: "ICBU · 1-piece MOQ · Trade Assurance", accent: "#C9A227" },
+    { label: "Aftermarket Shop",          path: "/aftermarket",    icon: ShoppingBag, description: "Performance · Wheels · Brakes · Audio",  accent: "#8B5CF6" },
+    { label: "ONYX Parts",               path: "/alibaba-dropship", icon: Package,   description: "Global sourcing · No minimums · Guaranteed quality", accent: "#C9A227" },
     { label: t("sidebar.marketplace"),    path: "/marketplace",    icon: ShoppingBag, description: t("sidebar.marketplaceDesc"),    accent: "#C9A227" },
     { label: t("sidebar.garage"),         path: "/garage",          icon: Gauge,       description: t("sidebar.garageDesc"),         accent: "#4FC3F7" },
     { label: t("sidebar.watchlist"),      path: "/watchlist",       icon: Bookmark,    description: t("sidebar.watchlistDesc"),      accent: "#F87171" },
@@ -155,7 +155,7 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
   ];
 
   const SPECIALIST_NAV = [
-    { label: "CRM Hub",                   path: "/crm-hub",              icon: Link2,           description: "VinSolutions · DealerSocket · Tekion · 9 CRMs", accent: "#C9A227" },
+    { label: "CRM Hub",                   path: "/crm-hub",              icon: Link2,           description: "Lead pipeline · Deal management · Customer intelligence", accent: "#C9A227" },
     { label: "Platform Intelligence",     path: "/platform-intelligence", icon: Brain,           description: "ONYX Neural Engine · AI insights · Live telemetry", accent: "#7C3AED" },
     { label: "Strategic Command Center",  path: "/strategic-center",      icon: Target,          description: "132M Members · $30B · Year 1–5 Revenue Model",      accent: "#C9A227" },
     { label: "My Earnings",               path: "/worker-dashboard",     icon: DollarSign,      description: "Runners · Techs · Clerks — earnings, tier, opportunities", accent: "#10B981" },

@@ -406,7 +406,7 @@ export default function Logistics() {
           </div>
           <div>
             <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "22px", fontWeight: 800, color: "#FFFFFF", letterSpacing: "0.04em", textTransform: "uppercase", lineHeight: 1 }}>Live Tracking</h1>
-            <p className="text-xs text-white/35">HyperTrack · Live GPS · Checkr BGC</p>
+            <p className="text-xs text-white/35">ONYX Logistics · Live GPS · Background Verified</p>
           </div>
         </div>
         <div className="flex items-center gap-4">

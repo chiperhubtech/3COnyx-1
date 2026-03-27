@@ -452,7 +452,7 @@ function ARWindow({ comp, onClose }: { comp: any; onClose: () => void }) {
           </div>
         ))}
         <div style={{ marginTop: 8, padding: "6px 10px", borderRadius: 8, background: "rgba(201,162,39,0.06)", border: "1px solid rgba(201,162,39,0.18)", fontSize: 9, color: "rgba(201,162,39,0.7)" }}>
-          3C Runner on standby · MarketCheck part sourced · Mission Agent ready
+          3C Runner on standby · ONYX Priced · Mission Agent ready
         </div>
       </div>
     </div>
@@ -537,7 +537,7 @@ function NavOverlay({ navData }: { navData: any }) {
         { x: W * 0.18, y: H * 0.78, color: "#34D399", label: "YOU",         ring: true  },
         { x: W * 0.78, y: H * 0.22, color: "#C9A227", label: "SERVICE",     ring: false },
         { x: W * 0.48, y: H * 0.48, color: "#F59E0B", label: "HAZARD",      ring: true  },
-        { x: W * 0.60, y: H * 0.35, color: "#A78BFA", label: "GEMINI ROUTE",ring: false },
+        { x: W * 0.60, y: H * 0.35, color: "#A78BFA", label: "ONYX NEURAL ROUTE", ring: false },
       ];
       waypoints.forEach((wp) => {
         ctx.save();
@@ -575,7 +575,7 @@ function NavOverlay({ navData }: { navData: any }) {
       ctx.font = "700 10px 'Courier New'";
       ctx.fillStyle = "#C9A227";
       ctx.textAlign = "right";
-      ctx.fillText("ROCKSOLID NAV · GOOGLE MAPS OVERLAY · GEMINI AI", W - 12, H - 8);
+      ctx.fillText("ONYX VISION NAV · ONYX NEURAL GUIDANCE · LIVE AR", W - 12, H - 8);
       ctx.restore();
 
       frameRef.current = requestAnimationFrame(draw);
@@ -605,7 +605,7 @@ export default function ARViewer() {
   const MODES: { id: Mode; label: string; icon: any; color: string; desc: string }[] = [
     { id: "guardian", label: "Guardian HUD",  icon: Shield,     color: "#34D399", desc: "ADAS · V2X · Fault Overlay" },
     { id: "repair",   label: "Repair Mode",   icon: Wrench,     color: "#F59E0B", desc: "Technician · Torque Specs · Parts AR" },
-    { id: "nav",      label: "Nav Overlay",   icon: Navigation, color: "#A78BFA", desc: "Route · Gemini AI · Google Maps" },
+    { id: "nav",      label: "Nav Overlay",   icon: Navigation, color: "#A78BFA", desc: "Route · ONYX Neural · Live Navigation" },
   ];
 
   const alerts     = hudData?.activeAlerts ?? [];
@@ -619,8 +619,8 @@ export default function ARViewer() {
     { label: "Render FPS",   value: `${statusData?.renderFps ?? 60}`, color: "#34D399" },
     { label: "Agent Mesh",   value: statusData?.agentMesh ?? "7/7 ONLINE", color: "#34D399" },
     { label: "V2X Link",     value: statusData?.v2xLink ?? "CONNECTED", color: "#34D399" },
-    { label: "Gemini Anchor",value: statusData?.geminiAnchor ?? "CALIBRATED", color: "#A78BFA" },
-    { label: "Google Maps",  value: statusData?.googleMapsIntegration ?? "CONNECTED", color: "#4FC3F7" },
+    { label: "ONYX Neural",  value: statusData?.geminiAnchor ?? "CALIBRATED", color: "#A78BFA" },
+    { label: "ONYX Nav",     value: statusData?.googleMapsIntegration ?? "CONNECTED", color: "#4FC3F7" },
     { label: "Uptime",       value: statusData?.uptimeSec ? `${statusData.uptimeSec}s` : "—", color: "rgba(255,255,255,0.4)" },
   ];
 

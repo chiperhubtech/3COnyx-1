@@ -74,8 +74,8 @@ const STACK_LAYERS = [
       { name: "PostgreSQL (Replit managed)", note: "16 tables, Drizzle ORM, full type inference" },
       { name: "Drizzle ORM", note: "Zero-overhead, SQL-first, full migration support" },
       { name: "NHTSA vPIC integration", note: "US gov VIN decode — real data, no API key" },
-      { name: "Stripe Connect", note: "PCI Level 1 · webhooks · founding member payments" },
-      { name: "Plaid (banking)", note: "Bank-grade financial data connectivity" },
+      { name: "ONYX Pay Layer", note: "PCI Level 1 · webhooks · founding member payments" },
+      { name: "ONYX Finance Layer", note: "Bank-grade financial data connectivity" },
     ],
   },
   {

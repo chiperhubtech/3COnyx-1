@@ -11,12 +11,12 @@ interface SubStatus {
 }
 
 const FEATURES = [
-  { icon: "🔍", label: "MarketCheck National Wholesale Engine", desc: "Live wholesale pricing across 50 states" },
-  { icon: "🤖", label: "Gemini AI Concierge — Unlimited", desc: "White-glove intelligence, always on" },
+  { icon: "🔍", label: "ONYX Price Intelligence Engine", desc: "Live wholesale pricing across 50 states" },
+  { icon: "🤖", label: "ONYX Neural Concierge — Unlimited", desc: "White-glove intelligence, always on" },
   { icon: "🛡️", label: "Guardian Predictive Layer (V2X)", desc: "90-day failure forecasting via OBD-II" },
   { icon: "💰", label: "Dynasty Wallet — Triple-Split", desc: "Automated 85/2.5/12.5 deal settlements" },
   { icon: "📦", label: "Dropship Coordinator", desc: "360° scans, AR previews, Runner dispatch" },
-  { icon: "📡", label: "Live Delivery Tracking", desc: "HyperTrack Guardian for every vehicle" },
+  { icon: "📡", label: "Live Delivery Tracking", desc: "ONYX Logistics Guardian for every vehicle" },
   { icon: "🏛️", label: "SOC2 Audit Vault", desc: "Immutable ledger, tamper-proof records" },
   { icon: "🔐", label: "NIST-MCP 2026 Security", desc: "AES-256 PII encryption, agent audit trail" },
   { icon: "📊", label: "Founder's Command Center", desc: "K-Factor, Hectocorn ticker, kill-switch" },

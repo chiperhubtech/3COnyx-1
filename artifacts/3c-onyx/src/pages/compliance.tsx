@@ -180,11 +180,11 @@ export default function ComplianceDashboard() {
         {/* ── KYC ── */}
         {activeTab === "kyc" && (
           <div className="space-y-6">
-            <SectionHeader icon={Fingerprint} title="KYC Gate — Stripe Identity" sub="Required for Dynasty Wallet access above $600/year. Plaid Identity + Stripe Identity dual-layer verification." />
+            <SectionHeader icon={Fingerprint} title="ONYX Identity Gate" sub="Required for Dynasty Wallet access above $600/year. ONYX dual-layer identity verification — document + financial." />
             <div className="grid grid-cols-2 gap-6">
               {[
-                { title: "Stripe Identity", badge: "CONFIGURED", color: "emerald", items: ["Document type: DL / Passport / Government ID", "Live capture + selfie match required", "CCPA / GDPR compliant", "Documents never stored by 3C ONYX", "Webhook: identity.verification_session.verified"] },
-                { title: "Plaid Identity",  badge: "AVAILABLE",  color: "blue",    items: ["Bank account ownership verification", "Real-name matching against financial records", "SSN partial match (last 4 only)", "Routed via /api/plaid existing integration", "Layered with Stripe Identity for dual-layer KYC"] },
+                { title: "ONYX Document Verification", badge: "CONFIGURED", color: "emerald", items: ["Document type: DL / Passport / Government ID", "Live capture + selfie match required", "CCPA / GDPR compliant", "Documents never stored by 3C ONYX", "Real-time identity confirmation"] },
+                { title: "ONYX Financial Verification", badge: "AVAILABLE",  color: "blue",    items: ["Bank account ownership verification", "Real-name matching against financial records", "SSN partial match (last 4 only)", "Secure integration with ONYX Finance Hub", "Layered with Document Verification for dual-layer KYC"] },
               ].map(col => (
                 <div key={col.title} className="rounded-2xl border border-white/5 bg-white/[0.02] p-5">
                   <div className="flex items-center justify-between mb-4">
@@ -206,8 +206,8 @@ export default function ComplianceDashboard() {
               <p className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-4">KYC Gate Logic</p>
               {[
                 { tier: "Under $600/yr",    gate: "None",                 color: "text-emerald-400" },
-                { tier: "$600+ / yr",       gate: "Stripe Identity KYC",  color: "text-yellow-400" },
-                { tier: "B2B Underwriting", gate: "Stripe + Plaid Dual",  color: "text-red-400"    },
+                { tier: "$600+ / yr",       gate: "ONYX Identity KYC",         color: "text-yellow-400" },
+                { tier: "B2B Underwriting", gate: "ONYX Dual-Layer Verification", color: "text-red-400"    },
                 { tier: "Admin Actions",    gate: "Admin PIN + KYC",      color: "text-purple-400" },
               ].map(row => (
                 <div key={row.tier} className="flex justify-between items-center py-2.5 border-b border-white/5">

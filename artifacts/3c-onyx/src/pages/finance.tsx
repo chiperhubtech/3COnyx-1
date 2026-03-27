@@ -92,7 +92,7 @@ export default function Finance() {
         icon={Landmark}
         accent="#4FC3F7"
         title="FINANCE HUB"
-        badge={<span className="neural-badge">PLAID CONNECTED</span>}
+        badge={<span className="neural-badge">ONYX FINANCE CONNECTED</span>}
         actions={
           <button
             onClick={() => setLinking(true)}
@@ -100,7 +100,7 @@ export default function Finance() {
             style={{ background: "rgba(79,195,247,0.12)", border: "1px solid rgba(79,195,247,0.25)", color: "#4FC3F7" }}
           >
             <Wifi className="w-3.5 h-3.5" />
-            {linking ? "Opening Plaid…" : "Link Account"}
+            {linking ? "Connecting…" : "Link Account"}
           </button>
         }
       />
@@ -138,7 +138,7 @@ export default function Finance() {
         </div>
         <div className="absolute top-4 right-4 flex items-center gap-1.5 px-2.5 py-1 rounded-full" style={{ background: "rgba(16,185,129,0.10)", border: "1px solid rgba(16,185,129,0.2)" }}>
             <Zap className="w-3 h-3" style={{ color: "#10B981" }} />
-            <span style={{ fontSize: "9px", color: "#10B981", fontWeight: 700, letterSpacing: "0.15em" }}>PLAID LIVE</span>
+            <span style={{ fontSize: "9px", color: "#10B981", fontWeight: 700, letterSpacing: "0.15em" }}>ONYX LIVE</span>
           </div>
       </div>
 

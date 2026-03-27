@@ -22,7 +22,7 @@ const AGENT_POOL: Omit<AgentEvent, "id" | "action" | "ts">[] = [
   { agent: "GUARDIAN",  detail: "V2X anomaly scan — all clear",             color: "#34D399", icon: Shield     },
   { agent: "ROUTE",     detail: "Optimizing I-95 corridor delivery",        color: "#A78BFA", icon: Route      },
   { agent: "INSPECT",   detail: "SHA-256 condition digest committed",       color: "#F97316", icon: Search     },
-  { agent: "FINANCE",   detail: "Plaid net-worth pull completed",           color: "#4FC3F7", icon: Zap        },
+  { agent: "FINANCE",   detail: "Finance hub sync completed",               color: "#4FC3F7", icon: Zap        },
   { agent: "TRUST",     detail: "Reputation mesh — Provider score 97%",    color: "#34D399", icon: Lock       },
   { agent: "ONYX",      detail: "Routing to Specialist network",            color: "#C9A227", icon: Brain      },
   { agent: "LOGISTICS", detail: "Runner dispatched — ETA 18 min",          color: "#A78BFA", icon: Truck      },

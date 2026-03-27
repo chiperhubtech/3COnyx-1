@@ -83,9 +83,9 @@ const VEHICLES = [
 ];
 
 const SOURCE_CONFIG: Record<string, { label: string; color: string; bg: string; border: string }> = {
-  sema:     { label: "SEMA VERIFIED", color: "#C9A227", bg: "#C9A22710", border: "#C9A22730" },
-  api2cart: { label: "API2CART",      color: "#3B82F6", bg: "#3B82F610", border: "#3B82F630" },
-  apexx:    { label: "APEXX NETWORK", color: "#8B5CF6", bg: "#8B5CF610", border: "#8B5CF630" },
+  sema:     { label: "ONYX CERTIFIED", color: "#C9A227", bg: "#C9A22710", border: "#C9A22730" },
+  api2cart: { label: "ONYX DIRECT",    color: "#3B82F6", bg: "#3B82F610", border: "#3B82F630" },
+  apexx:    { label: "ONYX NETWORK",   color: "#8B5CF6", bg: "#8B5CF610", border: "#8B5CF630" },
 };
 
 /* ─── Icon helper ────────────────────────────────────────────────────────── */
@@ -545,7 +545,7 @@ export default function AftermarketPage() {
     <div className="min-h-screen" style={{ backgroundColor: "#070707", color: "#fff" }}>
       <PageHeader
         title="Aftermarket Marketplace"
-        subtitle="SEMA Verified · API2Cart Connected · APEXX Supplier Network"
+        subtitle="ONYX Certified · Globally Sourced · ONYX Network"
         icon={ShoppingBag}
       />
 
@@ -553,9 +553,9 @@ export default function AftermarketPage() {
       <div className="border-b px-6 py-3" style={{ borderColor: "rgba(255,255,255,0.06)", backgroundColor: "#0A0A0A" }}>
         <div className="max-w-7xl mx-auto flex flex-wrap items-center gap-6">
           {[
-            { color: "#C9A227", dot: true, label: "SEMA Data Co-op", value: "CONNECTED", icon: <BadgeCheck size={10} /> },
-            { color: "#3B82F6", dot: true, label: "API2Cart", value: "LIVE", icon: <Globe size={10} /> },
-            { color: "#8B5CF6", dot: true, label: "APEXX Network", value: "ACTIVE", icon: <Layers size={10} /> },
+            { color: "#C9A227", dot: true, label: "ONYX Certified", value: "CONNECTED", icon: <BadgeCheck size={10} /> },
+            { color: "#3B82F6", dot: true, label: "ONYX Direct",    value: "LIVE",      icon: <Globe size={10} /> },
+            { color: "#8B5CF6", dot: true, label: "ONYX Network",   value: "ACTIVE",    icon: <Layers size={10} /> },
             { color: "#10B981", dot: false, label: "Verified Suppliers", value: `${suppliers.length}+` },
             { color: "#F97316", dot: false, label: "AR-Ready Products", value: `${arReadyCount}` },
           ].map((s) => (
@@ -598,7 +598,7 @@ export default function AftermarketPage() {
 
           {/* Source filter */}
           {["", "sema", "api2cart", "apexx"].map((src) => {
-            const labels: Record<string, string> = { "": "All Sources", sema: "SEMA", api2cart: "API2Cart", apexx: "APEXX" };
+            const labels: Record<string, string> = { "": "All Parts", sema: "ONYX Certified", api2cart: "ONYX Direct", apexx: "ONYX Network" };
             const colors: Record<string, string> = { "": "#fff", sema: "#C9A227", api2cart: "#3B82F6", apexx: "#8B5CF6" };
             const isSelected = selectedSource === src;
             return (
@@ -652,12 +652,12 @@ export default function AftermarketPage() {
                     </div>
                     {s.semaShowYear && (
                       <span className="inline-block text-[9px] font-bold px-2 py-0.5 rounded" style={{ backgroundColor: "#C9A22712", color: "#C9A227", border: "1px solid #C9A22730" }}>
-                        SEMA Member since {s.semaShowYear}
+                        ONYX Certified {s.semaShowYear}
                       </span>
                     )}
                     {s.apexxTier && (
                       <span className="inline-block text-[9px] font-bold px-2 py-0.5 rounded ml-2" style={{ backgroundColor: "#8B5CF612", color: "#8B5CF6", border: "1px solid #8B5CF630" }}>
-                        APEXX {s.apexxTier.toUpperCase()}
+                        ONYX {s.apexxTier.toUpperCase()}
                       </span>
                     )}
                   </div>
@@ -744,9 +744,9 @@ export default function AftermarketPage() {
             {!loading && (
               <div className="mt-10 grid grid-cols-3 gap-4">
                 {[
-                  { color: "#C9A227", icon: <BadgeCheck size={20} />, title: "SEMA Data Co-op", body: "Every SEMA-badged product comes from verified SEMA Show exhibitors — the gold standard in automotive aftermarket excellence." },
-                  { color: "#3B82F6", icon: <Globe size={20} />, title: "API2Cart Connected", body: "Products pulled live from supplier Shopify, WooCommerce, and Magento stores via API2Cart's unified commerce platform." },
-                  { color: "#8B5CF6", icon: <Sparkles size={20} />, title: "APEXX Supplier Network", body: "APEXX Elite and Platinum tier suppliers are curated for quality, lead time, and dropship reliability. Every order tracked end-to-end." },
+                  { color: "#C9A227", icon: <BadgeCheck size={20} />, title: "ONYX Certified Parts", body: "Every ONYX Certified product is verified by our quality assurance team — the gold standard in automotive aftermarket excellence." },
+                  { color: "#3B82F6", icon: <Globe size={20} />, title: "ONYX Direct Sourcing", body: "Products pulled live from verified supplier networks — real-time inventory, accurate pricing, no middlemen." },
+                  { color: "#8B5CF6", icon: <Sparkles size={20} />, title: "ONYX Supplier Network", body: "Elite and Platinum tier ONYX suppliers are curated for quality, lead time, and dropship reliability. Every order tracked end-to-end." },
                 ].map((info) => (
                   <div key={info.title} className="px-5 py-5 rounded-2xl border space-y-2" style={{ borderColor: `${info.color}20`, backgroundColor: `${info.color}06` }}>
                     <div style={{ color: info.color }}>{info.icon}</div>

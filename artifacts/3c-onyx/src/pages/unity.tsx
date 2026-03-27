@@ -90,7 +90,7 @@ export default function Unity() {
   const [deployingMesh, setDeployingMesh] = useState(false);
   const [meshDeployed, setMeshDeployed]   = useState(false);
 
-  const SCAN_STEPS = ["Connecting V2X mesh…", "Reading OBD telemetry…", "Running Gemini AI diagnostics…", "Matching wholesale specialist…", "Calculating Ignorance Tax…"];
+  const SCAN_STEPS = ["Connecting V2X mesh…", "Reading OBD telemetry…", "Running ONYX Neural diagnostics…", "Matching wholesale specialist…", "Calculating Ignorance Tax…"];
 
   const runScan = async () => {
     setScanning(true);

@@ -377,12 +377,12 @@ export default function Home() {
               {/* Integration pills */}
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 20 }}>
                 {[
-                  { label: "Gemini AI",   color: "#F87171" },
-                  { label: "Stripe",      color: "#818CF8" },
-                  { label: "Plaid",       color: "#4FC3F7" },
-                  { label: "Motor.com",   color: "#F97316" },
-                  { label: "Insuremo",    color: "#34D399" },
-                  { label: "Blockchain",  color: "#A78BFA" },
+                  { label: "ONYX Neural",    color: "#F87171" },
+                  { label: "ONYX Pay",       color: "#818CF8" },
+                  { label: "ONYX Finance",   color: "#4FC3F7" },
+                  { label: "ONYX Vehicle",   color: "#F97316" },
+                  { label: "ONYX Insurance", color: "#34D399" },
+                  { label: "ONYX Chain",     color: "#A78BFA" },
                 ].map((p) => (
                   <span key={p.label} style={{
                     padding: "3px 9px", borderRadius: 20, fontSize: 9, fontWeight: 700,

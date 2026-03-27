@@ -624,7 +624,7 @@ export default function GuardianPage() {
               <div style={{ background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.12)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
                 <Target size={14} style={{ color: "#F59E0B", flexShrink: 0 }} />
                 <div className="min-w-0">
-                  <div style={{ color: "#F59E0B", fontSize: 10, fontWeight: 700 }}>MARKETCHECK WHOLESALE MESH</div>
+                  <div style={{ color: "#F59E0B", fontSize: 10, fontWeight: 700 }}>ONYX PRICE INTELLIGENCE</div>
                   <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 10 }}>National · 50 states · Live auction data</div>
                 </div>
                 <span style={{ marginLeft: "auto", color: "#10B981", fontSize: 9, fontWeight: 700, flexShrink: 0 }}>LIVE</span>
