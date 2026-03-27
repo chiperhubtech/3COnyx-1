@@ -50,6 +50,7 @@ import PlatformIntelligence from "@/pages/platform-intelligence";
 import StrategicCenter from "@/pages/strategic-center";
 import Guardian from "@/pages/guardian";
 import SafetyShield from "@/pages/safety-shield";
+import SovereignOps from "@/pages/sovereign-ops";
 import Subscription from "@/pages/subscription";
 import Partners from "@/pages/partners";
 import Unity from "@/pages/unity";
@@ -189,6 +190,7 @@ function AppRoutes() {
             <Route path="/command"              component={Command} />
             <Route path="/guardian"             component={Guardian} />
             <Route path="/safety-shield"        component={SafetyShield} />
+            <Route path="/sovereign-ops"        component={SovereignOps} />
             <Route path="/subscribe"            component={Subscription} />
             <Route path="/partners"             component={Partners} />
             <Route path="/unity"                component={Unity} />
