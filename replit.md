@@ -1,5 +1,33 @@
 # Overview
 
+## Alibaba ICBU Dropshipping Integration (completed)
+
+**Full Node.js Alibaba Open Platform integration** — real IOP SDK signing, OAuth 2.0, product import pipeline, PostgreSQL storage, Express API.
+
+**IOP Signing Module** (`artifacts/api-server/src/routes/alibaba.ts`):
+- `signIOP(params, appSecret)` — HMAC-SHA256 signing exactly per official IOP SDK spec: sort params alphabetically → concatenate key+value pairs → HMAC-SHA256(appSecret, concatenated) → uppercase hex
+- `buildSignedParams(method, apiParams, appKey, appSecret, accessToken?)` — builds complete signed URLSearchParams with app_key, timestamp, format=json, v=2.0, sign_method=sha256
+
+**Authentication module** (OAuth 2.0):
+- `GET /api/alibaba/auth/status` — credential state, authorize URL, step-by-step setup instructions
+- `POST /api/alibaba/auth/token` (auth) — exchange authorization_code for access_token + refresh_token via `https://oauth.alibaba.com/token`
+- `POST /api/alibaba/auth/refresh` (auth) — refresh expiring tokens
+- Credentials: `ALIBABA_APP_KEY`, `ALIBABA_APP_SECRET`, `ALIBABA_ACCESS_TOKEN`, `ALIBABA_REFRESH_TOKEN` (Replit Secrets)
+
+**Product Search + Storage**:
+- `POST /api/alibaba/products/import` (auth) — calls `alibaba.icbu.product.list` endpoint at `https://api.taobao.com/router/rest`, post-filters for MOQ ≤ 1 + Trade Assurance, upserts into `alibaba_products` PostgreSQL table, returns inserted/updated counts
+- `GET /api/alibaba/products` — list all imported products (paginated, optional `?tradeAssurance=true` filter)
+- `GET /api/alibaba/products/:id` — single product with full raw payload
+- `DELETE /api/alibaba/products/:id` (auth) — remove from catalog
+
+**Database**: New `alibaba_products` table (id, alibabaProductId, title, priceUsd, priceMin, priceMax, imageUrl, detailUrl, supplierName, supplierId, supplierCountry, moq, hasTradeAssurance, category, starRating, ordersCount, keywords, rawPayload, importedAt, updatedAt). Unique constraint on alibabaProductId.
+
+**Frontend**: `artifacts/3c-onyx/src/pages/alibaba-dropship.tsx` — route `/alibaba-dropship`, sidebar entry under Customer nav between "Aftermarket Shop" and "Marketplace". Features: keyword search bar, All/Trade Assured filter tabs, one-click import button, import result banner (counts inserted/filtered/returned), product card grid (image, price range, supplier flag, category badge, order count, trade assurance badge, MOQ badge, link to Alibaba, delete button), IOP integration details panel.
+
+**TypeScript**: All 5 packages zero errors.
+
+---
+
 ## Ground-Up Worker Enhancement Layer (completed)
 
 **Spec**: 12-rule enhancement spec (data foundation, vehicle intelligence, recommendation engine, partner ecosystem, hybrid execution, trust/transparency) — additive only, zero breaking changes.

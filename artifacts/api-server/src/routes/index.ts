@@ -65,6 +65,7 @@ import neuralRouter from "./neural";
 import workerRouter from "./worker";
 import recommendationsRouter from "./recommendations";
 import vehicleLifecycleRouter from "./vehicle-lifecycle";
+import alibabaRouter from "./alibaba";
 import usersRouter from "./users";
 import vinRouter from "./vin";
 import bayRouter from "./bay";
@@ -137,6 +138,7 @@ router.use("/neural", neuralRouter);
 router.use(workerRouter);
 router.use(recommendationsRouter);
 router.use(vehicleLifecycleRouter);
+router.use(alibabaRouter);
 router.use(orchestratorRouter);
 
 router.use(

@@ -142,6 +142,7 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
     { label: "Intelligence Feed",         path: "/intelligence",   icon: Activity,    description: "AI savings · live opportunities",  accent: "#C9A227" },
     { label: "Race Hub",                  path: "/race-hub",       icon: Flag,        description: "F1 · NASCAR · NHRA · Live Motorsport", accent: "#EF4444" },
     { label: "Aftermarket Shop",          path: "/aftermarket",    icon: ShoppingBag, description: "SEMA · API2Cart · APEXX dropship",  accent: "#8B5CF6" },
+    { label: "Alibaba Dropship",          path: "/alibaba-dropship", icon: Package,   description: "ICBU · 1-piece MOQ · Trade Assurance", accent: "#C9A227" },
     { label: t("sidebar.marketplace"),    path: "/marketplace",    icon: ShoppingBag, description: t("sidebar.marketplaceDesc"),    accent: "#C9A227" },
     { label: t("sidebar.garage"),         path: "/garage",          icon: Gauge,       description: t("sidebar.garageDesc"),         accent: "#4FC3F7" },
     { label: t("sidebar.watchlist"),      path: "/watchlist",       icon: Bookmark,    description: t("sidebar.watchlistDesc"),      accent: "#F87171" },
