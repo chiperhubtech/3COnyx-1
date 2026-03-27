@@ -49,6 +49,7 @@ import CRMHubPage  from "@/pages/crm-hub";
 import PlatformIntelligence from "@/pages/platform-intelligence";
 import StrategicCenter from "@/pages/strategic-center";
 import Guardian from "@/pages/guardian";
+import SafetyShield from "@/pages/safety-shield";
 import Subscription from "@/pages/subscription";
 import Partners from "@/pages/partners";
 import Unity from "@/pages/unity";
@@ -187,6 +188,7 @@ function AppRoutes() {
             <Route path="/security"             component={Security} />
             <Route path="/command"              component={Command} />
             <Route path="/guardian"             component={Guardian} />
+            <Route path="/safety-shield"        component={SafetyShield} />
             <Route path="/subscribe"            component={Subscription} />
             <Route path="/partners"             component={Partners} />
             <Route path="/unity"                component={Unity} />
