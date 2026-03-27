@@ -12,7 +12,7 @@ import {
   UserCheck, Car, Settings, Landmark, ShieldPlus, FileSearch,
   Cpu, Package, Lock, Radio, Users, Sparkles, Heart, Wrench,
   Link2, X, Glasses, Brain, Layers, Activity, Flag, Target, DollarSign,
-  Building2, ShieldAlert, Infinity,
+  Building2, ShieldAlert, Infinity, MessagesSquare,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { NotificationBell } from "./NotificationBell";
@@ -179,6 +179,7 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
     { label: t("sidebar.guardian"),    path: "/guardian",    icon: ShieldPlus,   description: t("sidebar.guardianDesc"),    accent: "#10B981" },
     { label: "Safety Shield",          path: "/safety-shield",  icon: ShieldAlert, description: "Crash detection · SOS · Drive score · Hazard feed", accent: "#EF4444" },
     { label: "Sovereign Ops",          path: "/sovereign-ops",  icon: Infinity,    description: "2 people · 100M members · ONYX runs the rest",      accent: "#C9A227" },
+    { label: "WhatsApp Business",      path: "/whatsapp",       icon: MessagesSquare, description: "Platform main number · member confirmations · concierge", accent: "#25D366" },
     { label: t("sidebar.command"),     path: "/command",     icon: Radio,        description: t("sidebar.commandDesc"),     accent: "#EF4444" },
     { label: t("sidebar.partners"),    path: "/partners",    icon: Users,        description: t("sidebar.partnersDesc"),    accent: "#E5E7EB" },
     { label: t("sidebar.share"),       path: "/share",       icon: QrCode,       description: t("sidebar.shareDesc"),       accent: "#C9A227" },
