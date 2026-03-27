@@ -964,7 +964,7 @@ export default function Unity() {
                                 <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 11, lineHeight: 1.55, marginBottom: 12 }}>{svc.desc}</div>
                                 {sent ? (
                                   <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#10B981", fontSize: 12, fontWeight: 700 }}>
-                                    <CheckCircle size={14} /> Assessment request sent · Modernize contractor will contact within 24h
+                                    <CheckCircle size={14} /> ONYX dispatched your assessment — updates arrive automatically, no follow-up needed
                                   </div>
                                 ) : (
                                   <div style={{ display: "flex", gap: 10, alignItems: "center" }}>

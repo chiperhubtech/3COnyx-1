@@ -429,8 +429,8 @@ function ConciergeModal({ car, onClose }: { car: MarketListing; onClose: () => v
               {isWholesale ? "Wholesale Request Locked In" : "Request Submitted"}
             </h2>
             <p className="text-white/40 text-sm mb-2">
-              Your 3C Concierge will reach out within{" "}
-              <span className="text-white/60 font-medium">2 business hours</span> to arrange inspection, financing, and white-glove delivery.
+              ONYX is coordinating your acquisition now.{" "}
+              <span className="text-white/60 font-medium">Inspection, financing, and white-glove delivery</span> are handled — no follow-up needed from you.
             </p>
             {isWholesale && car.savings_vs_retail != null && (
               <div className="flex items-center justify-center gap-2 mb-4 px-4 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20">
