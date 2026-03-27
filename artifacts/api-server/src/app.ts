@@ -13,6 +13,7 @@ import { generalLimiter, authLimiter, strictLimiter, adminLimiter } from "./midd
 import { sanitizeInputs } from "./middlewares/sanitize";
 import { scannerDetector } from "./middlewares/scannerDetector";
 import { pruneExpiredBlacklistEntries } from "./lib/tokenBlacklist";
+import { isOwnedOrigin } from "./lib/domainConfig";
 
 const app: Express = express();
 
@@ -77,10 +78,9 @@ app.use(
     origin: (origin, callback) => {
       // No origin = same-origin / server-to-server — always allow
       if (!origin) return callback(null, true);
-      // In production without explicit ALLOWED_ORIGINS, lock to known domains
+      // In production without explicit ALLOWED_ORIGINS, lock to owned domains
       if (isProduction && allowedOrigins.length === 0) {
-        const knownProd = ["https://cuxtomcandyclub.ai", "https://www.cuxtomcandyclub.ai"];
-        if (knownProd.some(d => origin.startsWith(d))) return callback(null, true);
+        if (isOwnedOrigin(origin)) return callback(null, true);
         return callback(new Error(`CORS: origin '${origin}' not permitted in production`));
       }
       if (allowedOrigins.length === 0) return callback(null, true); // dev: open

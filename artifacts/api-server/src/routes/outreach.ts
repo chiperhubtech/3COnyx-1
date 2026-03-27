@@ -19,6 +19,7 @@ import { Router, type Request, type Response } from "express";
 import crypto from "crypto";
 import twilio from "twilio";
 import sgMail from "@sendgrid/mail";
+import { PRIMARY_DOMAIN, FROM_EMAIL } from "../lib/domainConfig";
 
 const router = Router();
 
@@ -67,7 +68,7 @@ interface BlastRecord {
 const contacts: Map<string, Contact> = new Map();
 const blastHistory: BlastRecord[] = [];
 
-const BASE_URL = process.env["VITE_APP_URL"] ?? "https://cuxtomcandyclub.ai";
+const BASE_URL = PRIMARY_DOMAIN;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function generateReferralCode(name: string): string {
@@ -209,7 +210,7 @@ router.post("/blast/fire", requireOwner, async (req: Request, res: Response) => 
   const twilioToken = process.env["TWILIO_AUTH_TOKEN"];
   const twilioFrom  = process.env["TWILIO_PHONE_NUMBER"];
   const sgKey       = process.env["SENDGRID_API_KEY"];
-  const fromEmail   = process.env["SENDGRID_FROM_EMAIL"] ?? "ron@cuxtomcandyclub.ai";
+  const fromEmail   = FROM_EMAIL;
 
   if (mode === "live" && (!twilioSid || !twilioToken || !twilioFrom)) {
     res.status(400).json({ error: "Twilio credentials missing. Set TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER in environment secrets." });

@@ -16,6 +16,7 @@
 
 import { Router, type Request, type Response } from "express";
 import crypto from "crypto";
+import { OWNED_DOMAINS, PRIMARY_DOMAIN } from "../lib/domainConfig";
 
 const router = Router();
 
@@ -102,9 +103,10 @@ router.get("/platform", requireOwner, (_req: Request, res: Response) => {
       databaseUrl:      process.env["DATABASE_URL"]         ? "SET ✓" : "NOT SET",
     },
     deployment: {
-      customDomain:   process.env["CUSTOM_DOMAIN"] ?? "Not configured — set CUSTOM_DOMAIN=cuxtomcandyclub.ai",
-      appUrl:         process.env["VITE_APP_URL"] ?? "https://cuxtomcandyclub.ai",
+      primaryDomain:  PRIMARY_DOMAIN,
+      ownedDomains:   OWNED_DOMAINS,
       environment:    process.env["NODE_ENV"] ?? "development",
+      domainNote:     "Set VITE_APP_URL to your primary domain (e.g. https://cuxtomcandyclub.ai). All 4 domains are CORS-whitelisted automatically.",
     },
   });
 });
