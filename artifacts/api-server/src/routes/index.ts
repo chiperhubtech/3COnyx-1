@@ -62,6 +62,9 @@ import strategyRouter from "./strategy";
 import outreachRouter from "./outreach";
 import ownerRouter from "./owner";
 import neuralRouter from "./neural";
+import workerRouter from "./worker";
+import recommendationsRouter from "./recommendations";
+import vehicleLifecycleRouter from "./vehicle-lifecycle";
 import usersRouter from "./users";
 import vinRouter from "./vin";
 import bayRouter from "./bay";
@@ -131,6 +134,9 @@ router.use("/strategy", strategyRouter);
 router.use("/outreach", outreachRouter);
 router.use("/owner", ownerRouter);
 router.use("/neural", neuralRouter);
+router.use(workerRouter);
+router.use(recommendationsRouter);
+router.use(vehicleLifecycleRouter);
 router.use(orchestratorRouter);
 
 router.use(

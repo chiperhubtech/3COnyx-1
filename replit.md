@@ -1,5 +1,25 @@
 # Overview
 
+## Ground-Up Worker Enhancement Layer (completed)
+
+**Spec**: 12-rule enhancement spec (data foundation, vehicle intelligence, recommendation engine, partner ecosystem, hybrid execution, trust/transparency) — additive only, zero breaking changes.
+
+**3 new API routes:**
+- `GET /api/worker/dashboard` (auth) — Unified earnings for any worker role: lifetime/month/week/today from real DB (commissionLedger + bayTransactions + gigTasks), tier engine (ROOKIE→APEX), next milestone, platform contribution stats, recent ledger entries. Demo enrichment for new accounts.
+- `GET /api/worker/leaderboard` (auth) — Top earners platform-wide, privacy-masked names, tier badges.
+- `GET /api/worker/impact` (public) — Platform-wide worker impact: totalWorkers, totalPayoutsUsd, avgRunnerEarningsPerMonth, avgSpecialistEarningsPerMonth, jobsCompleted, instantPayoutAdoption.
+- `GET /api/recommendations` (auth) — Rule-based recommendation engine (v1, ML-upgradeable contract). Cards: job_opportunity, tier_milestone, maintenance_reminder, savings_opportunity, reputation_tip, referral_nudge, data_quality. Every card shows WHY it was surfaced. Writes to analytics_events on impression.
+- `GET /api/vehicle/timeline/:vin` (auth) — Vehicle lifecycle Digital Twin: VIN Passport + bay transactions + inspections merged into chronological timeline. Health score, totalServiceSpend, firstSeen/lastActivity.
+
+**Frontend: Worker Dashboard ("My Earnings")**
+- `artifacts/3c-onyx/src/pages/worker-dashboard.tsx` — Route: `/worker-dashboard`. Sidebar: "My Earnings" (green, under Specialist section). Three tabs: Overview (tier ring + earnings breakdown + platform contribution + recent transactions + quick actions), My Opportunities (recommendation cards), Leaderboard (top earners). Handles demo state for new workers. Pulls from all 3 worker APIs.
+
+**Event Data Pipeline**: Worker dashboard views write structured events to `analytics_events` table (fire-and-forget, non-blocking). Foundation for future ML model training.
+
+**TypeScript**: All 5 packages zero errors. API builds clean.
+
+---
+
 ## ONYX Impact — Member Value Intelligence System (completed)
 
 **Strategic principle**: Every action on the platform creates measurable value. The Impact system makes that value visible to every member, driving retention, referrals, and repeat engagement.

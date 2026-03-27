@@ -59,6 +59,7 @@ import Custody from "@/pages/custody";
 import ARViewer from "@/pages/ar-viewer";
 import NotFound from "@/pages/not-found";
 import RunnerTasks from "@/pages/runner-tasks";
+import WorkerDashboard from "@/pages/worker-dashboard";
 import TechnologyPage from "@/pages/technology";
 import SDVPage from "@/pages/sdv";
 
@@ -171,6 +172,7 @@ function AppRoutes() {
             <Route path="/dropship"             component={Dropship} />
             <Route path="/apply"                component={Apply} />
             <Route path="/runner-tasks"         component={RunnerTasks} />
+            <Route path="/worker-dashboard"     component={WorkerDashboard} />
 
             {/* Platform */}
             <Route path="/inventory"            component={Inventory} />
