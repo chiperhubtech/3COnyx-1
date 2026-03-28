@@ -53,6 +53,7 @@ import SafetyShield from "@/pages/safety-shield";
 import SovereignOps from "@/pages/sovereign-ops";
 import WhatsAppHub from "@/pages/whatsapp-hub";
 import DynastyFoundation from "@/pages/dynasty-foundation";
+import LegalArmor from "@/pages/legal-armor";
 import Subscription from "@/pages/subscription";
 import Partners from "@/pages/partners";
 import Unity from "@/pages/unity";
@@ -195,6 +196,7 @@ function AppRoutes() {
             <Route path="/sovereign-ops"        component={SovereignOps} />
             <Route path="/whatsapp"             component={WhatsAppHub} />
             <Route path="/dynasty-foundation"   component={DynastyFoundation} />
+            <Route path="/legal/armor"          component={LegalArmor} />
             <Route path="/subscribe"            component={Subscription} />
             <Route path="/partners"             component={Partners} />
             <Route path="/unity"                component={Unity} />
