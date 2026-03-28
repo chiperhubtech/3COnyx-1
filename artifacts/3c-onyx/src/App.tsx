@@ -70,6 +70,7 @@ import RunnerTasks from "@/pages/runner-tasks";
 import WorkerDashboard from "@/pages/worker-dashboard";
 import TechnologyPage from "@/pages/technology";
 import SDVPage from "@/pages/sdv";
+import FounderDeclaration from "@/pages/founder-declaration";
 
 // Auth + launch pages
 import LoginPage    from "@/pages/login";
@@ -117,7 +118,7 @@ function AppRoutes() {
   const [location] = useLocation();
 
   // Public pages — no sidebar, no auth required
-  const PUBLIC_PATHS = ["/landing", "/login", "/register", "/waitlist", "/legal/terms", "/legal/privacy", "/join", "/m/", "/technology", "/sdv", "/oa"];
+  const PUBLIC_PATHS = ["/landing", "/login", "/register", "/waitlist", "/legal/terms", "/legal/privacy", "/join", "/m/", "/technology", "/sdv", "/oa", "/founder"];
   const isPublic = PUBLIC_PATHS.some((p) => location === p || location.startsWith(p));
 
   if (isPublic) {
@@ -139,11 +140,13 @@ function AppRoutes() {
         <Route path="/legal/terms"     component={TermsPage} />
         <Route path="/legal/privacy"   component={PrivacyPage} />
         <Route path="/oa"              component={OwnerPortal} />
+        <Route path="/founder"         component={FounderDeclaration} />
       </Switch>
     );
   }
 
   return (
+    <AccessGate>
     <ProtectedRoute>
       <OnboardingGate>
         <Layout>
@@ -223,29 +226,28 @@ function AppRoutes() {
         </Layout>
       </OnboardingGate>
     </ProtectedRoute>
+    </AccessGate>
   );
 }
 
 function App() {
   return (
-    <AccessGate>
-      <ErrorBoundary>
-        <QueryClientProvider client={queryClient}>
-          <TooltipProvider>
-            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-              <AuthProvider>
-                <ErrorBoundary>
-                  <AppRoutes />
-                </ErrorBoundary>
-                <AIConcierge />
-                <RewardToast />
-              </AuthProvider>
-            </WouterRouter>
-            <Toaster />
-          </TooltipProvider>
-        </QueryClientProvider>
-      </ErrorBoundary>
-    </AccessGate>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+            <AuthProvider>
+              <ErrorBoundary>
+                <AppRoutes />
+              </ErrorBoundary>
+              <AIConcierge />
+              <RewardToast />
+            </AuthProvider>
+          </WouterRouter>
+          <Toaster />
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 
