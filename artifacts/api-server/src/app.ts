@@ -14,6 +14,11 @@ import { sanitizeInputs } from "./middlewares/sanitize";
 import { scannerDetector } from "./middlewares/scannerDetector";
 import { pruneExpiredBlacklistEntries } from "./lib/tokenBlacklist";
 import { isOwnedOrigin } from "./lib/domainConfig";
+import { sovereigntyMiddleware } from "./middlewares/sovereignty";
+import { logSovereigntyDeclaration } from "./lib/honeyToken";
+
+// ── Sovereignty Declaration — logged at every boot ────────────────────────────
+logSovereigntyDeclaration();
 
 const app: Express = express();
 
@@ -67,6 +72,9 @@ app.use((_req: Request, res: Response, next: NextFunction) => {
   );
   next();
 });
+
+// ── Sovereignty — stamp every response with owner fingerprint ─────────────────
+app.use(sovereigntyMiddleware);
 
 // ── CORS ──────────────────────────────────────────────────────────────────────
 const rawOrigins     = process.env.ALLOWED_ORIGINS;
