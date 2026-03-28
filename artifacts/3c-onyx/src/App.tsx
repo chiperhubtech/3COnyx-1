@@ -118,7 +118,7 @@ function AppRoutes() {
   const [location] = useLocation();
 
   // Public pages — no sidebar, no auth required
-  const PUBLIC_PATHS = ["/landing", "/login", "/register", "/waitlist", "/legal/terms", "/legal/privacy", "/join", "/m/", "/technology", "/sdv", "/oa", "/founder"];
+  const PUBLIC_PATHS = ["/landing", "/login", "/register", "/waitlist", "/legal/terms", "/legal/privacy", "/join", "/m/", "/technology", "/sdv", "/oa"];
   const isPublic = PUBLIC_PATHS.some((p) => location === p || location.startsWith(p));
 
   if (isPublic) {
@@ -140,7 +140,6 @@ function AppRoutes() {
         <Route path="/legal/terms"     component={TermsPage} />
         <Route path="/legal/privacy"   component={PrivacyPage} />
         <Route path="/oa"              component={OwnerPortal} />
-        <Route path="/founder"         component={FounderDeclaration} />
       </Switch>
     );
   }
@@ -202,6 +201,7 @@ function AppRoutes() {
             <Route path="/dynasty-foundation"   component={DynastyFoundation} />
             <Route path="/legal/armor"          component={LegalArmor} />
             <Route path="/legal/declaration"    component={LegalDeclaration} />
+            <Route path="/founder"              component={FounderDeclaration} />
             <Route path="/subscribe"            component={Subscription} />
             <Route path="/partners"             component={Partners} />
             <Route path="/unity"                component={Unity} />

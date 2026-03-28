@@ -454,6 +454,30 @@ export default function CommandCenter() {
       />
 
       <div className="p-6">
+
+        {/* ── Founder Contract ─────────────────────────────────────── */}
+        <a
+          href="/founder"
+          style={{ textDecoration: "none" }}
+          className="flex items-center justify-between gap-4 rounded-2xl border border-[rgba(201,162,39,0.4)] bg-[rgba(201,162,39,0.04)] hover:bg-[rgba(201,162,39,0.07)] transition-all p-4 mb-5 cursor-pointer"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+              style={{ background: "linear-gradient(135deg,#C9A227,#8B6914)" }}>
+              <Shield className="w-5 h-5 text-black" />
+            </div>
+            <div>
+              <p className="text-xs font-black text-white tracking-wide uppercase">Founder's Ownership Contract</p>
+              <p className="text-[10px] text-white/40 mt-0.5">Ronald Antonio Cadet · CUXTOMCANDYCLUB LLC · Private — Your Eyes Only</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-[9px] font-black uppercase tracking-widest text-[#C9A227] border border-[rgba(201,162,39,0.35)] px-2 py-1 rounded-lg">
+              VIEW
+            </span>
+          </div>
+        </a>
+
         {/* ── Pulse Cards ─────────────────────────────────────────── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
           {/* K-Factor */}
