@@ -12,7 +12,7 @@ import {
   UserCheck, Car, Settings, Landmark, ShieldPlus, FileSearch,
   Cpu, Package, Lock, Radio, Users, Sparkles, Heart, Wrench,
   Link2, X, Glasses, Brain, Layers, Activity, Flag, Target, DollarSign,
-  Building2, ShieldAlert, Infinity, MessagesSquare, Crown, Scale,
+  Building2, ShieldAlert, Infinity, MessagesSquare, Crown, Scale, FileText,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { NotificationBell } from "./NotificationBell";
@@ -182,6 +182,7 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
     { label: "WhatsApp Business",      path: "/whatsapp",       icon: MessagesSquare, description: "Platform main number · member confirmations · concierge", accent: "#25D366" },
     { label: "Dynasty Foundation",     path: "/dynasty-foundation", icon: Crown,      description: "The immutable constitutional layer · Ron3C · CUXTOMCANDYCLUB", accent: "#C9A227" },
     { label: "Legal Fortress",         path: "/legal/armor",        icon: Scale,      description: "IP · corporate · contractual · regulatory armor — Big Law standard", accent: "#60A5FA" },
+    { label: "IP Declaration",         path: "/legal/declaration",  icon: FileText,   description: "Print-ready · attorney-grade · GitHub-ready ownership declaration", accent: "#34D399" },
     { label: t("sidebar.command"),     path: "/command",     icon: Radio,        description: t("sidebar.commandDesc"),     accent: "#EF4444" },
     { label: t("sidebar.partners"),    path: "/partners",    icon: Users,        description: t("sidebar.partnersDesc"),    accent: "#E5E7EB" },
     { label: t("sidebar.share"),       path: "/share",       icon: QrCode,       description: t("sidebar.shareDesc"),       accent: "#C9A227" },
