@@ -75,6 +75,7 @@
     "zod": "catalog:"
   },
   "dependencies": {
+    "@stripe/react-stripe-js": "^6.0.0",
     "@stripe/stripe-js": "^8.11.0",
     "@trpc/client": "^11.14.1",
     "@trpc/react-query": "^11.14.1",
