@@ -158,9 +158,41 @@ export function AccessGate({ children }: { children: React.ReactNode }) {
           ACCESS PLATFORM
         </button>
 
+        {/* Public Statement Link */}
+        <div style={{ marginTop: 20, width: "100%" }}>
+          <div style={{
+            height: 1,
+            background: "rgba(201,162,39,0.15)",
+            marginBottom: 20,
+          }} />
+          <a
+            href="/founder"
+            style={{
+              display: "block",
+              width: "100%",
+              padding: "13px",
+              fontSize: 11,
+              fontFamily: "'Barlow Condensed', system-ui, sans-serif",
+              fontWeight: 900,
+              letterSpacing: "0.2em",
+              background: "transparent",
+              border: "1px solid rgba(201,162,39,0.35)",
+              borderRadius: 12,
+              color: "#C9A227",
+              cursor: "pointer",
+              textTransform: "uppercase",
+              textAlign: "center",
+              textDecoration: "none",
+              boxSizing: "border-box",
+            }}
+          >
+            👁 View Founder Statement
+          </a>
+        </div>
+
         {/* Footer */}
         <div style={{
-          marginTop: 28,
+          marginTop: 20,
           fontSize: 8, fontWeight: 700, letterSpacing: "0.15em",
           color: "rgba(255,255,255,0.1)", textAlign: "center",
         }}>
