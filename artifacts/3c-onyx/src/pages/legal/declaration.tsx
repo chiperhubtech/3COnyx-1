@@ -9,7 +9,7 @@
  */
 
 import { useState } from "react";
-import { Printer, Copy, CheckCircle2, Download, FileText } from "lucide-react";
+import { Printer, Copy, CheckCircle2, Download, FileText, Globe } from "lucide-react";
 
 // ─── The Declaration Text ─────────────────────────────────────────────────────
 
@@ -271,16 +271,168 @@ For licensing inquiries: legal@cuxtomcandyclub.com
 *For legal review and execution, consult qualified intellectual property counsel.*
 `;
 
+// ─── Plain English Version ─────────────────────────────────────────────────────
+
+const PLAIN_TEXT_CONTENT = `OWNERSHIP STATEMENT — 3C ONYX PLATFORM
+CUXTOMCANDYCLUB LLC
+
+Document ID: CUXTOMCANDYCLUB-IP-DECL-001
+Date: ${DECLARATION_DATE}
+Effective Since: ${EFFECTIVE_DATE}
+
+═══════════════════════════════════════════════════════════
+
+WHO I AM
+
+My name is Ronald Antonio Cadet. I am also publicly known as Ron3C.
+I am the only owner of a company called CUXTOMCANDYCLUB LLC.
+I started this company entirely by myself.
+No other person owns any part of it.
+
+═══════════════════════════════════════════════════════════
+
+PURPOSE OF THIS STATEMENT
+
+This document tells the entire world — every person, every company,
+every government, every court — that I own everything related to the
+3C ONYX platform. I am putting this in writing so that there is no
+confusion about who owns what, now or in the future.
+
+═══════════════════════════════════════════════════════════
+
+WHAT I OWN
+
+I own all of the following, without exception:
+
+  1. The 3C ONYX platform — a luxury automotive app and
+     technology system
+  2. All software, computer code, and technology that
+     powers 3C ONYX
+  3. All artificial intelligence systems, including the
+     ONYX Neural Brain and the Guardian system
+  4. All brand names, logos, and trademarks connected
+     to 3C ONYX
+  5. All business methods and processes used in the platform
+  6. All data, content, and materials created for or by
+     the platform
+  7. Every product and feature connected to the 3C ONYX name
+
+Everything listed above belongs to CUXTOMCANDYCLUB LLC.
+I built it. I own it. All rights are reserved.
+
+═══════════════════════════════════════════════════════════
+
+HOW IT WAS BUILT
+
+I, Ronald Antonio Cadet, personally created and built the 3C ONYX
+platform. I am the only founder.
+
+There are no co-founders.
+No investor owns any part of this company.
+No partner owns any part of this company.
+
+Any person who helped build any part of the platform did so as a
+paid contractor working for me. Those contractors gave all their
+rights to my company under written agreements. They do not own
+anything related to 3C ONYX.
+
+═══════════════════════════════════════════════════════════
+
+WHAT NOBODY ELSE IS ALLOWED TO DO
+
+Nobody — no person, no company, no government agency, and no
+organization anywhere in the world — is allowed to:
+
+  • Claim that they own 3C ONYX or any part of it
+  • Copy, use, sell, or share any part of the platform
+    without my written permission
+  • Claim any rights to my company's technology, brand,
+    or business methods
+  • Pretend to be associated with 3C ONYX or
+    CUXTOMCANDYCLUB LLC without my authorization
+
+Anyone who does any of these things without my permission will face
+legal action. I will pursue every remedy available under United
+States law and international law, including money damages and
+court orders to stop them immediately.
+
+═══════════════════════════════════════════════════════════
+
+THIS IS OFFICIAL LEGAL NOTICE
+
+This statement is official notice to every person and organization
+in the world that CUXTOMCANDYCLUB LLC is the sole owner of all
+rights to the 3C ONYX platform.
+
+This has been true since January 1, 2024.
+
+═══════════════════════════════════════════════════════════
+
+SIGNATURE
+
+I declare that everything written above is true. I am signing
+this voluntarily and under penalty of perjury under the laws
+of the United States of America.
+
+
+_____________________________________________
+Ronald Antonio Cadet (also known as Ron3C)
+Sole Owner and Managing Member
+CUXTOMCANDYCLUB LLC — 3C ONYX Platform
+
+Date signed: ________________________________
+
+State: ______________________________________
+
+═══════════════════════════════════════════════════════════
+
+NOTARY SECTION
+(To be completed by a licensed Notary Public)
+
+On this ________ day of ______________________, 20______,
+before me personally appeared Ronald Antonio Cadet,
+who proved his identity to my satisfaction,
+and signed this document in my presence.
+
+
+_____________________________________________
+Notary Public — Signature
+
+Printed Name: _______________________________
+
+License / Commission Number: ________________
+
+My Commission Expires: ______________________
+
+State / Country: ____________________________
+
+
+[ OFFICIAL NOTARY SEAL HERE ]
+
+═══════════════════════════════════════════════════════════
+
+© CUXTOMCANDYCLUB LLC — ALL RIGHTS RESERVED
+Document Ref: CUXTOMCANDYCLUB-IP-DECL-001
+`;
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 export default function LegalDeclaration() {
-  const [copied, setCopied]   = useState(false);
+  const [copied, setCopied]       = useState(false);
+  const [copiedPlain, setCopiedPlain] = useState(false);
   const [activeTab, setActiveTab] = useState<"document" | "markdown">("document");
 
   function handleCopy() {
     navigator.clipboard.writeText(MARKDOWN_CONTENT).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 3000);
+    });
+  }
+
+  function handleCopyPlain() {
+    navigator.clipboard.writeText(PLAIN_TEXT_CONTENT).then(() => {
+      setCopiedPlain(true);
+      setTimeout(() => setCopiedPlain(false), 4000);
     });
   }
 
@@ -326,6 +478,86 @@ export default function LegalDeclaration() {
             <Printer className="w-3.5 h-3.5" />
             Print / PDF
           </button>
+        </div>
+      </div>
+
+      {/* ── PLAIN ENGLISH COPY BLOCK ── */}
+      <div className="print:hidden max-w-3xl mx-auto px-5 pt-8 pb-2">
+        <div
+          style={{
+            borderRadius: 20,
+            border: copiedPlain ? "1.5px solid rgba(52,211,153,0.5)" : "1.5px solid rgba(201,162,39,0.35)",
+            background: copiedPlain ? "rgba(52,211,153,0.05)" : "rgba(201,162,39,0.04)",
+            padding: "28px 32px",
+            transition: "all 0.3s ease",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 18, flexWrap: "wrap" }}>
+            <div style={{ flex: 1, minWidth: 220 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                <Globe style={{ width: 18, height: 18, color: "#C9A227", flexShrink: 0 }} />
+                <p style={{ fontSize: 13, fontWeight: 900, letterSpacing: "0.06em", color: "#fff", textTransform: "uppercase" }}>
+                  Plain English — Copy &amp; Paste Anywhere
+                </p>
+              </div>
+              <p style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", lineHeight: 1.6, maxWidth: 480 }}>
+                Simple words. No legal jargon. Ready to paste into an email, a text message, a Word document, or hand to any attorney or government official anywhere in the world. Includes your signature line and notary block.
+              </p>
+            </div>
+            <button
+              onClick={handleCopyPlain}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                padding: "16px 28px",
+                borderRadius: 14,
+                border: "none",
+                background: copiedPlain
+                  ? "linear-gradient(135deg,#34D399,#059669)"
+                  : "linear-gradient(135deg,#C9A227,#8B6914)",
+                color: copiedPlain ? "#fff" : "#050505",
+                fontFamily: "inherit",
+                fontSize: 13,
+                fontWeight: 900,
+                letterSpacing: "0.12em",
+                cursor: "pointer",
+                transition: "all 0.3s ease",
+                flexShrink: 0,
+                textTransform: "uppercase",
+                boxShadow: copiedPlain
+                  ? "0 0 24px rgba(52,211,153,0.3)"
+                  : "0 0 24px rgba(201,162,39,0.25)",
+              }}
+            >
+              {copiedPlain
+                ? <><CheckCircle2 style={{ width: 18, height: 18 }} /> Copied to Clipboard</>
+                : <><Copy style={{ width: 18, height: 18 }} /> Copy Plain English</>
+              }
+            </button>
+          </div>
+
+          {/* Preview of the plain text */}
+          <div style={{
+            marginTop: 20,
+            padding: "16px 20px",
+            borderRadius: 10,
+            background: "rgba(0,0,0,0.35)",
+            border: "1px solid rgba(255,255,255,0.06)",
+            maxHeight: 180,
+            overflowY: "auto",
+          }}>
+            <pre style={{
+              fontSize: 11,
+              fontFamily: "'Courier New', Courier, monospace",
+              color: "rgba(255,255,255,0.55)",
+              lineHeight: 1.7,
+              whiteSpace: "pre-wrap",
+              margin: 0,
+            }}>
+              {PLAIN_TEXT_CONTENT}
+            </pre>
+          </div>
         </div>
       </div>
 
