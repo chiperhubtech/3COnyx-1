@@ -18,3 +18,9 @@ id = "V5xJMKym0l1EmW5yk1kpp"
 uri = "file://3C_ONYX_Bank_Funding_Request.pdf"
 type = "pdf"
 title = "Citizens Bank Funding Request — CUXTOMCANDYCLUB LLC"
+
+[[outputs]]
+id = "GuEMFnST4uajefuO16hST"
+uri = "file://3C_ONYX_Founder_Privacy_Strategy.pdf"
+type = "pdf"
+title = "3C ONYX — Founder Privacy & Dynasty Protection Strategy (Attorney Brief)"
