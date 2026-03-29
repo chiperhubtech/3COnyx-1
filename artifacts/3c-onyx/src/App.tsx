@@ -55,6 +55,7 @@ import WhatsAppHub from "@/pages/whatsapp-hub";
 import DynastyFoundation from "@/pages/dynasty-foundation";
 import OnyxSource from "@/pages/onyx-source";
 import OnyxShield from "@/pages/onyx-shield";
+import PreLaunchReadiness from "@/pages/prelaunch-readiness";
 import LegalArmor from "@/pages/legal-armor";
 import LegalDeclaration from "@/pages/legal/declaration";
 import Subscription from "@/pages/subscription";
@@ -203,6 +204,7 @@ function AppRoutes() {
             <Route path="/dynasty-foundation"   component={DynastyFoundation} />
             <Route path="/onyx-source"          component={OnyxSource} />
             <Route path="/onyx-shield"          component={OnyxShield} />
+            <Route path="/prelaunch-readiness"  component={PreLaunchReadiness} />
             <Route path="/legal/armor"          component={LegalArmor} />
             <Route path="/legal/declaration"    component={LegalDeclaration} />
             <Route path="/founder"              component={FounderDeclaration} />

@@ -7,6 +7,7 @@ import {
   Sparkles, Tag, ChevronRight, Info, BarChart3, Store,
 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
+import { LegalDisclaimer } from "@/components/LegalDisclaimer";
 import { SpinViewer } from "@/components/SpinViewer";
 import { useTranslation } from "react-i18next";
 
@@ -728,6 +729,7 @@ export default function Marketplace() {
         }
       />
       <div className="p-6">
+        <LegalDisclaimer type="marketplace" />
 
         {/* ── Tab switcher ─────────────────────────────────────────────────── */}
         <div className="flex items-center gap-1 p-1 rounded-xl bg-white/[0.03] border border-white/[0.06] w-fit mb-5">

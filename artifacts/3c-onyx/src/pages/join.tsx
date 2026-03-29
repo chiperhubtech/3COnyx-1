@@ -86,6 +86,8 @@ export default function JoinPage() {
   const [email, setEmail]               = useState("");
   const [loading, setLoading]           = useState(false);
   const [error, setError]               = useState<string | null>(null);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [smsConsent, setSmsConsent]       = useState(false);
   const [count, setCount]               = useState(1);
   const [spotsRemaining, setSpotsRemaining] = useState(SPOTS_TOTAL - 1);
   const [percentFilled, setPercentFilled]   = useState(0.01);
@@ -408,9 +410,44 @@ export default function JoinPage() {
                   </div>
                 )}
 
+                {/* ── Legal Consent Checkboxes ─────────────────────── */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: "12px 0 4px" }}>
+                  {/* Terms + Privacy — required */}
+                  <label style={{ display: "flex", alignItems: "flex-start", gap: 10, cursor: "pointer" }}>
+                    <input
+                      type="checkbox"
+                      checked={termsAccepted}
+                      onChange={(e) => setTermsAccepted(e.target.checked)}
+                      required
+                      style={{ marginTop: 2, accentColor: "#C9A227", width: 14, height: 14, flexShrink: 0 }}
+                    />
+                    <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", lineHeight: 1.6 }}>
+                      I am 18 or older and agree to the{" "}
+                      <a href="/legal/terms" target="_blank" style={{ color: "#C9A227", textDecoration: "none" }}>Terms of Service</a>
+                      {" "}and{" "}
+                      <a href="/legal/privacy" target="_blank" style={{ color: "#C9A227", textDecoration: "none" }}>Privacy Policy</a>.{" "}
+                      <span style={{ color: "rgba(255,255,255,0.25)" }}>(Required)</span>
+                    </span>
+                  </label>
+
+                  {/* SMS / WhatsApp TCPA consent — optional marketing, essential service is separate */}
+                  <label style={{ display: "flex", alignItems: "flex-start", gap: 10, cursor: "pointer" }}>
+                    <input
+                      type="checkbox"
+                      checked={smsConsent}
+                      onChange={(e) => setSmsConsent(e.target.checked)}
+                      style={{ marginTop: 2, accentColor: "#C9A227", width: 14, height: 14, flexShrink: 0 }}
+                    />
+                    <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", lineHeight: 1.6 }}>
+                      I consent to receive marketing SMS and WhatsApp messages from 3C ONYX. Msg &amp; data rates may apply. Reply STOP to opt out anytime.{" "}
+                      <span style={{ color: "rgba(255,255,255,0.25)" }}>(Optional)</span>
+                    </span>
+                  </label>
+                </div>
+
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || !termsAccepted}
                   style={{
                     width: "100%", padding: "14px 20px", borderRadius: 12, border: "none",
                     background: loading

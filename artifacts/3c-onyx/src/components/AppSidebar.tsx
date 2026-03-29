@@ -13,6 +13,7 @@ import {
   Cpu, Package, Lock, Radio, Users, Sparkles, Heart, Wrench,
   Link2, X, Glasses, Brain, Layers, Activity, Flag, Target, DollarSign,
   Building2, ShieldAlert, Infinity, MessagesSquare, Crown, Scale, FileText, Gavel,
+  CheckCircle2,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { NotificationBell } from "./NotificationBell";
@@ -174,7 +175,8 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
     { label: t("sidebar.custody"),     path: "/custody",     icon: Link2,        description: t("sidebar.custodyDesc"),     accent: "#818CF8" },
     { label: t("sidebar.trust"),       path: "/trust",       icon: Layers,       description: t("sidebar.trustDesc"),       accent: "#60A5FA" },
     { label: "ONYX Source",            path: "/onyx-source",   icon: Gavel,        description: "Sovereign procurement · Vendors compete · You confirm once", accent: "#C9A227" },
-    { label: "ONYX Shield",           path: "/onyx-shield",   icon: ShieldCheck,  description: "Platform security intelligence · Threat tracking · IP guard", accent: "#C9A84C" },
+    { label: "ONYX Shield",           path: "/onyx-shield",        icon: ShieldCheck,  description: "Platform security intelligence · Threat tracking · IP guard", accent: "#C9A84C" },
+    { label: "Pre-Launch Readiness",  path: "/prelaunch-readiness", icon: CheckCircle2, description: "Stripe · Apple · Google · Legal compliance · Attorney items", accent: "#34D399" },
     { label: "Family Office",          path: "/family-office", icon: Building2,    description: "Charter alignment · Dynasty Trust · Asset governance", accent: "#C9A227" },
     { label: "ONYX Neural Brain",      path: "/onyx-brain",  icon: Brain,        description: "Narrow × Generative × Agentic × General AI — all 4 types live", accent: "#C9A227" },
     { label: t("sidebar.agenticOs"),   path: "/agentic-os",  icon: Cpu,          description: t("sidebar.agenticOsDesc"),   accent: "#818CF8" },

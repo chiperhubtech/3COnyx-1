@@ -1,5 +1,6 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { PageHeader } from "@/components/PageHeader";
+import { LegalDisclaimer } from "@/components/LegalDisclaimer";
 import { Shield, ShieldCheck, Star, Zap, ChevronRight, CheckCircle, AlertCircle, RefreshCw } from "lucide-react";
 import { useState } from "react";
 
@@ -65,6 +66,8 @@ export default function Insurance() {
         title="INSURANCE HUB"
         badge={<span className="neural-badge neural-badge-green">INSUREMO</span>}
       />
+
+      <LegalDisclaimer type="insurance" />
 
       {/* Active Policies */}
       <div>

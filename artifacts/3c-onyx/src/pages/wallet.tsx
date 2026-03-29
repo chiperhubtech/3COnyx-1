@@ -8,6 +8,7 @@ import {
   ShieldCheck, Car, Split,
 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
+import { LegalDisclaimer } from "@/components/LegalDisclaimer";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Member {
@@ -1244,6 +1245,7 @@ export default function WalletPage() {
         }
       />
       <div className="p-6">
+        <LegalDisclaimer type="wallet" />
 
         {stripeMode === "demo" && (
           <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/[0.03] p-4 mb-6 flex items-start gap-3">
