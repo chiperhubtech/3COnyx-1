@@ -74,6 +74,7 @@ import WorkerDashboard from "@/pages/worker-dashboard";
 import TechnologyPage from "@/pages/technology";
 import SDVPage from "@/pages/sdv";
 import FounderDeclaration from "@/pages/founder-declaration";
+import CreatorOutreachHub from "@/pages/creator-outreach";
 
 // Auth + launch pages
 import LoginPage    from "@/pages/login";
@@ -221,6 +222,9 @@ function AppRoutes() {
 
             {/* Growth Engine */}
             <Route path="/growth"               component={GrowthDashboard} />
+            <Route path="/creator-outreach">
+              <ProtectedRoute requiredRole="Admin"><CreatorOutreachHub /></ProtectedRoute>
+            </Route>
 
             {/* Admin — role protected */}
             <Route path="/admin">

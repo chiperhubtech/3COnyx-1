@@ -1,10 +1,12 @@
 import { Router, type IRouter, type Request, type Response } from "express";
+import { ai } from "@workspace/integrations-gemini-ai";
+import { PRIMARY_DOMAIN } from "../lib/domainConfig";
 
 const router: IRouter = Router();
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
-type AgentId = "service" | "parts" | "sales" | "logistics" | "finance" | "insurance" | "roadside";
+type AgentId = "service" | "parts" | "sales" | "logistics" | "finance" | "insurance" | "roadside" | "creator";
 type AgentStatus = "idle" | "thinking" | "acting" | "complete" | "pivoting";
 
 interface FeedEvent {
@@ -78,6 +80,7 @@ const AGENT_META: Record<AgentId, { name: string; actionsToday: number; successR
   finance:   { name: "Finance Agent",   actionsToday: 211, successRate: 99.8 },
   insurance: { name: "Insurance Agent", actionsToday: 33,  successRate: 94.5 },
   roadside:  { name: "Roadside Agent",  actionsToday: 18,  successRate: 100.0 },
+  creator:   { name: "Creator Agent",   actionsToday: 0,   successRate: 100.0 },
 };
 
 const agentStatuses: Record<AgentId, AgentState> = {
@@ -88,6 +91,7 @@ const agentStatuses: Record<AgentId, AgentState> = {
   finance:   { ...AGENT_META.finance,   id: "finance",   status: "idle",     lastAction: "Dynasty split executed — $38,000 → 85/2.5/12.5%" },
   insurance: { ...AGENT_META.insurance, id: "insurance", status: "idle",     lastAction: "Insuremo coverage verified — $2M liability active" },
   roadside:  { ...AGENT_META.roadside,  id: "roadside",  status: "idle",     lastAction: "Emergency ping cleared — Maserati GranTurismo · Bronx" },
+  creator:   { ...AGENT_META.creator,   id: "creator",   status: "idle",     lastAction: "Ready — awaiting creator discovery and outreach campaigns" },
 };
 
 function uid() { return `ev-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`; }
@@ -476,6 +480,126 @@ router.post("/agents/parts/search", async (req: Request, res: Response) => {
     results,
     bestDeal: results.sort((a, b) => a.price - b.price)[0],
   });
+});
+
+// ─── POST /api/agents/creator/generate ─────────────────────────────────────
+// Creator Agent: generates a personalized outreach message for a creator.
+// Part of the 3C ONYX agent mesh — surfaces in the AgentOS feed.
+router.post("/agents/creator/generate", async (req: Request, res: Response) => {
+  const {
+    platform = "youtube",
+    handle,
+    followerCount = 0,
+    grade = "B",
+    niche = "automotive",
+    commissionPct = "10",
+    launchDate = "Q1 2026",
+    memberBenefits = "Founding member pricing locked forever, Dynasty Wallet revenue sharing, Guardian V2X priority access",
+    talkingPoints = "3C ONYX connects underserved communities to luxury automotive services via AI — concierge, marketplace, parts sourcing, fleet management, insurance",
+    briefText = "Build the 3C ONYX launch ambassador network",
+    referralCode,
+  } = req.body as {
+    platform?: string;
+    handle: string;
+    followerCount?: number;
+    grade?: string;
+    niche?: string;
+    commissionPct?: string;
+    launchDate?: string;
+    memberBenefits?: string;
+    talkingPoints?: string;
+    briefText?: string;
+    referralCode?: string;
+  };
+
+  if (!handle) {
+    res.status(400).json({ error: "handle is required" });
+    return;
+  }
+
+  const referralLink = `${PRIMARY_DOMAIN}/join?ref=${referralCode ?? handle}`;
+
+  // Log to agent feed — Creator Agent activating
+  agentStatuses.creator.status = "acting";
+  agentStatuses.creator.currentTask = `Generating outreach for @${handle}`;
+  pushFeed({
+    agentId: "creator",
+    agentName: "Creator Agent",
+    type: "thinking",
+    message: `Analyzing creator profile — @${handle} · ${platform} · ${Number(followerCount).toLocaleString()} followers · Grade ${grade}`,
+    tool: "gumloop",
+  });
+
+  try {
+    const prompt = `You are the ONYX Creator Agent for 3C ONYX, the AI-powered automotive platform built by Ron (founder of CUXTOMCANDYCLUB LLC).
+
+Generate a personalized affiliate outreach message for this content creator:
+- Platform: ${platform}
+- Handle: @${handle}
+- Followers: ${Number(followerCount).toLocaleString()}
+- Grade: ${grade}
+- Niche: ${niche}
+
+Campaign details:
+- Commission: ${commissionPct}% on every founding member they refer
+- Launch date: ${launchDate}
+- Member benefits: ${memberBenefits}
+- Talking points: ${talkingPoints}
+- Their personal referral link: ${referralLink}
+- Brief: ${briefText}
+
+The message MUST include:
+1. Who Ron is and his background (founder of CUXTOMCANDYCLUB LLC, building 3C ONYX for underserved communities)
+2. What 3C ONYX is (AI-powered automotive platform — the trust layer between consumers and the auto industry)
+3. Why THIS SPECIFIC CREATOR was chosen (be specific to their platform, niche, and reach — they are clearly influential in the ${niche} space with ${Number(followerCount).toLocaleString()} followers and a ${grade} Social Blade grade)
+4. The exact affiliate commission rate (${commissionPct}%)
+5. Founding member benefits for their audience
+6. Their personalized referral link: ${referralLink}
+
+Tone: Professional but genuine. Warm, not generic. Luxury brand energy but approachable. 
+Length: 150–250 words.
+Format: Plain text (no markdown, no bullet points).`;
+
+    const result = await ai.models.generateContent({
+      model: "gemini-2.0-flash",
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+    });
+
+    const message = result.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+
+    agentStatuses.creator.status = "complete";
+    agentStatuses.creator.lastAction = `Outreach message generated for @${handle} · ${platform}`;
+    agentStatuses.creator.currentTask = undefined;
+    agentStatuses.creator.actionsToday += 1;
+
+    pushFeed({
+      agentId: "creator",
+      agentName: "Creator Agent",
+      type: "result",
+      message: `Personalized outreach ready for @${handle} — ${platform} · ${Number(followerCount).toLocaleString()} followers · ${commissionPct}% commission offer`,
+      tool: "gumloop",
+    });
+
+    res.json({
+      agentId: "creator",
+      agentName: "Creator Agent",
+      handle,
+      platform,
+      message,
+      referralLink,
+      ts: nowIso(),
+    });
+  } catch (err) {
+    agentStatuses.creator.status = "idle";
+    agentStatuses.creator.currentTask = undefined;
+    pushFeed({
+      agentId: "creator",
+      agentName: "Creator Agent",
+      type: "result",
+      message: `Creator Agent error — AI generation failed for @${handle}`,
+    });
+    res.status(500).json({ error: "Creator Agent generation failed", detail: String(err) });
+  }
 });
 
 export default router;

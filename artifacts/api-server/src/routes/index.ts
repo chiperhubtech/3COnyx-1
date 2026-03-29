@@ -77,6 +77,7 @@ import ipAnchorRouter from "./ip-anchor";
 import sourceRouter from "./source";
 import sovereigntyApiRouter from "./sovereignty-api";
 import covenantRouter from "./covenant";
+import creatorOutreachRouter from "./creator-outreach";
 
 const router: IRouter = Router();
 
@@ -175,5 +176,6 @@ router.use("/whatsapp", whatsappRouter);
 router.use("/source", sourceRouter);
 router.use("/sovereignty", sovereigntyApiRouter);
 router.use("/covenant", covenantRouter);
+router.use(creatorOutreachRouter);
 
 export default router;

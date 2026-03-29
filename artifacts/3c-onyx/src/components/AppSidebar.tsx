@@ -13,7 +13,7 @@ import {
   Cpu, Package, Lock, Radio, Users, Sparkles, Heart, Wrench,
   Link2, X, Glasses, Brain, Layers, Activity, Flag, Target, DollarSign,
   Building2, ShieldAlert, Infinity, MessagesSquare, Crown, Scale, FileText, Gavel,
-  CheckCircle2,
+  CheckCircle2, TrendingUp,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { NotificationBell } from "./NotificationBell";
@@ -156,6 +156,11 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
     { label: t("sidebar.vehicleHistory"), path: "/vehicle-history", icon: FileSearch,  description: t("sidebar.vehicleHistoryDesc"), accent: "#F97316" },
   ];
 
+  const GROWTH_NAV = [
+    { label: "Growth Ops Command",    path: "/growth",           icon: TrendingUp,    description: "K-factor · revenue · runway · referral leaderboard", accent: "#34D399" },
+    { label: "Creator Outreach Hub",  path: "/creator-outreach", icon: Users,         description: "Social Blade · SHOUT · AI ambassador outreach",       accent: "#C9A227" },
+  ];
+
   const SPECIALIST_NAV = [
     { label: "CRM Hub",                   path: "/crm-hub",              icon: Link2,           description: "Lead pipeline · Deal management · Customer intelligence", accent: "#C9A227" },
     { label: "Platform Intelligence",     path: "/platform-intelligence", icon: Brain,           description: "ONYX Neural Engine · AI insights · Live telemetry", accent: "#7C3AED" },
@@ -249,6 +254,12 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
 
         <SectionLabel>{t("sidebar.sectionMyAccount")}</SectionLabel>
         {CUSTOMER_NAV.map((item) => (
+          <NavItem key={item.path} {...item} onClose={onClose} />
+        ))}
+
+        <Divider />
+        <SectionLabel>GROWTH</SectionLabel>
+        {GROWTH_NAV.map((item) => (
           <NavItem key={item.path} {...item} onClose={onClose} />
         ))}
 
