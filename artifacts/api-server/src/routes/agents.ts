@@ -1,6 +1,7 @@
 import { Router, type IRouter, type Request, type Response } from "express";
 import { ai } from "@workspace/integrations-gemini-ai";
 import { PRIMARY_DOMAIN } from "../lib/domainConfig";
+import { buildAgentSystemPromptContext } from "../lib/wisdomEngine";
 
 const router: IRouter = Router();
 
@@ -531,7 +532,10 @@ router.post("/agents/creator/generate", async (req: Request, res: Response) => {
   });
 
   try {
+    const wisdomContext = buildAgentSystemPromptContext("creator");
     const prompt = `You are the ONYX Creator Agent for 3C ONYX, the AI-powered automotive platform built by Ron (founder of CUXTOMCANDYCLUB LLC).
+
+${wisdomContext}
 
 Generate a personalized affiliate outreach message for this content creator:
 - Platform: ${platform}

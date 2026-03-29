@@ -78,6 +78,7 @@ import sourceRouter from "./source";
 import sovereigntyApiRouter from "./sovereignty-api";
 import covenantRouter from "./covenant";
 import creatorOutreachRouter from "./creator-outreach";
+import wisdomRouter from "./wisdom";
 
 const router: IRouter = Router();
 
@@ -177,5 +178,6 @@ router.use("/source", sourceRouter);
 router.use("/sovereignty", sovereigntyApiRouter);
 router.use("/covenant", covenantRouter);
 router.use(creatorOutreachRouter);
+router.use("/wisdom", wisdomRouter);
 
 export default router;
