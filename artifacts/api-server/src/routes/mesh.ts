@@ -41,7 +41,7 @@ router.get("/mesh/route", (req: Request, res: Response) => {
   }
   const agentId = routeToAgent(q);
   const agent = MESH_REGISTRY[agentId];
-  res.json({ ok: true, agentId, agentName: agent.name, color: agent.color, tagline: agent.tagline });
+  return res.json({ ok: true, agentId, agentName: agent.name, color: agent.color, tagline: agent.tagline });
 });
 
 // POST /api/mesh/chat — AI Concierge powered by Gemini, routes to best agent
@@ -86,7 +86,7 @@ Platform: 3C ONYX by CUXTOMCANDYCLUB LLC | Founder: Ronald Antonio Cadet | Gover
     logMeshAction(agentId, "Request handled", message.slice(0, 80), "success");
     logMeshAction("trust", "Exchange logged", `User→${agent.name}: ${message.slice(0, 60)}`, "success");
 
-    res.json({
+    return res.json({
       ok: true,
       reply,
       routedTo: { id: agentId, name: agent.name, color: agent.color, tagline: agent.tagline },
@@ -94,7 +94,7 @@ Platform: 3C ONYX by CUXTOMCANDYCLUB LLC | Founder: Ronald Antonio Cadet | Gover
     });
   } catch (err) {
     logMeshAction("concierge", "Chat error", String(err), "pending");
-    res.json({
+    return res.json({
       ok: true,
       reply: `${agent.name} is standing by. I've logged your request and will process it now. ONYX acts; you confirm.`,
       routedTo: { id: agentId, name: agent.name, color: agent.color, tagline: agent.tagline },

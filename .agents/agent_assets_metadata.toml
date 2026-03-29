@@ -30,3 +30,9 @@ id = "R-uKn6rVm4Fb6Pw8w0QUA"
 uri = "file://3C_ONYX_VC_Outreach_10_Firms.pdf"
 type = "pdf"
 title = "3C ONYX | VC Outreach Brief — 10 Firms"
+
+[[outputs]]
+id = "NBw-5sB_RUZS5LL7e97F7"
+uri = "file://3C_ONYX_Platform_Overview.pdf"
+type = "pdf"
+title = "3C ONYX Platform Overview — The GOD-Tier Build"
