@@ -16,6 +16,7 @@ import { pruneExpiredBlacklistEntries } from "./lib/tokenBlacklist";
 import { isOwnedOrigin } from "./lib/domainConfig";
 import { sovereigntyMiddleware } from "./middlewares/sovereignty";
 import { logSovereigntyDeclaration } from "./lib/honeyToken";
+import { ipGuard } from "./middlewares/ipGuard";
 
 // ── Sovereignty Declaration — logged at every boot ────────────────────────────
 logSovereigntyDeclaration();
@@ -118,6 +119,11 @@ app.use(pinoHttp({
 // ── Scanner / reconnaissance detector ─────────────────────────────────────────
 // Blocks any IP that probes 10+ distinct 404 paths in 60 seconds
 app.use(scannerDetector);
+
+// ── IP Guard — Autonomous threat detection + auto-ban ─────────────────────────
+// Tracks failed auths, scanner probes, rate limit hits per IP
+// Progressive penalties: temp ban → permanent ban — no human needed
+app.use(ipGuard);
 
 // ── Stripe Webhooks — MUST be before body parsers (needs raw body) ────────────
 app.use("/api/webhooks/stripe", (req: Request, res: Response, next: NextFunction) => {

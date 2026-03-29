@@ -75,6 +75,8 @@ import complianceRouter from "./compliance";
 import kycRouter from "./kyc";
 import ipAnchorRouter from "./ip-anchor";
 import sourceRouter from "./source";
+import sovereigntyApiRouter from "./sovereignty-api";
+import covenantRouter from "./covenant";
 
 const router: IRouter = Router();
 
@@ -171,5 +173,7 @@ router.use(kycRouter);
 router.use(ipAnchorRouter);
 router.use("/whatsapp", whatsappRouter);
 router.use("/source", sourceRouter);
+router.use("/sovereignty", sovereigntyApiRouter);
+router.use("/covenant", covenantRouter);
 
 export default router;
