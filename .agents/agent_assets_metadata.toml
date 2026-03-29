@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "mFTjO0a2Tojm93Ww9XA6s"
+uri = "file://3C_ONYX_VC_Brief.pdf"
+type = "pdf"
+title = "3C ONYX — 1 Billion Member Game Plan (VC Brief)"
