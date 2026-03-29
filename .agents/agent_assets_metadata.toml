@@ -6,3 +6,9 @@ id = "mFTjO0a2Tojm93Ww9XA6s"
 uri = "file://3C_ONYX_VC_Brief.pdf"
 type = "pdf"
 title = "3C ONYX — 1 Billion Member Game Plan (VC Brief)"
+
+[[outputs]]
+id = "62tjLIaFVdVJbonWhbuaU"
+uri = "file://3C_ONYX_Sovereign_Declaration.pdf"
+type = "pdf"
+title = "3C ONYX — Sovereign Ownership Declaration (Print-Ready)"
