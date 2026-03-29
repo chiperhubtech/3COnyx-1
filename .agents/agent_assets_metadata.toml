@@ -12,3 +12,9 @@ id = "62tjLIaFVdVJbonWhbuaU"
 uri = "file://3C_ONYX_Sovereign_Declaration.pdf"
 type = "pdf"
 title = "3C ONYX — Sovereign Ownership Declaration (Print-Ready)"
+
+[[outputs]]
+id = "V5xJMKym0l1EmW5yk1kpp"
+uri = "file://3C_ONYX_Bank_Funding_Request.pdf"
+type = "pdf"
+title = "Citizens Bank Funding Request — CUXTOMCANDYCLUB LLC"
