@@ -74,6 +74,7 @@ import bayRouter from "./bay";
 import complianceRouter from "./compliance";
 import kycRouter from "./kyc";
 import ipAnchorRouter from "./ip-anchor";
+import sourceRouter from "./source";
 
 const router: IRouter = Router();
 
@@ -169,5 +170,6 @@ router.use(complianceRouter);
 router.use(kycRouter);
 router.use(ipAnchorRouter);
 router.use("/whatsapp", whatsappRouter);
+router.use("/source", sourceRouter);
 
 export default router;
