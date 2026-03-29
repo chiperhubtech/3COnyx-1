@@ -13,7 +13,7 @@ import {
   Cpu, Package, Lock, Radio, Users, Sparkles, Heart, Wrench,
   Link2, X, Glasses, Brain, Layers, Activity, Flag, Target, DollarSign,
   Building2, ShieldAlert, Infinity, MessagesSquare, Crown, Scale, FileText, Gavel,
-  CheckCircle2, TrendingUp, BookOpen,
+  CheckCircle2, TrendingUp, BookOpen, Network,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { NotificationBell } from "./NotificationBell";
@@ -166,6 +166,7 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
     { label: "Platform Intelligence",     path: "/platform-intelligence", icon: Brain,           description: "ONYX Neural Engine · AI insights · Live telemetry", accent: "#7C3AED" },
     { label: "Strategic Command Center",  path: "/strategic-center",      icon: Target,          description: "132M Members · $30B · Year 1–5 Revenue Model",      accent: "#C9A227" },
     { label: "Wisdom Engine",             path: "/wisdom-engine",         icon: BookOpen,        description: "15-Book Canon · LeanSpark Validation · AI Strategy", accent: "#8B5CF6" },
+    { label: "Agent Mesh",               path: "/agent-mesh",            icon: Network,         description: "12 AI agents · fully connected · ONYX acts, you confirm", accent: "#C9A227" },
     { label: "My Earnings",               path: "/worker-dashboard",     icon: DollarSign,      description: "Runners · Techs · Clerks — earnings, tier, opportunities", accent: "#10B981" },
     { label: t("sidebar.specialistDash"), path: "/specialist-dashboard", icon: LayoutDashboard, description: t("sidebar.specialistDashDesc"), accent: "#4FC3F7" },
     { label: t("sidebar.inspection"),     path: "/inspection",           icon: ClipboardCheck,  description: t("sidebar.inspectionDesc"),     accent: "#34D399" },

@@ -76,6 +76,7 @@ import SDVPage from "@/pages/sdv";
 import FounderDeclaration from "@/pages/founder-declaration";
 import CreatorOutreachHub from "@/pages/creator-outreach";
 import WisdomEngine from "@/pages/wisdom-engine";
+import AgentMesh from "@/pages/agent-mesh";
 
 // Auth + launch pages
 import LoginPage    from "@/pages/login";
@@ -217,6 +218,7 @@ function AppRoutes() {
             <Route path="/agentic-os"           component={AgenticOS} />
             <Route path="/onyx-brain"           component={ONYXBrain} />
             <Route path="/wisdom-engine"        component={WisdomEngine} />
+            <Route path="/agent-mesh"           component={AgentMesh} />
             <Route path="/impact"               component={Impact} />
             <Route path="/pro"                  component={Pro} />
             <Route path="/custody"              component={Custody} />
