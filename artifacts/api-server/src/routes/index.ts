@@ -84,6 +84,7 @@ import oracleRouter from "./oracle";
 import dealerRouter from "./dealers";
 import inspectionRouter from "./inspection";
 import runnerLocationRouter from "./runners";
+import { companyRouter } from "./company";
 
 const router: IRouter = Router();
 
@@ -189,5 +190,6 @@ router.use(oracleRouter);
 router.use("/dealers",    dealerRouter);
 router.use("/inspection", inspectionRouter);
 router.use("/runners",    runnerLocationRouter);
+router.use("/company",    companyRouter);
 
 export default router;
