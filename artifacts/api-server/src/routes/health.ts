@@ -14,6 +14,7 @@ import { sql } from "drizzle-orm";
 import { db } from "@workspace/db";
 import * as wsHub from "../lib/wsHub";
 import { blockedIpCount } from "../middlewares/scannerDetector";
+import { allCircuitStatuses } from "../lib/circuitBreaker";
 import os from "os";
 
 const router: IRouter = Router();
@@ -82,6 +83,9 @@ router.get("/healthz", async (_req, res) => {
     secretsValidated:  "startup",
   };
 
+  const circuitBreakers = allCircuitStatuses();
+  const openCircuits = circuitBreakers.filter((c) => c.state !== "CLOSED");
+
   res.status(degraded ? 503 : 200).json({
     status:      degraded ? "degraded" : "healthy",
     version:     PLATFORM_VERSION,
@@ -89,6 +93,11 @@ router.get("/healthz", async (_req, res) => {
     uptimeSec,
     services,
     security:    securityPosture,
+    circuitBreakers: {
+      all:    circuitBreakers,
+      open:   openCircuits.length,
+      status: openCircuits.length === 0 ? "all_closed" : `${openCircuits.length}_open`,
+    },
     metrics,
     ts: new Date().toISOString(),
   });

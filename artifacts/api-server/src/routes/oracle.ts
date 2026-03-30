@@ -22,7 +22,8 @@ router.post("/oracle/upload", async (req: Request, res: Response) => {
   };
 
   if (!objectName?.trim()) {
-    return res.status(400).json({ error: "objectName required" });
+    res.status(400).json({ error: "objectName required" });
+    return;
   }
 
   const result = await uploadToOracle(

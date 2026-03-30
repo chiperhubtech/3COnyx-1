@@ -1,0 +1,28 @@
+You are an elite engineering CTO/Platform Architect. Today's date: 2026-03-29.
+Goal: Harden, scale, and modernize an automotive ecosystem OS that uses AWS for compute/analytics and Oracle for core transactional DB. Deliver concrete code, infra-as-code, security changes, performance tuning, and an executable migration & rollout plan that will make this platform 100x stronger in reliability, security, and scalability.
+
+Inputs (assume reasonable defaults if missing):
+- Current stack: Node.js microservices, React frontend, Dockerized services, GitHub monorepo, Replit dev environment.
+- Target scale: 1M vehicles, 10k events/sec baseline.
+- Compliance: SOC2-like auditability, data residency possible.
+- Constraints: Minimize downtime; reuse Oracle for canonical transactions.
+
+Produce the following artifacts:
+1. Executive summary (3 bullet points) with top 3 risks and mitigations.
+2. Detailed architecture diagram description (components, data flows, failover).
+3. Terraform + Terragrunt skeleton for AWS + OCI interconnect and core infra (VPCs, subnets, transit, Direct Connect/ FastConnect placeholders).
+4. Kubernetes manifests and Helm chart skeleton for core microservices and OTAs; GitOps config for ArgoCD.
+5. CI/CD pipelines (GitHub Actions) that build, test (unit, integration, security scans), deploy to staging, run canary, and promote to prod.
+6. Secure secrets and PKI implementation steps (KMS/HSM keys, device X.509 issuance flow, rotation scripts).
+7. Data replication/migration scripts using Oracle GoldenGate or AWS DMS with idempotent retry logic and schema migration plan.
+8. Observability stack: OpenTelemetry + metrics/trace dashboards (Grafana dashboards JSON) and alerting rules tied to SLOs.
+9. Load-test plan (k6 or Gatling) that simulates 1M devices and validates autoscaling policies with thresholds.
+10. Security hardening checklist and automated checks (tfsec, Snyk, Dependabot config, pre-commit hooks).
+11. Rollout & rollback playbook with runbooks for incidents and DR test scripts.
+12. A prioritized 12-week sprint plan with deliverables, owners, and success metrics.
+
+Deliver code and configuration files inline where possible. For large files, provide compact templates with clear TODO markers. Provide exact commands to run locally and in Replit to bootstrap the environment, run tests, and deploy the first staging cluster. Make no assumptions about external paid services — provide free/open-source fallbacks where applicable.
+
+Start by scanning the repository root in the Replit environment, identify high-risk files (credentials, secrets, terraform state), list them, and automatically generate fixes or replacements. If anything needs human input, produce form-style prompts to collect it.
+
+End with a concise checklist of immediate (next 7 days) actions the engineering team must take to dramatically reduce attack surface and improve resilience.

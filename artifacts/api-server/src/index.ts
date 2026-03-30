@@ -13,9 +13,7 @@ runStartupSecurityChecks();
 const rawPort = process.env["PORT"];
 
 if (!rawPort) {
-  throw new Error(
-    "PORT environment variable is required but was not provided.",
-  );
+  throw new Error("PORT environment variable is required but was not provided.");
 }
 
 const port = Number(rawPort);
@@ -38,5 +36,56 @@ server.listen(port, () => {
 
 server.on("error", (err) => {
   logger.error({ err }, "Server error");
+  process.exit(1);
+});
+
+// ── Graceful Shutdown — SIGTERM / SIGINT with connection draining ─────────────
+// Inspired by the 12-factor app standard and AWS ECS task shutdown behavior.
+// - On SIGTERM (container stop / deployment): stop accepting new connections,
+//   drain in-flight requests for up to 15 s, then exit cleanly.
+// - On SIGINT (Ctrl+C in dev): same flow, faster.
+// - On unhandledRejection / uncaughtException: log + exit(1) so the process
+//   supervisor (ECS, K8s, Replit) immediately restarts rather than running
+//   in a zombie state.
+
+const DRAIN_TIMEOUT_MS = 15_000;
+let isShuttingDown = false;
+
+function gracefulShutdown(signal: string): void {
+  if (isShuttingDown) return;
+  isShuttingDown = true;
+
+  logger.info({ signal }, "Shutdown signal received — draining connections");
+
+  // Stop accepting new HTTP connections
+  server.close((err) => {
+    if (err) {
+      logger.error({ err }, "Error during server.close()");
+      process.exit(1);
+    }
+    logger.info("All connections drained — exiting cleanly");
+    process.exit(0);
+  });
+
+  // Force-kill if drain takes too long (stuck websockets, long-running requests)
+  setTimeout(() => {
+    logger.warn({ drainTimeoutMs: DRAIN_TIMEOUT_MS }, "Drain timeout exceeded — force exit");
+    process.exit(1);
+  }, DRAIN_TIMEOUT_MS).unref();
+}
+
+process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+process.on("SIGINT",  () => gracefulShutdown("SIGINT"));
+
+// ── Unhandled rejections / exceptions — log and crash fast ───────────────────
+// A zombie process serving requests with corrupted state is far more dangerous
+// than a restart. Fail fast; let the supervisor recover.
+process.on("unhandledRejection", (reason) => {
+  logger.error({ reason }, "UNHANDLED_REJECTION — crashing to avoid corrupt state");
+  process.exit(1);
+});
+
+process.on("uncaughtException", (err) => {
+  logger.error({ err }, "UNCAUGHT_EXCEPTION — crashing to avoid corrupt state");
   process.exit(1);
 });

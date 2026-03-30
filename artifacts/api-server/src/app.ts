@@ -17,6 +17,7 @@ import { isOwnedOrigin } from "./lib/domainConfig";
 import { sovereigntyMiddleware } from "./middlewares/sovereignty";
 import { logSovereigntyDeclaration } from "./lib/honeyToken";
 import { ipGuard } from "./middlewares/ipGuard";
+import { tracing } from "./middlewares/tracing";
 
 // ── Sovereignty Declaration — logged at every boot ────────────────────────────
 logSovereigntyDeclaration();
@@ -73,6 +74,11 @@ app.use((_req: Request, res: Response, next: NextFunction) => {
   );
   next();
 });
+
+// ── Distributed Tracing — W3C traceparent on every request ───────────────────
+// Propagates trace IDs from AWS ALB / Cloudflare / API Gateway.
+// Every log line, every response carries the same trace ID for correlation.
+app.use(tracing);
 
 // ── Sovereignty — stamp every response with owner fingerprint ─────────────────
 app.use(sovereigntyMiddleware);

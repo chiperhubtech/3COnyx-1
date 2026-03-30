@@ -1,0 +1,89 @@
+name: 3C ONYX — Weekly Security Audit
+
+on:
+  schedule:
+    # Every Monday at 6 AM ET
+    - cron: "0 11 * * 1"
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: "22"
+  PNPM_VERSION: "10"
+
+jobs:
+  dependency-audit:
+    name: Dependency Vulnerability Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Full workspace audit
+        run: pnpm audit --audit-level=moderate
+
+      - name: Check for critical CVEs in API server
+        run: |
+          cd artifacts/api-server
+          pnpm audit --audit-level=critical --json > audit-report.json || true
+          cat audit-report.json | head -100
+
+      - name: Upload audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-audit-${{ github.run_number }}
+          path: artifacts/api-server/audit-report.json
+          retention-days: 30
+
+  secret-scan:
+    name: Secret & Credential Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Scan full git history for secrets
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  sbom-generation:
+    name: Software Bill of Materials (SBOM)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate SBOM
+        run: |
+          npx --yes @cyclonedx/cyclonedx-npm --output-file sbom.json || echo "SBOM generation skipped"
+
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sbom-${{ github.run_number }}
+          path: sbom.json
+          retention-days: 90
