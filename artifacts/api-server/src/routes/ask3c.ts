@@ -66,6 +66,7 @@ const router = Router();
 
 type Intent =
   | "warranty"
+  | "broker"
   | "funding"
   | "referral"
   | "vehicle"
@@ -108,8 +109,13 @@ function classifyIntent(query: string): ClassifiedIntent {
     return { intent: "warranty", confidence: "high", extractedVin, extractedBundleId, extractedRefId, extractedNodeKey, extractedQuery, routedTo: "Guardian Agent → Warranty Engine" };
   }
 
+  // Broker AI / Deal Structure signals — BEFORE generic funding (more specific)
+  if (/deal.*struct|structure.*deal|invoice.*price|holdback|incentive|lease.*vs|finance.*vs|cash.*vs|how much.*month|monthly.*payment|broker.*desk|deal.*calc|msrp.*sell|below.*invoice/.test(q)) {
+    return { intent: "broker", confidence: "high", extractedVin, extractedBundleId, extractedRefId, extractedNodeKey, extractedQuery, routedTo: "Broker AI Deal Desk → POST /api/lifecycle/deal/structure" };
+  }
+
   // Funding / F&I signals
-  if (/fund|cit|contract.in.transit|bundle|document.vault|stellantis.*pay|lender|deal.*close|bank.*rep|finance.*deal|f&i|f and i/.test(q)) {
+  if (/fund|cit|contract.in.transit|bundle|document.vault|stellantis.*pay|lender|deal.*close|bank.*rep|finance.*deal|f&i|f and i|bank.ready|validate.*bundle|bundle.*valid/.test(q)) {
     return { intent: "funding", confidence: "high", extractedVin, extractedBundleId, extractedRefId, extractedNodeKey, extractedQuery, routedTo: "F&I Agent → Document Vault" };
   }
 
@@ -488,6 +494,20 @@ router.post("/", async (req: Request, res: Response) => {
         break;
       case "logistics":
         result = executeLogistics(classified);
+        break;
+      case "broker":
+        result = {
+          answer: `Broker AI Deal Desk is live. Send POST /api/lifecycle/deal/structure with { vin, msrp, sellingPrice, tradeInValue, downPayment, creditTier, financeTerm, leaseTerm } to get a full Invoice/Holdback/Incentive breakdown plus Cash, Finance, and Lease comparisons in a single response.`,
+          actionRequired: "POST /api/lifecycle/deal/structure",
+          data: {
+            requiredFields: ["vin", "msrp", "sellingPrice"],
+            optionalFields: ["tradeInValue", "downPayment", "oemIncentives", "creditTier", "financeTerm", "leaseTerm", "lenderName", "buyerName"],
+            creditTiers: ["Tier1 (720+ FICO)", "Tier2 (680–719)", "Tier3 (640–679)", "Tier4 (580–639)"],
+            financeTerms: [60, 72],
+            leaseTerms: [24, 36, 39, 48],
+            fiBundle: "Simoniz PPF ($499) + Sonsio T&W ($299) + Powertrain Warranty ($1,295) auto-included",
+          },
+        };
         break;
       case "monetization":
         result = await executeMonetization();

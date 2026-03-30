@@ -13,10 +13,14 @@
  *   GET  /api/lifecycle/referral/:id         Get single referral
  *
  * SYSTEM 2 — Warranty & Document Vault       (Guardian + Finance Agents)
- *   GET  /api/lifecycle/warranty/:vin        Instant warranty status (all contracts)
- *   POST /api/lifecycle/vault/bundle         Create bank-ready document bundle
- *   POST /api/lifecycle/vault/:bundleId/seal Seal + hash bundle for lender submission
- *   GET  /api/lifecycle/vault/:bundleId      Get bundle status
+ *   GET  /api/lifecycle/warranty/:vin            Instant warranty status (all contracts)
+ *   POST /api/lifecycle/vault/bundle             Create bank-ready document bundle (Buyer's Order + Warranty + Simoniz + Sonsio)
+ *   POST /api/lifecycle/vault/:bundleId/seal     Seal + SHA-256 hash bundle for lender submission
+ *   POST /api/lifecycle/vault/:bundleId/validate Bank-ready 4-contract audit (Stellantis Paperwork-Killer)
+ *   GET  /api/lifecycle/vault/:bundleId          Get bundle status
+ *
+ * SYSTEM 4 — Broker AI Deal Desk              (Autonomous Clearinghouse — TS-06)
+ *   POST /api/lifecycle/deal/structure           Invoice/Holdback/Incentive + Cash/Finance/Lease comparison
  *
  * SYSTEM 3 — Service Node Vendor Portal      (Logistics Agent)
  *   POST /api/lifecycle/nodes/register       Register a service node
@@ -38,6 +42,7 @@ import {
 } from "@workspace/db";
 import { getUncachableStripeClient } from "../lib/stripeClient";
 import { eventBus } from "../lib/eventBus";
+import { structureDeal, type DealInputs } from "../lib/brokerDesk";
 
 const router = Router();
 
@@ -471,11 +476,12 @@ router.post("/vault/bundle", async (req: Request, res: Response) => {
 
   const bundleId = uid("BVT");
 
-  // Default document package (Simoniz + Sonsio + Finance contract)
+  // Default 4-contract Stellantis Standard bundle (Buyer's Order + Warranty + Simoniz + Sonsio)
   const defaultDocs = [
+    { type: "BuyersOrder",      name: "Vehicle Buyer's Order",        verified: false, url: null },
+    { type: "FinanceContract",  name: "Retail Installment Agreement", verified: false, url: null },
     { type: "PaintProtection",  name: "Simoniz PPF Contract",        verified: false, url: null },
     { type: "TireWheel",        name: "Sonsio Tire & Wheel Contract", verified: false, url: null },
-    { type: "FinanceContract",  name: "Retail Installment Agreement", verified: false, url: null },
     { type: "CreditApp",        name: "Credit Application",           verified: false, url: null },
     { type: "TitleWork",        name: "Title & Registration",         verified: false, url: null },
     { type: "InsuranceProof",   name: "Proof of Insurance",           verified: false, url: null },
@@ -856,8 +862,167 @@ router.get("/nodes/:id", async (req: Request, res: Response) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SYSTEM 4 — IP MANIFEST (read-only endpoint)
+// SYSTEM 4 — Broker AI Deal Desk (Autonomous Clearinghouse)
+//   POST /api/lifecycle/deal/structure   Full deal structure: Cash/Finance/Lease
+//   POST /api/lifecycle/vault/:id/validate  Bank-ready check (4-contract audit)
 // ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * POST /api/lifecycle/deal/structure
+ *
+ * Broker AI: takes MSRP + selling price → returns Invoice/Holdback/Incentive
+ * breakdown plus three fully-structured payment options (Cash, Finance, Lease)
+ * with F&I bundle pre-loaded (Simoniz + Sonsio + Powertrain Warranty).
+ *
+ * Trade Secret TS-06 — Automated Deal Structure Engine
+ */
+router.post("/deal/structure", async (req: Request, res: Response) => {
+  const {
+    vin, vehicleLabel, msrp, sellingPrice,
+    tradeInValue, downPayment, oemIncentives,
+    creditTier, financeTerm, leaseTerm,
+    includeFiProducts, lenderName, buyerName,
+  } = req.body as Record<string, unknown>;
+
+  if (!vin || !msrp || !sellingPrice) {
+    return res.status(400).json({
+      error: "vin, msrp, and sellingPrice are required",
+      example: {
+        vin: "3FA6P0HD5JR123456",
+        vehicleLabel: "2024 BMW M2",
+        msrp: 65900,
+        sellingPrice: 63500,
+        tradeInValue: 8000,
+        downPayment: 5000,
+        creditTier: "Tier1",
+        financeTerm: 72,
+        leaseTerm: 36,
+      },
+    });
+  }
+
+  const msrpNum       = Number(msrp);
+  const sellingNum    = Number(sellingPrice);
+  const tradeNum      = tradeInValue  ? Number(tradeInValue)  : 0;
+  const downNum       = downPayment   ? Number(downPayment)   : 0;
+  const incentivesNum = oemIncentives ? Number(oemIncentives) : 1500;
+
+  if (isNaN(msrpNum) || isNaN(sellingNum) || msrpNum <= 0 || sellingNum <= 0) {
+    return res.status(400).json({ error: "msrp and sellingPrice must be positive numbers" });
+  }
+
+  const validTiers    = ["Tier1", "Tier2", "Tier3", "Tier4"] as const;
+  const validFinTerms = [60, 72] as const;
+  const validLeTerms  = [24, 36, 39, 48] as const;
+
+  const tier      = validTiers.includes(creditTier as typeof validTiers[number])    ? creditTier as typeof validTiers[number]    : "Tier2";
+  const finTerm   = validFinTerms.includes(Number(financeTerm) as typeof validFinTerms[number]) ? Number(financeTerm) as typeof validFinTerms[number] : 72;
+  const leTerm    = validLeTerms.includes(Number(leaseTerm) as typeof validLeTerms[number])    ? Number(leaseTerm) as typeof validLeTerms[number]    : 36;
+
+  const inputs: DealInputs = {
+    vin:              String(vin).toUpperCase().trim(),
+    vehicleLabel:     vehicleLabel ? String(vehicleLabel) : "Vehicle",
+    msrp:             msrpNum,
+    sellingPrice:     sellingNum,
+    tradeInValue:     tradeNum,
+    downPayment:      downNum,
+    oemIncentives:    incentivesNum,
+    creditTier:       tier,
+    financeTerm:      finTerm,
+    leaseTerm:        leTerm,
+    includeFiProducts: includeFiProducts !== false,
+    lenderName:       lenderName  ? String(lenderName)  : "Stellantis Financial",
+    buyerName:        buyerName   ? String(buyerName)   : undefined,
+  };
+
+  const deal = structureDeal(inputs);
+
+  // Emit deal.structured event through EventBridge bus
+  await eventBus.emit("deal.structured", {
+    dealId:       deal.dealId,
+    vin:          deal.vin,
+    sellingPrice: sellingNum,
+    bestOption:   deal.recommendation.bestOption,
+    isBelowInvoice: deal.pricing.isBelowInvoice,
+  }).catch(() => { /* non-blocking */ });
+
+  return res.status(200).json({
+    success: true,
+    ...deal,
+  });
+});
+
+/**
+ * POST /api/lifecycle/vault/:bundleId/validate
+ *
+ * Stellantis Paperwork-Killer: audits a vault bundle for all 4 required
+ * contracts. Returns bankReady: true only when Car + Warranty + Simoniz + Sonsio
+ * are all present and verified. Eliminates the manual "bullshit paperwork" bottleneck.
+ */
+router.post("/vault/:bundleId/validate", async (req: Request, res: Response) => {
+  const bundleId = req.params["bundleId"] as string;
+
+  const existing = await db
+    .select()
+    .from(documentVaultTable)
+    .where(eq(documentVaultTable.bundleId, bundleId))
+    .limit(1)
+    .then(r => r[0] ?? null);
+
+  if (!existing) {
+    return res.status(404).json({ error: "Bundle not found", bundleId });
+  }
+
+  // Required 4-contract checklist (The Stellantis Standard)
+  const REQUIRED_CONTRACTS = [
+    { contractType: "BuyersOrder",      label: "Vehicle Buyer's Order",          required: true },
+    { contractType: "FinanceContract",  label: "Retail Installment Agreement",   required: true },
+    { contractType: "PaintProtection",  label: "Simoniz PPF Contract",           required: true },
+    { contractType: "TireWheel",        label: "Sonsio Tire & Wheel Contract",   required: true },
+  ];
+
+  const docs = Array.isArray(existing.documents) ? existing.documents as Array<{ type: string; verified?: boolean }> : [];
+
+  const audit = REQUIRED_CONTRACTS.map(req => {
+    const found = docs.find(d => d.type === req.contractType);
+    return {
+      contractType: req.contractType,
+      label:        req.label,
+      present:      !!found,
+      verified:     found?.verified ?? false,
+      required:     req.required,
+    };
+  });
+
+  const missingDocs  = audit.filter(a => a.required && !a.present).map(a => a.label);
+  const unverified   = audit.filter(a => a.present && !a.verified).map(a => a.label);
+  const bankReady    = missingDocs.length === 0 && existing.status === "Sealed";
+  const fundingReady = bankReady && unverified.length === 0;
+
+  return res.json({
+    bundleId,
+    bundleStatus:  existing.status,
+    isSealed:      existing.status === "Sealed",
+    bankReady,
+    fundingReady,
+    contractAudit: audit,
+    missingDocs,
+    unverifiedDocs: unverified,
+    verdict: fundingReady
+      ? "BANK-READY — All 4 contracts present, verified, and cryptographically sealed. Submit to lender immediately."
+      : bankReady
+      ? `SEALED BUT UNVERIFIED — ${unverified.length} contract(s) need verification before funding.`
+      : missingDocs.length > 0
+      ? `INCOMPLETE — Missing: ${missingDocs.join(", ")}. Bundle cannot be submitted to lender.`
+      : "UNSEALED — Bundle is assembled but has not been cryptographically sealed. Call POST /api/lifecycle/vault/:bundleId/seal.",
+    nextStep: fundingReady
+      ? "Submit bundle hash to lender via bank portal. Call GET /api/rep/:repKey/bundle/:bundleId"
+      : missingDocs.length > 0
+      ? "Collect missing documents, then re-validate."
+      : "Call POST /api/lifecycle/vault/:bundleId/seal to generate cryptographic hash.",
+    architect: "Ronald Antonio Cadet — CUXTOMCANDYCLUB LLC",
+  });
+});
 
 /**
  * GET /api/lifecycle/ip-manifest

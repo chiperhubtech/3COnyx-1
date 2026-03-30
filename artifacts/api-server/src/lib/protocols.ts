@@ -129,6 +129,7 @@ export const UACL_AGENT_MAP: Record<string, { agent: string; action: string }> =
   timeline:     { agent: "Vault Agent",              action: "Unified Timeline → Everything logged" },
   ecosystem:    { agent: "Union Layer",              action: "Ecosystem Map → Automotive Union mesh" },
   logistics:    { agent: "Transporter Agent",         action: "Interstate Fulfillment Engine → Cross-Border Asset Routing (PAT-08)" },
+  broker:       { agent: "Broker AI Deal Desk",       action: "Invoice/Holdback/Incentive + Lease/Finance/Cash comparison (TS-06)" },
   monetization: { agent: "Stripe Agent",             action: "Monetization Dashboard → Dynasty Tech Fee" },
   unknown:      { agent: "LLM Router",               action: "Bedrock Claude 3.5 Sonnet → General response" },
 };

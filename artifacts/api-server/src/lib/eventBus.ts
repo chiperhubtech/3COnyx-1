@@ -42,7 +42,8 @@ export type OnyxEventType =
   | "referral.settled"
   | "vault.bundle.sealed"
   | "node.registered"
-  | "node.appointment.scheduled";
+  | "node.appointment.scheduled"
+  | "deal.structured";
 
 export interface OnyxEvent<T = Record<string, unknown>> {
   type:      OnyxEventType;
