@@ -56,6 +56,7 @@ import {
 import { route as routeToAI } from "../lib/ai-router";
 import { eventBus } from "../lib/eventBus";
 import { buildProtocolTrace, UACL_AGENT_MAP, SOVEREIGN_IDENTITY } from "../lib/protocols";
+import { generateShipmentQuote } from "../lib/transporterAgent";
 
 const router = Router();
 
@@ -70,6 +71,7 @@ type Intent =
   | "vehicle"
   | "search"
   | "service"
+  | "logistics"
   | "node"
   | "timeline"
   | "ecosystem"
@@ -121,13 +123,18 @@ function classifyIntent(query: string): ClassifiedIntent {
     return { intent: "vehicle", confidence: extractedVin ? "high" : "medium", extractedVin, extractedBundleId, extractedRefId, extractedNodeKey, extractedQuery, routedTo: "Title/Compliance Agent → NVIS + Chain of Custody" };
   }
 
+  // Logistics / transport / out-of-state signals — MUST be before search (bmw/tesla also appear in search)
+  if (/transport|ship\b|deliver|logistics|out.of.state|interstate|carrier|quote.*transport|move.*car|cross.*state|long.distance|final.mile|how.far|how.much.*ship|miles.to/.test(q)) {
+    return { intent: "logistics", confidence: "high", extractedVin, extractedBundleId, extractedRefId, extractedNodeKey, extractedQuery, routedTo: "Transporter Agent → Interstate Fulfillment Engine" };
+  }
+
   // Search / inventory signals
   if (/find|search|inventory|price|market|wholesale|below.market|best.deal|ram|f-150|silverado|tesla|bmw|mercedes/.test(q)) {
     return { intent: "search", confidence: "high", extractedVin, extractedBundleId, extractedRefId, extractedNodeKey, extractedQuery, routedTo: "MarketCheck Agent → Inventory Search" };
   }
 
-  // Service / logistics signals
-  if (/service|schedule|dispatch|runner|mechanic|glass|rim|detail|tint|nearest|closest|miles.away|appointment/.test(q)) {
+  // Service / local signals
+  if (/service|schedule|dispatch|runner|mechanic|glass|rim|detail|tint|nearest|closest|appointment/.test(q)) {
     return { intent: "service", confidence: "high", extractedVin, extractedBundleId, extractedRefId, extractedNodeKey, extractedQuery, routedTo: "Service/Parts Agent → Parts Engine → Proximity Routing" };
   }
 
@@ -398,6 +405,53 @@ async function executeMonetization() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// LOGISTICS EXECUTOR — Transporter Agent
+// ─────────────────────────────────────────────────────────────────────────────
+
+const ZIP_REGEX = /\b(\d{5})\b/g;
+const ORIGIN_ZIP_DEFAULT = "02888"; // Warwick RI — 3C base territory
+
+function executeLogistics(classified: ClassifiedIntent) {
+  const vin     = classified.extractedVin;
+  const matches = [...(classified.extractedQuery?.matchAll(ZIP_REGEX) ?? [])].map(m => m[1]!);
+  const originZip = matches[0] ?? ORIGIN_ZIP_DEFAULT;
+  const destZip   = matches[1] ?? matches[0];
+
+  if (!destZip || (matches.length < 2 && !matches[0])) {
+    return {
+      answer: "To get a logistics quote, provide the destination ZIP code. Example: 'Transport VIN 1HGBH41JXMN109186 to ZIP 55014 (Minnesota)' or 'How much to ship the BMW M2 to Minnesota?' with a ZIP code.",
+      actionRequired: "Destination ZIP required — POST /api/transport/quote with { vin, originZip, destZip }",
+      data: null,
+    };
+  }
+
+  const quote = generateShipmentQuote({
+    vin:           vin ?? "VIN-PENDING",
+    vehicleLabel:  classified.extractedQuery?.match(/bmw|m2|ram|ford|chevy|honda|toyota|audi|mercedes|tesla/i)?.[0] ?? undefined,
+    originZip,
+    destZip,
+  });
+
+  return {
+    answer: `Transporter Agent quote ready: ${quote.distanceMiles.toLocaleString()} miles from ${quote.origin.city}, ${quote.origin.stateCode} → ${quote.destination.city}, ${quote.destination.stateCode}. ` +
+      `Provider: ${quote.provider.name} (${quote.provider.type}) — ${quote.estimatedDays} days. ` +
+      `Transport cost: $${quote.quotedCostUsd.toLocaleString("en-US", { minimumFractionDigits: 0 })} + $${quote.dynastyLogisticsFee} Dynasty Logistics Fee. ` +
+      `${quote.compliance.notes}`,
+    actionRequired: `CONFIRM SHIPMENT → POST /api/transport/quote with { vin, originZip: "${originZip}", destZip: "${destZip}" }`,
+    data: {
+      quote,
+      fundNow: {
+        endpoint:    "/api/transport/quote",
+        method:      "POST",
+        body:        { vin: vin ?? "VIN-PENDING", originZip, destZip },
+        instruction: "Submit to lock in the carrier and start the logistics timeline.",
+        eliminates:  "3–5 phone calls to transport companies, manual compliance research, title paperwork guesswork",
+      },
+    },
+  };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // POST /api/ask — The Command Entry Point
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -431,6 +485,9 @@ router.post("/", async (req: Request, res: Response) => {
         break;
       case "vehicle":
         result = await executeVehicle(classified);
+        break;
+      case "logistics":
+        result = executeLogistics(classified);
         break;
       case "monetization":
         result = await executeMonetization();

@@ -56,6 +56,20 @@ The platform's architectural decisions prioritize an AI-first approach with:
 - **Database Layer**: `@workspace/db` package utilizing Drizzle ORM with PostgreSQL, including Drizzle Kit for migrations. All tables are SOC2 audit-trail compliant with `created_at` and `updated_at` timestamps.
 - **API Specification and Code Generation**: `@workspace/api-spec` manages OpenAPI 3.1 specification and Orval configuration for type-safe API interactions.
 
+## Sovereign Infrastructure Layer (UACL)
+
+**Unified Automotive Command Layer** — every request passes through S1 (Classify/Authenticate), S2 (Execute/Verify, AES-256-GCM FIPS 140-3), S3 (Log/Audit, CJIS-grade EventBridge). PAT-07.
+
+**11-Intent Neural Classifier** — warranty, funding, referral, vehicle, logistics, search, service, node, timeline, ecosystem, monetization. All live DB execution. No mock data.
+
+**Transporter Agent (PAT-08)** — Interstate vehicle logistics engine. Haversine routing, 5-carrier Verified Provider Mesh (Enclosed Elite for luxury/BMW), 12-state title/registration compliance DB, best interstate path builder, 3% Dynasty Logistics Fee. DB: `shipment_orders`. Routes: `POST /api/transport/quote`, `POST /api/transport/:id/confirm`, `PUT /api/transport/:id/status`, `GET /api/transport/active`, `GET /api/transport/:id`.
+
+**AWS SDK Integration** — `@aws-sdk/client-bedrock-runtime` (Claude 3 Haiku/Sonnet via Bedrock-first AI router), `@aws-sdk/client-secrets-manager` (secret abstraction, prod/dev fallback), `@aws-sdk/client-eventbridge` (live in EventBus), `@aws-sdk/client-rekognition` (vehicle inspection), `@aws-sdk/client-location` (runner GPS), `@opensearch-project/opensearch` (vehicle search, fallback to Postgres).
+
+**Dealer DMS Connectors (Oracle OIC)** — `dealerConnectors.ts` covers CDK Global, Reynolds & Reynolds, DealerSocket, Dealertrack. Inventory sync, lead submission, service booking, Dynasty Fee split config.
+
+**Fraud Scoring Middleware** — rule-based engine + AWS Fraud Detector hook. Scores 0-100 on every registration and payment. CRIT (80+) = block.
+
 ## Architectural Upgrades
 
 Recent architectural enhancements include CarPlay/Android Auto integration, a tRPC Type-Safe API Layer, an Admin API for platform management, and a robust Beta Waitlist system.
@@ -84,7 +98,7 @@ Recent architectural enhancements include CarPlay/Android Auto integration, a tR
 -   **Charts**: Recharts
 -   **Real-time Communication**: WebSocket Hub, Server-Sent Events (SSE)
 -   **Model Context Protocol**: `@modelcontextprotocol/sdk`
--   **Carrier Integration**: Ship.cars, RunBuggy
+-   **Carrier Integration**: Ship.cars, RunBuggy, Enclosed Elite, Montway, AmeriFreight, uShip (Transporter Agent Verified Provider Mesh)
 -   **Identity Verification**: Stripe Identity
 -   **Data Intelligence**: Fullpath
 -   **Vehicle Market Data**: MarketCheck

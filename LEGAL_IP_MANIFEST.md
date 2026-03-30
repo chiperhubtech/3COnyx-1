@@ -140,6 +140,33 @@ A method for receiving a natural language command from an automotive professiona
 
 ---
 
+### PAT-08 — CROSS-BORDER ASSET FULFILLMENT SYSTEM · INTERSTATE VEHICLE LOGISTICS ENGINE WITH STATE COMPLIANCE ROUTER *(New — March 30, 2026)*
+**Author: Ronald Antonio Cadet | System: 3C ONYX Transporter Agent (`transporterAgent.ts`)**
+
+A method for automatically orchestrating the interstate transportation of motor vehicles from point of sale to buyer delivery — including carrier selection, real-time route computation, multi-state title/registration compliance resolution, and Digital Vehicle Passport stamping — from a single natural language command or API call.
+
+**The system includes:**
+1. **Haversine Distance Engine** — Computes point-to-point distance in miles between origin and destination ZIP codes using the Haversine spherical earth formula, enabling carrier cost estimation and transit time projection
+2. **Verified Provider Mesh** — A vetted carrier registry (5 providers; extensible to N) with per-provider cost-per-mile, minimum charges, DOT license numbers, ratings, and specialty routing (luxury/enclosed carrier auto-selection for BMW, Porsche, Ferrari, and other marques)
+3. **State-Line Compliance Database** — A 12+ state compliance matrix containing title transfer deadlines, inspection requirements (safety and emissions), and state motor vehicle sales tax rates — auto-resolved by destination state from a single destination ZIP code
+4. **Interstate Route Path Builder** — Constructs the optimal interstate corridor string (e.g., "I-95 S → I-78 W → I-80 W → I-90 W → I-94 W") and enumerates all states crossed during transit for regulatory handoff documentation
+5. **Dynasty Logistics Fee Engine** — Applies a 3% platform management fee on every carrier transaction routed through the 3C Mesh, credited to the Dynasty Wallet and logged to the Referral Ledger
+6. **DVP Stamp Integration** — Upon delivery confirmation, the Transporter Agent triggers an automatic Digital Vehicle Passport update stamping ownership transfer, carrier chain of custody, and compliance attestation
+
+**Representative Claims:**
+- Claim 1: A system for receiving a vehicle VIN and destination ZIP code and automatically selecting an optimal carrier, computing transport cost, and resolving multi-state title/registration compliance requirements without any phone call or manual research
+- Claim 2: A method for applying a platform management fee to every third-party carrier transaction routed through an automotive professional network and splitting proceeds to designated dynasty wallet recipients
+- Claim 3: A vehicle logistics pipeline that, upon delivery confirmation, automatically updates a cryptographically-anchored Digital Vehicle Passport with carrier identity, transit route, state compliance attestation, and ownership transfer timestamp
+- Claim 4: A natural language interface that accepts commands such as "ship the M2 to Minnesota" and returns a complete logistics quote, state compliance brief, and carrier assignment without human dispatch
+
+**Prior Art:** No existing platform combines carrier selection, cost estimation, multi-state compliance resolution, Dynasty Fee application, and DVP stamp in a single automated pipeline initiated by a natural language command. Existing transport brokers (Montway, uShip) provide carrier matching only — none resolve state compliance, apply tech fees, or update digital vehicle records. This integration is novel.
+
+**Commercial Value:** Every vehicle sold across state lines in the 3C Mesh generates a logistics event. At 1,000 interstate vehicle transactions/month × $950 avg transport cost × 3% = ~$28,500/month Dynasty Logistics Fee. At Tier-1 scale (10,000 transactions/month): **$3.4M/year recurring logistics revenue.**
+
+**Filing Status:** Provisional — file with PAT-01, PAT-03, PAT-04, PAT-07. Budget: ~$1,500–$3,000. **Priority: HIGH — working production code. This patent protects every vehicle sold out-of-state through the 3C Union.**
+
+---
+
 ## SECTION 4 — COPYRIGHT (3 Works)
 
 | ID | Work | Type | Author | Created |

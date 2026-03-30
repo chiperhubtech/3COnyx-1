@@ -21,7 +21,7 @@
  *   Classified intent → named functional agent → live database action
  *   Agents: F&I Agent | Bird-Dog Agent | Service/Parts Agent |
  *           Title/Compliance Agent | Guardian Agent | MarketCheck Agent |
- *           Vault Agent | Stripe Agent | Union Layer
+ *           Vault Agent | Stripe Agent | Union Layer | Transporter Agent
  *   Cryptographic: AES-256-GCM (FIPS 140-3) on all sensitive fields
  *   No mock data. No placeholder responses. Live execution only.
  *
@@ -128,6 +128,7 @@ export const UACL_AGENT_MAP: Record<string, { agent: string; action: string }> =
   node:         { agent: "Node Registry",            action: "Bank/Warranty Node → Rep Portal" },
   timeline:     { agent: "Vault Agent",              action: "Unified Timeline → Everything logged" },
   ecosystem:    { agent: "Union Layer",              action: "Ecosystem Map → Automotive Union mesh" },
+  logistics:    { agent: "Transporter Agent",         action: "Interstate Fulfillment Engine → Cross-Border Asset Routing (PAT-08)" },
   monetization: { agent: "Stripe Agent",             action: "Monetization Dashboard → Dynasty Tech Fee" },
   unknown:      { agent: "LLM Router",               action: "Bedrock Claude 3.5 Sonnet → General response" },
 };
