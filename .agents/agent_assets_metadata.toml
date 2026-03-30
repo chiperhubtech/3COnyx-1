@@ -54,3 +54,9 @@ id = "4okoerjHwc6i8flitmUv4"
 uri = "file://3C_ONYX_Growth_Brief.pdf"
 type = "pdf"
 title = "3C ONYX Real Growth Plan — $2M · 10M Members · 4 Engines (Copy-Paste Ready)"
+
+[[outputs]]
+id = "XAAOfp6IJb8II4xvsn0NM"
+uri = "file://automotive-os-platform.pdf"
+type = "pdf"
+title = "3C ONYX — Automotive Ecosystem OS: AWS + Oracle (100× Stronger)"
