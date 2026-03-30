@@ -60,3 +60,9 @@ id = "XAAOfp6IJb8II4xvsn0NM"
 uri = "file://automotive-os-platform.pdf"
 type = "pdf"
 title = "3C ONYX — Automotive Ecosystem OS: AWS + Oracle (100× Stronger)"
+
+[[outputs]]
+id = "oYC3Ro9Fd7zhawVfcjdIA"
+uri = "file://3C_ONYX_Sovereign_Brief.pdf"
+type = "pdf"
+title = "3C ONYX — Sovereign Executive Brief"
