@@ -55,6 +55,7 @@ import {
 } from "@workspace/db";
 import { route as routeToAI } from "../lib/ai-router";
 import { eventBus } from "../lib/eventBus";
+import { buildProtocolTrace, UACL_AGENT_MAP, SOVEREIGN_IDENTITY } from "../lib/protocols";
 
 const router = Router();
 
@@ -112,12 +113,12 @@ function classifyIntent(query: string): ClassifiedIntent {
 
   // Referral / Bird-Dog signals
   if (/referral|bird.dog|commission|payout|jim|rims|service.advisor|who.referred|3%|tech.fee|earn|settle/.test(q)) {
-    return { intent: "referral", confidence: "high", extractedVin, extractedBundleId, extractedRefId, extractedNodeKey, extractedQuery, routedTo: "Sales Agent → Referral Ledger" };
+    return { intent: "referral", confidence: "high", extractedVin, extractedBundleId, extractedRefId, extractedNodeKey, extractedQuery, routedTo: "Bird-Dog Agent → Referral Ledger → Stripe Connect" };
   }
 
   // Vehicle / VIN lookup signals
   if (/vin|vehicle|odometer|history|title|lien|recall|accident|chain.of.custody|nmvtis|nvis/.test(q) || extractedVin) {
-    return { intent: "vehicle", confidence: extractedVin ? "high" : "medium", extractedVin, extractedBundleId, extractedRefId, extractedNodeKey, extractedQuery, routedTo: "Guardian Agent → Vehicle Intelligence" };
+    return { intent: "vehicle", confidence: extractedVin ? "high" : "medium", extractedVin, extractedBundleId, extractedRefId, extractedNodeKey, extractedQuery, routedTo: "Title/Compliance Agent → NVIS + Chain of Custody" };
   }
 
   // Search / inventory signals
@@ -127,7 +128,7 @@ function classifyIntent(query: string): ClassifiedIntent {
 
   // Service / logistics signals
   if (/service|schedule|dispatch|runner|mechanic|glass|rim|detail|tint|nearest|closest|miles.away|appointment/.test(q)) {
-    return { intent: "service", confidence: "high", extractedVin, extractedBundleId, extractedRefId, extractedNodeKey, extractedQuery, routedTo: "Mission Agent → Service Node Routing" };
+    return { intent: "service", confidence: "high", extractedVin, extractedBundleId, extractedRefId, extractedNodeKey, extractedQuery, routedTo: "Service/Parts Agent → Parts Engine → Proximity Routing" };
   }
 
   // Node / rep signals
@@ -218,14 +219,32 @@ async function executeFunding(classified: ClassifiedIntent) {
     const docs = Array.isArray(bundle.documents) ? bundle.documents as { type: string; verified: boolean }[] : [];
     const allVerified = docs.every(d => d.verified);
 
+    const isFundable = allVerified && bundle.status !== "Funded" && bundle.status !== "Voided";
     return {
       answer: `Bundle ${bundleId} — ${bundle.status}. Vehicle: ${bundle.vehicleLabel ?? bundle.vin}. ` +
+        `Deal: $${parseFloat(String(bundle.dealAmountUsd ?? 0)).toLocaleString("en-US", { minimumFractionDigits: 0 })}. ` +
         `Documents: ${docs.filter(d => d.verified).length}/${docs.length} verified. ` +
-        (bundle.status === "Funded" ? `Funded by ${bundle.fundingRep} at ${bundle.lenderName}.` : allVerified ? "All documents verified — ready to fund." : "Pending document verification."),
-      actionRequired: allVerified && bundle.status !== "Funded"
-        ? `POST /api/rep/{repKey}/bundle/${bundleId}/fund`
-        : null,
-      data: bundle,
+        (bundle.status === "Funded"
+          ? `Funded by ${bundle.fundingRep} at ${bundle.lenderName}. Dynasty Tech Fee collected.`
+          : isFundable
+            ? "BANK-READY. All documents verified. F&I Agent cleared. One button to fund."
+            : "Pending document verification — not yet bank-ready."),
+      actionRequired: isFundable
+        ? `FUND NOW → POST /api/rep/{repKey}/bundle/${bundleId}/fund`
+        : bundle.status === "Funded"
+          ? "Deal complete — view Timeline for audit trail"
+          : "Complete document verification first",
+      data: {
+        ...bundle,
+        fundNow: isFundable
+          ? {
+              endpoint:    `/api/rep/{repKey}/bundle/${bundleId}/fund`,
+              method:      "POST",
+              instruction: "Replace {repKey} with your Rep Portal key. No paperwork. No callback. One hit.",
+              eliminates:  "3–7 business day CIT delay",
+            }
+          : null,
+      },
     };
   }
 
@@ -458,6 +477,19 @@ router.post("/", async (req: Request, res: Response) => {
       serviceType:   classified.intent,
     });
 
+    const agentMapping = UACL_AGENT_MAP[classified.intent] ?? UACL_AGENT_MAP["unknown"]!;
+    const protocolTrace = buildProtocolTrace({
+      intent:     classified.intent,
+      confidence: classified.confidence,
+      agent:      agentMapping.agent,
+      action:     agentMapping.action,
+      vin:        classified.extractedVin,
+      bundleId:   classified.extractedBundleId,
+      refId:      classified.extractedRefId,
+      nodeKey:    classified.extractedNodeKey,
+      isProd:     process.env.NODE_ENV === "production",
+    });
+
     return res.json({
       query,
       intent:     classified.intent,
@@ -465,16 +497,19 @@ router.post("/", async (req: Request, res: Response) => {
       routedTo:   classified.routedTo,
       answer:     result.answer,
       action:     result.actionRequired
-        ? { message: "Next step available", endpoint: result.actionRequired }
+        ? { message: result.actionRequired.startsWith("FUND NOW") ? "FUND NOW — One-Touch" : "Next step available", endpoint: result.actionRequired }
         : null,
       data:       result.data,
+      protocols:  protocolTrace,
+      sovereign:  SOVEREIGN_IDENTITY,
       meta: {
         resolvedIn:   `${elapsedMs}ms`,
         extractedVin: classified.extractedVin,
         extractedId:  classified.extractedBundleId ?? classified.extractedRefId ?? classified.extractedNodeKey,
-        architect:    "Ronald Antonio Cadet — CUXTOMCANDYCLUB LLC",
-        platform:     "3C ONYX Unified Automotive Command Layer",
-        patent:       "PAT-07: Unified Automotive Command Platform (UACL)",
+        architect:    `${SOVEREIGN_IDENTITY.architect} — ${SOVEREIGN_IDENTITY.entity}`,
+        platform:     SOVEREIGN_IDENTITY.platform,
+        patent:       SOVEREIGN_IDENTITY.patent,
+        fingerprint:  SOVEREIGN_IDENTITY.fingerprint,
       },
     });
   } catch (err) {
@@ -514,16 +549,16 @@ router.get("/intents", (_req: Request, res: Response) => {
         intent:    "referral",
         patterns:  ["referral", "bird-dog", "commission", "payout", "tech fee", "who referred", "settle"],
         examples:  ["What's my commission on REF-XXXXX?", "Has Jim's Rims referral settled?", "Show me all open referrals"],
-        routedTo:  "Sales Agent → Referral Ledger → Stripe Connect",
+        routedTo:  "Bird-Dog Agent → Referral Ledger → Stripe Connect",
         resolves:  "Commission amount, settlement status, payout timeline",
         eliminates: "Unpaid informal referrals → Auto-settlement in seconds",
       },
       {
         intent:    "vehicle",
-        patterns:  ["VIN", "vehicle history", "odometer", "title check", "recall", "chain of custody"],
-        examples:  ["Look up VIN 1HGBH41JXMN109186", "Odometer check on that RAM", "Title clean on VIN X?"],
-        routedTo:  "Guardian Agent → Blockchain + NMVTIS",
-        resolves:  "VIN integrity, odometer history, title status, warranty + deal summary",
+        patterns:  ["VIN", "vehicle history", "odometer", "title check", "recall", "chain of custody", "NVIS"],
+        examples:  ["Look up VIN 1HGBH41JXMN109186", "Odometer check on that RAM", "Title clean on VIN X?", "NVIS status on this vehicle"],
+        routedTo:  "Title/Compliance Agent → NVIS + Chain of Custody",
+        resolves:  "VIN integrity, odometer history, title status, NVIS compliance, warranty + deal summary",
         eliminates: "Manual NMVTIS lookup + separate warranty check + separate title pull",
       },
       {
@@ -536,11 +571,11 @@ router.get("/intents", (_req: Request, res: Response) => {
       },
       {
         intent:    "service",
-        patterns:  ["service", "schedule", "dispatch", "runner", "mechanic", "glass", "rim", "nearest", "closest"],
-        examples:  ["Schedule Jim's Rims for tomorrow", "Find nearest wheel specialist within 30 miles", "Dispatch a runner to the Milford Hub"],
-        routedTo:  "Mission Agent → Haversine Proximity Routing",
-        resolves:  "Nearest service node by proximity and reputation score, scheduling, dispatch confirmation",
-        eliminates: "Manual phone calls to service vendors, informal scheduling",
+        patterns:  ["service", "schedule", "dispatch", "runner", "mechanic", "glass", "rim", "nearest", "closest", "parts", "warranty verify"],
+        examples:  ["Schedule Jim's Rims for tomorrow", "Find nearest wheel specialist within 30 miles", "Dispatch a runner to the Milford Hub", "Order parts for the service bay"],
+        routedTo:  "Service/Parts Agent → Parts Engine → Haversine Proximity Routing",
+        resolves:  "Nearest service node by proximity and reputation score, parts availability, scheduling, dispatch confirmation",
+        eliminates: "Manual phone calls to service vendors, inter-departmental parts checks, informal scheduling",
       },
       {
         intent:    "monetization",
@@ -578,13 +613,14 @@ router.get("/health", async (_req: Request, res: Response) => {
     architect:  "Ronald Antonio Cadet — CUXTOMCANDYCLUB LLC",
     patent:     "PAT-07",
     agents: {
-      guardian:    "Online — VIN integrity + warranty resolution",
-      fni:         "Online — Document Vault + funding",
-      salesBirdDog: "Online — Referral Ledger + Stripe",
-      mission:     "Online — Proximity routing + dispatch",
-      marketcheck: "Online — Live pricing + inventory",
-      vault:       "Online — Audit trail + NIST compliance",
-      notify:      "Online — Push alerts + member briefings",
+      guardian:             "Online — VIN integrity + warranty resolution",
+      fni:                  "Online — F&I Agent · Document Vault + funding",
+      birdDog:              "Online — Bird-Dog Agent · Referral Ledger + Stripe",
+      serviceParts:         "Online — Service/Parts Agent · Parts Engine + proximity routing",
+      titleCompliance:      "Online — Title/Compliance Agent · NVIS + Chain of Custody",
+      marketcheck:          "Online — MarketCheck Agent · Live pricing + inventory",
+      vault:                "Online — Vault Agent · Audit trail + FIPS 140-3 compliance",
+      notify:               "Online — Push alerts + member briefings",
     },
     dataCounts: {
       referrals:       refCount,
@@ -594,6 +630,70 @@ router.get("/health", async (_req: Request, res: Response) => {
     },
     replacing: ["VinSolutions", "Dealertrack", "RouteOne", "Simoniz manual lookup", "Sonsio callback system", "Stellantis fax workflow"],
     status:    "SOVEREIGN_COMMAND_LAYER_ACTIVE",
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GET /api/ask/uacl — Sovereign Architecture Declaration
+// The full system identity, agent mesh, and protocol map in one response.
+// For bank IT teams, attorneys, federal partners, and press.
+// ─────────────────────────────────────────────────────────────────────────────
+
+router.get("/uacl", (_req: Request, res: Response) => {
+  return res.json({
+    declaration:    "Unified Automotive Command Layer (UACL)",
+    version:        "1.0.0",
+    architect:      "Ronald Antonio Cadet",
+    entity:         "CUXTOMCANDYCLUB LLC · New York · Entity ID: 7788320 · Formed 12/21/2025",
+    fingerprint:    "3CONYX-RAC-20260328-SOVEREIGN-ORIGIN-LOCKED",
+    patent:         "PAT-07 — Unified Automotive Command Platform",
+    mission:        "Replace the Messy Family of automotive legacy tools with a single Sovereign Command Layer. One command. Every answer. No wrong department.",
+    replacedSystems: [
+      { system: "VinSolutions",   function: "CRM",                     replacedBy: "Bird-Dog Agent + Referral Ledger" },
+      { system: "Dealertrack",    function: "Finance/Compliance",      replacedBy: "F&I Agent + Document Vault" },
+      { system: "RouteOne",       function: "Lender routing",           replacedBy: "Bank Node Mesh + Rep Portal" },
+      { system: "Simoniz lookup", function: "Manual warranty check",    replacedBy: "Guardian Agent + Warranty Engine" },
+      { system: "Sonsio callback",function: "Tire & wheel claims",      replacedBy: "Guardian Agent + Claim Engine" },
+      { system: "Stellantis fax", function: "CIT paperwork",           replacedBy: "F&I Agent + FUND NOW endpoint" },
+    ],
+    agentMesh: {
+      guardian:          { role: "VIN integrity, warranty resolution, vehicle telemetry",     protocol: "S1→S2→S3" },
+      fni:               { role: "F&I Agent — Deal structuring, Bank-Ready document bundling", protocol: "S1→S2→S3" },
+      birdDog:           { role: "Bird-Dog Agent — Referral tracking, 3% commission settlement",protocol: "S1→S2→S3" },
+      serviceParts:      { role: "Service/Parts Agent — Parts ordering, warranty verification, dispatch",protocol: "S1→S2→S3" },
+      titleCompliance:   { role: "Title/Compliance Agent — NVIS, Chain of Custody, FBI/DOT G-Code",protocol: "S1→S2→S3" },
+      marketcheck:       { role: "MarketCheck Agent — Live pricing, inventory, wholesale/retail", protocol: "S1→S2→S3" },
+      vault:             { role: "Vault Agent — Audit trail, FIPS 140-3 encryption, SOC2",   protocol: "S1→S2→S3" },
+      stripe:            { role: "Stripe Agent — Dynasty Tech Fee, commission payout, escrow", protocol: "S1→S2→S3" },
+    },
+    protocols: {
+      s1: "CLASSIFY & AUTHENTICATE — Intent classification, entity extraction, node authentication",
+      s2: "EXECUTE & VERIFY — Live DB action, AES-256-GCM (FIPS 140-3) encryption, named agent execution",
+      s3: "LOG & AUDIT — Everything logged. CJIS-grade audit trail. EventBridge emission. FBI/DOT G-Code feed.",
+    },
+    security: {
+      encryption:    "AES-256-GCM · FIPS 140-3 compliant",
+      auditStandard: "SOC2 CC4.2 · CJIS-grade · NIST 800-53",
+      piiMasking:    "VIN, SSN, name, address, email — masked per NIST-MCP 2026 rules",
+      agentBus:      "AWS EventBridge (prod) · in-process EventEmitter (dev)",
+    },
+    federalPositioning: {
+      nvis:     "National Vehicle Integrity Standard — Title/Compliance Agent logs every VIN event",
+      gCode:    "G-Code Gateway — FBI/DOT/CISA/GSA/NHTSA dashboard feed via NVIS integrity events",
+      corridor: "Northeast Corridor Pilot — 50 nodes target, Ned Surman (Stellantis) as Bank Node #1",
+    },
+    pilotNodes: [
+      { nodeId: "3C-STELLA-NED001PILOT",  category: "Bank",           name: "Ned Surman · Stellantis Financial",  status: "Invited" },
+      { nodeId: "3C-SIMNZ-PAINT001PILOT", category: "WarrantyAdmin",  name: "Simoniz USA · Paint Protection",     status: "Seeded" },
+      { nodeId: "3C-SNSIO-TIRE001PILOT",  category: "WarrantyAdmin",  name: "Sonsio · Tire & Wheel",             status: "Seeded" },
+      { nodeId: "3C-JIMSRIMS-SVC001",     category: "ServiceNode",    name: "Jim's Rims · Rehoboth MA",          status: "Active" },
+    ],
+    dynastyValuation: {
+      target:          "$251,000,000,000",
+      basis:           "3% tech fee on US automotive transaction volume ($1.77T TAM)",
+      currentStatus:   "Pre-revenue. Pilot active. Union growing.",
+      note:            "The union is the moat. Every professional we register makes the platform 10× harder to replicate.",
+    },
   });
 });
 

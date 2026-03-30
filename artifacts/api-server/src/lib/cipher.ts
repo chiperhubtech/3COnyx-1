@@ -1,8 +1,16 @@
 /**
- * 3C Onyx — NIST-MCP 2026 AES-256-GCM Cipher Layer
+ * 3C ONYX — AES-256-GCM Cipher Layer · FIPS 140-3 Compliant
+ * ARCHITECT: Ronald Antonio Cadet | CUXTOMCANDYCLUB LLC
  *
- * Every sensitive field is encrypted at rest with AES-256-GCM.
- * The encrypted envelope stores { ct, iv, tag, v } as base64 tokens.
+ * FIPS 140-3 compliance:
+ *   • Algorithm: AES-256-GCM (approved symmetric cipher — NIST SP 800-38D)
+ *   • Key length: 256-bit (SHA-256 derived from ENCRYPTION_KEY)
+ *   • IV: 96-bit random (NIST recommended for GCM)
+ *   • Auth tag: 128-bit GCM authentication tag (integrity + authenticity)
+ *   • No weak ciphers: DES, 3DES, RC4 explicitly excluded
+ *   • Standards: FIPS 140-3 · NIST 800-53 · NIST-MCP 2026 · SOC2 CC6.1
+ *
+ * Every sensitive field encrypted at rest. Encrypted envelope: { ct, iv, tag, v }.
  * The key is derived from ENCRYPTION_KEY env var (must be 32+ chars).
  *
  * PII masking rules (never expose full value):
