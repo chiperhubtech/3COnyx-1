@@ -40,6 +40,30 @@ interface EscalationCase {
   resolvedAt?: string;
   originalToolCall?: string;
   recommendation?: string;
+
+  // ── Human-in-the-loop takeover protocol ───────────────────────────────────
+  // Phase: reading → briefed → live
+  // Mirrors the Namecheap specialist handoff pattern:
+  //   1. Specialist joins → auto-message sent to member ("reading your conversation")
+  //   2. Specialist confirms context read → member notified ("specialist is ready")
+  //   3. Specialist types directly → member receives in real-time
+  humanAgent?: {
+    agentId:    string;
+    agentName:  string;
+    joinedAt:   string;
+    phase:      "reading" | "briefed" | "live";
+    briefedAt?: string;
+    liveAt?:    string;
+    messages:   HumanAgentMessage[];
+  };
+}
+
+interface HumanAgentMessage {
+  id:        string;
+  from:      "agent" | "member";
+  content:   string;
+  ts:        string;
+  agentName?: string;
 }
 
 const ESCALATION_STORE: Map<string, EscalationCase> = new Map();
@@ -196,6 +220,149 @@ router.patch("/escalation/:id/resolve", async (req: Request, res: Response) => {
   res.json({
     escalation: esc,
     message:    `Escalation ${action.toLowerCase()}. ${action === "APPROVED" ? "Execution may proceed." : action === "REJECTED" ? "Request blocked." : "Manual override recorded."}`,
+  });
+});
+
+// ─── POST /api/escalation/:id/takeover ──────────────────────────────────────
+// Phase 1: Human specialist joins the case.
+// Auto-broadcasts a "reading your conversation" message to the member
+// — exactly like the Namecheap specialist protocol Ron showed.
+router.post("/escalation/:id/takeover", async (req: Request, res: Response) => {
+  const esc = ESCALATION_STORE.get(String(req.params["id"] ?? ""));
+  if (!esc) { res.status(404).json({ error: "Escalation not found" }); return; }
+  if (esc.humanAgent) { res.status(409).json({ error: "A specialist has already joined this case" }); return; }
+
+  const { agentId, agentName } = req.body as { agentId?: string; agentName?: string };
+  if (!agentId || !agentName) {
+    res.status(400).json({ error: "agentId and agentName are required" }); return;
+  }
+
+  const joinedAt = new Date().toISOString();
+  const readingMessage: HumanAgentMessage = {
+    id:        `msg-${Date.now()}`,
+    from:      "agent",
+    content:   `Hello! I'm ${agentName} and I'll be assisting you. Please allow me a moment to review your conversation — I want to make sure I have full context before we continue.`,
+    ts:        joinedAt,
+    agentName,
+  };
+
+  esc.humanAgent = {
+    agentId,
+    agentName,
+    joinedAt,
+    phase:    "reading",
+    messages: [readingMessage],
+  };
+  ESCALATION_STORE.set(esc.id, esc);
+
+  await writeAudit({
+    eventType: "ADMIN", severity: "INFO",
+    action: `Human specialist ${agentName} joined escalation ${esc.id}`,
+    metadata: { escalationId: esc.id, agentId, agentName },
+  });
+
+  // Broadcast to member's session — they see the "reading" message in real-time
+  wsHub.broadcast("alerts", {
+    type:         "HUMAN_SPECIALIST_JOINED",
+    escalationId: esc.id,
+    sessionId:    esc.sessionId,
+    phase:        "reading",
+    message:      readingMessage,
+    agentName,
+    ts:           joinedAt,
+  });
+
+  logger.info({ escalationId: esc.id, agentId, agentName }, "[escalation] Human specialist joined — reading phase");
+  res.json({ ok: true, escalationId: esc.id, phase: "reading", message: readingMessage });
+});
+
+// ─── POST /api/escalation/:id/briefed ────────────────────────────────────────
+// Phase 2: Specialist confirms they have read the full context.
+// Member sees "Specialist is ready" — live conversation can now begin.
+router.post("/escalation/:id/briefed", async (req: Request, res: Response) => {
+  const esc = ESCALATION_STORE.get(String(req.params["id"] ?? ""));
+  if (!esc) { res.status(404).json({ error: "Escalation not found" }); return; }
+  if (!esc.humanAgent) { res.status(400).json({ error: "No specialist has joined this case yet" }); return; }
+  if (esc.humanAgent.phase !== "reading") {
+    res.status(409).json({ error: `Already in phase: ${esc.humanAgent.phase}` }); return;
+  }
+
+  esc.humanAgent.phase    = "briefed";
+  esc.humanAgent.briefedAt = new Date().toISOString();
+  ESCALATION_STORE.set(esc.id, esc);
+
+  wsHub.broadcast("alerts", {
+    type:         "HUMAN_SPECIALIST_BRIEFED",
+    escalationId: esc.id,
+    sessionId:    esc.sessionId,
+    phase:        "briefed",
+    agentName:    esc.humanAgent.agentName,
+    ts:           esc.humanAgent.briefedAt,
+  });
+
+  logger.info({ escalationId: esc.id }, "[escalation] Specialist briefed — ready to go live");
+  res.json({ ok: true, escalationId: esc.id, phase: "briefed" });
+});
+
+// ─── POST /api/escalation/:id/message ────────────────────────────────────────
+// Phase 3 — Live: Specialist sends a direct message to the member.
+// Member replies here too. Full bidirectional conversation.
+router.post("/escalation/:id/message", async (req: Request, res: Response) => {
+  const esc = ESCALATION_STORE.get(String(req.params["id"] ?? ""));
+  if (!esc) { res.status(404).json({ error: "Escalation not found" }); return; }
+  if (!esc.humanAgent) { res.status(400).json({ error: "No specialist on this case" }); return; }
+
+  const { content, from } = req.body as { content?: string; from?: "agent" | "member" };
+  if (!content?.trim()) { res.status(400).json({ error: "content is required" }); return; }
+
+  // First message from specialist moves phase to live
+  if (esc.humanAgent.phase === "briefed" && from === "agent") {
+    esc.humanAgent.phase  = "live";
+    esc.humanAgent.liveAt = new Date().toISOString();
+  }
+
+  const msg: HumanAgentMessage = {
+    id:        `msg-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`,
+    from:      from ?? "agent",
+    content:   content.trim(),
+    ts:        new Date().toISOString(),
+    agentName: from === "agent" ? esc.humanAgent.agentName : undefined,
+  };
+
+  esc.humanAgent.messages.push(msg);
+  ESCALATION_STORE.set(esc.id, esc);
+
+  wsHub.broadcast("alerts", {
+    type:         "HUMAN_SPECIALIST_MESSAGE",
+    escalationId: esc.id,
+    sessionId:    esc.sessionId,
+    phase:        esc.humanAgent.phase,
+    message:      msg,
+    ts:           msg.ts,
+  });
+
+  res.json({ ok: true, escalationId: esc.id, phase: esc.humanAgent.phase, message: msg });
+});
+
+// ─── GET /api/escalation/:id/thread ──────────────────────────────────────────
+// Get full human agent conversation thread for a case.
+router.get("/escalation/:id/thread", async (req: Request, res: Response) => {
+  const esc = ESCALATION_STORE.get(String(req.params["id"] ?? ""));
+  if (!esc) { res.status(404).json({ error: "Escalation not found" }); return; }
+  res.json({
+    escalationId: esc.id,
+    humanAgent:   esc.humanAgent ?? null,
+    messages:     esc.humanAgent?.messages ?? [],
+    phase:        esc.humanAgent?.phase ?? "no_agent",
+    memberContext: {
+      userId:         esc.userId,
+      sessionId:      esc.sessionId,
+      requestSummary: esc.requestSummary,
+      trigger:        esc.trigger,
+      estimatedValue: esc.estimatedValue,
+      confidence:     esc.confidence,
+      agentChain:     esc.agentChain,
+    },
   });
 });
 
