@@ -42,3 +42,9 @@ id = "nVIy8t6TImczxBmlRcboL"
 uri = "file://3C_ONYX_Investor_Brief.pdf"
 type = "pdf"
 title = "3C ONYX Investor Brief v4 — $150M Valuation"
+
+[[outputs]]
+id = "NJBLkupJyjf2zEwtf5Kza"
+uri = "file://3C_ONYX_One_Pager.pdf"
+type = "pdf"
+title = "3C ONYX Investor One-Pager — Print Ready"
