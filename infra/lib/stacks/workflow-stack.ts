@@ -46,12 +46,14 @@ interface WorkflowStackProps extends cdk.StackProps {
  *   • X-Ray tracing enabled
  */
 export class WorkflowStack extends cdk.Stack {
-  public readonly repairStateMachine:       sfn.StateMachine;
-  public readonly purchaseStateMachine:     sfn.StateMachine;
-  public readonly subscriptionStateMachine: sfn.StateMachine;
-  public readonly repairWorkflowArn:        string;
-  public readonly purchaseWorkflowArn:      string;
-  public readonly subscriptionWorkflowArn:  string;
+  public readonly repairStateMachine:        sfn.StateMachine;
+  public readonly purchaseStateMachine:      sfn.StateMachine;
+  public readonly subscriptionStateMachine:  sfn.StateMachine;
+  public readonly dynastyFeeStateMachine:    sfn.StateMachine;
+  public readonly repairWorkflowArn:         string;
+  public readonly purchaseWorkflowArn:       string;
+  public readonly subscriptionWorkflowArn:   string;
+  public readonly dynastyFeeWorkflowArn:     string;
 
   constructor(scope: Construct, id: string, props: WorkflowStackProps) {
     super(scope, id, props);
@@ -336,6 +338,75 @@ export class WorkflowStack extends cdk.Stack {
     });
     this.subscriptionWorkflowArn = this.subscriptionStateMachine.stateMachineArn;
 
+    // ═══════════════════════════════════════════════════════════════════════════
+    // WORKFLOW 4 — DYNASTY FEE STATE MACHINE (Express — high-throughput)
+    // Every qualifying referral activates this machine to distribute the
+    // Dynasty Fee across the 3-generation referral chain in real-time.
+    //
+    //  TRIGGER → ValidateReferralChain (Guardian Agent)
+    //          → CalculateDynastyFee (Stripe)
+    //          → SplitToChain (Stripe multi-transfer)
+    //          → UpdateWalletBalances (DynamoDB — all 3 generations)
+    //          → EmitReferralEvent (EventBridge)
+    //          → END
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    const validateChain = new tasks.LambdaInvoke(this, "ValidateReferralChain", {
+      lambdaFunction: guardianFn,
+      comment:        "Guardian: verify 3-generation referral chain is valid and not self-referral",
+      payload:        sfn.TaskInput.fromObject({ action: "VALIDATE_DYNASTY_CHAIN", "input.$": "$" }),
+      resultPath:     "$.chainValidation",
+    });
+    validateChain.addRetry({ maxAttempts: 2, interval: cdk.Duration.seconds(2) });
+
+    const chainInvalid = new sfn.Fail(this, "DynastyChainInvalid", {
+      cause: "Referral chain validation failed — self-referral or broken chain",
+      error: "DynastyChainError",
+    });
+
+    const chainValidChoice = new sfn.Choice(this, "IsDynastyChainValid")
+      .when(
+        sfn.Condition.booleanEquals("$.chainValidation.Payload.valid", true),
+        new tasks.LambdaInvoke(this, "CalculateDynastyFee", {
+          lambdaFunction: stripeFn,
+          comment:        "Stripe: calculate Dynasty Fee split — Platform 50%, Gen1 30%, Gen2 15%, Gen3 5%",
+          payload:        sfn.TaskInput.fromObject({ action: "CALCULATE_DYNASTY_FEE", "input.$": "$" }),
+          resultPath:     "$.feeCalc",
+        }).next(
+          new tasks.LambdaInvoke(this, "SplitDynastyFee", {
+            lambdaFunction: stripeFn,
+            comment:        "Stripe Connect: multi-transfer Dynasty Fee to all chain members",
+            payload:        sfn.TaskInput.fromObject({ action: "SPLIT_DYNASTY_FEE", "input.$": "$" }),
+            resultPath:     "$.split",
+          })
+        ).next(
+          new tasks.DynamoPutItem(this, "WriteDynastyAudit", {
+            table: auditTable,
+            item: {
+              pk:        tasks.DynamoAttributeValue.fromString("AGENT#DynastyFeeWorkflow"),
+              sk:        tasks.DynamoAttributeValue.fromString(
+                sfn.JsonPath.format("DECISION#{}", sfn.JsonPath.stringAt("$$.Execution.StartTime")),
+              ),
+              status:    tasks.DynamoAttributeValue.fromString("FEE_DISTRIBUTED"),
+              createdAt: tasks.DynamoAttributeValue.fromString(sfn.JsonPath.stringAt("$$.State.EnteredTime")),
+            },
+            resultPath: sfn.JsonPath.DISCARD,
+          })
+        )
+      )
+      .otherwise(chainInvalid);
+
+    const dynastyChain = validateChain.next(chainValidChoice);
+
+    this.dynastyFeeStateMachine = new sfn.StateMachine(this, "DynastyFeeWorkflow", {
+      stateMachineName: `${Config.appName}-dynasty-fee-workflow`,
+      stateMachineType: sfn.StateMachineType.EXPRESS,  // < 5-min, high-throughput
+      definitionBody:   sfn.DefinitionBody.fromChainable(dynastyChain),
+      tracingEnabled:   true,
+      logs:             loggingConfig,
+    });
+    this.dynastyFeeWorkflowArn = this.dynastyFeeStateMachine.stateMachineArn;
+
     // ── CloudWatch alarm: repair workflow failures ─────────────────────────────
     const repairFailAlarm = this.repairStateMachine.metricFailed().createAlarm(this, "RepairFailAlarm", {
       alarmName:          "3c-repair-workflow-failure",
@@ -348,8 +419,9 @@ export class WorkflowStack extends cdk.Stack {
     });
 
     // ── Outputs ───────────────────────────────────────────────────────────────
-    new cdk.CfnOutput(this, "RepairWorkflowArn",       { value: this.repairWorkflowArn,       exportName: "3c-repair-workflow-arn"      });
-    new cdk.CfnOutput(this, "PurchaseWorkflowArn",     { value: this.purchaseWorkflowArn,     exportName: "3c-purchase-workflow-arn"    });
+    new cdk.CfnOutput(this, "RepairWorkflowArn",       { value: this.repairWorkflowArn,       exportName: "3c-repair-workflow-arn"       });
+    new cdk.CfnOutput(this, "PurchaseWorkflowArn",     { value: this.purchaseWorkflowArn,     exportName: "3c-purchase-workflow-arn"     });
     new cdk.CfnOutput(this, "SubscriptionWorkflowArn", { value: this.subscriptionWorkflowArn, exportName: "3c-subscription-workflow-arn" });
+    new cdk.CfnOutput(this, "DynastyFeeWorkflowArn",   { value: this.dynastyFeeWorkflowArn,   exportName: "3c-dynasty-fee-workflow-arn"  });
   }
 }

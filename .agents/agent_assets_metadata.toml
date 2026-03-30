@@ -72,3 +72,9 @@ id = "_TYxiuxB8yFySzM4e9yYY"
 uri = "file://3C_ONYX_Federal_Addendum.pdf"
 type = "pdf"
 title = "3C ONYX — Federal Technical & Operational Addendum A"
+
+[[outputs]]
+id = "Tuc11V-d8UOv076JwSLxs"
+uri = "file://3C_ONYX_Federal_Master_Brief.pdf"
+type = "pdf"
+title = "3C ONYX — FBI & Federal Master Brief (Definitive Edition)"

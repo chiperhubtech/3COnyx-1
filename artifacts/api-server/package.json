@@ -11,7 +11,13 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.80.0",
+    "@aws-sdk/client-bedrock-runtime": "^3.1019.0",
+    "@aws-sdk/client-eventbridge": "^3.1019.0",
+    "@aws-sdk/client-location": "^3.1019.0",
+    "@aws-sdk/client-rekognition": "^3.1019.0",
+    "@aws-sdk/client-secrets-manager": "^3.1019.0",
     "@modelcontextprotocol/sdk": "^1.27.1",
+    "@opensearch-project/opensearch": "^3.5.1",
     "@sendgrid/mail": "^8.1.6",
     "@trpc/server": "^11.14.1",
     "@types/compression": "^1.8.1",

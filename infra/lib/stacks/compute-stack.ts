@@ -7,6 +7,7 @@ import * as ddb        from "aws-cdk-lib/aws-dynamodb";
 import * as events     from "aws-cdk-lib/aws-events";
 import * as targets    from "aws-cdk-lib/aws-events-targets";
 import * as sqs        from "aws-cdk-lib/aws-sqs";
+import * as location   from "aws-cdk-lib/aws-location";
 import { Construct }   from "constructs";
 import { Config }      from "../config";
 import { AgentLambda } from "../constructs/agent-lambda";
@@ -70,6 +71,8 @@ export class ComputeStack extends cdk.Stack {
   public readonly reputationFn:      lambda.Function;
   // Shared EventBridge bus
   public readonly agentBus:          events.EventBus;
+  // Amazon Location Service — runner GPS tracking
+  public readonly runnerTracker:     location.CfnTracker;
 
   constructor(scope: Construct, id: string, props: ComputeStackProps) {
     super(scope, id, props);
@@ -282,10 +285,29 @@ export class ComputeStack extends cdk.Stack {
     });
     reputationTable.grantReadWriteData(this.reputationFn);
 
+    // ── Amazon Location Service — Runner GPS Tracker ──────────────────────────
+    // Replaces HyperTrack external GPS dependency for runner tracking.
+    // Member data stays inside AWS — sovereign, CJIS-adjacent positioning data
+    // never leaves the platform infrastructure.
+    this.runnerTracker = new location.CfnTracker(this, "RunnerTracker", {
+      trackerName:          `${Config.appName}-runner-tracker`,
+      description:          "3C Onyx — real-time runner GPS tracking and geofencing",
+      positionFiltering:    "TimeBased",   // store position every 30s when moving
+      kmsKeyId:             encryptionKey.keyArn,
+    });
+
+    // Grant Guardian Lambda permission to query tracker positions
+    const trackerArn = `arn:aws:geo:${this.region}:${this.account}:tracker/${Config.appName}-runner-tracker`;
+    this.guardianFn.addToRolePolicy(new cdk.aws_iam.PolicyStatement({
+      actions:   ["geo:GetDevicePosition", "geo:ListDevicePositions", "geo:BatchUpdateDevicePosition"],
+      resources: [trackerArn],
+    }));
+
     // ── Outputs ───────────────────────────────────────────────────────────────
-    new cdk.CfnOutput(this, "GuardianFnArn",   { value: this.guardianFn.functionArn,   exportName: "3c-guardian-fn"    });
-    new cdk.CfnOutput(this, "ConciergeFnArn",  { value: this.conciergeFn.functionArn,  exportName: "3c-concierge-fn"   });
-    new cdk.CfnOutput(this, "AgentBusName",    { value: this.agentBus.eventBusName,    exportName: "3c-agent-bus"      });
+    new cdk.CfnOutput(this, "GuardianFnArn",    { value: this.guardianFn.functionArn,      exportName: "3c-guardian-fn"       });
+    new cdk.CfnOutput(this, "ConciergeFnArn",   { value: this.conciergeFn.functionArn,     exportName: "3c-concierge-fn"      });
+    new cdk.CfnOutput(this, "AgentBusName",     { value: this.agentBus.eventBusName,       exportName: "3c-agent-bus"         });
+    new cdk.CfnOutput(this, "RunnerTrackerName",{ value: this.runnerTracker.trackerName,   exportName: "3c-runner-tracker"    });
   }
 }
 
