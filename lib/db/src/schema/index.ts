@@ -34,3 +34,4 @@ export * from "./referral-ledger";
 export * from "./warranty-records";
 export * from "./document-vault";
 export * from "./service-nodes";
+export * from "./bank-nodes";

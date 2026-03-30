@@ -86,6 +86,9 @@ import inspectionRouter from "./inspection";
 import runnerLocationRouter from "./runners";
 import { companyRouter } from "./company";
 import lifecycleEngineRouter from "./lifecycle-engine";
+import bankPortalRouter from "./bank-portal";
+import repPortalRouter from "./rep-portal";
+import unionRouter from "./union";
 
 const router: IRouter = Router();
 
@@ -193,5 +196,8 @@ router.use("/inspection", inspectionRouter);
 router.use("/runners",    runnerLocationRouter);
 router.use("/company",    companyRouter);
 router.use("/lifecycle",  lifecycleEngineRouter);
+router.use("/banks",      bankPortalRouter);
+router.use("/rep",        repPortalRouter);
+router.use("/union",      unionRouter);
 
 export default router;
