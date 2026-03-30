@@ -81,6 +81,9 @@ import creatorOutreachRouter from "./creator-outreach";
 import wisdomRouter from "./wisdom";
 import meshRouter from "./mesh";
 import oracleRouter from "./oracle";
+import dealerRouter from "./dealers";
+import inspectionRouter from "./inspection";
+import runnerLocationRouter from "./runners";
 
 const router: IRouter = Router();
 
@@ -183,5 +186,8 @@ router.use(creatorOutreachRouter);
 router.use("/wisdom", wisdomRouter);
 router.use(meshRouter);
 router.use(oracleRouter);
+router.use("/dealers",    dealerRouter);
+router.use("/inspection", inspectionRouter);
+router.use("/runners",    runnerLocationRouter);
 
 export default router;

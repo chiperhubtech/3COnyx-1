@@ -18,6 +18,7 @@ import { requireAuth } from "../middlewares/requireAuth";
 import { writeAudit } from "../lib/auditService";
 import { revokeToken } from "../lib/tokenBlacklist";
 import { checkLockout, recordAttempt } from "../lib/loginGuard";
+import { fraudCheckRegistration } from "../middlewares/fraudScoring";
 
 function generateReferralCode(name: string, id: number): string {
   const prefix = name.trim().toUpperCase().replace(/[^A-Z]/g, "").slice(0, 3) || "3CO";
@@ -57,7 +58,7 @@ router.get("/auth/validate-code", async (req: Request, res: Response) => {
 });
 
 // ─── POST /api/auth/register ──────────────────────────────────────────────────
-router.post("/auth/register", async (req: Request, res: Response) => {
+router.post("/auth/register", fraudCheckRegistration, async (req: Request, res: Response) => {
   const { name, email, password, role = "Member", phone } = req.body as {
     name?: string; email?: string; password?: string;
     role?: string; phone?: string;

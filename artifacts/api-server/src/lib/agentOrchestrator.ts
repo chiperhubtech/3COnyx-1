@@ -13,6 +13,7 @@ import crypto from "crypto";
 import { broadcast } from "./wsHub";
 import { route } from "./ai-router";
 import { logger } from "./logger";
+import { eventBus } from "./eventBus";
 
 export type AgentId =
   | "guardian"
@@ -168,13 +169,31 @@ function transitionTask(task: AgentTask, status: TaskStatus, agentId: AgentId, d
   task.status = status;
   task.updatedAt = new Date().toISOString();
   task.auditLog.push({ ts: new Date().toISOString(), agentId, event: status, detail });
-  broadcast("agents", {
-    type: "task_transition",
-    taskId: task.id,
+
+  const payload = {
+    taskId:    task.id,
+    sessionId: task.sessionId,
+    taskType:  task.type,
     status,
     agentId,
     agentName: AGENT_REGISTRY[agentId]?.name,
     detail,
+    ts:        task.updatedAt,
+  };
+
+  // Broadcast via WebSocket (real-time UI)
+  broadcast("agents", { type: "task_transition", ...payload });
+
+  // Emit to event bus (EventBridge in prod, local emitter in dev)
+  const eventType = status === "complete"    ? "agent.task.complete"   :
+                    status === "failed"      ? "agent.task.failed"     :
+                    status === "handed_off"  ? "agent.task.handed_off" :
+                    status === "running"     ? "agent.task.running"    :
+                    status === "assigned"    ? "agent.task.assigned"   :
+                    "agent.task.pending";
+
+  eventBus.emit(eventType, payload).catch(err => {
+    logger.warn({ taskId: task.id, err: (err as Error).message }, "[orchestrator] EventBus emit failed");
   });
 }
 

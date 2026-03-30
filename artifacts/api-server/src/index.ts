@@ -6,6 +6,9 @@ import { startPriceAlertJob } from "./lib/priceAlertJob";
 import { initChains } from "./lib/chainOfCustody";
 import { runStartupSecurityChecks } from "./lib/startupGuard";
 import { startMaintenanceScheduler } from "./lib/maintenanceScheduler";
+import { warmSecrets, CRITICAL_SECRETS } from "./lib/secrets";
+import { ensureVehicleIndex } from "./lib/vehicleSearch";
+import { eventBus } from "./lib/eventBus";
 
 // ── Security: validate all required secrets BEFORE binding the port ──────────
 runStartupSecurityChecks();
@@ -32,6 +35,15 @@ server.listen(port, () => {
   startPriceAlertJob();
   startMaintenanceScheduler();
   initChains().catch((err) => logger.warn({ err }, "initChains failed"));
+
+  // ── AWS service init (non-blocking) ─────────────────────────────────────
+  warmSecrets([...CRITICAL_SECRETS]).catch(err =>
+    logger.warn({ err: (err as Error).message }, "[startup] Secrets warm skipped")
+  );
+  ensureVehicleIndex().catch(err =>
+    logger.warn({ err: (err as Error).message }, "[startup] Vehicle index init skipped")
+  );
+  logger.info(eventBus.getStatus(), "[startup] EventBus initialized");
 });
 
 server.on("error", (err) => {
