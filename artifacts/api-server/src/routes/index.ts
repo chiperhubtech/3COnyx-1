@@ -89,6 +89,9 @@ import lifecycleEngineRouter from "./lifecycle-engine";
 import bankPortalRouter from "./bank-portal";
 import repPortalRouter from "./rep-portal";
 import unionRouter from "./union";
+import ask3cRouter from "./ask3c";
+import timelineRouter from "./timeline";
+import monetizationRouter from "./monetization";
 
 const router: IRouter = Router();
 
@@ -196,8 +199,11 @@ router.use("/inspection", inspectionRouter);
 router.use("/runners",    runnerLocationRouter);
 router.use("/company",    companyRouter);
 router.use("/lifecycle",  lifecycleEngineRouter);
-router.use("/banks",      bankPortalRouter);
-router.use("/rep",        repPortalRouter);
-router.use("/union",      unionRouter);
+router.use("/banks",        bankPortalRouter);
+router.use("/rep",          repPortalRouter);
+router.use("/union",        unionRouter);
+router.use("/ask",          ask3cRouter);
+router.use("/timeline",     timelineRouter);
+router.use("/monetization", monetizationRouter);
 
 export default router;

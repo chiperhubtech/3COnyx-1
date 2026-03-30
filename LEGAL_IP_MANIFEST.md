@@ -89,6 +89,57 @@ A method for synthesizing data across multiple automotive transaction domains (s
 
 ---
 
+### PAT-05 — SOVEREIGN AI ROUTER · MULTI-PROVIDER LLM ORCHESTRATION WITH BEDROCK-FIRST FALLBACK CHAIN *(New — March 30, 2026)*
+**Author: Ronald Antonio Cadet | System: 3C ONYX AI Router (`ai-router.ts`)**
+
+A method for routing natural language inference requests across multiple AI providers (Amazon Bedrock, Google Gemini, OpenAI, Anthropic) with deterministic fallback sequencing per task class — ensuring zero hallucination for high-stakes automotive commands by selecting the model most qualified for each task type (conversation, analysis, coding, summarization, quick-response) while keeping member data sovereign inside AWS infrastructure.
+
+**Representative Claims:**
+- Claim 1: A method for classifying an automotive command prompt by task class and routing it to an ordered provider chain without human intervention
+- Claim 2: A system that preferentially routes automotive analysis tasks to Amazon Bedrock Claude 3.5 Sonnet with automatic fallback to Gemini, OpenAI, and Anthropic in sequence
+- Claim 3: A real-time provider status registry that tracks latency, cost, and success rate per provider and rebalances routing tables dynamically
+
+**Filing Status:** Provisional — batch with PAT-04. Budget: ~$1,500–$3,000.
+
+---
+
+### PAT-06 — AUTOMOTIVE UNION MESH · PROFESSIONAL NODE REGISTRY WITH TERRITORY-KEYED ACCESS CONTROL *(New — March 30, 2026)*
+**Author: Ronald Antonio Cadet | System: 3C ONYX Union Layer (`union.ts`, `bank-nodes.ts`)**
+
+A method for registering automotive professionals (dealers, service providers, finance institutions, warranty administrators) as cryptographically keyed "nodes" in a territorial mesh network, where each node receives a sovereign access credential (e.g., `3C-STELLA-NED001PILOT`), a role-specific API surface, and a real-time revenue attribution record — constituting the infrastructure layer of The Automotive Union.
+
+**Representative Claims:**
+- Claim 1: A method for issuing a sovereign node key to an automotive professional that gates access to role-specific API endpoints across funding, warranty, referral, and service layers
+- Claim 2: A system for tracking per-node revenue contribution in real time using the 3% Dynasty Tech Fee model, attributing bird-dog commissions and platform tech fees to individual node IDs
+- Claim 3: A territorial mesh architecture that classifies nodes by category (Bank, WarrantyAdmin, ServiceNode, DealerGroup) and enforces category-specific data visibility
+
+**Filing Status:** Provisional — batch with PAT-04. Budget: ~$1,500–$3,000.
+
+---
+
+### PAT-07 — UNIFIED AUTOMOTIVE COMMAND PLATFORM · NATURAL LANGUAGE INTENT ROUTER FOR AUTOMOTIVE TRANSACTIONS *(New — March 30, 2026)*
+**Author: Ronald Antonio Cadet | System: 3C ONYX Ask 3C Gateway (`ask3c.ts`)**
+
+A method for receiving a natural language command from an automotive professional and classifying it into one of nine intent categories (warranty lookup, funding status, referral creation, vehicle history, search, service scheduling, node registration, timeline query, ecosystem monetization) — then executing the corresponding live database action without human dispatch, phone call, or back-office follow-up.
+
+**The system includes:**
+1. **9-Intent NL Classifier** — Keyword and phrase-pattern classifier operating on free-text input to select a deterministic handler function with zero LLM inference latency for known commands
+2. **Live DB Execution Layer** — Each intent handler executes real Drizzle ORM queries against the production PostgreSQL database (warranty records, referral ledger, document vault, bank nodes) and returns structured data
+3. **LLM Escalation Path** — Commands that do not match any intent pattern are escalated to the Bedrock-first AI router for open-ended automotive reasoning
+4. **Audit Trail** — Every command, intent classification, and result is logged with a timestamp, node ID, and resolution status for SOC2 compliance
+
+**Representative Claims:**
+- Claim 1: A method for classifying an automotive professional's natural language command into a predefined intent category and executing the corresponding live database transaction without human intervention
+- Claim 2: A system that resolves warranty status, funding approval state, referral commission balance, and vehicle lifecycle history from a single text prompt
+- Claim 3: A fallback escalation architecture that routes unclassified automotive commands to a sovereign AI router (Bedrock-first) with the member's node context pre-loaded
+- Claim 4: A method for returning real-time monetization projections (Dynasty Tech Fee run-rate, bird-dog commission ledger, referral pipeline value) in response to a natural language revenue inquiry
+
+**Prior Art:** No known system accepts a single natural language command from an automotive professional and executes cross-domain actions spanning warranty, finance, referral, and vehicle lifecycle simultaneously. Individual CRM commands (Salesforce, DealerSocket) require structured form input. The natural language intent router with live multi-domain DB execution on automotive transaction data is novel.
+
+**Filing Status:** Provisional — file immediately as PAT-07 alongside PAT-01, PAT-03, PAT-04. Budget: ~$1,500–$3,000 per application. **Priority: HIGH — working production code.**
+
+---
+
 ## SECTION 4 — COPYRIGHT (3 Works)
 
 | ID | Work | Type | Author | Created |
