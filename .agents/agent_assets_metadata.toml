@@ -78,3 +78,9 @@ id = "Tuc11V-d8UOv076JwSLxs"
 uri = "file://3C_ONYX_Federal_Master_Brief.pdf"
 type = "pdf"
 title = "3C ONYX — FBI & Federal Master Brief (Definitive Edition)"
+
+[[outputs]]
+id = "6scViuv2LpA8lCLprGPCU"
+uri = "file://3C_ONYX_IP_Master_Ledger.pdf"
+type = "pdf"
+title = "3C ONYX — Master IP Ledger v2.0"
