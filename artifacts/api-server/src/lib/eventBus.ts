@@ -37,7 +37,12 @@ export type OnyxEventType =
   | "vehicle.alert.guardian"
   | "guardian.predictive.alert"
   | "fraud.score.high"
-  | "referral.chain.activated";
+  | "referral.chain.activated"
+  | "referral.created"
+  | "referral.settled"
+  | "vault.bundle.sealed"
+  | "node.registered"
+  | "node.appointment.scheduled";
 
 export interface OnyxEvent<T = Record<string, unknown>> {
   type:      OnyxEventType;

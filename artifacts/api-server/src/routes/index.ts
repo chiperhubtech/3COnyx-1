@@ -85,6 +85,7 @@ import dealerRouter from "./dealers";
 import inspectionRouter from "./inspection";
 import runnerLocationRouter from "./runners";
 import { companyRouter } from "./company";
+import lifecycleEngineRouter from "./lifecycle-engine";
 
 const router: IRouter = Router();
 
@@ -191,5 +192,6 @@ router.use("/dealers",    dealerRouter);
 router.use("/inspection", inspectionRouter);
 router.use("/runners",    runnerLocationRouter);
 router.use("/company",    companyRouter);
+router.use("/lifecycle",  lifecycleEngineRouter);
 
 export default router;
