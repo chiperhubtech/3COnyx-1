@@ -48,3 +48,9 @@ id = "NJBLkupJyjf2zEwtf5Kza"
 uri = "file://3C_ONYX_One_Pager.pdf"
 type = "pdf"
 title = "3C ONYX Investor One-Pager — Print Ready"
+
+[[outputs]]
+id = "4okoerjHwc6i8flitmUv4"
+uri = "file://3C_ONYX_Growth_Brief.pdf"
+type = "pdf"
+title = "3C ONYX Growth & Capital Brief — VC · Bank · Government · Legal"
