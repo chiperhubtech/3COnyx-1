@@ -5,12 +5,14 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import {
   Animated,
   Easing,
+  Keyboard,
   Platform,
   Pressable,
   ScrollView,
   StatusBar,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -712,7 +714,41 @@ export default function HomeScreen() {
     { icon: <Feather name="users"      size={16} color="#3B9EFF"        />,                 label: "Invite",    route: "/invite",              color: "#3B9EFF"      },
     { icon: <Feather name="globe"      size={16} color={COLORS.emerald} />,                 label: "Ecosystem", route: "/ecosystem",           color: COLORS.emerald },
     { icon: <Feather name="bell"       size={16} color={COLORS.amber}   />,                 label: "Alerts",    route: "/(tabs)/notifications",color: COLORS.amber   },
+    { icon: <MaterialCommunityIcons name="truck-delivery" size={16} color="#60A5FA" />,        label: "Deals",     route: "/deal",                color: "#60A5FA"      },
   ];
+
+  // ── Active transport missions ──────────────────────────────────────────
+  const { data: activeMissions } = useQuery({
+    queryKey: ["transport-active"],
+    queryFn:  () => apiFetch<{ active: Array<{ shipmentId: string; vehicle: string; status: string; destination: string; etaDays: number }>; total: number }>("/transport/active"),
+    refetchInterval: 30_000,
+    staleTime: 15_000,
+    retry: false,
+  });
+
+  // ── Ask 3C bar state ───────────────────────────────────────────────────
+  const [askQuery,    setAskQuery]    = useState("");
+  const [askLoading,  setAskLoading]  = useState(false);
+  const [askResponse, setAskResponse] = useState<{ answer: string; intent: string; routedTo: string } | null>(null);
+
+  const submitAsk = useCallback(async () => {
+    const q = askQuery.trim();
+    if (!q || askLoading) return;
+    Keyboard.dismiss();
+    setAskLoading(true);
+    setAskResponse(null);
+    try {
+      const res = await apiFetch<{ answer: string; intent: string; routedTo: string }>("/ask", {
+        method: "POST",
+        body: JSON.stringify({ query: q }),
+      });
+      setAskResponse(res);
+    } catch {
+      setAskResponse({ answer: "ONYX is standing by. Check connection and try again.", intent: "unknown", routedTo: "ONYX AI" });
+    } finally {
+      setAskLoading(false);
+    }
+  }, [askQuery, askLoading]);
 
   const visibleAlerts = alerts.filter((a) => cardStates[a.id] !== "dismissed");
 
@@ -774,6 +810,56 @@ export default function HomeScreen() {
           </Text>
         </View>
 
+        {/* ── Ask 3C Bar ──────────────────────────────────────────────── */}
+        <View style={[styles.ask3cWrap, { backgroundColor: theme.card, borderColor: theme.goldBorder }]}>
+          <View style={styles.ask3cInputRow}>
+            <View style={[styles.ask3cIconWrap, { backgroundColor: `${COLORS.gold}15` }]}>
+              <Feather name="zap" size={14} color={COLORS.gold} />
+            </View>
+            <TextInput
+              value={askQuery}
+              onChangeText={setAskQuery}
+              placeholder="Ask 3C anything..."
+              placeholderTextColor={theme.textFaint}
+              style={[styles.ask3cInput, { color: theme.text }]}
+              returnKeyType="send"
+              onSubmitEditing={submitAsk}
+              editable={!askLoading}
+            />
+            <Pressable
+              onPress={submitAsk}
+              disabled={askLoading || !askQuery.trim()}
+              style={[
+                styles.ask3cBtn,
+                { backgroundColor: askLoading ? theme.goldGlow : theme.goldMuted, borderColor: theme.goldBorder },
+                (!askQuery.trim() && !askLoading) && { opacity: 0.4 },
+              ]}
+            >
+              {askLoading
+                ? <PulseDot color={COLORS.gold} />
+                : <Feather name="arrow-right" size={15} color={COLORS.gold} />
+              }
+            </Pressable>
+          </View>
+
+          {askResponse && (
+            <View style={[styles.ask3cResponse, { borderTopColor: theme.cardBorder }]}>
+              <View style={styles.ask3cAgentRow}>
+                <Feather name="cpu" size={10} color={COLORS.gold} />
+                <Text style={[styles.ask3cAgent, { color: COLORS.gold }]} numberOfLines={1}>
+                  {askResponse.routedTo || "ONYX AI"}
+                </Text>
+                <Pressable onPress={() => { setAskResponse(null); setAskQuery(""); }} hitSlop={8} style={{ marginLeft: "auto" as never }}>
+                  <Feather name="x" size={12} color={theme.textFaint} />
+                </Pressable>
+              </View>
+              <Text style={[styles.ask3cAnswer, { color: theme.text }]}>
+                {askResponse.answer}
+              </Text>
+            </View>
+          )}
+        </View>
+
         {/* ── Savings hero ────────────────────────────────────────────── */}
         <View style={styles.heroWrap}>
           <SavingsHero meta={meta} isLoading={feedLoading} driverScore={fleetData?.overallDriverScore} />
@@ -809,6 +895,46 @@ export default function HomeScreen() {
         {/* ── Quick access rail ────────────────────────────────────────── */}
         <SectionHeader title={t("home.quickAccess")} />
         <QuickRail actions={quickItems} />
+
+        {/* ── Active Deals strip ───────────────────────────────────────── */}
+        {activeMissions && activeMissions.total > 0 && (
+          <>
+            <SectionHeader
+              title="ACTIVE DEALS"
+              action={`${activeMissions.total} live`}
+              onAction={() => router.push("/deal" as never)}
+            />
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingLeft: 16, paddingRight: 8, gap: 10, paddingBottom: 4 }}
+            >
+              {activeMissions.active.map((s) => (
+                <Pressable
+                  key={s.shipmentId}
+                  onPress={() => router.push({ pathname: "/deal", params: { shipmentId: s.shipmentId } } as never)}
+                  style={({ pressed }) => [
+                    styles.missionPill,
+                    { backgroundColor: theme.card, borderColor: theme.cardBorder, opacity: pressed ? 0.8 : 1 },
+                  ]}
+                >
+                  <View style={[styles.missionPillIconWrap, { backgroundColor: "#60A5FA15" }]}>
+                    <MaterialCommunityIcons name="truck-delivery" size={14} color="#60A5FA" />
+                  </View>
+                  <View style={styles.missionPillInfo}>
+                    <Text style={[styles.missionPillVehicle, { color: theme.text }]} numberOfLines={1}>
+                      {s.vehicle}
+                    </Text>
+                    <Text style={[styles.missionPillStatus, { color: COLORS.emerald }]} numberOfLines={1}>
+                      {s.status.replace(/_/g, " ").toUpperCase()} → {s.destination}
+                    </Text>
+                  </View>
+                  <Text style={[styles.missionPillEta, { color: COLORS.gold }]}>{s.etaDays}d</Text>
+                </Pressable>
+              ))}
+            </ScrollView>
+          </>
+        )}
 
         {/* ── MY FLEET ─────────────────────────────────────────────────── */}
         {fleetData && fleetData.vehicles.length > 0 && (
@@ -1079,6 +1205,25 @@ const styles = StyleSheet.create({
   statusRight: { flexDirection: "row", alignItems: "center", gap: 6 },
   statusDot:   { width: 5, height: 5, borderRadius: 3 },
   statusValue: { fontSize: 10, fontWeight: "700", letterSpacing: 1 },
+
+  // Ask 3C bar
+  ask3cWrap:      { marginHorizontal: 16, marginTop: 10, marginBottom: 4, borderWidth: 1, borderRadius: 18, overflow: "hidden" },
+  ask3cInputRow:  { flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 12, paddingVertical: 10 },
+  ask3cIconWrap:  { width: 32, height: 32, borderRadius: 10, alignItems: "center", justifyContent: "center" },
+  ask3cInput:     { flex: 1, fontSize: 14, fontWeight: "500", paddingVertical: 4 },
+  ask3cBtn:       { width: 36, height: 36, borderRadius: 11, borderWidth: 1, alignItems: "center", justifyContent: "center" },
+  ask3cResponse:  { borderTopWidth: 1, paddingHorizontal: 14, paddingTop: 12, paddingBottom: 14, gap: 8 },
+  ask3cAgentRow:  { flexDirection: "row", alignItems: "center", gap: 6 },
+  ask3cAgent:     { fontSize: 9, fontWeight: "800", letterSpacing: 1, flex: 1 },
+  ask3cAnswer:    { fontSize: 13, fontWeight: "500", lineHeight: 19 },
+
+  // Active deals missions strip
+  missionPill:         { flexDirection: "row", alignItems: "center", gap: 10, borderWidth: 1, borderRadius: 16, paddingHorizontal: 12, paddingVertical: 10, width: 240 },
+  missionPillIconWrap: { width: 32, height: 32, borderRadius: 10, alignItems: "center", justifyContent: "center" },
+  missionPillInfo:     { flex: 1, gap: 2 },
+  missionPillVehicle:  { fontSize: 13, fontWeight: "700" },
+  missionPillStatus:   { fontSize: 9, fontWeight: "700", letterSpacing: 0.5 },
+  missionPillEta:      { fontSize: 13, fontWeight: "800" },
 
   // Footer
   footer:       { alignItems: "center", paddingVertical: 20, gap: 8 },

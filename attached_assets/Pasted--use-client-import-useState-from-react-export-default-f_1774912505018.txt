@@ -1,0 +1,92 @@
+"use client";
+
+import { useState } from "react";
+
+export default function Home() {
+  const [input, setInput] = useState("");
+
+  return (
+    <div className="min-h-screen bg-black text-white p-4">
+      
+      {/* TOP BAR */}
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-xl font-bold text-yellow-400">3C ONYX</h1>
+        <div className="flex gap-4">
+          <span>🔔</span>
+          <span>👤</span>
+        </div>
+      </div>
+
+      {/* ASK 3C */}
+      <div className="bg-zinc-900 p-4 rounded-2xl shadow-lg mb-6">
+        <p className="text-sm text-gray-400 mb-2">Ask 3C</p>
+        <input
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="What do you want to handle?"
+          className="w-full bg-black p-3 rounded-xl outline-none border border-zinc-700"
+        />
+        <button className="mt-3 w-full bg-yellow-500 text-black p-3 rounded-xl font-semibold">
+          Execute
+        </button>
+      </div>
+
+      {/* ACTIVE TASKS */}
+      <div className="mb-6">
+        <h2 className="text-sm text-gray-400 mb-2">Active Tasks</h2>
+
+        <div className="space-y-3">
+          <div className="bg-zinc-900 p-4 rounded-xl">
+            🚚 BMW M2 Delivery — En Route
+          </div>
+          <div className="bg-zinc-900 p-4 rounded-xl">
+            📄 Title Processing — Pending
+          </div>
+          <div className="bg-zinc-900 p-4 rounded-xl">
+            ✅ Deal Approved — Completed
+          </div>
+        </div>
+      </div>
+
+      {/* QUICK ACTIONS */}
+      <div className="mb-6">
+        <h2 className="text-sm text-gray-400 mb-2">Quick Actions</h2>
+        <div className="grid grid-cols-2 gap-3">
+          {["Buy Car", "Service", "Transport", "Finance"].map((item) => (
+            <button
+              key={item}
+              className="bg-zinc-900 p-4 rounded-xl text-left hover:bg-zinc-800"
+            >
+              {item}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* SAVINGS + EARNINGS */}
+      <div className="bg-zinc-900 p-4 rounded-2xl mb-6">
+        <p className="text-gray-400 text-sm">Performance</p>
+        <div className="flex justify-between mt-2">
+          <div>
+            <p className="text-xs text-gray-500">Saved</p>
+            <p className="text-lg text-green-400">$1,250</p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500">Earned</p>
+            <p className="text-lg text-yellow-400">$300</p>
+          </div>
+        </div>
+      </div>
+
+      {/* ACTIVITY FEED */}
+      <div>
+        <h2 className="text-sm text-gray-400 mb-2">Activity</h2>
+        <div className="space-y-2 text-sm">
+          <p className="text-zinc-400">✔ Vehicle secured</p>
+          <p className="text-zinc-400">✔ Transport assigned</p>
+          <p className="text-zinc-400">✔ ETA updated</p>
+        </div>
+      </div>
+    </div>
+  );
+}
