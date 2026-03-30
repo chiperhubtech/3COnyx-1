@@ -6,11 +6,11 @@
 
 'use strict';
 
-const PDFDocument = require('/tmp/node_modules/pdfkit');
+const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const path = require('path');
 
-const OUTPUT = '/tmp/3C_ONYX_Investor_Brief_v4.pdf';
+const OUTPUT = path.join(__dirname, '3C_ONYX_Investor_Brief.pdf');
 
 const BG    = '#0A0A0A';
 const GOLD  = '#D4AF37';
