@@ -72,17 +72,20 @@ The platform's architectural decisions prioritize an AI-first approach with:
 
 **Fraud Scoring Middleware** — rule-based engine + AWS Fraud Detector hook. Scores 0-100 on every registration and payment. CRIT (80+) = block.
 
-## DealerFlow OS — Industry Professional Integration Layer
+## DealerFlow OS v2.0 — Industrial Sovereign Build
 
-**DealerFlow OS** is the Unified Integration Layer for automotive industry professionals (dealerships, fleet managers, service centers). It does NOT replace existing dealership software (AutoMate, Mopar, DealerCONNECT) — it acts as the "Intelligent Connective Tissue" (UACL) that automates the gaps between people, systems, and documents.
+**DealerFlow OS** is the Category-Defining Infrastructure layer for automotive industry professionals. The "Invisible Automation" Trojan Horse — it doesn't replace AutoMate/Mopar/DealerCONNECT, it wraps them in intelligence. Once they scan one document, they can never go back to the manual extension sheet.
 
-- **Smart Routing Engine** (`smart-router.ts`): Keyword-based auto-classification routes incoming tasks to the correct department (DMV, Parts, Service, Finance, Logistics, Sales, Customer Service) and assigns the appropriate UACL agent (Guardian, Source, Finance, Logistics, Concierge). Includes VIN extraction and part number detection.
-- **DealerFlow Task Engine**: PostgreSQL-backed task management with SLA timers, priority levels, department routing, and status tracking. Every action is visible on the live operations dashboard.
-- **Universal Intake Gateway**: Document scanning intake (invoices, DMV forms, titles, Mopar sheets, warranty claims) with smart routing — paste text/OCR output and the system extracts VINs, customer names, part numbers, then auto-creates routed tasks.
-- **Customer Ticket Inbox**: Unified customer communication hub with auto-responses, channel tracking (SMS, Email, Phone, Walk-In, App, WhatsApp), and category-based routing.
+- **Smart Routing Engine v2.0** (`smart-router.ts`): Multi-signal scoring with weighted keywords (word-boundary matching), phrase detection, urgency boosters (customer waiting, bank deadline, safety recall), and bank-readiness signal detection. Routes to 7 departments with UACL agent assignment. Includes VIN extraction, part number detection, customer name extraction, and phone number extraction.
+- **SLA Auto-Escalation**: Automatic detection and bulk escalation of overdue tasks. SLA timers halved for urgent inputs. Breached tasks flagged with visual pulse in dashboard.
+- **Bank-Ready Vault**: Completed finance/DMV tasks with funding signals (bank funded, title received, stipulation cleared) auto-moved to Bank-Ready Vault for submission. Speeds CIT (Contract in Transit) — dealer gets $40k bank check 3 days faster.
+- **3% Dynasty Tech Fee Ledger**: Every completed DealerFlow task logs a tech fee to the commission ledger. Idempotent — only logs on state transition from non-completed to completed. Finance tasks = $15, Sales = $9, Others = $3.
+- **Department Queue Views**: Priority-sorted, age-ordered queue per department. Shows queue position, SLA breach status, and age of each task.
+- **Performance Report**: Manager weekly dashboard with hours saved, efficiency %, paperwork eliminated, SLA compliance rate, department breakdown with completion rates, and revenue impact (tech fees earned).
+- **Tenant Isolation**: All queries/updates scoped by `dealershipId` (from JWT `sub`). No cross-tenant data access. PATCH operations verify ownership before update.
 - **DB Tables**: `dealerflow_tasks`, `document_scans`, `customer_tickets` with full indexing.
-- **API Routes**: `/api/dealerflow/tasks`, `/api/dealerflow/intake`, `/api/dealerflow/tickets`, `/api/dealerflow/dashboard`, `/api/dealerflow/route`.
-- **Web Dashboard**: `dealerflow.tsx` — Card-based operations dashboard with Command Center (stats), Task Board (filterable), Scan & Route (intake), and Customer Inbox tabs.
+- **API Routes**: `/api/dealerflow/tasks`, `/api/dealerflow/intake`, `/api/dealerflow/tickets`, `/api/dealerflow/dashboard`, `/api/dealerflow/queue`, `/api/dealerflow/escalate`, `/api/dealerflow/bank-vault`, `/api/dealerflow/performance`, `/api/dealerflow/route`.
+- **Web Dashboard**: `dealerflow.tsx` — 7-tab Industrial Command Center: Command Center (12 KPI cards + departmental pulses + SLA escalation), Task Board (expandable detail with VIN linking + metadata), Dept Queue (priority-sorted), Scan & Route (enhanced with bank-readiness), Customer Inbox, Bank Vault, Performance Report.
 
 ## Architectural Upgrades
 

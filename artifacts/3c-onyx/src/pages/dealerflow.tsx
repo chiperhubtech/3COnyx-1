@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  Activity, AlertTriangle, CheckCircle2, Clock, FileText,
+  Activity, AlertTriangle, BarChart3, CheckCircle2, Clock, DollarSign, FileText,
   Filter, Inbox, Layers, MessageSquare, Plus, RefreshCw,
-  Route, ScanLine, Send, Shield, Target, TrendingUp, Zap,
+  Route, ScanLine, Send, Shield, Target, TrendingUp, Users, Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -41,6 +41,11 @@ type DFTask = {
   slaDueAt: string | null;
   resolvedAt: string | null;
   createdAt: string;
+  metadata: any;
+  slaBreached?: boolean;
+  minutesOverdue?: number;
+  queuePosition?: number;
+  ageMinutes?: number;
 };
 
 type Ticket = {
@@ -57,6 +62,14 @@ type Ticket = {
   createdAt: string;
 };
 
+type DeptPulse = {
+  department: string;
+  pulse: string;
+  health: string;
+  active: number;
+  overdue: number;
+};
+
 type DashboardStats = {
   tasks: {
     total: number;
@@ -64,20 +77,80 @@ type DashboardStats = {
     inProgress: number;
     completed: number;
     escalated: number;
+    waiting: number;
     completedToday: number;
+    completedThisWeek: number;
     overdueSla: number;
+    critical: number;
+    avgResolutionMinutes: number;
   };
   tickets: {
     total: number;
     newTickets: number;
     open: number;
+    inProgress: number;
     resolved: number;
+    avgResponseMinutes: number;
   };
   scans: {
     total: number;
     routed: number;
+    todayScans: number;
   };
-  departments: Array<{ department: string; count: number }>;
+  departments: Array<{
+    department: string;
+    total: number;
+    open: number;
+    inProgress: number;
+    overdue: number;
+    completed: number;
+  }>;
+  departmentPulses: DeptPulse[];
+};
+
+type PerformanceData = {
+  period: string;
+  weekly: {
+    totalCreated: number;
+    completed: number;
+    escalated: number;
+    avgResolutionMinutes: number;
+    slaComplianceRate: number;
+    avgResolutionFormatted: string;
+  };
+  monthly: {
+    totalCreated: number;
+    completed: number;
+    avgResolutionMinutes: number;
+  };
+  departmentPerformance: Array<{
+    department: string;
+    totalCreated: number;
+    completed: number;
+    avgResolutionMinutes: number;
+    avgResolutionFormatted: string;
+    escalated: number;
+    completionRate: number;
+  }>;
+  tickets: {
+    totalCreated: number;
+    resolved: number;
+    avgResponseMinutes: number;
+  };
+  scans: {
+    totalScans: number;
+    routed: number;
+  };
+  techFees: {
+    totalFees: number;
+    pendingFees: number;
+  };
+  impact: {
+    hoursSaved: number;
+    efficiency: number;
+    paperworkEliminated: number;
+    customerResponseImprovement: string;
+  };
 };
 
 const DEPARTMENTS = ["DMV", "Parts", "Service", "Finance", "Logistics", "Sales", "Customer_Service", "General"];
@@ -96,6 +169,14 @@ function deptColor(dept: string) {
     General: "text-zinc-400 bg-zinc-400/10 border-zinc-400/30",
   };
   return map[dept] || map.General;
+}
+
+function deptIcon(dept: string) {
+  const map: Record<string, string> = {
+    DMV: "📋", Parts: "🔧", Service: "🛠️", Finance: "💰",
+    Logistics: "🚛", Sales: "🤝", Customer_Service: "📞", General: "📁",
+  };
+  return map[dept] || "📁";
 }
 
 function statusBadge(s: string) {
@@ -142,19 +223,29 @@ function slaStatus(slaDueAt: string | null, status: string) {
   return { label: `${hrs}h left`, color: hrs <= 2 ? "text-yellow-400" : "text-zinc-400" };
 }
 
-type Tab = "dashboard" | "tasks" | "intake" | "tickets";
+function formatMinutes(mins: number) {
+  if (!mins || mins <= 0) return "—";
+  const h = Math.floor(mins / 60);
+  const m = Math.round(mins % 60);
+  return h > 0 ? `${h}h ${m}m` : `${m}m`;
+}
+
+type Tab = "dashboard" | "tasks" | "intake" | "tickets" | "queue" | "performance" | "vault";
 
 export default function DealerFlowOS() {
   const [tab, setTab] = useState<Tab>("dashboard");
   const [deptFilter, setDeptFilter] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("");
-  const qc = useQueryClient();
+  const [queueDept, setQueueDept] = useState("DMV");
 
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
     { id: "dashboard", label: "Command Center", icon: <Activity className="w-4 h-4" /> },
     { id: "tasks", label: "Task Board", icon: <Layers className="w-4 h-4" /> },
+    { id: "queue", label: "Dept Queue", icon: <Users className="w-4 h-4" /> },
     { id: "intake", label: "Scan & Route", icon: <ScanLine className="w-4 h-4" /> },
-    { id: "tickets", label: "Customer Inbox", icon: <Inbox className="w-4 h-4" /> },
+    { id: "tickets", label: "Inbox", icon: <Inbox className="w-4 h-4" /> },
+    { id: "vault", label: "Bank Vault", icon: <DollarSign className="w-4 h-4" /> },
+    { id: "performance", label: "Performance", icon: <BarChart3 className="w-4 h-4" /> },
   ];
 
   return (
@@ -167,40 +258,53 @@ export default function DealerFlowOS() {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-white tracking-tight">DealerFlow OS</h1>
-              <p className="text-xs text-zinc-500">Unified Integration Layer &mdash; 3C ONYX</p>
+              <p className="text-xs text-zinc-500">Industrial Sovereign Build &mdash; 3C ONYX</p>
             </div>
           </div>
         </div>
-        <div className="flex gap-1 bg-zinc-900/80 rounded-lg p-1 border border-zinc-800">
+        <div className="flex gap-1 bg-zinc-900/80 rounded-lg p-1 border border-zinc-800 flex-wrap">
           {tabs.map((t) => (
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
               className={cn(
-                "flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all",
+                "flex items-center gap-1.5 px-2.5 py-2 rounded-md text-xs font-medium transition-all",
                 tab === t.id ? "bg-amber-500/20 text-amber-300 border border-amber-500/30" : "text-zinc-400 hover:text-white hover:bg-zinc-800"
               )}
             >
               {t.icon}
-              <span className="hidden sm:inline">{t.label}</span>
+              <span className="hidden lg:inline">{t.label}</span>
             </button>
           ))}
         </div>
       </header>
 
-      {tab === "dashboard" && <CommandCenter />}
+      {tab === "dashboard" && <CommandCenter onNavigate={setTab} onSelectDept={(d) => { setQueueDept(d); setTab("queue"); }} />}
       {tab === "tasks" && <TaskBoard deptFilter={deptFilter} setDeptFilter={setDeptFilter} statusFilter={statusFilter} setStatusFilter={setStatusFilter} />}
       {tab === "intake" && <IntakeScanner />}
       {tab === "tickets" && <TicketInbox />}
+      {tab === "queue" && <DeptQueue department={queueDept} setDepartment={setQueueDept} />}
+      {tab === "vault" && <BankVault />}
+      {tab === "performance" && <PerformanceReport />}
     </div>
   );
 }
 
-function CommandCenter() {
+function CommandCenter({ onNavigate, onSelectDept }: { onNavigate: (t: Tab) => void; onSelectDept: (d: string) => void }) {
+  const qc = useQueryClient();
   const { data: stats, isLoading, refetch } = useQuery<DashboardStats>({
     queryKey: ["dealerflow-dashboard"],
     queryFn: () => authFetch(`${BASE}/api/dealerflow/dashboard`).then((r) => r.json()),
     refetchInterval: 15000,
+  });
+
+  const escalate = useMutation({
+    mutationFn: () =>
+      authFetch(`${BASE}/api/dealerflow/escalate`, { method: "POST", headers: { "Content-Type": "application/json" } }).then((r) => r.json()),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["dealerflow-dashboard"] });
+      qc.invalidateQueries({ queryKey: ["dealerflow-tasks"] });
+    },
   });
 
   if (isLoading) {
@@ -211,53 +315,107 @@ function CommandCenter() {
     );
   }
 
-  const s = stats?.tasks || { total: 0, open: 0, inProgress: 0, completed: 0, escalated: 0, completedToday: 0, overdueSla: 0 };
-  const t = stats?.tickets || { total: 0, newTickets: 0, open: 0, resolved: 0 };
-  const sc = stats?.scans || { total: 0, routed: 0 };
+  const s = stats?.tasks || { total: 0, open: 0, inProgress: 0, completed: 0, escalated: 0, waiting: 0, completedToday: 0, completedThisWeek: 0, overdueSla: 0, critical: 0, avgResolutionMinutes: 0 };
+  const t = stats?.tickets || { total: 0, newTickets: 0, open: 0, inProgress: 0, resolved: 0, avgResponseMinutes: 0 };
+  const sc = stats?.scans || { total: 0, routed: 0, todayScans: 0 };
 
   const metrics = [
     { label: "Open Tasks", value: s.open, icon: <Layers className="w-5 h-5" />, color: "text-blue-400", bg: "bg-blue-500/10 border-blue-500/20" },
     { label: "In Progress", value: s.inProgress, icon: <Activity className="w-5 h-5" />, color: "text-yellow-400", bg: "bg-yellow-500/10 border-yellow-500/20" },
     { label: "Completed Today", value: s.completedToday, icon: <CheckCircle2 className="w-5 h-5" />, color: "text-emerald-400", bg: "bg-emerald-500/10 border-emerald-500/20" },
-    { label: "SLA Overdue", value: s.overdueSla, icon: <AlertTriangle className="w-5 h-5" />, color: s.overdueSla > 0 ? "text-red-400" : "text-zinc-500", bg: s.overdueSla > 0 ? "bg-red-500/10 border-red-500/20" : "bg-zinc-800 border-zinc-700" },
+    { label: "SLA Overdue", value: s.overdueSla, icon: <AlertTriangle className="w-5 h-5" />, color: s.overdueSla > 0 ? "text-red-400" : "text-zinc-500", bg: s.overdueSla > 0 ? "bg-red-500/10 border-red-500/20 animate-pulse" : "bg-zinc-800 border-zinc-700" },
+    { label: "Critical", value: s.critical, icon: <Zap className="w-5 h-5" />, color: s.critical > 0 ? "text-red-400" : "text-zinc-500", bg: s.critical > 0 ? "bg-red-500/10 border-red-500/20" : "bg-zinc-800 border-zinc-700" },
     { label: "New Tickets", value: t.newTickets, icon: <MessageSquare className="w-5 h-5" />, color: "text-indigo-400", bg: "bg-indigo-500/10 border-indigo-500/20" },
-    { label: "Documents Scanned", value: sc.total, icon: <ScanLine className="w-5 h-5" />, color: "text-cyan-400", bg: "bg-cyan-500/10 border-cyan-500/20" },
-    { label: "Escalated", value: s.escalated, icon: <Zap className="w-5 h-5" />, color: s.escalated > 0 ? "text-orange-400" : "text-zinc-500", bg: s.escalated > 0 ? "bg-orange-500/10 border-orange-500/20" : "bg-zinc-800 border-zinc-700" },
+    { label: "Scans Today", value: sc.todayScans, icon: <ScanLine className="w-5 h-5" />, color: "text-cyan-400", bg: "bg-cyan-500/10 border-cyan-500/20" },
+    { label: "Avg Resolution", value: formatMinutes(s.avgResolutionMinutes), icon: <Clock className="w-5 h-5" />, color: "text-amber-400", bg: "bg-amber-500/10 border-amber-500/20" },
+    { label: "This Week", value: s.completedThisWeek, icon: <TrendingUp className="w-5 h-5" />, color: "text-emerald-400", bg: "bg-emerald-500/10 border-emerald-500/20" },
+    { label: "Escalated", value: s.escalated, icon: <AlertTriangle className="w-5 h-5" />, color: s.escalated > 0 ? "text-orange-400" : "text-zinc-500", bg: s.escalated > 0 ? "bg-orange-500/10 border-orange-500/20" : "bg-zinc-800 border-zinc-700" },
     { label: "Total Resolved", value: s.completed, icon: <Target className="w-5 h-5" />, color: "text-emerald-400", bg: "bg-emerald-500/10 border-emerald-500/20" },
+    { label: "Total Scanned", value: sc.total, icon: <FileText className="w-5 h-5" />, color: "text-purple-400", bg: "bg-purple-500/10 border-purple-500/20" },
   ];
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <button onClick={() => onNavigate("tasks")} className="col-span-1 bg-gradient-to-br from-amber-600/20 to-amber-700/10 border border-amber-500/30 rounded-xl p-5 text-left hover:border-amber-500/50 transition group">
+          <Plus className="w-7 h-7 text-amber-400 mb-2 group-hover:scale-110 transition" />
+          <p className="text-sm font-bold text-white">New Task</p>
+          <p className="text-[10px] text-zinc-500 mt-0.5">Create & auto-route</p>
+        </button>
+        <button onClick={() => onNavigate("intake")} className="col-span-1 bg-gradient-to-br from-cyan-600/20 to-cyan-700/10 border border-cyan-500/30 rounded-xl p-5 text-left hover:border-cyan-500/50 transition group">
+          <ScanLine className="w-7 h-7 text-cyan-400 mb-2 group-hover:scale-110 transition" />
+          <p className="text-sm font-bold text-white">Scan Document</p>
+          <p className="text-[10px] text-zinc-500 mt-0.5">OCR intake gateway</p>
+        </button>
+        <button onClick={() => onNavigate("tickets")} className="col-span-1 bg-gradient-to-br from-indigo-600/20 to-indigo-700/10 border border-indigo-500/30 rounded-xl p-5 text-left hover:border-indigo-500/50 transition group">
+          <Inbox className="w-7 h-7 text-indigo-400 mb-2 group-hover:scale-110 transition" />
+          <p className="text-sm font-bold text-white">Customer Inbox</p>
+          <p className="text-[10px] text-zinc-500 mt-0.5">{t.newTickets} new message{t.newTickets !== 1 ? "s" : ""}</p>
+        </button>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
         {metrics.map((m) => (
-          <div key={m.label} className={cn("rounded-xl border p-4", m.bg)}>
-            <div className={cn("mb-2", m.color)}>{m.icon}</div>
-            <p className="text-2xl font-bold text-white">{m.value}</p>
-            <p className="text-xs text-zinc-400 mt-1">{m.label}</p>
+          <div key={m.label} className={cn("rounded-xl border p-3.5", m.bg)}>
+            <div className={cn("mb-1.5", m.color)}>{m.icon}</div>
+            <p className="text-xl font-bold text-white">{m.value}</p>
+            <p className="text-[10px] text-zinc-400 mt-0.5">{m.label}</p>
           </div>
         ))}
       </div>
 
-      {(stats?.departments?.length ?? 0) > 0 && (
+      {(stats?.departmentPulses?.length ?? 0) > 0 && (
         <div className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-5">
           <h3 className="text-sm font-semibold text-zinc-300 mb-4 flex items-center gap-2">
-            <Route className="w-4 h-4 text-amber-400" /> Active by Department
+            <Route className="w-4 h-4 text-amber-400" /> Departmental Pulses
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {stats!.departments.map((d) => (
-              <div key={d.department} className={cn("rounded-lg border px-4 py-3", deptColor(d.department))}>
-                <p className="text-lg font-bold">{d.count}</p>
-                <p className="text-xs mt-0.5">{d.department.replace("_", " ")}</p>
-              </div>
+            {stats!.departmentPulses.map((d) => (
+              <button
+                key={d.department}
+                onClick={() => onSelectDept(d.department)}
+                className={cn(
+                  "rounded-lg border px-4 py-3 text-left hover:border-opacity-70 transition cursor-pointer",
+                  deptColor(d.department),
+                  d.health === "warning" ? "ring-1 ring-red-500/30" : ""
+                )}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-lg">{deptIcon(d.department)}</span>
+                  {d.health === "warning" && <span className="w-2 h-2 rounded-full bg-red-400 animate-pulse" />}
+                </div>
+                <p className="text-sm font-bold">{d.active} Active</p>
+                <p className="text-[10px] mt-0.5">{d.department.replace("_", " ")}</p>
+                {d.overdue > 0 && <p className="text-[10px] text-red-400 mt-0.5">{d.overdue} overdue</p>}
+              </button>
             ))}
           </div>
+        </div>
+      )}
+
+      {s.overdueSla > 0 && (
+        <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <AlertTriangle className="w-5 h-5 text-red-400 animate-pulse" />
+            <div>
+              <p className="text-sm font-semibold text-red-300">{s.overdueSla} Task{s.overdueSla !== 1 ? "s" : ""} Past SLA Deadline</p>
+              <p className="text-[10px] text-zinc-500">Auto-escalation will flag these for manager review</p>
+            </div>
+          </div>
+          <button
+            onClick={() => escalate.mutate()}
+            disabled={escalate.isPending}
+            className="bg-red-500/20 text-red-300 border border-red-500/30 px-4 py-2 rounded-lg text-xs font-semibold hover:bg-red-500/30 transition disabled:opacity-50"
+          >
+            {escalate.isPending ? "Escalating..." : "Escalate All"}
+          </button>
         </div>
       )}
 
       <div className="bg-zinc-900/40 rounded-xl border border-zinc-800 p-4 flex items-center gap-3">
         <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
         <span className="text-xs text-zinc-500">
-          DealerFlow OS — Powered by 3C ONYX UACL &mdash; Architected by Ronald Antonio Cadet
+          DealerFlow OS v2.0 &mdash; Industrial Sovereign Build &mdash; Architected by Ronald Antonio Cadet
         </span>
         <button onClick={() => refetch()} className="ml-auto text-zinc-500 hover:text-white transition">
           <RefreshCw className="w-4 h-4" />
@@ -272,6 +430,7 @@ function TaskBoard({ deptFilter, setDeptFilter, statusFilter, setStatusFilter }:
   statusFilter: string; setStatusFilter: (v: string) => void;
 }) {
   const [showCreate, setShowCreate] = useState(false);
+  const [expandedTask, setExpandedTask] = useState<number | null>(null);
   const qc = useQueryClient();
 
   const qs = new URLSearchParams();
@@ -287,7 +446,10 @@ function TaskBoard({ deptFilter, setDeptFilter, statusFilter, setStatusFilter }:
   const updateTask = useMutation({
     mutationFn: ({ id, ...body }: { id: number; status?: string; priority?: string }) =>
       authFetch(`${BASE}/api/dealerflow/tasks/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then((r) => r.json()),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["dealerflow-tasks"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["dealerflow-tasks"] });
+      qc.invalidateQueries({ queryKey: ["dealerflow-dashboard"] });
+    },
   });
 
   const tasks = data?.tasks || [];
@@ -320,55 +482,109 @@ function TaskBoard({ deptFilter, setDeptFilter, statusFilter, setStatusFilter }:
         </div>
       ) : (
         <div className="space-y-2">
-          {tasks.map((t) => {
-            const sla = slaStatus(t.slaDueAt, t.status);
+          {tasks.map((task) => {
+            const sla = slaStatus(task.slaDueAt, task.status);
+            const expanded = expandedTask === task.id;
+            const meta = task.metadata || {};
             return (
-              <div key={t.id} className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-4 hover:border-zinc-700 transition">
+              <div key={task.id} className={cn("bg-zinc-900/60 rounded-xl border p-4 transition cursor-pointer", task.slaBreached ? "border-red-500/30" : "border-zinc-800 hover:border-zinc-700")} onClick={() => setExpandedTask(expanded ? null : task.id)}>
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
-                      <span className={cn("text-[10px] font-bold uppercase px-2 py-0.5 rounded border", deptColor(t.department))}>
-                        {t.department.replace("_", " ")}
+                      <span className={cn("text-[10px] font-bold uppercase px-2 py-0.5 rounded border", deptColor(task.department))}>
+                        {deptIcon(task.department)} {task.department.replace("_", " ")}
                       </span>
-                      <span className={cn("text-[10px] font-medium px-2 py-0.5 rounded border", statusBadge(t.status))}>
-                        {t.status.replace("_", " ")}
+                      <span className={cn("text-[10px] font-medium px-2 py-0.5 rounded border", statusBadge(task.status))}>
+                        {task.status.replace("_", " ")}
                       </span>
-                      <span className={cn("text-[10px] font-medium px-2 py-0.5 rounded", priorityBadge(t.priority))}>
-                        {t.priority}
+                      <span className={cn("text-[10px] font-medium px-2 py-0.5 rounded", priorityBadge(task.priority))}>
+                        {task.priority}
                       </span>
-                      {t.routedByAgent && (
+                      {task.routedByAgent && (
                         <span className="text-[10px] text-zinc-500 flex items-center gap-1">
-                          <Route className="w-3 h-3" /> {t.routedByAgent} Agent
+                          <Route className="w-3 h-3" /> {task.routedByAgent}
+                        </span>
+                      )}
+                      {meta.bankReady && (
+                        <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded flex items-center gap-1">
+                          <DollarSign className="w-3 h-3" /> Bank Ready
                         </span>
                       )}
                     </div>
-                    <h4 className="text-sm font-semibold text-white truncate">{t.title}</h4>
-                    {t.description && <p className="text-xs text-zinc-500 mt-1 line-clamp-2">{t.description}</p>}
+                    <h4 className="text-sm font-semibold text-white truncate">{task.title}</h4>
+                    {task.description && <p className="text-xs text-zinc-500 mt-1 line-clamp-2">{task.description}</p>}
                     <div className="flex items-center gap-3 mt-2 text-[10px] text-zinc-600">
-                      <span>#{t.id}</span>
-                      {t.vin && <span className="text-zinc-500">VIN: {t.vin}</span>}
-                      <span>{timeAgo(t.createdAt)}</span>
+                      <span>#{task.id}</span>
+                      {task.vin && <span className="text-zinc-500 font-mono">VIN: {task.vin}</span>}
+                      <span>{timeAgo(task.createdAt)}</span>
                       {sla && <span className={sla.color}><Clock className="w-3 h-3 inline mr-0.5" />{sla.label}</span>}
+                      {task.slaBreached && <span className="text-red-400 font-bold animate-pulse">SLA BREACHED ({task.minutesOverdue}m)</span>}
                     </div>
                   </div>
-                  <div className="flex flex-col gap-1">
-                    {t.status === "Open" && (
-                      <button onClick={() => updateTask.mutate({ id: t.id, status: "In_Progress" })} className="text-[10px] bg-yellow-500/20 text-yellow-300 px-2 py-1 rounded hover:bg-yellow-500/30 transition">
+                  <div className="flex flex-col gap-1" onClick={(e) => e.stopPropagation()}>
+                    {task.status === "Open" && (
+                      <button onClick={() => updateTask.mutate({ id: task.id, status: "In_Progress" })} className="text-[10px] bg-yellow-500/20 text-yellow-300 px-2 py-1 rounded hover:bg-yellow-500/30 transition">
                         Start
                       </button>
                     )}
-                    {t.status === "In_Progress" && (
-                      <button onClick={() => updateTask.mutate({ id: t.id, status: "Completed" })} className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded hover:bg-emerald-500/30 transition">
+                    {task.status === "In_Progress" && (
+                      <button onClick={() => updateTask.mutate({ id: task.id, status: "Completed" })} className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded hover:bg-emerald-500/30 transition">
                         Complete
                       </button>
                     )}
-                    {(t.status === "Open" || t.status === "In_Progress") && (
-                      <button onClick={() => updateTask.mutate({ id: t.id, status: "Escalated" })} className="text-[10px] bg-red-500/20 text-red-300 px-2 py-1 rounded hover:bg-red-500/30 transition">
+                    {(task.status === "Open" || task.status === "In_Progress") && (
+                      <button onClick={() => updateTask.mutate({ id: task.id, status: "Escalated" })} className="text-[10px] bg-red-500/20 text-red-300 px-2 py-1 rounded hover:bg-red-500/30 transition">
                         Escalate
                       </button>
                     )}
                   </div>
                 </div>
+
+                {expanded && (
+                  <div className="mt-4 pt-4 border-t border-zinc-800 space-y-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      <div className="bg-zinc-800/80 rounded-lg px-3 py-2">
+                        <p className="text-[10px] text-zinc-500 uppercase">Intake Type</p>
+                        <p className="text-xs font-semibold text-white">{task.intakeType}</p>
+                      </div>
+                      <div className="bg-zinc-800/80 rounded-lg px-3 py-2">
+                        <p className="text-[10px] text-zinc-500 uppercase">SLA Window</p>
+                        <p className="text-xs font-semibold text-white">{formatMinutes(task.slaMinutes)}</p>
+                      </div>
+                      <div className="bg-zinc-800/80 rounded-lg px-3 py-2">
+                        <p className="text-[10px] text-zinc-500 uppercase">Confidence</p>
+                        <p className="text-xs font-semibold text-white">{Math.round(parseFloat(task.routingConfidence || "0") * 100)}%</p>
+                      </div>
+                      <div className="bg-zinc-800/80 rounded-lg px-3 py-2">
+                        <p className="text-[10px] text-zinc-500 uppercase">Created</p>
+                        <p className="text-xs font-semibold text-white">{new Date(task.createdAt).toLocaleString()}</p>
+                      </div>
+                    </div>
+                    {task.vin && (
+                      <div className="bg-purple-500/5 border border-purple-500/20 rounded-lg px-4 py-3">
+                        <p className="text-[10px] text-purple-400 uppercase font-medium mb-1">VIN-Linked Vehicle</p>
+                        <p className="text-sm font-mono text-white">{task.vin}</p>
+                      </div>
+                    )}
+                    {meta.extractedCustomerName && (
+                      <div className="text-xs text-zinc-400">Customer: <span className="text-white">{meta.extractedCustomerName}</span></div>
+                    )}
+                    {meta.matchedKeywords?.length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {meta.matchedKeywords.map((kw: string) => (
+                          <span key={kw} className="text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded">{kw}</span>
+                        ))}
+                      </div>
+                    )}
+                    {meta.bankReadySignals?.length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {meta.bankReadySignals.map((sig: string) => (
+                          <span key={sig} className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded">{sig}</span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })}
@@ -448,7 +664,7 @@ function IntakeScanner() {
           <ScanLine className="w-4 h-4 text-cyan-400" /> Universal Intake Gateway
         </h3>
         <p className="text-xs text-zinc-500">
-          Paste document text, OCR output, SMS, or email content. The Smart Router will extract VINs, part numbers, and customer info — then auto-create a routed task.
+          Paste document text, OCR output, SMS, or email content. The Smart Router will extract VINs, part numbers, customer info, and bank-readiness signals — then auto-create a routed task.
         </p>
         <select value={docType} onChange={(e) => setDocType(e.target.value)} className="bg-zinc-800 text-zinc-300 text-sm rounded-lg px-3 py-2 border border-zinc-700 w-full sm:w-auto">
           {DOC_TYPES.map((d) => <option key={d} value={d}>{d.replace("_", " ")}</option>)}
@@ -495,6 +711,24 @@ Example: 'Customer: John Smith needs title transfer for VIN 1C4RJFBG5LC123456. S
               <p className="text-sm font-semibold text-amber-300">#{result.task?.id || "—"}</p>
             </div>
           </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="bg-zinc-800 rounded-lg px-3 py-2">
+              <p className="text-[10px] text-zinc-500 uppercase">Priority</p>
+              <p className={cn("text-sm font-semibold", result.routing?.suggestedPriority === "Critical" ? "text-red-300" : "text-white")}>{result.routing?.suggestedPriority || "Medium"}</p>
+            </div>
+            <div className="bg-zinc-800 rounded-lg px-3 py-2">
+              <p className="text-[10px] text-zinc-500 uppercase">SLA</p>
+              <p className="text-sm font-semibold text-white">{formatMinutes(result.routing?.slaMinutes || 0)}</p>
+            </div>
+            <div className="bg-zinc-800 rounded-lg px-3 py-2">
+              <p className="text-[10px] text-zinc-500 uppercase">Urgency</p>
+              <p className="text-sm font-semibold text-white">{result.routing?.urgencyScore || 0}</p>
+            </div>
+            <div className="bg-zinc-800 rounded-lg px-3 py-2">
+              <p className="text-[10px] text-zinc-500 uppercase">Bank Ready</p>
+              <p className={cn("text-sm font-semibold", result.routing?.bankReady ? "text-emerald-300" : "text-zinc-500")}>{result.routing?.bankReady ? "Yes" : "No"}</p>
+            </div>
+          </div>
           {result.scan?.extractedVin && (
             <div className="flex items-center gap-2 text-xs text-zinc-400">
               <Shield className="w-3 h-3 text-purple-400" /> Extracted VIN: <span className="text-white font-mono">{result.scan.extractedVin}</span>
@@ -507,8 +741,323 @@ Example: 'Customer: John Smith needs title transfer for VIN 1C4RJFBG5LC123456. S
               ))}
             </div>
           )}
+          {result.routing?.matchedPhrases?.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              {result.routing.matchedPhrases.map((ph: string) => (
+                <span key={ph} className="text-[10px] bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded">{ph}</span>
+              ))}
+            </div>
+          )}
+          {result.routing?.bankReadySignals?.length > 0 && (
+            <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-lg px-3 py-2 mt-2">
+              <p className="text-[10px] text-emerald-400 uppercase font-medium mb-1">Bank-Ready Signals Detected</p>
+              <div className="flex flex-wrap gap-1">
+                {result.routing.bankReadySignals.map((s: string) => (
+                  <span key={s} className="text-[10px] bg-emerald-500/10 text-emerald-300 px-2 py-0.5 rounded">{s}</span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
+    </div>
+  );
+}
+
+function DeptQueue({ department, setDepartment }: { department: string; setDepartment: (d: string) => void }) {
+  const qc = useQueryClient();
+
+  const { data, isLoading } = useQuery<{ queue: DFTask[]; count: number }>({
+    queryKey: ["dealerflow-queue", department],
+    queryFn: () => authFetch(`${BASE}/api/dealerflow/queue?department=${department}`).then((r) => r.json()),
+    refetchInterval: 10000,
+  });
+
+  const updateTask = useMutation({
+    mutationFn: ({ id, ...body }: { id: number; status?: string }) =>
+      authFetch(`${BASE}/api/dealerflow/tasks/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then((r) => r.json()),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["dealerflow-queue"] });
+      qc.invalidateQueries({ queryKey: ["dealerflow-dashboard"] });
+    },
+  });
+
+  const queue = data?.queue || [];
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-3">
+        <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+          <Users className="w-4 h-4 text-amber-400" /> Department Queue
+        </h3>
+        <select value={department} onChange={(e) => setDepartment(e.target.value)} className="bg-zinc-800 text-zinc-300 text-sm rounded-lg px-3 py-1.5 border border-zinc-700">
+          {DEPARTMENTS.map((d) => <option key={d} value={d}>{deptIcon(d)} {d.replace("_", " ")}</option>)}
+        </select>
+        <span className="text-xs text-zinc-500 ml-auto">{queue.length} in queue</span>
+      </div>
+
+      <div className={cn("bg-zinc-900/40 rounded-xl border p-4", deptColor(department))}>
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">{deptIcon(department)}</span>
+          <div>
+            <p className="text-lg font-bold text-white">{department.replace("_", " ")} Queue</p>
+            <p className="text-xs text-zinc-500">Sorted by priority then age (oldest first)</p>
+          </div>
+        </div>
+      </div>
+
+      {isLoading ? (
+        <div className="flex justify-center py-12"><RefreshCw className="w-6 h-6 text-amber-400 animate-spin" /></div>
+      ) : queue.length === 0 ? (
+        <div className="text-center py-16 text-zinc-500">
+          <CheckCircle2 className="w-12 h-12 mx-auto mb-3 opacity-40" />
+          <p className="text-sm">Queue is clear. All {department.replace("_", " ")} tasks are resolved.</p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {queue.map((task) => (
+            <div key={task.id} className={cn("bg-zinc-900/60 rounded-xl border p-4", task.slaBreached ? "border-red-500/30" : "border-zinc-800")}>
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <span className="text-[10px] bg-zinc-700 text-white font-bold px-2 py-0.5 rounded">#{task.queuePosition}</span>
+                    <span className={cn("text-[10px] font-medium px-2 py-0.5 rounded border", statusBadge(task.status))}>
+                      {task.status.replace("_", " ")}
+                    </span>
+                    <span className={cn("text-[10px] font-medium px-2 py-0.5 rounded", priorityBadge(task.priority))}>
+                      {task.priority}
+                    </span>
+                    {task.slaBreached && <span className="text-[10px] text-red-400 font-bold animate-pulse">SLA BREACHED</span>}
+                  </div>
+                  <h4 className="text-sm font-semibold text-white">{task.title}</h4>
+                  <div className="flex items-center gap-3 mt-2 text-[10px] text-zinc-600">
+                    <span>#{task.id}</span>
+                    {task.vin && <span className="text-zinc-500 font-mono">VIN: {task.vin}</span>}
+                    <span>Age: {formatMinutes(task.ageMinutes || 0)}</span>
+                    {task.minutesOverdue && task.minutesOverdue > 0 && <span className="text-red-400">{formatMinutes(task.minutesOverdue)} overdue</span>}
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1">
+                  {task.status === "Open" && (
+                    <button onClick={() => updateTask.mutate({ id: task.id, status: "In_Progress" })} className="text-[10px] bg-yellow-500/20 text-yellow-300 px-3 py-1.5 rounded hover:bg-yellow-500/30 transition font-medium">
+                      Start
+                    </button>
+                  )}
+                  {task.status === "In_Progress" && (
+                    <button onClick={() => updateTask.mutate({ id: task.id, status: "Completed" })} className="text-[10px] bg-emerald-500/20 text-emerald-300 px-3 py-1.5 rounded hover:bg-emerald-500/30 transition font-medium">
+                      Complete
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function BankVault() {
+  const { data, isLoading } = useQuery<{ vaultItems: DFTask[]; count: number }>({
+    queryKey: ["dealerflow-vault"],
+    queryFn: () => authFetch(`${BASE}/api/dealerflow/bank-vault`).then((r) => r.json()),
+    refetchInterval: 30000,
+  });
+
+  const items = data?.vaultItems || [];
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-gradient-to-br from-emerald-900/30 to-emerald-950/10 rounded-xl border border-emerald-500/30 p-5">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+            <DollarSign className="w-5 h-5 text-emerald-400" />
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-white">Bank-Ready Vault</h3>
+            <p className="text-xs text-zinc-500">Completed tasks that fulfill funding requirements — ready for bank submission</p>
+          </div>
+          <div className="ml-auto text-right">
+            <p className="text-2xl font-bold text-emerald-300">{items.length}</p>
+            <p className="text-[10px] text-zinc-500">Funding Ready</p>
+          </div>
+        </div>
+      </div>
+
+      {isLoading ? (
+        <div className="flex justify-center py-12"><RefreshCw className="w-6 h-6 text-emerald-400 animate-spin" /></div>
+      ) : items.length === 0 ? (
+        <div className="text-center py-16 text-zinc-500">
+          <DollarSign className="w-12 h-12 mx-auto mb-3 opacity-40" />
+          <p className="text-sm">No bank-ready documents yet. Complete finance/DMV tasks with funding signals to populate the vault.</p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {items.map((item: any) => (
+            <div key={item.id} className="bg-zinc-900/60 rounded-xl border border-emerald-500/20 p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className={cn("text-[10px] font-bold uppercase px-2 py-0.5 rounded border", deptColor(item.department))}>
+                      {item.department}
+                    </span>
+                    <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded">Bank Ready</span>
+                  </div>
+                  <h4 className="text-sm font-semibold text-white">{item.title}</h4>
+                  {item.vin && <p className="text-xs text-zinc-500 font-mono mt-1">VIN: {item.vin}</p>}
+                  <div className="flex items-center gap-3 mt-2 text-[10px] text-zinc-600">
+                    <span>#{item.id}</span>
+                    <span>Resolved: {item.resolvedAt ? new Date(item.resolvedAt).toLocaleDateString() : "—"}</span>
+                  </div>
+                  {item.fundingSignals?.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {item.fundingSignals.map((s: string) => (
+                        <span key={s} className="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded">{s}</span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-1" />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PerformanceReport() {
+  const { data, isLoading, refetch } = useQuery<PerformanceData>({
+    queryKey: ["dealerflow-performance"],
+    queryFn: () => authFetch(`${BASE}/api/dealerflow/performance`).then((r) => r.json()),
+    refetchInterval: 60000,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <RefreshCw className="w-8 h-8 text-amber-400 animate-spin" />
+      </div>
+    );
+  }
+
+  const w = data?.weekly || { totalCreated: 0, completed: 0, escalated: 0, avgResolutionMinutes: 0, slaComplianceRate: 0, avgResolutionFormatted: "—" };
+  const m = data?.monthly || { totalCreated: 0, completed: 0, avgResolutionMinutes: 0 };
+  const impact = data?.impact || { hoursSaved: 0, efficiency: 0, paperworkEliminated: 0, customerResponseImprovement: "—" };
+  const fees = data?.techFees || { totalFees: 0, pendingFees: 0 };
+
+  return (
+    <div className="space-y-6">
+      <div className="bg-gradient-to-br from-amber-900/20 to-zinc-900 rounded-xl border border-amber-500/30 p-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <BarChart3 className="w-6 h-6 text-amber-400" />
+            <div>
+              <h3 className="text-lg font-bold text-white">DealerFlow Performance Report</h3>
+              <p className="text-xs text-zinc-500">{data?.period || "Last 7 Days"} — Manager Dashboard</p>
+            </div>
+          </div>
+          <button onClick={() => refetch()} className="text-zinc-500 hover:text-white transition">
+            <RefreshCw className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-4">
+          <p className="text-[10px] text-zinc-500 uppercase mb-1">Hours Saved</p>
+          <p className="text-2xl font-bold text-emerald-300">{impact.hoursSaved}h</p>
+          <p className="text-[10px] text-zinc-500 mt-1">This week</p>
+        </div>
+        <div className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-4">
+          <p className="text-[10px] text-zinc-500 uppercase mb-1">Efficiency</p>
+          <p className="text-2xl font-bold text-amber-300">{impact.efficiency}%</p>
+          <p className="text-[10px] text-zinc-500 mt-1">Completion rate</p>
+        </div>
+        <div className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-4">
+          <p className="text-[10px] text-zinc-500 uppercase mb-1">Paperwork Cut</p>
+          <p className="text-2xl font-bold text-cyan-300">{impact.paperworkEliminated}</p>
+          <p className="text-[10px] text-zinc-500 mt-1">Documents auto-routed</p>
+        </div>
+        <div className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-4">
+          <p className="text-[10px] text-zinc-500 uppercase mb-1">Avg Response</p>
+          <p className="text-2xl font-bold text-indigo-300">{impact.customerResponseImprovement}</p>
+          <p className="text-[10px] text-zinc-500 mt-1">Customer tickets</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-5">
+          <h4 className="text-sm font-semibold text-zinc-300 mb-4">Weekly Summary</h4>
+          <div className="space-y-3">
+            <div className="flex justify-between text-sm"><span className="text-zinc-500">Tasks Created</span><span className="text-white font-semibold">{w.totalCreated}</span></div>
+            <div className="flex justify-between text-sm"><span className="text-zinc-500">Tasks Completed</span><span className="text-emerald-300 font-semibold">{w.completed}</span></div>
+            <div className="flex justify-between text-sm"><span className="text-zinc-500">Escalated</span><span className="text-red-300 font-semibold">{w.escalated}</span></div>
+            <div className="flex justify-between text-sm"><span className="text-zinc-500">Avg Resolution</span><span className="text-amber-300 font-semibold">{w.avgResolutionFormatted}</span></div>
+            <div className="flex justify-between text-sm"><span className="text-zinc-500">SLA Compliance</span><span className="text-white font-semibold">{Math.round(Number(w.slaComplianceRate))}%</span></div>
+          </div>
+        </div>
+
+        <div className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-5">
+          <h4 className="text-sm font-semibold text-zinc-300 mb-4">Revenue Impact</h4>
+          <div className="space-y-3">
+            <div className="flex justify-between text-sm"><span className="text-zinc-500">3% Tech Fees (Total)</span><span className="text-emerald-300 font-semibold">${Number(fees.totalFees).toFixed(2)}</span></div>
+            <div className="flex justify-between text-sm"><span className="text-zinc-500">Pending Settlement</span><span className="text-yellow-300 font-semibold">${Number(fees.pendingFees).toFixed(2)}</span></div>
+            <div className="flex justify-between text-sm"><span className="text-zinc-500">Monthly Tasks</span><span className="text-white font-semibold">{m.totalCreated}</span></div>
+            <div className="flex justify-between text-sm"><span className="text-zinc-500">Monthly Completed</span><span className="text-emerald-300 font-semibold">{m.completed}</span></div>
+            <div className="flex justify-between text-sm"><span className="text-zinc-500">Tickets Resolved</span><span className="text-indigo-300 font-semibold">{data?.tickets?.resolved || 0}</span></div>
+          </div>
+        </div>
+      </div>
+
+      {(data?.departmentPerformance?.length ?? 0) > 0 && (
+        <div className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-5">
+          <h4 className="text-sm font-semibold text-zinc-300 mb-4">Department Performance</h4>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="text-zinc-500 text-left border-b border-zinc-800">
+                  <th className="pb-2 font-medium">Department</th>
+                  <th className="pb-2 font-medium text-center">Created</th>
+                  <th className="pb-2 font-medium text-center">Completed</th>
+                  <th className="pb-2 font-medium text-center">Rate</th>
+                  <th className="pb-2 font-medium text-center">Avg Time</th>
+                  <th className="pb-2 font-medium text-center">Escalated</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data!.departmentPerformance.map((d) => (
+                  <tr key={d.department} className="border-b border-zinc-800/50">
+                    <td className="py-2.5">
+                      <span className={cn("px-2 py-0.5 rounded text-[10px] font-bold", deptColor(d.department))}>
+                        {deptIcon(d.department)} {d.department.replace("_", " ")}
+                      </span>
+                    </td>
+                    <td className="py-2.5 text-center text-white">{d.totalCreated}</td>
+                    <td className="py-2.5 text-center text-emerald-300">{d.completed}</td>
+                    <td className="py-2.5 text-center">
+                      <span className={cn("font-semibold", d.completionRate >= 80 ? "text-emerald-300" : d.completionRate >= 50 ? "text-yellow-300" : "text-red-300")}>
+                        {d.completionRate}%
+                      </span>
+                    </td>
+                    <td className="py-2.5 text-center text-zinc-300">{d.avgResolutionFormatted}</td>
+                    <td className="py-2.5 text-center text-red-300">{d.escalated}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      <div className="bg-zinc-900/40 rounded-xl border border-zinc-800 p-4 flex items-center gap-3">
+        <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+        <span className="text-xs text-zinc-500">
+          Performance Report — 3C ONYX DealerFlow OS — Architected by Ronald Antonio Cadet
+        </span>
+      </div>
     </div>
   );
 }
