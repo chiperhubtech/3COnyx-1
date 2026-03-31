@@ -1,3 +1,9 @@
+/**
+ * 3C ONYX — DealerFlow OS Task Engine
+ * Architect: Ronald Antonio Cadet — CUXTOMCANDYCLUB LLC
+ * Sovereign Infrastructure — Unified Automotive Command Layer (UACL)
+ * Trade Secret TS-DEALERFLOW — Proprietary Task Routing & SLA Engine
+ */
 import { pgTable, text, serial, integer, timestamp, pgEnum, jsonb, index } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod/v4";
@@ -38,6 +44,7 @@ export const dfIntakeTypeEnum = pgEnum("df_intake_type", [
   "Manual",
   "Phone",
   "Walk_In",
+  "Vision_Scan",
 ]);
 
 export const dealerflowTasksTable = pgTable("dealerflow_tasks", {

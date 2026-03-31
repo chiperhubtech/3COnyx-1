@@ -84,8 +84,12 @@ The platform's architectural decisions prioritize an AI-first approach with:
 - **Performance Report**: Manager weekly dashboard with hours saved, efficiency %, paperwork eliminated, SLA compliance rate, department breakdown with completion rates, and revenue impact (tech fees earned).
 - **Tenant Isolation**: All queries/updates scoped by `dealershipId` (from JWT `sub`). No cross-tenant data access. PATCH operations verify ownership before update.
 - **DB Tables**: `dealerflow_tasks`, `document_scans`, `customer_tickets` with full indexing.
-- **API Routes**: `/api/dealerflow/tasks`, `/api/dealerflow/intake`, `/api/dealerflow/tickets`, `/api/dealerflow/dashboard`, `/api/dealerflow/queue`, `/api/dealerflow/escalate`, `/api/dealerflow/bank-vault`, `/api/dealerflow/performance`, `/api/dealerflow/route`.
-- **Web Dashboard**: `dealerflow.tsx` — 7-tab Industrial Command Center: Command Center (12 KPI cards + departmental pulses + SLA escalation), Task Board (expandable detail with VIN linking + metadata), Dept Queue (priority-sorted), Scan & Route (enhanced with bank-readiness), Customer Inbox, Bank Vault, Performance Report.
+- **AI Vision OCR Intake** (`/api/dealerflow/intake/vision`): Snap a photo of any dealership document (invoice, DMV form, window sticker, warranty claim) — AI Vision LLM extracts all text, then Smart Router auto-classifies and creates a routed task. Zero typing required.
+- **In-Task Customer Communication** (`/api/dealerflow/tasks/:id/notify`): Send customer updates (SMS, Email, WhatsApp, In-App) directly from within any task. Communication log tracked in task metadata.
+- **GM Velocity Dashboard** (`/api/dealerflow/velocity`): Dealership-wide velocity metrics — avg/fastest/slowest time-to-resolution, SLA compliance rate, escalation rate, open backlog, bottleneck detection by department (severity scoring), daily throughput chart.
+- **Bird-Dog Referral Tracker** (`/api/dealerflow/referrals`): Cross-department referral tracking, weekly tech fee summaries, referral ledger entries, and invisible monetization capture.
+- **API Routes**: `/api/dealerflow/tasks`, `/api/dealerflow/intake`, `/api/dealerflow/intake/vision`, `/api/dealerflow/tickets`, `/api/dealerflow/dashboard`, `/api/dealerflow/queue`, `/api/dealerflow/escalate`, `/api/dealerflow/bank-vault`, `/api/dealerflow/performance`, `/api/dealerflow/velocity`, `/api/dealerflow/referrals`, `/api/dealerflow/tasks/:id/notify`, `/api/dealerflow/route`.
+- **Web Dashboard**: `dealerflow.tsx` — 8-tab Industrial Command Center: Command Center, Task Board (with Notify Customer button + communication log), Dept Queue, Scan & Route (with AI Vision camera upload), Customer Inbox, Bank Vault, Performance Report, GM View (velocity + bottlenecks + daily throughput + Bird-Dog ledger).
 
 ## Architectural Upgrades
 

@@ -2,6 +2,7 @@ import { Router, type Request, type Response } from "express";
 import { db, dealerflowTasksTable, documentScansTable, customerTicketsTable, commissionLedgerTable } from "@workspace/db";
 import { eq, desc, and, sql, count, asc, lt, ne, gte, lte, inArray } from "drizzle-orm";
 import { smartRoute, extractVinFromText, extractPartNumbers, extractCustomerName, extractPhoneNumber, checkSlaBreached, calculateTechFee } from "../lib/smart-router";
+import { analyzeImage } from "../lib/ai-router";
 import { requireAuth } from "../middlewares/requireAuth";
 
 const router = Router();
@@ -157,12 +158,24 @@ router.patch("/dealerflow/tasks/:id", requireAuth, async (req: Request, res: Res
     }
 
     const updates: Record<string, unknown> = { updatedAt: new Date() };
+    const meta = (existing.metadata || {}) as Record<string, any>;
 
     if (req.body.status && (VALID_STATUSES as readonly string[]).includes(req.body.status)) {
       updates.status = req.body.status;
     }
     if (req.body.priority && (VALID_PRIORITIES as readonly string[]).includes(req.body.priority)) {
       updates.priority = req.body.priority;
+    }
+    if (req.body.department && (VALID_DEPARTMENTS as readonly string[]).includes(req.body.department) && req.body.department !== existing.department) {
+      if (!meta.originalDepartment) {
+        meta.originalDepartment = existing.department;
+      }
+      if (!Array.isArray(meta.departmentHistory)) {
+        meta.departmentHistory = [];
+      }
+      meta.departmentHistory.push({ from: existing.department, to: req.body.department, at: new Date().toISOString() });
+      updates.department = req.body.department;
+      updates.metadata = meta;
     }
 
     const isNewCompletion = req.body.status === "Completed" && existing.status !== "Completed";
@@ -726,6 +739,313 @@ router.get("/dealerflow/performance", requireAuth, async (req: Request, res: Res
       platform: "3C ONYX — DealerFlow OS",
       architect: "Ronald Antonio Cadet",
       generatedAt: now.toISOString(),
+    });
+  } catch {
+    res.status(500).json({ error: sanitizeError() });
+  }
+});
+
+router.post("/dealerflow/intake/vision", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const userId = requireUserId(req, res);
+    if (!userId) return;
+
+    const { imageBase64, documentType } = req.body;
+
+    if (!imageBase64 || typeof imageBase64 !== "string") {
+      res.status(400).json({ error: "imageBase64 is required" });
+      return;
+    }
+
+    if (imageBase64.length > 15_000_000) {
+      res.status(400).json({ error: "Image too large (max 10MB)" });
+      return;
+    }
+
+    const effectiveDocType = (VALID_DOC_TYPES as readonly string[]).includes(documentType) ? documentType : "Other";
+
+    const ocrPrompt = `Extract ALL text content from this document image. This is an automotive dealership document (type: ${effectiveDocType}).
+Extract exactly:
+- All visible text, numbers, dates, dollar amounts
+- VINs (17-character vehicle identification numbers)
+- Customer names, phone numbers, addresses
+- Part numbers, invoice numbers, deal numbers
+- Any financial figures, bank names, funding references
+Return the raw extracted text only — no commentary or formatting.`;
+
+    const visionResult = await analyzeImage(imageBase64, ocrPrompt);
+    const extractedText = visionResult.content || "";
+
+    if (!extractedText || extractedText.length < 5) {
+      res.status(422).json({ error: "Could not extract readable text from image" });
+      return;
+    }
+
+    const safeText = extractedText.substring(0, 10000);
+    const vin = extractVinFromText(safeText);
+    const partNumbers = extractPartNumbers(safeText);
+    const customerName = extractCustomerName(safeText);
+    const phoneNumber = extractPhoneNumber(safeText);
+    const routing = smartRoute(safeText);
+
+    const [scan] = await db.insert(documentScansTable).values({
+      documentType: effectiveDocType,
+      status: "Completed",
+      rawOcrText: safeText,
+      extractedVin: vin,
+      extractedPartNumbers: partNumbers.length > 0 ? partNumbers : null,
+      extractedData: {
+        routing,
+        rawLength: safeText.length,
+        customerName,
+        phoneNumber,
+        bankReady: routing.bankReady,
+        bankReadySignals: routing.bankReadySignals,
+        ocrSource: "ai-vision",
+        originalImageSize: imageBase64.length,
+      },
+      routedToDepartment: routing.department,
+      scannedById: userId,
+      dealershipId: userId,
+      confidence: String(routing.confidence),
+    }).returning();
+
+    const [task] = await db.insert(dealerflowTasksTable).values({
+      title: `${routing.department} — ${vin ? `VIN: ${vin}` : `${effectiveDocType.replace("_", " ")} Scan`}`,
+      description: safeText.substring(0, 500),
+      department: routing.department as typeof VALID_DEPARTMENTS[number],
+      priority: routing.suggestedPriority as typeof VALID_PRIORITIES[number],
+      status: "Open",
+      intakeType: "Vision_Scan",
+      vin: vin || null,
+      dealershipId: userId,
+      slaMinutes: routing.slaMinutes,
+      slaDueAt: new Date(Date.now() + routing.slaMinutes * 60 * 1000),
+      routedByAgent: routing.agent,
+      routingConfidence: String(routing.confidence),
+      metadata: {
+        scanId: scan.id,
+        extractedPartNumbers: partNumbers,
+        extractedCustomerName: customerName,
+        extractedPhone: phoneNumber,
+        urgencyScore: routing.urgencyScore,
+        bankReady: routing.bankReady,
+        bankReadySignals: routing.bankReadySignals,
+        ocrSource: "ai-vision",
+      },
+    }).returning();
+
+    await db.update(documentScansTable)
+      .set({ routedToTaskId: task.id, status: "Routed" })
+      .where(and(eq(documentScansTable.id, scan.id), eq(documentScansTable.dealershipId, userId)));
+
+    res.status(201).json({ scan, task, routing, ocrText: safeText });
+  } catch {
+    res.status(500).json({ error: sanitizeError() });
+  }
+});
+
+router.post("/dealerflow/tasks/:id/notify", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const userId = requireUserId(req, res);
+    if (!userId) return;
+
+    const taskId = safeParseInt(req.params.id, 0);
+    if (taskId <= 0) {
+      res.status(400).json({ error: "Invalid task ID" });
+      return;
+    }
+
+    const { message, channel } = req.body;
+    if (!message || typeof message !== "string" || message.trim().length === 0) {
+      res.status(400).json({ error: "message is required" });
+      return;
+    }
+
+    const notifyChannel = (VALID_CHANNELS as readonly string[]).includes(channel) ? channel : "App";
+
+    const [task] = await db.select().from(dealerflowTasksTable)
+      .where(and(eq(dealerflowTasksTable.id, taskId), eq(dealerflowTasksTable.dealershipId, userId)));
+
+    if (!task) {
+      res.status(404).json({ error: "Task not found" });
+      return;
+    }
+
+    const meta = (task.metadata || {}) as Record<string, any>;
+    const notifications = Array.isArray(meta.notifications) ? meta.notifications : [];
+    const safeMessage = message.substring(0, 500);
+
+    notifications.push({
+      message: safeMessage,
+      channel: notifyChannel,
+      sentAt: new Date().toISOString(),
+      sentBy: userId,
+    });
+
+    await db.update(dealerflowTasksTable)
+      .set({
+        metadata: { ...meta, notifications, lastNotifiedAt: new Date().toISOString() },
+        updatedAt: new Date(),
+      })
+      .where(and(eq(dealerflowTasksTable.id, taskId), eq(dealerflowTasksTable.dealershipId, userId)));
+
+    const customerName = meta.extractedCustomerName || "Customer";
+    const phone = meta.extractedPhone || null;
+
+    res.json({
+      notified: true,
+      channel: notifyChannel,
+      customer: customerName,
+      phone,
+      message: safeMessage,
+      totalNotifications: notifications.length,
+      note: notifyChannel === "SMS" ? "SMS delivery requires Twilio integration" : "Notification logged to task",
+    });
+  } catch {
+    res.status(500).json({ error: sanitizeError() });
+  }
+});
+
+router.get("/dealerflow/referrals", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const userId = requireUserId(req, res);
+    if (!userId) return;
+
+    const weekStart = new Date();
+    weekStart.setDate(weekStart.getDate() - 7);
+
+    const crossDeptTasks = await db.select({
+      fromDepartment: sql<string>`${dealerflowTasksTable.metadata}->>'originalDepartment'`,
+      toDepartment: dealerflowTasksTable.department,
+      taskCount: count(),
+    }).from(dealerflowTasksTable)
+      .where(and(
+        eq(dealerflowTasksTable.dealershipId, userId),
+        gte(dealerflowTasksTable.createdAt, weekStart),
+        sql`${dealerflowTasksTable.metadata}->>'originalDepartment' is not null`,
+        sql`${dealerflowTasksTable.metadata}->>'originalDepartment' != ${dealerflowTasksTable.department}`,
+      ))
+      .groupBy(sql`${dealerflowTasksTable.metadata}->>'originalDepartment'`, dealerflowTasksTable.department);
+
+    const [techFeeStats] = await db.select({
+      totalFees: sql<number>`coalesce(sum(${commissionLedgerTable.amountUsd}::numeric), 0)`,
+      entryCount: count(),
+    }).from(commissionLedgerTable)
+      .where(and(
+        eq(commissionLedgerTable.recipientId, userId),
+        sql`${commissionLedgerTable.note} like 'DealerFlow tech fee%'`,
+        gte(commissionLedgerTable.createdAt, weekStart),
+      ));
+
+    const completedTasks = await db.select({
+      completedCount: count(),
+      rerouted: sql<number>`count(*) filter (where ${dealerflowTasksTable.metadata}->>'originalDepartment' is not null)`,
+    }).from(dealerflowTasksTable)
+      .where(and(
+        eq(dealerflowTasksTable.dealershipId, userId),
+        eq(dealerflowTasksTable.status, "Completed"),
+        gte(dealerflowTasksTable.createdAt, weekStart),
+      ));
+
+    const globalTechFeeRate = 0.03;
+
+    res.json({
+      period: "Last 7 Days",
+      crossDepartmentReferrals: crossDeptTasks,
+      techFees: {
+        weeklyTotal: Number(techFeeStats?.totalFees || 0),
+        weeklyEntries: Number(techFeeStats?.entryCount || 0),
+        globalRate: `${globalTechFeeRate * 100}%`,
+      },
+      completedTasks: {
+        completedCount: Number(completedTasks[0]?.completedCount || 0),
+        rerouted: Number(completedTasks[0]?.rerouted || 0),
+      },
+      platform: "3C ONYX — Bird-Dog Monetization Ledger",
+      architect: "Ronald Antonio Cadet",
+    });
+  } catch {
+    res.status(500).json({ error: sanitizeError() });
+  }
+});
+
+router.get("/dealerflow/velocity", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const userId = requireUserId(req, res);
+    if (!userId) return;
+
+    const now = new Date();
+    const weekStart = new Date(now);
+    weekStart.setDate(weekStart.getDate() - 7);
+
+    const [velocityStats] = await db.select({
+      totalTasks: count(),
+      completed: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} = 'Completed')`,
+      avgResMinutes: sql<number>`coalesce(avg(extract(epoch from (${dealerflowTasksTable.resolvedAt} - ${dealerflowTasksTable.createdAt})) / 60) filter (where ${dealerflowTasksTable.resolvedAt} is not null), 0)`,
+      fastestResMinutes: sql<number>`coalesce(min(extract(epoch from (${dealerflowTasksTable.resolvedAt} - ${dealerflowTasksTable.createdAt})) / 60) filter (where ${dealerflowTasksTable.resolvedAt} is not null), 0)`,
+      slowestResMinutes: sql<number>`coalesce(max(extract(epoch from (${dealerflowTasksTable.resolvedAt} - ${dealerflowTasksTable.createdAt})) / 60) filter (where ${dealerflowTasksTable.resolvedAt} is not null), 0)`,
+      slaHitRate: sql<number>`coalesce(
+        (count(*) filter (where ${dealerflowTasksTable.status} = 'Completed' and ${dealerflowTasksTable.resolvedAt} <= ${dealerflowTasksTable.slaDueAt})::numeric /
+        nullif(count(*) filter (where ${dealerflowTasksTable.status} = 'Completed'), 0)) * 100
+      , 0)`,
+      escalated: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} = 'Escalated')`,
+      openBacklog: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} in ('Open', 'In_Progress', 'Waiting'))`,
+    }).from(dealerflowTasksTable)
+      .where(and(eq(dealerflowTasksTable.dealershipId, userId), gte(dealerflowTasksTable.createdAt, weekStart)));
+
+    const bottlenecks = await db.select({
+      department: dealerflowTasksTable.department,
+      openTasks: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} in ('Open', 'In_Progress', 'Waiting'))`,
+      escalatedTasks: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} = 'Escalated')`,
+      avgResMinutes: sql<number>`coalesce(avg(extract(epoch from (${dealerflowTasksTable.resolvedAt} - ${dealerflowTasksTable.createdAt})) / 60) filter (where ${dealerflowTasksTable.resolvedAt} is not null), 0)`,
+      slaBreaches: sql<number>`count(*) filter (where ${dealerflowTasksTable.resolvedAt} > ${dealerflowTasksTable.slaDueAt})`,
+    }).from(dealerflowTasksTable)
+      .where(and(eq(dealerflowTasksTable.dealershipId, userId), gte(dealerflowTasksTable.createdAt, weekStart)))
+      .groupBy(dealerflowTasksTable.department)
+      .orderBy(sql`count(*) filter (where ${dealerflowTasksTable.status} = 'Escalated') desc`);
+
+    const dailyThroughput = await db.select({
+      day: sql<string>`to_char(${dealerflowTasksTable.createdAt}, 'YYYY-MM-DD')`,
+      created: count(),
+      completed: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} = 'Completed')`,
+    }).from(dealerflowTasksTable)
+      .where(and(eq(dealerflowTasksTable.dealershipId, userId), gte(dealerflowTasksTable.createdAt, weekStart)))
+      .groupBy(sql`to_char(${dealerflowTasksTable.createdAt}, 'YYYY-MM-DD')`)
+      .orderBy(sql`to_char(${dealerflowTasksTable.createdAt}, 'YYYY-MM-DD')`);
+
+    const avgRes = Math.round(Number(velocityStats?.avgResMinutes || 0));
+    const fastest = Math.round(Number(velocityStats?.fastestResMinutes || 0));
+    const slowest = Math.round(Number(velocityStats?.slowestResMinutes || 0));
+    const formatTime = (m: number) => m >= 60 ? `${Math.floor(m / 60)}h ${m % 60}m` : `${m}m`;
+
+    res.json({
+      dealershipVelocity: {
+        avgTimeToResolution: formatTime(avgRes),
+        avgTimeToResolutionMinutes: avgRes,
+        fastestResolution: formatTime(fastest),
+        slowestResolution: formatTime(slowest),
+        totalCompleted: Number(velocityStats?.completed || 0),
+        totalTasks: Number(velocityStats?.totalTasks || 0),
+        slaComplianceRate: Math.round(Number(velocityStats?.slaHitRate || 0)),
+        escalationRate: Number(velocityStats?.totalTasks || 0) > 0
+          ? Math.round((Number(velocityStats?.escalated || 0) / Number(velocityStats?.totalTasks || 0)) * 100)
+          : 0,
+        openBacklog: Number(velocityStats?.openBacklog || 0),
+      },
+      bottlenecks: bottlenecks.map((b) => ({
+        department: b.department,
+        openTasks: Number(b.openTasks),
+        escalatedTasks: Number(b.escalatedTasks),
+        avgResolutionMinutes: Math.round(Number(b.avgResMinutes)),
+        avgResolutionFormatted: formatTime(Math.round(Number(b.avgResMinutes))),
+        slaBreaches: Number(b.slaBreaches),
+        severity: Number(b.escalatedTasks) > 3 ? "Critical" : Number(b.openTasks) > 5 ? "High" : "Normal",
+      })),
+      dailyThroughput,
+      period: "Last 7 Days",
+      platform: "3C ONYX — DealerFlow OS GM View",
+      architect: "Ronald Antonio Cadet",
     });
   } catch {
     res.status(500).json({ error: sanitizeError() });

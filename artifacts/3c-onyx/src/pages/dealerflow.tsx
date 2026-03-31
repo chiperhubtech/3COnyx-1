@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  Activity, AlertTriangle, BarChart3, CheckCircle2, Clock, DollarSign, FileText,
-  Filter, Inbox, Layers, MessageSquare, Plus, RefreshCw,
+  Activity, AlertTriangle, BarChart3, Camera, CheckCircle2, Clock, DollarSign, FileText,
+  Filter, Gauge, Inbox, Layers, MessageSquare, Plus, RefreshCw,
   Route, ScanLine, Send, Shield, Target, TrendingUp, Users, Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -230,7 +230,7 @@ function formatMinutes(mins: number) {
   return h > 0 ? `${h}h ${m}m` : `${m}m`;
 }
 
-type Tab = "dashboard" | "tasks" | "intake" | "tickets" | "queue" | "performance" | "vault";
+type Tab = "dashboard" | "tasks" | "intake" | "tickets" | "queue" | "performance" | "vault" | "velocity";
 
 export default function DealerFlowOS() {
   const [tab, setTab] = useState<Tab>("dashboard");
@@ -246,6 +246,7 @@ export default function DealerFlowOS() {
     { id: "tickets", label: "Inbox", icon: <Inbox className="w-4 h-4" /> },
     { id: "vault", label: "Bank Vault", icon: <DollarSign className="w-4 h-4" /> },
     { id: "performance", label: "Performance", icon: <BarChart3 className="w-4 h-4" /> },
+    { id: "velocity", label: "GM View", icon: <Gauge className="w-4 h-4" /> },
   ];
 
   return (
@@ -286,6 +287,7 @@ export default function DealerFlowOS() {
       {tab === "queue" && <DeptQueue department={queueDept} setDepartment={setQueueDept} />}
       {tab === "vault" && <BankVault />}
       {tab === "performance" && <PerformanceReport />}
+      {tab === "velocity" && <GMVelocityDashboard />}
     </div>
   );
 }
@@ -583,12 +585,90 @@ function TaskBoard({ deptFilter, setDeptFilter, statusFilter, setStatusFilter }:
                         ))}
                       </div>
                     )}
+                    {meta.notifications?.length > 0 && (
+                      <div className="bg-indigo-500/5 border border-indigo-500/20 rounded-lg px-3 py-2">
+                        <p className="text-[10px] text-indigo-400 uppercase font-medium mb-1">Communication Log ({meta.notifications.length})</p>
+                        {meta.notifications.slice(-3).map((n: any, i: number) => (
+                          <div key={i} className="text-[10px] text-zinc-400 flex items-center gap-2 mt-1">
+                            <Send className="w-3 h-3 text-indigo-400" />
+                            <span className="text-zinc-500">{n.channel}</span>
+                            <span className="text-white truncate flex-1">{n.message}</span>
+                            <span className="text-zinc-600">{new Date(n.sentAt).toLocaleString()}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <NotifyCustomerButton taskId={task.id} customerName={meta.extractedCustomerName} phone={meta.extractedPhone} />
                   </div>
                 )}
               </div>
             );
           })}
         </div>
+      )}
+    </div>
+  );
+}
+
+function NotifyCustomerButton({ taskId, customerName, phone }: { taskId: number; customerName?: string; phone?: string }) {
+  const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState("");
+  const [channel, setChannel] = useState("App");
+  const [sent, setSent] = useState<any>(null);
+  const qc = useQueryClient();
+
+  const notify = useMutation({
+    mutationFn: (body: any) =>
+      authFetch(`${BASE}/api/dealerflow/tasks/${taskId}/notify`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then((r) => r.json()),
+    onSuccess: (data) => {
+      setSent(data);
+      setMessage("");
+      qc.invalidateQueries({ queryKey: ["dealerflow-tasks"] });
+    },
+  });
+
+  if (!open) {
+    return (
+      <button onClick={(e) => { e.stopPropagation(); setOpen(true); }} className="flex items-center gap-1.5 text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-3 py-1.5 rounded hover:bg-indigo-500/30 transition mt-2">
+        <MessageSquare className="w-3 h-3" />
+        Notify Customer{customerName ? ` (${customerName})` : ""}
+      </button>
+    );
+  }
+
+  return (
+    <div className="bg-indigo-500/5 border border-indigo-500/30 rounded-lg p-3 mt-2 space-y-2" onClick={(e) => e.stopPropagation()}>
+      <div className="flex items-center justify-between">
+        <p className="text-[10px] text-indigo-300 uppercase font-medium">Send Customer Update</p>
+        <button onClick={() => { setOpen(false); setSent(null); }} className="text-[10px] text-zinc-500 hover:text-white">Close</button>
+      </div>
+      {customerName && <p className="text-[10px] text-zinc-400">To: <span className="text-white">{customerName}</span>{phone ? ` (${phone})` : ""}</p>}
+      <select value={channel} onChange={(e) => setChannel(e.target.value)} className="bg-zinc-800 text-zinc-300 text-[10px] rounded px-2 py-1 border border-zinc-700 w-full">
+        <option value="App">In-App</option>
+        <option value="SMS">SMS</option>
+        <option value="Email">Email</option>
+        <option value="WhatsApp">WhatsApp</option>
+      </select>
+      <textarea
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        placeholder={`e.g., "Your ${customerName ? customerName + "'s " : ""}registration is being processed..."`}
+        rows={2}
+        className="w-full bg-zinc-800 text-white text-xs rounded px-3 py-2 border border-zinc-700 outline-none resize-none"
+      />
+      <button
+        onClick={() => notify.mutate({ message, channel })}
+        disabled={!message.trim() || notify.isPending}
+        className="flex items-center gap-1.5 text-[10px] bg-indigo-500/30 text-indigo-200 px-3 py-1.5 rounded hover:bg-indigo-500/40 transition disabled:opacity-50"
+      >
+        <Send className="w-3 h-3" />
+        {notify.isPending ? "Sending..." : "Send Update"}
+      </button>
+      {sent && (
+        <p className="text-[10px] text-emerald-400 flex items-center gap-1">
+          <CheckCircle2 className="w-3 h-3" /> Notification sent via {sent.channel}
+          {sent.note && <span className="text-zinc-500 ml-1">— {sent.note}</span>}
+        </p>
       )}
     </div>
   );
@@ -643,6 +723,8 @@ function IntakeScanner() {
   const [rawText, setRawText] = useState("");
   const [docType, setDocType] = useState("Other");
   const [result, setResult] = useState<any>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const qc = useQueryClient();
 
   const DOC_TYPES = ["Invoice", "DMV_Form", "Title", "Registration", "Mopar_Sheet", "Parts_Order", "Warranty_Claim", "Insurance_Doc", "Bill_of_Sale", "Other"];
@@ -657,6 +739,32 @@ function IntakeScanner() {
     },
   });
 
+  const visionScan = useMutation({
+    mutationFn: (body: any) =>
+      authFetch(`${BASE}/api/dealerflow/intake/vision`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then((r) => r.json()),
+    onSuccess: (data) => {
+      setResult(data);
+      setImagePreview(null);
+      qc.invalidateQueries({ queryKey: ["dealerflow-tasks"] });
+      qc.invalidateQueries({ queryKey: ["dealerflow-dashboard"] });
+    },
+  });
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      alert("Image must be under 10MB");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = reader.result as string;
+      setImagePreview(base64);
+    };
+    reader.readAsDataURL(file);
+  };
+
   return (
     <div className="space-y-4">
       <div className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-5 space-y-4">
@@ -664,28 +772,74 @@ function IntakeScanner() {
           <ScanLine className="w-4 h-4 text-cyan-400" /> Universal Intake Gateway
         </h3>
         <p className="text-xs text-zinc-500">
-          Paste document text, OCR output, SMS, or email content. The Smart Router will extract VINs, part numbers, customer info, and bank-readiness signals — then auto-create a routed task.
+          Paste document text, OCR output, SMS, or email content — or snap a photo of any dealership document. AI Vision will extract and route automatically.
         </p>
         <select value={docType} onChange={(e) => setDocType(e.target.value)} className="bg-zinc-800 text-zinc-300 text-sm rounded-lg px-3 py-2 border border-zinc-700 w-full sm:w-auto">
           {DOC_TYPES.map((d) => <option key={d} value={d}>{d.replace("_", " ")}</option>)}
         </select>
-        <textarea
-          value={rawText}
-          onChange={(e) => setRawText(e.target.value)}
-          placeholder="Paste invoice text, DMV form content, SMS message, or email body here...
+
+        <div className="flex gap-2 items-center">
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="flex items-center gap-2 bg-purple-500/20 text-purple-300 border border-purple-500/30 px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-purple-500/30 transition"
+          >
+            <Camera className="w-4 h-4" />
+            Snap / Upload Image
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            onChange={handleImageUpload}
+            className="hidden"
+          />
+          {imagePreview && (
+            <span className="text-[10px] text-emerald-400 flex items-center gap-1">
+              <CheckCircle2 className="w-3 h-3" /> Image loaded
+            </span>
+          )}
+        </div>
+
+        {imagePreview && (
+          <div className="space-y-3">
+            <div className="relative w-full max-w-sm rounded-lg overflow-hidden border border-purple-500/30">
+              <img src={imagePreview} alt="Document preview" className="w-full h-auto max-h-48 object-contain bg-zinc-800" />
+            </div>
+            <button
+              onClick={() => visionScan.mutate({ imageBase64: imagePreview, documentType: docType })}
+              disabled={visionScan.isPending}
+              className="flex items-center gap-2 bg-purple-500/20 text-purple-300 border border-purple-500/30 px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-purple-500/30 transition disabled:opacity-50"
+            >
+              <Zap className="w-4 h-4" />
+              {visionScan.isPending ? "AI Vision Processing..." : "AI Vision Scan & Route"}
+            </button>
+            <button onClick={() => { setImagePreview(null); if (fileInputRef.current) fileInputRef.current.value = ""; }} className="text-xs text-zinc-500 hover:text-white transition">
+              Clear image
+            </button>
+          </div>
+        )}
+
+        <div className="border-t border-zinc-800 pt-4">
+          <p className="text-[10px] text-zinc-600 uppercase mb-2">Or paste text directly</p>
+          <textarea
+            value={rawText}
+            onChange={(e) => setRawText(e.target.value)}
+            placeholder="Paste invoice text, DMV form content, SMS message, or email body here...
 
 Example: 'Customer: John Smith needs title transfer for VIN 1C4RJFBG5LC123456. Sticker and plates required. Rush delivery to zip 55014.'"
-          rows={6}
-          className="w-full bg-zinc-800 text-white text-sm rounded-lg px-3 py-3 border border-zinc-700 focus:border-cyan-500/50 outline-none resize-none font-mono"
-        />
-        <button
-          onClick={() => scan.mutate({ rawText, documentType: docType })}
-          disabled={!rawText.trim() || scan.isPending}
-          className="flex items-center gap-2 bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-cyan-500/30 transition disabled:opacity-50"
-        >
-          <Route className="w-4 h-4" />
-          {scan.isPending ? "Processing..." : "Scan & Route"}
-        </button>
+            rows={5}
+            className="w-full bg-zinc-800 text-white text-sm rounded-lg px-3 py-3 border border-zinc-700 focus:border-cyan-500/50 outline-none resize-none font-mono"
+          />
+          <button
+            onClick={() => scan.mutate({ rawText, documentType: docType })}
+            disabled={!rawText.trim() || scan.isPending}
+            className="mt-2 flex items-center gap-2 bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-cyan-500/30 transition disabled:opacity-50"
+          >
+            <Route className="w-4 h-4" />
+            {scan.isPending ? "Processing..." : "Scan & Route"}
+          </button>
+        </div>
       </div>
 
       {result && (
@@ -1184,6 +1338,204 @@ function CreateTicketForm({ onClose }: { onClose: () => void }) {
         <button onClick={() => create.mutate({ subject, description: desc || undefined, customerName: name || undefined, customerPhone: phone || undefined, channel })} disabled={!subject || create.isPending} className="text-sm bg-indigo-500 text-white font-semibold px-4 py-2 rounded-lg hover:bg-indigo-400 transition disabled:opacity-50">
           {create.isPending ? "Creating..." : "Create Ticket"}
         </button>
+      </div>
+    </div>
+  );
+}
+
+function GMVelocityDashboard() {
+  const { data, isLoading, refetch } = useQuery<any>({
+    queryKey: ["dealerflow-velocity"],
+    queryFn: () => authFetch(`${BASE}/api/dealerflow/velocity`).then((r) => r.json()),
+    refetchInterval: 60000,
+  });
+
+  const { data: referrals } = useQuery<any>({
+    queryKey: ["dealerflow-referrals"],
+    queryFn: () => authFetch(`${BASE}/api/dealerflow/referrals`).then((r) => r.json()),
+    refetchInterval: 120000,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <RefreshCw className="w-8 h-8 text-amber-400 animate-spin" />
+      </div>
+    );
+  }
+
+  const v = data?.dealershipVelocity || {};
+  const bottlenecks = data?.bottlenecks || [];
+  const daily = data?.dailyThroughput || [];
+  const fees = referrals?.techFees || {};
+  const crossDept = referrals?.crossDepartmentReferrals || [];
+
+  return (
+    <div className="space-y-6">
+      <div className="bg-gradient-to-br from-orange-900/30 to-zinc-900 rounded-xl border border-orange-500/30 p-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Gauge className="w-6 h-6 text-orange-400" />
+            <div>
+              <h3 className="text-lg font-bold text-white">Dealership Velocity — GM View</h3>
+              <p className="text-xs text-zinc-500">{data?.period || "Last 7 Days"} — Zero-Memory Dependency Dashboard</p>
+            </div>
+          </div>
+          <button onClick={() => refetch()} className="text-zinc-500 hover:text-white transition">
+            <RefreshCw className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-4">
+          <p className="text-[10px] text-zinc-500 uppercase mb-1">Avg Time to Resolution</p>
+          <p className="text-2xl font-bold text-amber-300">{v.avgTimeToResolution || "—"}</p>
+          <p className="text-[10px] text-zinc-500 mt-1">All completed tasks</p>
+        </div>
+        <div className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-4">
+          <p className="text-[10px] text-zinc-500 uppercase mb-1">Fastest Resolution</p>
+          <p className="text-2xl font-bold text-emerald-300">{v.fastestResolution || "—"}</p>
+          <p className="text-[10px] text-zinc-500 mt-1">Best turnaround</p>
+        </div>
+        <div className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-4">
+          <p className="text-[10px] text-zinc-500 uppercase mb-1">SLA Compliance</p>
+          <p className="text-2xl font-bold text-white">{v.slaComplianceRate || 0}%</p>
+          <p className="text-[10px] text-zinc-500 mt-1">On-time completions</p>
+        </div>
+        <div className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-4">
+          <p className="text-[10px] text-zinc-500 uppercase mb-1">Open Backlog</p>
+          <p className={cn("text-2xl font-bold", (v.openBacklog || 0) > 10 ? "text-red-300" : "text-cyan-300")}>{v.openBacklog || 0}</p>
+          <p className="text-[10px] text-zinc-500 mt-1">Pending tasks</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-4">
+          <p className="text-[10px] text-zinc-500 uppercase mb-1">Total Tasks</p>
+          <p className="text-xl font-bold text-white">{v.totalTasks || 0}</p>
+        </div>
+        <div className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-4">
+          <p className="text-[10px] text-zinc-500 uppercase mb-1">Completed</p>
+          <p className="text-xl font-bold text-emerald-300">{v.totalCompleted || 0}</p>
+        </div>
+        <div className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-4">
+          <p className="text-[10px] text-zinc-500 uppercase mb-1">Escalation Rate</p>
+          <p className={cn("text-xl font-bold", (v.escalationRate || 0) > 15 ? "text-red-300" : "text-yellow-300")}>{v.escalationRate || 0}%</p>
+        </div>
+        <div className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-4">
+          <p className="text-[10px] text-zinc-500 uppercase mb-1">Slowest Resolution</p>
+          <p className="text-xl font-bold text-orange-300">{v.slowestResolution || "—"}</p>
+        </div>
+      </div>
+
+      {bottlenecks.length > 0 && (
+        <div className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-5">
+          <h4 className="text-sm font-semibold text-zinc-300 mb-4 flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 text-orange-400" /> Bottleneck Detection
+          </h4>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="text-zinc-500 text-left border-b border-zinc-800">
+                  <th className="pb-2 font-medium">Department</th>
+                  <th className="pb-2 font-medium text-center">Open</th>
+                  <th className="pb-2 font-medium text-center">Escalated</th>
+                  <th className="pb-2 font-medium text-center">SLA Breaches</th>
+                  <th className="pb-2 font-medium text-center">Avg Time</th>
+                  <th className="pb-2 font-medium text-center">Severity</th>
+                </tr>
+              </thead>
+              <tbody>
+                {bottlenecks.map((b: any) => (
+                  <tr key={b.department} className="border-b border-zinc-800/50">
+                    <td className="py-2.5">
+                      <span className={cn("px-2 py-0.5 rounded text-[10px] font-bold", deptColor(b.department))}>
+                        {deptIcon(b.department)} {b.department.replace("_", " ")}
+                      </span>
+                    </td>
+                    <td className="py-2.5 text-center text-white">{b.openTasks}</td>
+                    <td className="py-2.5 text-center text-red-300">{b.escalatedTasks}</td>
+                    <td className="py-2.5 text-center text-orange-300">{b.slaBreaches}</td>
+                    <td className="py-2.5 text-center text-zinc-300">{b.avgResolutionFormatted}</td>
+                    <td className="py-2.5 text-center">
+                      <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded",
+                        b.severity === "Critical" ? "bg-red-500/20 text-red-300" :
+                        b.severity === "High" ? "bg-orange-500/20 text-orange-300" :
+                        "bg-zinc-700/50 text-zinc-400"
+                      )}>{b.severity}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {daily.length > 0 && (
+        <div className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-5">
+          <h4 className="text-sm font-semibold text-zinc-300 mb-4 flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-cyan-400" /> Daily Throughput
+          </h4>
+          <div className="space-y-2">
+            {daily.map((d: any) => {
+              const maxVal = Math.max(...daily.map((x: any) => Number(x.created) || 1));
+              const pct = Math.max((Number(d.created) / maxVal) * 100, 5);
+              const completePct = Number(d.created) > 0 ? Math.round((Number(d.completed) / Number(d.created)) * 100) : 0;
+              return (
+                <div key={d.day} className="flex items-center gap-3">
+                  <span className="text-[10px] text-zinc-500 w-20 shrink-0">{new Date(d.day).toLocaleDateString("en", { weekday: "short", month: "short", day: "numeric" })}</span>
+                  <div className="flex-1 bg-zinc-800 rounded-full h-4 overflow-hidden">
+                    <div className="bg-gradient-to-r from-amber-500/60 to-amber-400/30 h-full rounded-full flex items-center px-2" style={{ width: `${pct}%` }}>
+                      <span className="text-[9px] text-white font-bold whitespace-nowrap">{d.created} / {d.completed}</span>
+                    </div>
+                  </div>
+                  <span className={cn("text-[10px] font-semibold w-10 text-right", completePct >= 80 ? "text-emerald-300" : completePct >= 50 ? "text-yellow-300" : "text-red-300")}>
+                    {completePct}%
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="bg-zinc-900/60 rounded-xl border border-amber-500/20 p-5">
+          <h4 className="text-sm font-semibold text-amber-300 mb-4 flex items-center gap-2">
+            <DollarSign className="w-4 h-4" /> Bird-Dog Monetization Ledger
+          </h4>
+          <div className="space-y-3">
+            <div className="flex justify-between text-sm"><span className="text-zinc-500">3% Tech Fees (This Week)</span><span className="text-emerald-300 font-semibold">${Number(fees.weeklyTotal || 0).toFixed(2)}</span></div>
+            <div className="flex justify-between text-sm"><span className="text-zinc-500">Fee Entries</span><span className="text-white font-semibold">{fees.weeklyEntries || 0}</span></div>
+            <div className="flex justify-between text-sm"><span className="text-zinc-500">Global Rate</span><span className="text-amber-300 font-semibold">{fees.globalRate || "3%"}</span></div>
+          </div>
+        </div>
+
+        {crossDept.length > 0 && (
+          <div className="bg-zinc-900/60 rounded-xl border border-purple-500/20 p-5">
+            <h4 className="text-sm font-semibold text-purple-300 mb-4 flex items-center gap-2">
+              <Route className="w-4 h-4" /> Cross-Department Referrals
+            </h4>
+            <div className="space-y-2">
+              {crossDept.map((r: any, i: number) => (
+                <div key={i} className="flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="text-zinc-500">{r.fromDepartment}</span>
+                    <span className="text-zinc-600">&rarr;</span>
+                    <span className="text-white">{r.toDepartment}</span>
+                  </div>
+                  <span className="text-amber-300 font-semibold">{r.taskCount} referrals</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="text-center text-[10px] text-zinc-700 pt-4 border-t border-zinc-900">
+        3C ONYX &mdash; DealerFlow OS GM View &mdash; Architect: Ronald Antonio Cadet &mdash; CUXTOMCANDYCLUB LLC
       </div>
     </div>
   );

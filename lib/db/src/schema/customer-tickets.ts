@@ -1,3 +1,8 @@
+/**
+ * 3C ONYX — DealerFlow OS Customer Ticket Engine
+ * Architect: Ronald Antonio Cadet — CUXTOMCANDYCLUB LLC
+ * Sovereign Infrastructure — Unified Customer Communication Hub
+ */
 import { pgTable, text, serial, integer, timestamp, pgEnum, jsonb, index } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod/v4";
