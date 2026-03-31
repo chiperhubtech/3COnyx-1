@@ -242,12 +242,14 @@ export default function DealScreen() {
     setError(null);
     try {
       if (params.shipmentId) {
-        // Deep link to specific shipment
         const s = await apiFetch<ShipmentStatus>(`/transport/${params.shipmentId}`);
         setData({ active: [s], total: 1 });
       } else {
         const res = await apiFetch<ActiveShipments>("/transport/active");
-        setData(res);
+        setData({
+          active: Array.isArray(res?.active) ? res.active : [],
+          total: res?.total ?? 0,
+        });
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to load deal status");
@@ -304,7 +306,7 @@ export default function DealScreen() {
           showsVerticalScrollIndicator={false}
         >
           {/* Summary badge */}
-          {data && data.total > 0 && (
+          {data && data.active && data.total > 0 && (
             <View style={[styles.summaryBadge, { backgroundColor: `${COLORS.gold}10`, borderColor: `${COLORS.gold}20` }]}>
               <MaterialCommunityIcons name="truck-delivery" size={13} color={COLORS.gold} />
               <Text style={[styles.summaryText, { color: COLORS.gold }]}>
@@ -314,13 +316,13 @@ export default function DealScreen() {
           )}
 
           {/* Shipments */}
-          {data && data.active.length > 0
+          {data?.active && data.active.length > 0
             ? data.active.map(s => <ShipmentDetail key={s.shipmentId} s={s} />)
             : <EmptyState theme={theme} />
           }
 
           {/* Actions */}
-          {data && data.active.length > 0 && (
+          {data?.active && data.active.length > 0 && (
             <View style={styles.actionsRow}>
               <Pressable
                 style={[styles.actionBtn, { backgroundColor: `${COLORS.gold}12`, borderColor: `${COLORS.gold}28` }]}
