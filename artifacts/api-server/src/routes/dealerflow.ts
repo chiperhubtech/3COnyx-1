@@ -1,14 +1,14 @@
 import { Router, type Request, type Response } from "express";
 import { db, dealerflowTasksTable, documentScansTable, customerTicketsTable, commissionLedgerTable } from "@workspace/db";
 import { eq, desc, and, sql, count, asc, lt, ne, gte, lte, inArray } from "drizzle-orm";
-import { smartRoute, extractVinFromText, extractPartNumbers, extractCustomerName, extractPhoneNumber, checkSlaBreached, calculateTechFee } from "../lib/smart-router";
+import { smartRoute, extractVinFromText, extractPartNumbers, extractCustomerName, extractPhoneNumber, checkSlaBreached, calculateTechFee, suggestNextStep } from "../lib/smart-router";
 import { analyzeImage } from "../lib/ai-router";
 import { requireAuth } from "../middlewares/requireAuth";
 
 const router = Router();
 
 const VALID_DEPARTMENTS = ["DMV", "Parts", "Service", "Finance", "Logistics", "Sales", "Customer_Service", "General"] as const;
-const VALID_STATUSES = ["Open", "In_Progress", "Waiting", "Completed", "Escalated", "Cancelled"] as const;
+const VALID_STATUSES = ["Open", "In_Progress", "Waiting", "Pending_Approval", "Completed", "Escalated", "Cancelled"] as const;
 const VALID_PRIORITIES = ["Critical", "High", "Medium", "Low"] as const;
 const VALID_DOC_TYPES = ["Invoice", "DMV_Form", "Title", "Registration", "Mopar_Sheet", "Parts_Order", "Warranty_Claim", "Insurance_Doc", "Bill_of_Sale", "Other"] as const;
 const VALID_CHANNELS = ["SMS", "Email", "Phone", "Walk_In", "App", "WhatsApp"] as const;
@@ -157,6 +157,11 @@ router.patch("/dealerflow/tasks/:id", requireAuth, async (req: Request, res: Res
       return;
     }
 
+    if (existing.status === "Pending_Approval") {
+      res.status(400).json({ error: "Task is pending approval — use the approval endpoint to approve or reject" });
+      return;
+    }
+
     const updates: Record<string, unknown> = { updatedAt: new Date() };
     const meta = (existing.metadata || {}) as Record<string, any>;
 
@@ -218,6 +223,170 @@ router.patch("/dealerflow/tasks/:id", requireAuth, async (req: Request, res: Res
     }
 
     res.json({ task, techFeeLogged, bankVaultEligible });
+  } catch {
+    res.status(500).json({ error: sanitizeError() });
+  }
+});
+
+router.post("/dealerflow/tasks/:id/request-approval", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const userId = requireUserId(req, res);
+    if (!userId) return;
+
+    const id = safeParseInt(req.params.id, 0);
+    if (id <= 0) { res.status(400).json({ error: "Invalid task ID" }); return; }
+
+    const { approvalNote, targetDepartment } = req.body;
+
+    const [existing] = await db.select().from(dealerflowTasksTable)
+      .where(and(eq(dealerflowTasksTable.id, id), eq(dealerflowTasksTable.dealershipId, userId)));
+
+    if (!existing) { res.status(404).json({ error: "Task not found" }); return; }
+
+    if (existing.status === "Completed" || existing.status === "Cancelled") {
+      res.status(400).json({ error: "Cannot request approval on a closed task" }); return;
+    }
+
+    const meta = (existing.metadata || {}) as Record<string, any>;
+    if (!Array.isArray(meta.approvalHistory)) meta.approvalHistory = [];
+
+    meta.approvalHistory.push({
+      action: "requested",
+      fromDepartment: existing.department,
+      targetDepartment: targetDepartment || null,
+      note: approvalNote || null,
+      requestedAt: new Date().toISOString(),
+    });
+
+    meta.pendingApproval = {
+      fromDepartment: existing.department,
+      targetDepartment: targetDepartment || null,
+      note: approvalNote || null,
+      requestedAt: new Date().toISOString(),
+    };
+
+    const [task] = await db.update(dealerflowTasksTable)
+      .set({ status: "Pending_Approval", metadata: meta, updatedAt: new Date() })
+      .where(and(eq(dealerflowTasksTable.id, id), eq(dealerflowTasksTable.dealershipId, userId)))
+      .returning();
+
+    res.json({ task, message: "Approval requested — awaiting manager decision" });
+  } catch {
+    res.status(500).json({ error: sanitizeError() });
+  }
+});
+
+router.post("/dealerflow/tasks/:id/approve", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const userId = requireUserId(req, res);
+    if (!userId) return;
+
+    const id = safeParseInt(req.params.id, 0);
+    if (id <= 0) { res.status(400).json({ error: "Invalid task ID" }); return; }
+
+    const { decision, decisionNote } = req.body;
+
+    if (!decision || !["Approved", "Rejected"].includes(decision)) {
+      res.status(400).json({ error: "decision must be 'Approved' or 'Rejected'" }); return;
+    }
+
+    const [existing] = await db.select().from(dealerflowTasksTable)
+      .where(and(eq(dealerflowTasksTable.id, id), eq(dealerflowTasksTable.dealershipId, userId)));
+
+    if (!existing) { res.status(404).json({ error: "Task not found" }); return; }
+
+    if (existing.status !== "Pending_Approval") {
+      res.status(400).json({ error: "Task is not pending approval" }); return;
+    }
+
+    const meta = (existing.metadata || {}) as Record<string, any>;
+    if (!Array.isArray(meta.approvalHistory)) meta.approvalHistory = [];
+
+    meta.approvalHistory.push({
+      action: decision.toLowerCase(),
+      note: decisionNote || null,
+      decidedAt: new Date().toISOString(),
+    });
+
+    const newStatus = decision === "Approved" ? "In_Progress" : "Cancelled";
+
+    if (meta.pendingApproval) {
+      meta.lastApprovalDecision = { ...meta.pendingApproval, decision, decisionNote: decisionNote || null, decidedAt: new Date().toISOString() };
+      delete meta.pendingApproval;
+    }
+
+    const [task] = await db.update(dealerflowTasksTable)
+      .set({ status: newStatus, metadata: meta, updatedAt: new Date() })
+      .where(and(eq(dealerflowTasksTable.id, id), eq(dealerflowTasksTable.dealershipId, userId)))
+      .returning();
+
+    res.json({ task, decision, message: `Task ${decision.toLowerCase()} — status set to ${newStatus.replace("_", " ")}` });
+  } catch {
+    res.status(500).json({ error: sanitizeError() });
+  }
+});
+
+router.get("/dealerflow/approvals", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const userId = requireUserId(req, res);
+    if (!userId) return;
+
+    const pendingTasks = await db.select().from(dealerflowTasksTable)
+      .where(and(
+        eq(dealerflowTasksTable.dealershipId, userId),
+        eq(dealerflowTasksTable.status, "Pending_Approval"),
+      ))
+      .orderBy(asc(dealerflowTasksTable.createdAt))
+      .limit(50);
+
+    const enriched = pendingTasks.map((t) => {
+      const sla = checkSlaBreached(t.slaDueAt);
+      const meta = (t.metadata || {}) as Record<string, any>;
+      return {
+        ...t,
+        slaBreached: sla.breached,
+        minutesOverdue: sla.minutesOverdue,
+        approvalNote: meta.pendingApproval?.note || null,
+        fromDepartment: meta.pendingApproval?.fromDepartment || t.department,
+        targetDepartment: meta.pendingApproval?.targetDepartment || null,
+        requestedAt: meta.pendingApproval?.requestedAt || null,
+      };
+    });
+
+    res.json({ approvals: enriched, count: enriched.length });
+  } catch {
+    res.status(500).json({ error: sanitizeError() });
+  }
+});
+
+router.get("/dealerflow/tasks/:id/suggest", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const userId = requireUserId(req, res);
+    if (!userId) return;
+
+    const id = safeParseInt(req.params.id, 0);
+    if (id <= 0) { res.status(400).json({ error: "Invalid task ID" }); return; }
+
+    const [task] = await db.select().from(dealerflowTasksTable)
+      .where(and(eq(dealerflowTasksTable.id, id), eq(dealerflowTasksTable.dealershipId, userId)));
+
+    if (!task) { res.status(404).json({ error: "Task not found" }); return; }
+
+    const meta = (task.metadata || {}) as Record<string, any>;
+    const suggestions = suggestNextStep(task.department, task.status, meta);
+
+    const needsApproval = (task.department === "Service" || task.department === "Parts") &&
+      task.status === "In_Progress" &&
+      !meta.lastApprovalDecision;
+
+    res.json({
+      taskId: task.id,
+      currentDepartment: task.department,
+      status: task.status,
+      suggestions,
+      needsApproval,
+      approvalHint: needsApproval ? "Consider requesting manager approval before proceeding" : null,
+    });
   } catch {
     res.status(500).json({ error: sanitizeError() });
   }
@@ -437,9 +606,10 @@ router.get("/dealerflow/dashboard", requireAuth, async (req: Request, res: Respo
         waiting: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} = 'Waiting')`,
         completedToday: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} = 'Completed' and ${dealerflowTasksTable.resolvedAt} >= ${todayStart})`,
         completedThisWeek: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} = 'Completed' and ${dealerflowTasksTable.resolvedAt} >= ${weekStart})`,
-        overdueSla: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} not in ('Completed', 'Cancelled') and ${dealerflowTasksTable.slaDueAt} < ${now})`,
+        overdueSla: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} not in ('Completed', 'Cancelled', 'Pending_Approval') and ${dealerflowTasksTable.slaDueAt} < ${now})`,
         critical: sql<number>`count(*) filter (where ${dealerflowTasksTable.priority} = 'Critical' and ${dealerflowTasksTable.status} not in ('Completed', 'Cancelled'))`,
         avgResolutionMinutes: sql<number>`coalesce(avg(extract(epoch from (${dealerflowTasksTable.resolvedAt} - ${dealerflowTasksTable.createdAt})) / 60) filter (where ${dealerflowTasksTable.resolvedAt} is not null), 0)`,
+        pendingApprovals: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} = 'Pending_Approval')`,
       })
       .from(dealerflowTasksTable)
       .where(eq(dealerflowTasksTable.dealershipId, userId));
@@ -450,7 +620,7 @@ router.get("/dealerflow/dashboard", requireAuth, async (req: Request, res: Respo
         total: count(),
         open: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} = 'Open')`,
         inProgress: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} = 'In_Progress')`,
-        overdue: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} not in ('Completed', 'Cancelled') and ${dealerflowTasksTable.slaDueAt} < ${now})`,
+        overdue: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} not in ('Completed', 'Cancelled', 'Pending_Approval') and ${dealerflowTasksTable.slaDueAt} < ${now})`,
         completed: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} = 'Completed')`,
       })
       .from(dealerflowTasksTable)
@@ -563,7 +733,7 @@ router.post("/dealerflow/escalate", requireAuth, async (req: Request, res: Respo
       .where(
         and(
           eq(dealerflowTasksTable.dealershipId, userId),
-          sql`${dealerflowTasksTable.status} not in ('Completed', 'Cancelled', 'Escalated')`,
+          sql`${dealerflowTasksTable.status} not in ('Completed', 'Cancelled', 'Escalated', 'Pending_Approval')`,
           lt(dealerflowTasksTable.slaDueAt, now)
         )
       );

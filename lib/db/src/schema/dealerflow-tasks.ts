@@ -32,6 +32,7 @@ export const dfTaskStatusEnum = pgEnum("df_task_status", [
   "Open",
   "In_Progress",
   "Waiting",
+  "Pending_Approval",
   "Completed",
   "Escalated",
   "Cancelled",

@@ -1,9 +1,9 @@
 import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  Activity, AlertTriangle, BarChart3, Camera, CheckCircle2, Clock, DollarSign, FileText,
+  Activity, AlertTriangle, ArrowRight, BarChart3, Camera, Check, CheckCircle2, Clock, DollarSign, FileText,
   Filter, Gauge, Inbox, Layers, MessageSquare, Plus, RefreshCw,
-  Route, ScanLine, Send, Shield, Target, TrendingUp, Users, Zap,
+  Route, ScanLine, Send, Shield, Target, ThumbsUp, TrendingUp, Users, X, Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -83,6 +83,7 @@ type DashboardStats = {
     overdueSla: number;
     critical: number;
     avgResolutionMinutes: number;
+    pendingApprovals: number;
   };
   tickets: {
     total: number;
@@ -154,7 +155,7 @@ type PerformanceData = {
 };
 
 const DEPARTMENTS = ["DMV", "Parts", "Service", "Finance", "Logistics", "Sales", "Customer_Service", "General"];
-const STATUSES = ["Open", "In_Progress", "Waiting", "Completed", "Escalated", "Cancelled"];
+const STATUSES = ["Open", "In_Progress", "Waiting", "Pending_Approval", "Completed", "Escalated", "Cancelled"];
 const PRIORITIES = ["Critical", "High", "Medium", "Low"];
 
 function deptColor(dept: string) {
@@ -184,6 +185,7 @@ function statusBadge(s: string) {
     Open: "bg-blue-500/20 text-blue-300 border-blue-500/30",
     In_Progress: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30",
     Waiting: "bg-orange-500/20 text-orange-300 border-orange-500/30",
+    Pending_Approval: "bg-violet-500/20 text-violet-300 border-violet-500/30",
     Completed: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
     Escalated: "bg-red-500/20 text-red-300 border-red-500/30",
     Cancelled: "bg-zinc-500/20 text-zinc-400 border-zinc-500/30",
@@ -214,7 +216,7 @@ function timeAgo(iso: string) {
 }
 
 function slaStatus(slaDueAt: string | null, status: string) {
-  if (!slaDueAt || status === "Completed" || status === "Cancelled") return null;
+  if (!slaDueAt || status === "Completed" || status === "Cancelled" || status === "Pending_Approval") return null;
   const remaining = new Date(slaDueAt).getTime() - Date.now();
   if (remaining < 0) return { label: "OVERDUE", color: "text-red-400 animate-pulse" };
   const mins = Math.floor(remaining / 60000);
@@ -317,7 +319,7 @@ function CommandCenter({ onNavigate, onSelectDept }: { onNavigate: (t: Tab) => v
     );
   }
 
-  const s = stats?.tasks || { total: 0, open: 0, inProgress: 0, completed: 0, escalated: 0, waiting: 0, completedToday: 0, completedThisWeek: 0, overdueSla: 0, critical: 0, avgResolutionMinutes: 0 };
+  const s = stats?.tasks || { total: 0, open: 0, inProgress: 0, completed: 0, escalated: 0, waiting: 0, completedToday: 0, completedThisWeek: 0, overdueSla: 0, critical: 0, avgResolutionMinutes: 0, pendingApprovals: 0 };
   const t = stats?.tickets || { total: 0, newTickets: 0, open: 0, inProgress: 0, resolved: 0, avgResponseMinutes: 0 };
   const sc = stats?.scans || { total: 0, routed: 0, todayScans: 0 };
 
@@ -327,6 +329,7 @@ function CommandCenter({ onNavigate, onSelectDept }: { onNavigate: (t: Tab) => v
     { label: "Completed Today", value: s.completedToday, icon: <CheckCircle2 className="w-5 h-5" />, color: "text-emerald-400", bg: "bg-emerald-500/10 border-emerald-500/20" },
     { label: "SLA Overdue", value: s.overdueSla, icon: <AlertTriangle className="w-5 h-5" />, color: s.overdueSla > 0 ? "text-red-400" : "text-zinc-500", bg: s.overdueSla > 0 ? "bg-red-500/10 border-red-500/20 animate-pulse" : "bg-zinc-800 border-zinc-700" },
     { label: "Critical", value: s.critical, icon: <Zap className="w-5 h-5" />, color: s.critical > 0 ? "text-red-400" : "text-zinc-500", bg: s.critical > 0 ? "bg-red-500/10 border-red-500/20" : "bg-zinc-800 border-zinc-700" },
+    { label: "Awaiting Approval", value: s.pendingApprovals, icon: <ThumbsUp className="w-5 h-5" />, color: s.pendingApprovals > 0 ? "text-violet-400" : "text-zinc-500", bg: s.pendingApprovals > 0 ? "bg-violet-500/10 border-violet-500/20 animate-pulse" : "bg-zinc-800 border-zinc-700" },
     { label: "New Tickets", value: t.newTickets, icon: <MessageSquare className="w-5 h-5" />, color: "text-indigo-400", bg: "bg-indigo-500/10 border-indigo-500/20" },
     { label: "Scans Today", value: sc.todayScans, icon: <ScanLine className="w-5 h-5" />, color: "text-cyan-400", bg: "bg-cyan-500/10 border-cyan-500/20" },
     { label: "Avg Resolution", value: formatMinutes(s.avgResolutionMinutes), icon: <Clock className="w-5 h-5" />, color: "text-amber-400", bg: "bg-amber-500/10 border-amber-500/20" },
@@ -365,6 +368,8 @@ function CommandCenter({ onNavigate, onSelectDept }: { onNavigate: (t: Tab) => v
           </div>
         ))}
       </div>
+
+      <ApprovalQueue />
 
       {(stats?.departmentPulses?.length ?? 0) > 0 && (
         <div className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-5">
@@ -446,11 +451,12 @@ function TaskBoard({ deptFilter, setDeptFilter, statusFilter, setStatusFilter }:
   });
 
   const updateTask = useMutation({
-    mutationFn: ({ id, ...body }: { id: number; status?: string; priority?: string }) =>
+    mutationFn: ({ id, ...body }: { id: number; status?: string; priority?: string; department?: string }) =>
       authFetch(`${BASE}/api/dealerflow/tasks/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then((r) => r.json()),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["dealerflow-tasks"] });
       qc.invalidateQueries({ queryKey: ["dealerflow-dashboard"] });
+      qc.invalidateQueries({ queryKey: ["dealerflow-approvals"] });
     },
   });
 
@@ -535,6 +541,14 @@ function TaskBoard({ deptFilter, setDeptFilter, statusFilter, setStatusFilter }:
                       </button>
                     )}
                     {(task.status === "Open" || task.status === "In_Progress") && (
+                      <RequestApprovalButton taskId={task.id} department={task.department} />
+                    )}
+                    {task.status === "Pending_Approval" && (
+                      <span className="text-[10px] bg-violet-500/20 text-violet-300 px-2 py-1 rounded flex items-center gap-1">
+                        <ThumbsUp className="w-3 h-3" /> Awaiting
+                      </span>
+                    )}
+                    {(task.status === "Open" || task.status === "In_Progress") && (
                       <button onClick={() => updateTask.mutate({ id: task.id, status: "Escalated" })} className="text-[10px] bg-red-500/20 text-red-300 px-2 py-1 rounded hover:bg-red-500/30 transition">
                         Escalate
                       </button>
@@ -598,6 +612,23 @@ function TaskBoard({ deptFilter, setDeptFilter, statusFilter, setStatusFilter }:
                         ))}
                       </div>
                     )}
+                    <PipelineJourney metadata={meta} />
+                    {meta.lastApprovalDecision && (
+                      <div className={cn("rounded-lg px-3 py-2 border text-[10px]",
+                        meta.lastApprovalDecision.decision === "Approved" ? "bg-emerald-500/5 border-emerald-500/20 text-emerald-300" : "bg-red-500/5 border-red-500/20 text-red-300"
+                      )}>
+                        <span className="font-semibold">{meta.lastApprovalDecision.decision}</span>
+                        {meta.lastApprovalDecision.decisionNote && <span className="text-zinc-400 ml-2">"{meta.lastApprovalDecision.decisionNote}"</span>}
+                        <span className="text-zinc-600 ml-2">{new Date(meta.lastApprovalDecision.decidedAt).toLocaleString()}</span>
+                      </div>
+                    )}
+                    <NextStepSuggestions
+                      taskId={task.id}
+                      department={task.department}
+                      status={task.status}
+                      metadata={meta}
+                      onRoute={(dept) => updateTask.mutate({ id: task.id, department: dept })}
+                    />
                     <NotifyCustomerButton taskId={task.id} customerName={meta.extractedCustomerName} phone={meta.extractedPhone} />
                   </div>
                 )}
@@ -606,6 +637,206 @@ function TaskBoard({ deptFilter, setDeptFilter, statusFilter, setStatusFilter }:
           })}
         </div>
       )}
+    </div>
+  );
+}
+
+function RequestApprovalButton({ taskId, department }: { taskId: number; department: string }) {
+  const [open, setOpen] = useState(false);
+  const [note, setNote] = useState("");
+  const [targetDept, setTargetDept] = useState("");
+  const qc = useQueryClient();
+
+  const request = useMutation({
+    mutationFn: (body: any) =>
+      authFetch(`${BASE}/api/dealerflow/tasks/${taskId}/request-approval`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then((r) => r.json()),
+    onSuccess: () => {
+      setOpen(false);
+      setNote("");
+      qc.invalidateQueries({ queryKey: ["dealerflow-tasks"] });
+      qc.invalidateQueries({ queryKey: ["dealerflow-dashboard"] });
+      qc.invalidateQueries({ queryKey: ["dealerflow-approvals"] });
+    },
+  });
+
+  if (!open) {
+    return (
+      <button onClick={(e) => { e.stopPropagation(); setOpen(true); }} className="text-[10px] bg-violet-500/20 text-violet-300 px-2 py-1 rounded hover:bg-violet-500/30 transition flex items-center gap-1">
+        <ThumbsUp className="w-3 h-3" /> Approval
+      </button>
+    );
+  }
+
+  return (
+    <div onClick={(e) => e.stopPropagation()} className="bg-violet-500/5 border border-violet-500/20 rounded-lg p-3 space-y-2 min-w-[200px]">
+      <p className="text-[10px] font-semibold text-violet-300">Request Manager Approval</p>
+      <select value={targetDept} onChange={(e) => setTargetDept(e.target.value)} className="w-full bg-zinc-800 text-zinc-300 text-[10px] rounded px-2 py-1 border border-zinc-700">
+        <option value="">Target Dept (optional)</option>
+        {DEPARTMENTS.filter((d) => d !== department).map((d) => <option key={d} value={d}>{d.replace("_", " ")}</option>)}
+      </select>
+      <textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder="Approval note (e.g., repair cost $2,400)" className="w-full bg-zinc-800 text-zinc-200 text-[10px] rounded px-2 py-1 border border-zinc-700 resize-none h-12" />
+      <div className="flex gap-1">
+        <button
+          onClick={() => request.mutate({ approvalNote: note || undefined, targetDepartment: targetDept || undefined })}
+          disabled={request.isPending}
+          className="flex-1 text-[10px] bg-violet-500/20 text-violet-300 border border-violet-500/30 py-1 rounded font-semibold hover:bg-violet-500/30 transition disabled:opacity-50"
+        >
+          {request.isPending ? "Sending..." : "Send for Approval"}
+        </button>
+        <button onClick={() => setOpen(false)} className="text-[10px] text-zinc-500 px-2 py-1 hover:text-white transition">Cancel</button>
+      </div>
+    </div>
+  );
+}
+
+function ApprovalQueue() {
+  const qc = useQueryClient();
+  const { data, isLoading } = useQuery<{ approvals: DFTask[]; count: number }>({
+    queryKey: ["dealerflow-approvals"],
+    queryFn: () => authFetch(`${BASE}/api/dealerflow/approvals`).then((r) => r.json()),
+    refetchInterval: 10000,
+  });
+
+  const decide = useMutation({
+    mutationFn: ({ id, decision, decisionNote }: { id: number; decision: string; decisionNote?: string }) =>
+      authFetch(`${BASE}/api/dealerflow/tasks/${id}/approve`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ decision, decisionNote }) }).then((r) => r.json()),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["dealerflow-approvals"] });
+      qc.invalidateQueries({ queryKey: ["dealerflow-tasks"] });
+      qc.invalidateQueries({ queryKey: ["dealerflow-dashboard"] });
+    },
+  });
+
+  const approvals = data?.approvals || [];
+  if (isLoading || approvals.length === 0) return null;
+
+  return (
+    <div className="bg-violet-500/5 border border-violet-500/20 rounded-xl p-5">
+      <h3 className="text-sm font-semibold text-violet-300 mb-4 flex items-center gap-2">
+        <ThumbsUp className="w-4 h-4" /> Approval Queue ({approvals.length})
+      </h3>
+      <div className="space-y-2">
+        {approvals.map((task) => {
+          const meta = (task.metadata || {}) as any;
+          return (
+            <div key={task.id} className="bg-zinc-900/80 rounded-lg border border-zinc-800 p-4 flex items-start gap-3">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                  <span className={cn("text-[10px] font-bold uppercase px-2 py-0.5 rounded border", deptColor(task.department))}>
+                    {deptIcon(task.department)} {task.department.replace("_", " ")}
+                  </span>
+                  <span className={cn("text-[10px] font-medium px-2 py-0.5 rounded", priorityBadge(task.priority))}>
+                    {task.priority}
+                  </span>
+                  {meta.pendingApproval?.fromDepartment && meta.pendingApproval.fromDepartment !== task.department && (
+                    <span className="text-[10px] text-zinc-500 flex items-center gap-1">
+                      <ArrowRight className="w-3 h-3" /> from {meta.pendingApproval.fromDepartment}
+                    </span>
+                  )}
+                </div>
+                <h4 className="text-sm font-semibold text-white truncate">{task.title}</h4>
+                {meta.pendingApproval?.note && (
+                  <p className="text-xs text-zinc-400 mt-1 italic">"{meta.pendingApproval.note}"</p>
+                )}
+                <p className="text-[10px] text-zinc-600 mt-1">#{task.id} · {timeAgo(task.createdAt)}</p>
+              </div>
+              <div className="flex gap-2 shrink-0">
+                <button
+                  onClick={() => decide.mutate({ id: task.id, decision: "Approved" })}
+                  disabled={decide.isPending}
+                  className="flex items-center gap-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-3 py-2 rounded-lg text-xs font-semibold hover:bg-emerald-500/30 transition disabled:opacity-50"
+                >
+                  <Check className="w-3.5 h-3.5" /> Approve
+                </button>
+                <button
+                  onClick={() => decide.mutate({ id: task.id, decision: "Rejected" })}
+                  disabled={decide.isPending}
+                  className="flex items-center gap-1 bg-red-500/20 text-red-300 border border-red-500/30 px-3 py-2 rounded-lg text-xs font-semibold hover:bg-red-500/30 transition disabled:opacity-50"
+                >
+                  <X className="w-3.5 h-3.5" /> Reject
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function PipelineJourney({ metadata }: { metadata: any }) {
+  const history = metadata?.departmentHistory;
+  if (!Array.isArray(history) || history.length === 0) return null;
+
+  const original = metadata?.originalDepartment || history[0]?.from;
+  const steps = [original, ...history.map((h: any) => h.to)];
+
+  return (
+    <div className="bg-zinc-800/60 rounded-lg px-4 py-3">
+      <p className="text-[10px] text-zinc-500 uppercase font-medium mb-2">Pipeline Journey</p>
+      <div className="flex items-center gap-1 flex-wrap">
+        {steps.map((dept: string, i: number) => (
+          <div key={i} className="flex items-center gap-1">
+            {i > 0 && <ArrowRight className="w-3 h-3 text-zinc-600" />}
+            <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded border", deptColor(dept))}>
+              {deptIcon(dept)} {dept.replace("_", " ")}
+            </span>
+          </div>
+        ))}
+      </div>
+      <p className="text-[10px] text-zinc-600 mt-1.5">{history.length} reroute{history.length !== 1 ? "s" : ""}</p>
+    </div>
+  );
+}
+
+function NextStepSuggestions({ taskId, department, status, metadata, onRoute }: {
+  taskId: number; department: string; status: string; metadata: any;
+  onRoute: (dept: string) => void;
+}) {
+  const { data } = useQuery<{ suggestions: Array<{ nextDept: string; action: string; reason: string; confidence: string }>; needsApproval: boolean; approvalHint: string | null }>({
+    queryKey: ["dealerflow-suggest", taskId],
+    queryFn: () => authFetch(`${BASE}/api/dealerflow/tasks/${taskId}/suggest`).then((r) => r.json()),
+    staleTime: 30000,
+    enabled: status !== "Completed" && status !== "Cancelled",
+  });
+
+  if (!data?.suggestions?.length) return null;
+
+  return (
+    <div className="bg-amber-500/5 border border-amber-500/20 rounded-lg px-4 py-3">
+      <p className="text-[10px] text-amber-400 uppercase font-medium mb-2 flex items-center gap-1">
+        <Zap className="w-3 h-3" /> Suggested Next Steps
+      </p>
+      {data.needsApproval && data.approvalHint && (
+        <p className="text-[10px] text-violet-400 mb-2 flex items-center gap-1">
+          <ThumbsUp className="w-3 h-3" /> {data.approvalHint}
+        </p>
+      )}
+      <div className="space-y-1.5">
+        {data.suggestions.slice(0, 3).map((s, i) => (
+          <button
+            key={i}
+            onClick={(e) => { e.stopPropagation(); onRoute(s.nextDept); }}
+            className="w-full flex items-center gap-2 text-left bg-zinc-900/60 rounded-lg px-3 py-2 hover:bg-zinc-800 transition group"
+          >
+            <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded border shrink-0", deptColor(s.nextDept))}>
+              {deptIcon(s.nextDept)}
+            </span>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium text-white">{s.action}</p>
+              <p className="text-[10px] text-zinc-500 truncate">{s.reason}</p>
+            </div>
+            <span className={cn("text-[10px] px-1.5 py-0.5 rounded shrink-0",
+              s.confidence === "high" ? "bg-emerald-500/20 text-emerald-400" :
+              s.confidence === "low" ? "bg-zinc-600/20 text-zinc-500" :
+              "bg-amber-500/20 text-amber-400"
+            )}>
+              {s.confidence}
+            </span>
+            <ArrowRight className="w-3 h-3 text-zinc-600 group-hover:text-amber-400 transition shrink-0" />
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
