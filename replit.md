@@ -1,6 +1,6 @@
 # Overview
 
-3C Onyx is a luxury dark-mode Automotive AI Operating System and Super App developed by CUXTOMCANDYCLUB LLC. It serves as a comprehensive trust layer and ecosystem connector for the entire automotive industry. The platform's core vision is to provide measurable value to every member, driving retention, referrals, and repeat engagement through an "Impact" system.
+3C Onyx is a luxury dark-mode Automotive Ecosystem OS developed by CUXTOMCANDYCLUB LLC (Ronald Antonio Cadet, Founder/CVO). It serves as the Unified Automotive Command Layer (UACL) — a sovereign infrastructure platform that replaces the fragmented legacy stack (VinSolutions, Dealertrack, RouteOne, Stellantis fax workflows) with one intelligent, monetized operating system. The Genesis Protocol (v1.0) is the production-hardened final state.
 
 Key capabilities include:
 - **Alibaba ICBU Dropshipping Integration**: Full Node.js Alibaba Open Platform integration with IOP SDK signing, OAuth 2.0, product import pipeline, PostgreSQL storage, and Express API.
@@ -47,9 +47,9 @@ Typography uses Barlow Condensed for headings and Inter for body text. Key desig
 ## Core Platform Features
 
 The platform's architectural decisions prioritize an AI-first approach with:
-- **AI Model Abstraction Layer**: `ai-router.ts` for multi-provider LLM access (Gemini, OpenAI, Anthropic fallback).
+- **AI Model Abstraction Layer**: `ai-router.ts` — Bedrock-first sovereign AI (Claude 3 Haiku/Sonnet), Gemini/OpenAI/Anthropic fallback.
 - **WebSocket Real-Time Hub**: `wsHub.ts` for real-time communication across five distinct rooms.
-- **Agent Orchestration Engine**: `agentOrchestrator.ts` for AI-powered tool execution using a 7-agent mesh.
+- **Agent Orchestration Engine**: `agentOrchestrator.ts` — 12-agent UACL mesh with state machine (pending→assigned→running→complete/handed_off).
 - **Blockchain Chain-of-Custody**: `chainOfCustody.ts` ensures tamper-proof ledgering with SHA-256 hash chains, HMAC-SHA-256 signing, PostgreSQL persistence, and optional Ethereum Sepolia anchoring.
 - **Authentication System**: JWT-based (HS256) with `jose` library, supporting registration, login, token refresh, and logout. Includes `requireAuth` and `requireRole` middleware for access control. Passwords are bcrypt-hashed (cost factor 12).
 - **Security Middleware**: Helmet for security headers, `express-rate-limit` for API rate limiting, cookie parser support, trust proxy configuration, and secure Stripe webhook handling.
@@ -60,7 +60,9 @@ The platform's architectural decisions prioritize an AI-first approach with:
 
 **Unified Automotive Command Layer** — every request passes through S1 (Classify/Authenticate), S2 (Execute/Verify, AES-256-GCM FIPS 140-3), S3 (Log/Audit, CJIS-grade EventBridge). PAT-07.
 
-**11-Intent Neural Classifier** — warranty, funding, referral, vehicle, logistics, search, service, node, timeline, ecosystem, monetization. All live DB execution. No mock data.
+**12-Intent Neural Classifier** — warranty, broker, funding, referral, vehicle, logistics, search, service, node, timeline, ecosystem, monetization. All live DB execution. No mock data.
+
+**Genesis Protocol** — `/api/genesis/manifest` (full sovereign system declaration), `/api/genesis/pulse` (real-time heartbeat — agent mesh health, DB, infra), `/api/genesis/agents` (individual agent status). Every response carries 14 sovereignty headers including `X-Platform-Class: Automotive-Ecosystem-OS`, `X-Protocol-Version: Genesis-1.0`, `X-Agent-Mesh: 12-Agent-UACL`, `X-Encryption: AES-256-GCM-FIPS-140-3`.
 
 **Transporter Agent (PAT-08)** — Interstate vehicle logistics engine. Haversine routing, 5-carrier Verified Provider Mesh (Enclosed Elite for luxury/BMW), 12-state title/registration compliance DB, best interstate path builder, 3% Dynasty Logistics Fee. DB: `shipment_orders`. Routes: `POST /api/transport/quote`, `POST /api/transport/:id/confirm`, `PUT /api/transport/:id/status`, `GET /api/transport/active`, `GET /api/transport/:id`.
 

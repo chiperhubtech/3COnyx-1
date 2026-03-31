@@ -9,6 +9,7 @@ import { startMaintenanceScheduler } from "./lib/maintenanceScheduler";
 import { warmSecrets, CRITICAL_SECRETS } from "./lib/secrets";
 import { ensureVehicleIndex } from "./lib/vehicleSearch";
 import { eventBus } from "./lib/eventBus";
+import { UACL_AGENT_MAP } from "./lib/protocols";
 
 // ── Security: validate all required secrets BEFORE binding the port ──────────
 runStartupSecurityChecks();
@@ -45,6 +46,14 @@ async function startServer() {
       logger.warn({ err: (err as Error).message }, "[startup] Secrets warm skipped")
     );
     logger.info(eventBus.getStatus(), "[startup] EventBus initialized");
+
+    const agentCount = Object.keys(UACL_AGENT_MAP).filter(k => k !== "unknown").length;
+    const agentNames = Object.entries(UACL_AGENT_MAP)
+      .filter(([k]) => k !== "unknown")
+      .map(([, v]) => v.agent);
+    logger.info({ agentCount, agents: agentNames }, "[genesis] Agent Mesh activated");
+    logger.info("[genesis] Protocols S1·S2·S3 — ACTIVE");
+    logger.info("[genesis] Automotive Ecosystem OS — ONLINE");
   });
 }
 

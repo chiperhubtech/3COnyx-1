@@ -93,6 +93,7 @@ import unionRouter from "./union";
 import ask3cRouter from "./ask3c";
 import timelineRouter from "./timeline";
 import monetizationRouter from "./monetization";
+import genesisRouter from "./genesis";
 
 const router: IRouter = Router();
 
@@ -207,5 +208,6 @@ router.use("/union",        unionRouter);
 router.use("/ask",          ask3cRouter);
 router.use("/timeline",     timelineRouter);
 router.use("/monetization", monetizationRouter);
+router.use("/genesis",      genesisRouter);
 
 export default router;

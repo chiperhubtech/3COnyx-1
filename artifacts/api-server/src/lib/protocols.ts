@@ -145,7 +145,7 @@ export const SOVEREIGN_IDENTITY = {
   entityId:     "7788320",
   state:        "New York",
   formed:       "12/21/2025",
-  platform:     "3C ONYX — Unified Automotive Command Layer (UACL)",
+  platform:     "3C ONYX — Automotive Ecosystem OS (UACL)",
   patent:       "PAT-07 — Unified Automotive Command Platform",
   fingerprint:  "3CONYX-RAC-20260328-SOVEREIGN-ORIGIN-LOCKED",
   status:       "SOVEREIGN_COMMAND_LAYER_ACTIVE",

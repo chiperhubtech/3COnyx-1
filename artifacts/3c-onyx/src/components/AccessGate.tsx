@@ -8,11 +8,12 @@
  * Remove this component (or set VITE_PREVIEW_KEY="") when ready to open access.
  */
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { OnyxLogo } from "./OnyxLogo";
 
 const ACCESS_KEY = import.meta.env.VITE_PREVIEW_KEY || "ONYX3C";
 const STORAGE_KEY = "3c_access_granted";
+const BASE = import.meta.env.BASE_URL?.replace(/\/$/, "") || "";
 
 export function AccessGate({ children }: { children: React.ReactNode }) {
   const [granted, setGranted]   = useState<boolean>(() => {
@@ -23,11 +24,29 @@ export function AccessGate({ children }: { children: React.ReactNode }) {
   const [shake, setShake]       = useState(false);
   const [hover, setHover]       = useState(false);
   const [pressed, setPressed]   = useState(false);
+  const [pulse, setPulse]       = useState<{ agents: number; uptime: string } | null>(null);
   const inputRef                = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!granted) setTimeout(() => inputRef.current?.focus(), 300);
   }, [granted]);
+
+  const fetchPulse = useCallback(async () => {
+    try {
+      const r = await fetch(`${BASE}/api/genesis/pulse`);
+      if (r.ok) {
+        const d = await r.json() as { agentMesh?: { totalAgents?: number }; uptime?: string };
+        setPulse({ agents: d.agentMesh?.totalAgents ?? 0, uptime: d.uptime ?? "—" });
+      }
+    } catch { /* silent */ }
+  }, []);
+
+  useEffect(() => {
+    if (granted) return;
+    fetchPulse();
+    const iv = setInterval(fetchPulse, 30_000);
+    return () => clearInterval(iv);
+  }, [granted, fetchPulse]);
 
   const attempt = () => {
     if (input.toUpperCase() === ACCESS_KEY.toUpperCase()) {
@@ -111,7 +130,29 @@ export function AccessGate({ children }: { children: React.ReactNode }) {
           fontSize: 8, fontWeight: 800, letterSpacing: "0.35em",
           color: "rgba(201,162,39,0.40)",
           textAlign: "center",
-        }}>UNIFIED AUTOMOTIVE COMMAND LAYER</div>
+        }}>AUTOMOTIVE ECOSYSTEM OS</div>
+
+        {/* Genesis pulse indicator */}
+        {pulse && (
+          <div style={{
+            marginTop: 8,
+            display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+            fontSize: 7, fontWeight: 700, letterSpacing: "0.2em",
+            color: "rgba(201,162,39,0.30)",
+          }}>
+            <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <span style={{
+                width: 5, height: 5, borderRadius: "50%",
+                background: "#22c55e",
+                boxShadow: "0 0 6px rgba(34,197,94,0.6)",
+                animation: "gate-breathe 2s ease-in-out infinite",
+              }} />
+              GENESIS ACTIVE
+            </span>
+            <span>{pulse.agents} AGENTS</span>
+            <span>UP {pulse.uptime}</span>
+          </div>
+        )}
 
         {/* Divider */}
         <div style={{ width: 48, height: 1, background: "rgba(201,162,39,0.3)", margin: "18px 0" }} />
@@ -201,8 +242,10 @@ export function AccessGate({ children }: { children: React.ReactNode }) {
           marginTop: 22,
           fontSize: 8, fontWeight: 700, letterSpacing: "0.15em",
           color: "rgba(255,255,255,0.28)", textAlign: "center",
+          lineHeight: 1.8,
         }}>
-          3C ONYX · PRIVATE PREVIEW · NOT FOR PUBLIC DISTRIBUTION
+          3C ONYX · GENESIS v1.0 · CUXTOMCANDYCLUB LLC<br/>
+          SOVEREIGN PLATFORM · NOT FOR PUBLIC DISTRIBUTION
         </div>
       </div>
 

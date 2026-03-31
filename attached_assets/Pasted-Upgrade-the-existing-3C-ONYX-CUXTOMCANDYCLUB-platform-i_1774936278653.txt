@@ -1,0 +1,95 @@
+Upgrade the existing 3C ONYX / CUXTOMCANDYCLUB platform into a fully autonomous, AI-native automotive command system that replaces manual workflows across the entire automotive ecosystem without breaking or removing anything already built.
+
+SYSTEM CORE:
+- The platform must act as a single command layer that sits above all automotive tools, vendors, and workflows.
+- Everything starts from one input: “Ask 3C”
+- The system must interpret, route, execute, track, and optimize every request automatically.
+
+AI AGENT ORCHESTRATION:
+Create and integrate fully operational AI agents that replicate real-world roles:
+
+1. Concierge Agent → interprets all user requests
+2. Deal Agent → vehicle sourcing, pricing (invoice, holdback, incentives), negotiation logic
+3. F&I Agent → finance structuring, approvals simulation, lender matching
+4. Service Agent → diagnostics, repair coordination
+5. Parts & Custom Agent → upgrades, accessories, visualization prep
+6. Title Agent → registration, state-to-state compliance (Beacon-style workflow)
+7. Logistics Agent → transport, delivery, roadside (Honk-style integration)
+8. Runner Agent → assigns real-world tasks (pickup, delivery, DMV)
+9. Partner Agent → routes work to best vendor based on performance
+10. Payout Agent → tracks commissions, referrals, revenue share
+11. Trust Agent → logs all actions, ensures transparency + audit trail
+12. Growth Agent → referrals, affiliate expansion, network effects
+
+REAL-WORLD EXECUTION ENGINE:
+- The system must replicate and replace manual workflows currently done by brokers, dealerships, service advisors, and title clerks.
+- Detect real-world scenarios (out-of-state purchase, delivery needs, service issues)
+- Automatically generate and execute a full plan:
+  → source vehicle
+  → calculate deal
+  → assign logistics
+  → process title
+  → track delivery
+  → complete transaction
+
+LIVE COMMAND + TRACKING:
+- Create a real-time timeline for every request:
+  → created
+  → assigned
+  → in progress
+  → completed
+- Provide continuous updates to users without requiring manual follow-up
+- Eliminate phone calls and text-based coordination
+
+UNIFIED INTERFACE:
+- Maintain a clean command center UI:
+  → Ask 3C input
+  → Active tasks feed
+  → Deal tracking
+  → Earnings + savings dashboard
+- The platform must feel like a control system, not a tool stack
+
+MONETIZATION ENGINE:
+- Track every transaction automatically
+- Assign revenue splits across platform, partners, and referrers
+- Display real-time earnings dashboards
+- Support subscription ($99/month) + transaction-based revenue
+
+DATA + INTELLIGENCE:
+- Capture and store:
+  → user behavior
+  → vehicle data
+  → pricing trends
+  → partner performance
+  → transaction outcomes
+- Continuously improve routing, pricing, and recommendations
+
+SIMULATION LAYER:
+- Where APIs are unavailable (RouteOne, Beacon, Honk), simulate real-world execution cleanly
+- Ensure the experience feels complete even without full integrations
+
+TRUST + COMPLIANCE:
+- Log every action
+- Maintain audit trails
+- Prepare system for financial, legal, and government-grade compliance
+
+SCALABILITY:
+- Must be modular and globally scalable
+- Ready for mobile app deployment
+- Ready for advanced AI (including future NVIDIA-level enhancements)
+
+EXECUTION MODEL:
+- Support both:
+  → fully automated workflows
+  → human-assisted workflows (when needed)
+- The user should never feel complexity
+
+FINAL OBJECTIVE:
+Transform the platform into a self-improving automotive operating system that:
+- replaces manual coordination
+- connects consumers, dealers, service providers, and partners
+- executes real-world automotive transactions end-to-end
+- generates revenue automatically
+- becomes the default interface for automotive life
+
+Do not rebuild. Only enhance, connect, and elevate what already exists.
