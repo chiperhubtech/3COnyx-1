@@ -8,7 +8,8 @@ import { requireAuth } from "../middlewares/requireAuth";
 const router = Router();
 
 const VALID_DEPARTMENTS = ["DMV", "Parts", "Service", "Finance", "Logistics", "Sales", "Customer_Service", "General"] as const;
-const VALID_STATUSES = ["Open", "In_Progress", "Waiting", "Pending_Approval", "Completed", "Escalated", "Cancelled"] as const;
+const VALID_STATUSES = ["Open", "In_Progress", "Waiting", "Pending_Approval", "Pending_External", "Completed", "Escalated", "Cancelled"] as const;
+const VALID_SCOPES = ["Internal", "External"] as const;
 const VALID_PRIORITIES = ["Critical", "High", "Medium", "Low"] as const;
 const VALID_DOC_TYPES = ["Invoice", "DMV_Form", "Title", "Registration", "Mopar_Sheet", "Parts_Order", "Warranty_Claim", "Insurance_Doc", "Bill_of_Sale", "Other"] as const;
 const VALID_CHANNELS = ["SMS", "Email", "Phone", "Walk_In", "App", "WhatsApp"] as const;
@@ -57,7 +58,7 @@ router.get("/dealerflow/tasks", requireAuth, async (req: Request, res: Response)
     const userId = requireUserId(req, res);
     if (!userId) return;
 
-    const { department, status, priority, limit: rawLimit } = req.query;
+    const { department, status, priority, scope, limit: rawLimit } = req.query;
     const conditions: ReturnType<typeof eq>[] = [eq(dealerflowTasksTable.dealershipId, userId)];
 
     if (department && typeof department === "string" && (VALID_DEPARTMENTS as readonly string[]).includes(department)) {
@@ -68,6 +69,9 @@ router.get("/dealerflow/tasks", requireAuth, async (req: Request, res: Response)
     }
     if (priority && typeof priority === "string" && (VALID_PRIORITIES as readonly string[]).includes(priority)) {
       conditions.push(eq(dealerflowTasksTable.priority, priority as typeof VALID_PRIORITIES[number]));
+    }
+    if (scope && typeof scope === "string" && (VALID_SCOPES as readonly string[]).includes(scope)) {
+      conditions.push(eq(dealerflowTasksTable.taskScope, scope as typeof VALID_SCOPES[number]));
     }
 
     const maxRows = Math.min(Math.max(safeParseInt(rawLimit, 50), 1), 200);
@@ -80,7 +84,11 @@ router.get("/dealerflow/tasks", requireAuth, async (req: Request, res: Response)
       .orderBy(desc(dealerflowTasksTable.createdAt))
       .limit(maxRows);
 
+    const SLA_PAUSED_STATUSES = ["Completed", "Cancelled", "Pending_Approval", "Pending_External"];
     const enriched = tasks.map((t) => {
+      if (SLA_PAUSED_STATUSES.includes(t.status)) {
+        return { ...t, slaBreached: false, minutesOverdue: 0 };
+      }
       const sla = checkSlaBreached(t.slaDueAt);
       return { ...t, slaBreached: sla.breached, minutesOverdue: sla.minutesOverdue };
     });
@@ -117,6 +125,7 @@ router.post("/dealerflow/tasks", requireAuth, async (req: Request, res: Response
       priority: effectivePriority,
       status: "Open",
       intakeType: intakeType || "Manual",
+      taskScope: routing.taskScope,
       vin: vin ? String(vin).substring(0, 17) : null,
       dealershipId: userId,
       slaMinutes: effectiveSla,
@@ -129,6 +138,9 @@ router.post("/dealerflow/tasks", requireAuth, async (req: Request, res: Response
         urgencyScore: routing.urgencyScore,
         bankReady: routing.bankReady,
         bankReadySignals: routing.bankReadySignals,
+        taskScope: routing.taskScope,
+        externalParty: routing.externalParty,
+        externalReason: routing.externalReason,
       },
     }).returning();
 
@@ -170,6 +182,14 @@ router.patch("/dealerflow/tasks/:id", requireAuth, async (req: Request, res: Res
     }
     if (req.body.priority && (VALID_PRIORITIES as readonly string[]).includes(req.body.priority)) {
       updates.priority = req.body.priority;
+    }
+    if (req.body.taskScope && (VALID_SCOPES as readonly string[]).includes(req.body.taskScope)) {
+      updates.taskScope = req.body.taskScope;
+      if (req.body.taskScope === "External" && !meta.externalParty) {
+        meta.externalParty = req.body.externalParty || "Unspecified";
+        meta.externalReason = req.body.externalReason || "Manually marked external";
+        updates.metadata = meta;
+      }
     }
     if (req.body.department && (VALID_DEPARTMENTS as readonly string[]).includes(req.body.department) && req.body.department !== existing.department) {
       if (!meta.originalDepartment) {
@@ -440,6 +460,7 @@ router.post("/dealerflow/intake", requireAuth, async (req: Request, res: Respons
       priority: routing.suggestedPriority as typeof VALID_PRIORITIES[number],
       status: "Open",
       intakeType: "Scan",
+      taskScope: routing.taskScope,
       vin: vin || null,
       dealershipId: userId,
       slaMinutes: routing.slaMinutes,
@@ -454,6 +475,9 @@ router.post("/dealerflow/intake", requireAuth, async (req: Request, res: Respons
         urgencyScore: routing.urgencyScore,
         bankReady: routing.bankReady,
         bankReadySignals: routing.bankReadySignals,
+        taskScope: routing.taskScope,
+        externalParty: routing.externalParty,
+        externalReason: routing.externalReason,
       },
     }).returning();
 
@@ -606,10 +630,14 @@ router.get("/dealerflow/dashboard", requireAuth, async (req: Request, res: Respo
         waiting: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} = 'Waiting')`,
         completedToday: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} = 'Completed' and ${dealerflowTasksTable.resolvedAt} >= ${todayStart})`,
         completedThisWeek: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} = 'Completed' and ${dealerflowTasksTable.resolvedAt} >= ${weekStart})`,
-        overdueSla: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} not in ('Completed', 'Cancelled', 'Pending_Approval') and ${dealerflowTasksTable.slaDueAt} < ${now})`,
+        overdueSla: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} not in ('Completed', 'Cancelled', 'Pending_Approval', 'Pending_External') and ${dealerflowTasksTable.slaDueAt} < ${now})`,
         critical: sql<number>`count(*) filter (where ${dealerflowTasksTable.priority} = 'Critical' and ${dealerflowTasksTable.status} not in ('Completed', 'Cancelled'))`,
         avgResolutionMinutes: sql<number>`coalesce(avg(extract(epoch from (${dealerflowTasksTable.resolvedAt} - ${dealerflowTasksTable.createdAt})) / 60) filter (where ${dealerflowTasksTable.resolvedAt} is not null), 0)`,
         pendingApprovals: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} = 'Pending_Approval')`,
+        pendingExternal: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} = 'Pending_External')`,
+        externalTotal: sql<number>`count(*) filter (where ${dealerflowTasksTable.taskScope} = 'External')`,
+        internalTotal: sql<number>`count(*) filter (where ${dealerflowTasksTable.taskScope} = 'Internal')`,
+        externalActive: sql<number>`count(*) filter (where ${dealerflowTasksTable.taskScope} = 'External' and ${dealerflowTasksTable.status} not in ('Completed', 'Cancelled'))`,
       })
       .from(dealerflowTasksTable)
       .where(eq(dealerflowTasksTable.dealershipId, userId));
@@ -620,7 +648,7 @@ router.get("/dealerflow/dashboard", requireAuth, async (req: Request, res: Respo
         total: count(),
         open: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} = 'Open')`,
         inProgress: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} = 'In_Progress')`,
-        overdue: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} not in ('Completed', 'Cancelled', 'Pending_Approval') and ${dealerflowTasksTable.slaDueAt} < ${now})`,
+        overdue: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} not in ('Completed', 'Cancelled', 'Pending_Approval', 'Pending_External') and ${dealerflowTasksTable.slaDueAt} < ${now})`,
         completed: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} = 'Completed')`,
       })
       .from(dealerflowTasksTable)
@@ -703,8 +731,10 @@ router.get("/dealerflow/queue", requireAuth, async (req: Request, res: Response)
       )
       .limit(maxRows);
 
+    const SLA_PAUSED = ["Completed", "Cancelled", "Pending_Approval", "Pending_External"];
     const enriched = tasks.map((t, i) => {
-      const sla = checkSlaBreached(t.slaDueAt);
+      const paused = SLA_PAUSED.includes(t.status);
+      const sla = paused ? { breached: false, minutesOverdue: 0 } : checkSlaBreached(t.slaDueAt);
       return {
         ...t,
         queuePosition: i + 1,
@@ -733,7 +763,7 @@ router.post("/dealerflow/escalate", requireAuth, async (req: Request, res: Respo
       .where(
         and(
           eq(dealerflowTasksTable.dealershipId, userId),
-          sql`${dealerflowTasksTable.status} not in ('Completed', 'Cancelled', 'Escalated', 'Pending_Approval')`,
+          sql`${dealerflowTasksTable.status} not in ('Completed', 'Cancelled', 'Escalated', 'Pending_Approval', 'Pending_External')`,
           lt(dealerflowTasksTable.slaDueAt, now)
         )
       );
@@ -987,6 +1017,7 @@ Return the raw extracted text only — no commentary or formatting.`;
       priority: routing.suggestedPriority as typeof VALID_PRIORITIES[number],
       status: "Open",
       intakeType: "Vision_Scan",
+      taskScope: routing.taskScope,
       vin: vin || null,
       dealershipId: userId,
       slaMinutes: routing.slaMinutes,
@@ -1002,6 +1033,9 @@ Return the raw extracted text only — no commentary or formatting.`;
         bankReady: routing.bankReady,
         bankReadySignals: routing.bankReadySignals,
         ocrSource: "ai-vision",
+        taskScope: routing.taskScope,
+        externalParty: routing.externalParty,
+        externalReason: routing.externalReason,
       },
     }).returning();
 

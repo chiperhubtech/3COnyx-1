@@ -34,6 +34,7 @@ type DFTask = {
   priority: string;
   status: string;
   intakeType: string;
+  taskScope: string;
   vin: string | null;
   routedByAgent: string | null;
   routingConfidence: string | null;
@@ -84,6 +85,10 @@ type DashboardStats = {
     critical: number;
     avgResolutionMinutes: number;
     pendingApprovals: number;
+    pendingExternal: number;
+    externalTotal: number;
+    internalTotal: number;
+    externalActive: number;
   };
   tickets: {
     total: number;
@@ -155,7 +160,7 @@ type PerformanceData = {
 };
 
 const DEPARTMENTS = ["DMV", "Parts", "Service", "Finance", "Logistics", "Sales", "Customer_Service", "General"];
-const STATUSES = ["Open", "In_Progress", "Waiting", "Pending_Approval", "Completed", "Escalated", "Cancelled"];
+const STATUSES = ["Open", "In_Progress", "Waiting", "Pending_Approval", "Pending_External", "Completed", "Escalated", "Cancelled"];
 const PRIORITIES = ["Critical", "High", "Medium", "Low"];
 
 function deptColor(dept: string) {
@@ -186,6 +191,7 @@ function statusBadge(s: string) {
     In_Progress: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30",
     Waiting: "bg-orange-500/20 text-orange-300 border-orange-500/30",
     Pending_Approval: "bg-violet-500/20 text-violet-300 border-violet-500/30",
+    Pending_External: "bg-amber-600/20 text-amber-300 border-amber-600/30",
     Completed: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
     Escalated: "bg-red-500/20 text-red-300 border-red-500/30",
     Cancelled: "bg-zinc-500/20 text-zinc-400 border-zinc-500/30",
@@ -216,7 +222,7 @@ function timeAgo(iso: string) {
 }
 
 function slaStatus(slaDueAt: string | null, status: string) {
-  if (!slaDueAt || status === "Completed" || status === "Cancelled" || status === "Pending_Approval") return null;
+  if (!slaDueAt || status === "Completed" || status === "Cancelled" || status === "Pending_Approval" || status === "Pending_External") return null;
   const remaining = new Date(slaDueAt).getTime() - Date.now();
   if (remaining < 0) return { label: "OVERDUE", color: "text-red-400 animate-pulse" };
   const mins = Math.floor(remaining / 60000);
@@ -238,6 +244,7 @@ export default function DealerFlowOS() {
   const [tab, setTab] = useState<Tab>("dashboard");
   const [deptFilter, setDeptFilter] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("");
+  const [scopeFilter, setScopeFilter] = useState<string>("");
   const [queueDept, setQueueDept] = useState("DMV");
 
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
@@ -283,7 +290,7 @@ export default function DealerFlowOS() {
       </header>
 
       {tab === "dashboard" && <CommandCenter onNavigate={setTab} onSelectDept={(d) => { setQueueDept(d); setTab("queue"); }} />}
-      {tab === "tasks" && <TaskBoard deptFilter={deptFilter} setDeptFilter={setDeptFilter} statusFilter={statusFilter} setStatusFilter={setStatusFilter} />}
+      {tab === "tasks" && <TaskBoard deptFilter={deptFilter} setDeptFilter={setDeptFilter} statusFilter={statusFilter} setStatusFilter={setStatusFilter} scopeFilter={scopeFilter} setScopeFilter={setScopeFilter} />}
       {tab === "intake" && <IntakeScanner />}
       {tab === "tickets" && <TicketInbox />}
       {tab === "queue" && <DeptQueue department={queueDept} setDepartment={setQueueDept} />}
@@ -319,7 +326,7 @@ function CommandCenter({ onNavigate, onSelectDept }: { onNavigate: (t: Tab) => v
     );
   }
 
-  const s = stats?.tasks || { total: 0, open: 0, inProgress: 0, completed: 0, escalated: 0, waiting: 0, completedToday: 0, completedThisWeek: 0, overdueSla: 0, critical: 0, avgResolutionMinutes: 0, pendingApprovals: 0 };
+  const s = stats?.tasks || { total: 0, open: 0, inProgress: 0, completed: 0, escalated: 0, waiting: 0, completedToday: 0, completedThisWeek: 0, overdueSla: 0, critical: 0, avgResolutionMinutes: 0, pendingApprovals: 0, pendingExternal: 0, externalTotal: 0, internalTotal: 0, externalActive: 0 };
   const t = stats?.tickets || { total: 0, newTickets: 0, open: 0, inProgress: 0, resolved: 0, avgResponseMinutes: 0 };
   const sc = stats?.scans || { total: 0, routed: 0, todayScans: 0 };
 
@@ -330,6 +337,7 @@ function CommandCenter({ onNavigate, onSelectDept }: { onNavigate: (t: Tab) => v
     { label: "SLA Overdue", value: s.overdueSla, icon: <AlertTriangle className="w-5 h-5" />, color: s.overdueSla > 0 ? "text-red-400" : "text-zinc-500", bg: s.overdueSla > 0 ? "bg-red-500/10 border-red-500/20 animate-pulse" : "bg-zinc-800 border-zinc-700" },
     { label: "Critical", value: s.critical, icon: <Zap className="w-5 h-5" />, color: s.critical > 0 ? "text-red-400" : "text-zinc-500", bg: s.critical > 0 ? "bg-red-500/10 border-red-500/20" : "bg-zinc-800 border-zinc-700" },
     { label: "Awaiting Approval", value: s.pendingApprovals, icon: <ThumbsUp className="w-5 h-5" />, color: s.pendingApprovals > 0 ? "text-violet-400" : "text-zinc-500", bg: s.pendingApprovals > 0 ? "bg-violet-500/10 border-violet-500/20 animate-pulse" : "bg-zinc-800 border-zinc-700" },
+    { label: "External Hold", value: s.externalActive, icon: <Users className="w-5 h-5" />, color: s.externalActive > 0 ? "text-amber-400" : "text-zinc-500", bg: s.externalActive > 0 ? "bg-amber-600/10 border-amber-600/20" : "bg-zinc-800 border-zinc-700" },
     { label: "New Tickets", value: t.newTickets, icon: <MessageSquare className="w-5 h-5" />, color: "text-indigo-400", bg: "bg-indigo-500/10 border-indigo-500/20" },
     { label: "Scans Today", value: sc.todayScans, icon: <ScanLine className="w-5 h-5" />, color: "text-cyan-400", bg: "bg-cyan-500/10 border-cyan-500/20" },
     { label: "Avg Resolution", value: formatMinutes(s.avgResolutionMinutes), icon: <Clock className="w-5 h-5" />, color: "text-amber-400", bg: "bg-amber-500/10 border-amber-500/20" },
@@ -432,9 +440,10 @@ function CommandCenter({ onNavigate, onSelectDept }: { onNavigate: (t: Tab) => v
   );
 }
 
-function TaskBoard({ deptFilter, setDeptFilter, statusFilter, setStatusFilter }: {
+function TaskBoard({ deptFilter, setDeptFilter, statusFilter, setStatusFilter, scopeFilter, setScopeFilter }: {
   deptFilter: string; setDeptFilter: (v: string) => void;
   statusFilter: string; setStatusFilter: (v: string) => void;
+  scopeFilter: string; setScopeFilter: (v: string) => void;
 }) {
   const [showCreate, setShowCreate] = useState(false);
   const [expandedTask, setExpandedTask] = useState<number | null>(null);
@@ -443,15 +452,16 @@ function TaskBoard({ deptFilter, setDeptFilter, statusFilter, setStatusFilter }:
   const qs = new URLSearchParams();
   if (deptFilter) qs.set("department", deptFilter);
   if (statusFilter) qs.set("status", statusFilter);
+  if (scopeFilter) qs.set("scope", scopeFilter);
 
   const { data, isLoading } = useQuery<{ tasks: DFTask[] }>({
-    queryKey: ["dealerflow-tasks", deptFilter, statusFilter],
+    queryKey: ["dealerflow-tasks", deptFilter, statusFilter, scopeFilter],
     queryFn: () => authFetch(`${BASE}/api/dealerflow/tasks?${qs}`).then((r) => r.json()),
     refetchInterval: 10000,
   });
 
   const updateTask = useMutation({
-    mutationFn: ({ id, ...body }: { id: number; status?: string; priority?: string; department?: string }) =>
+    mutationFn: ({ id, ...body }: { id: number; status?: string; priority?: string; department?: string; taskScope?: string }) =>
       authFetch(`${BASE}/api/dealerflow/tasks/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then((r) => r.json()),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["dealerflow-tasks"] });
@@ -473,6 +483,11 @@ function TaskBoard({ deptFilter, setDeptFilter, statusFilter, setStatusFilter }:
         <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="bg-zinc-800 text-zinc-300 text-sm rounded-lg px-3 py-1.5 border border-zinc-700">
           <option value="">All Statuses</option>
           {STATUSES.map((s) => <option key={s} value={s}>{s.replace("_", " ")}</option>)}
+        </select>
+        <select value={scopeFilter} onChange={(e) => setScopeFilter(e.target.value)} className="bg-zinc-800 text-zinc-300 text-sm rounded-lg px-3 py-1.5 border border-zinc-700">
+          <option value="">All Scopes</option>
+          <option value="Internal">Internal</option>
+          <option value="External">External</option>
         </select>
         <button onClick={() => setShowCreate(!showCreate)} className="ml-auto flex items-center gap-2 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg px-4 py-1.5 text-sm font-medium hover:bg-amber-500/30 transition">
           <Plus className="w-4 h-4" /> New Task
@@ -518,6 +533,11 @@ function TaskBoard({ deptFilter, setDeptFilter, statusFilter, setStatusFilter }:
                           <DollarSign className="w-3 h-3" /> Bank Ready
                         </span>
                       )}
+                      {task.taskScope === "External" && (
+                        <span className="text-[10px] bg-amber-600/20 text-amber-300 px-2 py-0.5 rounded flex items-center gap-1 border border-amber-600/30">
+                          <Users className="w-3 h-3" /> External
+                        </span>
+                      )}
                     </div>
                     <h4 className="text-sm font-semibold text-white truncate">{task.title}</h4>
                     {task.description && <p className="text-xs text-zinc-500 mt-1 line-clamp-2">{task.description}</p>}
@@ -547,6 +567,16 @@ function TaskBoard({ deptFilter, setDeptFilter, statusFilter, setStatusFilter }:
                       <span className="text-[10px] bg-violet-500/20 text-violet-300 px-2 py-1 rounded flex items-center gap-1">
                         <ThumbsUp className="w-3 h-3" /> Awaiting
                       </span>
+                    )}
+                    {task.status === "Pending_External" && (
+                      <span className="text-[10px] bg-amber-600/20 text-amber-300 px-2 py-1 rounded flex items-center gap-1">
+                        <Users className="w-3 h-3" /> Ext. Wait
+                      </span>
+                    )}
+                    {(task.status === "Open" || task.status === "In_Progress") && (
+                      <button onClick={() => updateTask.mutate({ id: task.id, status: "Pending_External", taskScope: "External" })} className="text-[10px] bg-amber-600/20 text-amber-300 px-2 py-1 rounded hover:bg-amber-600/30 transition">
+                        Ext. Hold
+                      </button>
                     )}
                     {(task.status === "Open" || task.status === "In_Progress") && (
                       <button onClick={() => updateTask.mutate({ id: task.id, status: "Escalated" })} className="text-[10px] bg-red-500/20 text-red-300 px-2 py-1 rounded hover:bg-red-500/30 transition">
@@ -597,6 +627,15 @@ function TaskBoard({ deptFilter, setDeptFilter, statusFilter, setStatusFilter }:
                         {meta.bankReadySignals.map((sig: string) => (
                           <span key={sig} className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded">{sig}</span>
                         ))}
+                      </div>
+                    )}
+                    {task.taskScope === "External" && (
+                      <div className="bg-amber-600/5 border border-amber-600/20 rounded-lg px-4 py-3">
+                        <p className="text-[10px] text-amber-400 uppercase font-medium mb-1">External Dependency</p>
+                        <div className="flex items-center gap-3">
+                          {meta.externalParty && <span className="text-xs text-white font-semibold capitalize">{meta.externalParty}</span>}
+                          {meta.externalReason && <span className="text-[10px] text-zinc-400">{meta.externalReason}</span>}
+                        </div>
                       </div>
                     )}
                     {meta.notifications?.length > 0 && (

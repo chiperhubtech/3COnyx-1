@@ -33,9 +33,15 @@ export const dfTaskStatusEnum = pgEnum("df_task_status", [
   "In_Progress",
   "Waiting",
   "Pending_Approval",
+  "Pending_External",
   "Completed",
   "Escalated",
   "Cancelled",
+]);
+
+export const dfTaskScopeEnum = pgEnum("df_task_scope", [
+  "Internal",
+  "External",
 ]);
 
 export const dfIntakeTypeEnum = pgEnum("df_intake_type", [
@@ -56,6 +62,7 @@ export const dealerflowTasksTable = pgTable("dealerflow_tasks", {
   priority: dfPriorityEnum("priority").notNull().default("Medium"),
   status: dfTaskStatusEnum("status").notNull().default("Open"),
   intakeType: dfIntakeTypeEnum("intake_type").notNull().default("Manual"),
+  taskScope: dfTaskScopeEnum("task_scope").notNull().default("Internal"),
   vin: text("vin"),
   vehicleId: integer("vehicle_id").references(() => vehiclesTable.id, { onDelete: "set null" }),
   customerId: integer("customer_id").references(() => usersTable.id, { onDelete: "set null" }),
@@ -77,6 +84,7 @@ export const dealerflowTasksTable = pgTable("dealerflow_tasks", {
   index("df_tasks_priority_idx").on(t.priority),
   index("df_tasks_vin_idx").on(t.vin),
   index("df_tasks_sla_due_idx").on(t.slaDueAt),
+  index("df_tasks_scope_idx").on(t.taskScope),
 ]);
 
 export const insertDealerflowTaskSchema = createInsertSchema(dealerflowTasksTable).omit({

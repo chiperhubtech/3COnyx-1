@@ -86,6 +86,27 @@ const BANK_READY_KEYWORDS = [
   "stipulation cleared", "proof submitted", "insurance verified",
 ];
 
+const EXTERNAL_SIGNALS: Array<{ pattern: RegExp; reason: string }> = [
+  { pattern: /\b(bank|lender|credit union|ally|cap one|chase auto|wells fargo|td auto)\b/i, reason: "Waiting on lender/bank" },
+  { pattern: /\b(insurance|binder|policy|geico|progressive|state farm|allstate|usaa)\b/i, reason: "Waiting on insurance provider" },
+  { pattern: /\b(vendor|supplier|aftermarket|outside shop|sublet|rim repair|glass repair|paintless dent|pdr|tint|upholstery)\b/i, reason: "Waiting on external vendor" },
+  { pattern: /\b(transport|carrier|flatbed|ship.*out of state|dealer trade|auction)\b/i, reason: "Waiting on transport/logistics" },
+  { pattern: /\b(dmv office|state dmv|county clerk|mvd|secretary of state)\b/i, reason: "Waiting on government agency" },
+  { pattern: /\b(warranty company|extended warranty|service contract provider|mopar warranty)\b/i, reason: "Waiting on warranty provider" },
+  { pattern: /\b(body shop|collision center|outside repair)\b/i, reason: "Waiting on body shop" },
+];
+
+export function detectTaskScope(input: string): { scope: "Internal" | "External"; externalParty: string | null; externalReason: string | null } {
+  const text = input.toLowerCase();
+  for (const signal of EXTERNAL_SIGNALS) {
+    if (signal.pattern.test(text)) {
+      const match = text.match(signal.pattern);
+      return { scope: "External", externalParty: match?.[0] || null, externalReason: signal.reason };
+    }
+  }
+  return { scope: "Internal", externalParty: null, externalReason: null };
+}
+
 export interface RoutingResult {
   department: string;
   agent: string;
@@ -97,6 +118,9 @@ export interface RoutingResult {
   suggestedPriority: string;
   bankReady: boolean;
   bankReadySignals: string[];
+  taskScope: "Internal" | "External";
+  externalParty: string | null;
+  externalReason: string | null;
 }
 
 export function smartRoute(input: string): RoutingResult {
@@ -135,6 +159,8 @@ export function smartRoute(input: string): RoutingResult {
       const bankReadySignals = BANK_READY_KEYWORDS.filter((bk) => text.includes(bk));
       const isBankReady = rule.bankReady && bankReadySignals.length > 0;
 
+      const scopeResult = detectTaskScope(input);
+
       bestMatch = {
         department: rule.department,
         agent: rule.agent,
@@ -146,11 +172,17 @@ export function smartRoute(input: string): RoutingResult {
         suggestedPriority,
         bankReady: isBankReady,
         bankReadySignals,
+        taskScope: scopeResult.scope,
+        externalParty: scopeResult.externalParty,
+        externalReason: scopeResult.externalReason,
       };
     }
   }
 
-  return bestMatch || {
+  if (bestMatch) return bestMatch;
+
+  const fallbackScope = detectTaskScope(input);
+  return {
     department: "General",
     agent: "Concierge",
     slaMinutes: 480,
@@ -161,6 +193,9 @@ export function smartRoute(input: string): RoutingResult {
     suggestedPriority: "Medium",
     bankReady: false,
     bankReadySignals: [],
+    taskScope: fallbackScope.scope,
+    externalParty: fallbackScope.externalParty,
+    externalReason: fallbackScope.externalReason,
   };
 }
 
