@@ -256,7 +256,7 @@ export default function RentalsScreen() {
             </View>
             <View style={[styles.poweredBy, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}>
               <Text style={[styles.poweredByText, { color: theme.textMuted }]}>Results via</Text>
-              <Text style={[styles.poweredByBrand, { color: COLORS.gold }]}>CarCrawler Network</Text>
+              <Text style={[styles.poweredByBrand, { color: COLORS.gold }]}>3C Rentals</Text>
               <Text style={[styles.poweredBySub, { color: theme.textFaint }]}>{results.totalProviders}+ providers · Best available rates</Text>
             </View>
           </>

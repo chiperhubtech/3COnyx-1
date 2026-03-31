@@ -37,10 +37,10 @@ type EcoPartner = {
 
 const CATEGORIES: EcoCategory[] = [
   // ─── Emergency ─────────────────────────────────────────────────────────────
-  { id: "roadside",     label: "Roadside Assistance",    sub: "Powered by HONK Network",            icon: "alert-triangle", color: "#EF4444", route: "/roadside",  badge: "24/7" },
+  { id: "roadside",     label: "Roadside Assistance",    sub: "3C Roadside · 50 States",            icon: "alert-triangle", color: "#EF4444", route: "/roadside",  badge: "24/7" },
   { id: "towing",       label: "Towing Services",         sub: "Find tow companies near you",        icon: "truck",          color: "#F97316", route: "/nearby?category=towing" },
   // ─── Mobility ──────────────────────────────────────────────────────────────
-  { id: "rentals",      label: "Car Rentals",             sub: "30+ providers via CarCrawler",        icon: "key",            color: "#3B82F6", route: "/rentals",   badge: "NEW" },
+  { id: "rentals",      label: "Car Rentals",             sub: "30+ providers · Best rates",          icon: "key",            color: "#3B82F6", route: "/rentals",   badge: "NEW" },
   // ─── Maintenance & Repair ──────────────────────────────────────────────────
   { id: "repair",       label: "Auto Repair",             sub: "Find trusted shops near you",         icon: "tool",           color: COLORS.gold, route: "/nearby?category=repair" },
   { id: "detail",       label: "Detailing & Wash",        sub: "Mobile & in-bay services",            icon: "droplet",        color: "#06B6D4", route: "/nearby?category=detail" },
@@ -60,12 +60,12 @@ const CATEGORIES: EcoCategory[] = [
 ];
 
 const PARTNERS: EcoPartner[] = [
-  { name: "HONK",          logo: "🚨", tier: "FOUNDING", domain: "getHONK.com"      },
-  { name: "CarCrawler",    logo: "🔑", tier: "FOUNDING", domain: "carcrawler.com"   },
-  { name: "Google Maps",   logo: "📍", tier: "FOUNDING", domain: "maps.google.com"  },
-  { name: "Smartcar",      logo: "🚗", tier: "PREMIER",  domain: "smartcar.com"     },
-  { name: "MarketCheck",   logo: "📊", tier: "PREMIER",  domain: "marketcheck.com"  },
-  { name: "Stripe",        logo: "💳", tier: "PREMIER",  domain: "stripe.com"       },
+  { name: "3C Roadside",     logo: "🚨", tier: "FOUNDING", domain: "3conyx.com/roadside"  },
+  { name: "3C Rentals",      logo: "🔑", tier: "FOUNDING", domain: "3conyx.com/rentals"   },
+  { name: "3C Locate",       logo: "📍", tier: "FOUNDING", domain: "3conyx.com/locate"    },
+  { name: "3C Connected",    logo: "🚗", tier: "PREMIER",  domain: "3conyx.com/connected" },
+  { name: "3C Market Intel",  logo: "📊", tier: "PREMIER",  domain: "3conyx.com/search"    },
+  { name: "3C Pay",           logo: "💳", tier: "PREMIER",  domain: "3conyx.com/pay"       },
 ];
 
 function CategoryCard({ cat }: { cat: EcoCategory }) {
@@ -149,7 +149,7 @@ export default function EcosystemScreen() {
               Every Automotive Service.{"\n"}One Platform.
             </Text>
             <Text style={[styles.heroSub, { color: theme.textMuted }]}>
-              HONK roadside • CarCrawler rentals • Google Maps business finder • Dealer connect • Insurance • Parts & more
+              Roadside • Rentals • Business Locator • Dealer Connect • Insurance • Parts & More
             </Text>
           </View>
           <View style={[styles.heroIcon, { backgroundColor: theme.goldMuted }]}>
@@ -167,7 +167,7 @@ export default function EcosystemScreen() {
           </View>
           <View style={styles.emergencyText}>
             <Text style={styles.emergencyTitle}>Need Roadside Help Right Now?</Text>
-            <Text style={styles.emergencySub}>HONK Network — Flat tire, battery, towing, lockout, fuel • 24/7</Text>
+            <Text style={styles.emergencySub}>3C Roadside — Flat tire, battery, towing, lockout, fuel • 24/7</Text>
           </View>
           <Feather name="chevron-right" size={18} color="#EF4444" />
         </Pressable>

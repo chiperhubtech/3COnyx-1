@@ -1016,8 +1016,8 @@ export default function HomeScreen() {
           contentContainerStyle={styles.ecoRow}
         >
           {[
-            { label: "Roadside",  sub: "HONK Network",   route: "/roadside",  icon: <Feather name="alert-triangle" size={20} color="#EF4444" />, bg: "#EF444412", border: "#EF444428", badge: "24/7",         bColor: "#EF4444" },
-            { label: "Rentals",   sub: "CarCrawler",     route: "/rentals",   icon: <Feather name="key"            size={20} color={COLORS.gold} />, bg: `${COLORS.gold}0E`, border: `${COLORS.gold}28`, badge: "30+ Partners", bColor: COLORS.gold },
+            { label: "Roadside",  sub: "3C Roadside",    route: "/roadside",  icon: <Feather name="alert-triangle" size={20} color="#EF4444" />, bg: "#EF444412", border: "#EF444428", badge: "24/7",         bColor: "#EF4444" },
+            { label: "Rentals",   sub: "3C Rentals",     route: "/rentals",   icon: <Feather name="key"            size={20} color={COLORS.gold} />, bg: `${COLORS.gold}0E`, border: `${COLORS.gold}28`, badge: "30+ Partners", bColor: COLORS.gold },
             { label: "Find Auto", sub: "Google Maps",    route: "/nearby",    icon: <Feather name="map-pin"        size={20} color="#3B82F6" />, bg: "#3B82F612", border: "#3B82F628", badge: "Any Business", bColor: "#3B82F6" },
             { label: "Ecosystem", sub: "All Services",   route: "/ecosystem", icon: <Feather name="globe"          size={20} color={COLORS.emerald} />, bg: `${COLORS.emerald}0E`, border: `${COLORS.emerald}28`, badge: "Explore All", bColor: COLORS.emerald },
           ].map((e) => (

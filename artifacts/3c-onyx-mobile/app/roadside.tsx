@@ -218,7 +218,7 @@ export default function RoadsideScreen() {
                 <Text style={[styles.providerName, { color: theme.text }]}>{dispatch.provider.name}</Text>
                 <View style={styles.providerRating}>
                   <Feather name="star" size={11} color={COLORS.gold} />
-                  <Text style={[styles.providerRatingText, { color: theme.textMuted }]}>{dispatch.provider.rating?.toFixed(1)} · HONK Verified</Text>
+                  <Text style={[styles.providerRatingText, { color: theme.textMuted }]}>{dispatch.provider.rating?.toFixed(1)} · 3C Verified</Text>
                 </View>
               </View>
               <Pressable style={[styles.callBtn, { backgroundColor: COLORS.emerald }]} onPress={() => Linking.openURL(`tel:${dispatch.provider.phone}`)}>
@@ -228,10 +228,9 @@ export default function RoadsideScreen() {
             </View>
           )}
 
-          {/* HONK branding */}
           <View style={[styles.poweredBy, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}>
             <Text style={[styles.poweredByText, { color: theme.textMuted }]}>Dispatched via</Text>
-            <Text style={[styles.honkLogo, { color: COLORS.gold }]}>HONK Network</Text>
+            <Text style={[styles.honkLogo, { color: COLORS.gold }]}>3C Roadside</Text>
             <Text style={[styles.poweredBySub, { color: theme.textFaint }]}>50 states · 24/7 · 4.9★ avg</Text>
           </View>
 
@@ -308,7 +307,7 @@ export default function RoadsideScreen() {
 
           {/* Disclaimer */}
           <Text style={[styles.disclaimer, { color: theme.textFaint }]}>
-            By requesting, you agree to HONK's service terms. Estimated cost will be confirmed by the technician before work begins.
+            By requesting, you agree to the 3C Roadside service terms. Estimated cost will be confirmed by the technician before work begins.
           </Text>
 
           {/* Dispatch button */}
@@ -333,7 +332,7 @@ export default function RoadsideScreen() {
         </Pressable>
         <View style={styles.headerCenter}>
           <Text style={[styles.headerTitle, { color: theme.text }]}>ROADSIDE ASSISTANCE</Text>
-          <Text style={[styles.headerSub, { color: theme.textMuted }]}>Powered by HONK Network · 24/7</Text>
+          <Text style={[styles.headerSub, { color: theme.textMuted }]}>3C Roadside · 24/7</Text>
         </View>
         <View style={{ width: 36 }} />
       </View>
@@ -369,9 +368,8 @@ export default function RoadsideScreen() {
           ))}
         </View>
 
-        {/* HONK branding */}
         <View style={[styles.honkBrand, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}>
-          <Text style={[styles.honkTitle, { color: COLORS.gold }]}>HONK Network</Text>
+          <Text style={[styles.honkTitle, { color: COLORS.gold }]}>3C Roadside</Text>
           <Text style={[styles.honkSub, { color: theme.textMuted }]}>50 states · Vetted technicians · Average 4.9★ · Insurance accepted</Text>
         </View>
       </ScrollView>

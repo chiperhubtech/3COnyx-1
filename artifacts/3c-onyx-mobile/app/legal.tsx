@@ -42,7 +42,7 @@ b) Information Collected Automatically
 
 c) Information from Third Parties
 • Automotive data providers (MarketCheck) for vehicle valuations and market data.
-• Roadside assistance providers (HONK) for service dispatch.
+• Roadside assistance providers for service dispatch.
 • Payment processors (Stripe) for payout and billing — we do not store full payment card details.
 
 2. HOW WE USE YOUR INFORMATION
@@ -135,7 +135,7 @@ You agree not to:
 
 6. THIRD-PARTY SERVICES
 
-The App integrates with third-party services including HONK (roadside assistance), CarCrawler (vehicle rentals), Google Maps (location), Smartcar (vehicle telemetry), and Stripe (payments). Your use of these services is subject to their respective terms and privacy policies.
+The App integrates with third-party services for roadside assistance, vehicle rentals, location services, vehicle telemetry, and payment processing. Your use of these services is subject to their respective terms and privacy policies.
 
 7. PAYMENTS AND SUBSCRIPTIONS
 
