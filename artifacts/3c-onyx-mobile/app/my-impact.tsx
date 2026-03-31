@@ -150,7 +150,7 @@ export default function MyImpactScreen() {
 
   const { data, isLoading, refetch } = useQuery<ImpactData>({
     queryKey: ["impact", user?.id],
-    queryFn:  () => apiFetch("/api/impact") as Promise<ImpactData>,
+    queryFn:  () => apiFetch("/impact") as Promise<ImpactData>,
     enabled:  !!user,
     staleTime: 60_000,
   });

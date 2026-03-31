@@ -742,12 +742,16 @@ function ARPreview({ vehicleId, vehicleName, onClose }: {
   );
 }
 
-// ─── Claim Modal ──────────────────────────────────────────────────────────────
-const DEMO_VEHICLES = [
-  { id: "task-005", name: "2022 Lamborghini Huracán EVO", vin: "ZHWUC4ZF7MLA13902", color: "Arancio Borealis", year: 2022, origin: "Scottsdale, AZ", destination: "Las Vegas, NV", miles: 285 },
-  { id: "task-006", name: "2023 Maserati MC20", vin: "ZAM44XSAXP0409812", color: "Bianco Audace", year: 2023, origin: "Dallas, TX", destination: "Houston, TX", miles: 239 },
-  { id: "new-001", name: "2024 Ferrari SF90 Stradale", vin: "ZFF95NJA1N0261983", color: "Rosso Corsa", year: 2024, origin: "Beverly Hills, CA", destination: "San Diego, CA", miles: 122 },
-];
+interface ClaimVehicle {
+  id: string;
+  name: string;
+  vin: string;
+  color: string;
+  year: number;
+  origin: string;
+  destination: string;
+  miles: number;
+}
 
 function ClaimModal({ carriers, onClose, onClaimed }: {
   carriers: Carrier[];
@@ -755,9 +759,30 @@ function ClaimModal({ carriers, onClose, onClaimed }: {
   onClaimed: (bol: BOL) => void;
 }) {
   const [step, setStep] = useState<"vehicle" | "carrier" | "processing" | "done">("vehicle");
-  const [selectedVehicle, setSelectedVehicle] = useState(DEMO_VEHICLES[0]);
+  const [claimVehicles, setClaimVehicles] = useState<ClaimVehicle[]>([]);
+  const [selectedVehicle, setSelectedVehicle] = useState<ClaimVehicle | null>(null);
   const [selectedCarrier, setSelectedCarrier] = useState<Carrier | null>(null);
   const [result, setResult] = useState<BOL | null>(null);
+
+  useEffect(() => {
+    fetch("/api/garage/vehicles")
+      .then((r) => (r.ok ? r.json() : { vehicles: [] }))
+      .then((d) => {
+        const mapped: ClaimVehicle[] = (d.vehicles ?? []).map((v: any) => ({
+          id: v.id,
+          name: `${v.year} ${v.make} ${v.model}`,
+          vin: v.vin,
+          color: v.color ?? "N/A",
+          year: v.year,
+          origin: "Origin TBD",
+          destination: "Destination TBD",
+          miles: 0,
+        }));
+        setClaimVehicles(mapped);
+        if (mapped.length > 0) setSelectedVehicle(mapped[0]);
+      })
+      .catch(() => {});
+  }, []);
 
   const processClaim = async () => {
     setStep("processing");
@@ -765,14 +790,14 @@ function ClaimModal({ carriers, onClose, onClaimed }: {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        vehicleId: selectedVehicle.id,
-        vehicleName: selectedVehicle.name,
-        vehicleVin: selectedVehicle.vin,
-        color: selectedVehicle.color,
-        year: selectedVehicle.year,
-        origin: selectedVehicle.origin,
-        destination: selectedVehicle.destination,
-        estimatedMiles: selectedVehicle.miles,
+        vehicleId: selectedVehicle?.id ?? "",
+        vehicleName: selectedVehicle?.name ?? "",
+        vehicleVin: selectedVehicle?.vin ?? "",
+        color: selectedVehicle?.color ?? "",
+        year: selectedVehicle?.year ?? 0,
+        origin: selectedVehicle?.origin ?? "",
+        destination: selectedVehicle?.destination ?? "",
+        estimatedMiles: selectedVehicle?.miles ?? 0,
         carrierId: selectedCarrier!.id,
         runnerId: "runner-001",
         runnerName: "Marcus Webb",
@@ -807,30 +832,39 @@ function ClaimModal({ carriers, onClose, onClaimed }: {
             <>
               <p className="text-[10px] text-white/30 uppercase tracking-wider mb-3">Select Vehicle to Claim</p>
               <div className="space-y-2 mb-5">
-                {DEMO_VEHICLES.map((v) => (
-                  <button
-                    key={v.id}
-                    onClick={() => setSelectedVehicle(v)}
-                    className={`w-full text-left p-3.5 rounded-xl border transition-all ${
-                      selectedVehicle.id === v.id ? "border-amber-500/40 bg-amber-500/8" : "border-white/8 bg-white/[0.02] hover:bg-white/[0.04]"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-white">{v.name}</p>
-                        <p className="text-[10px] text-white/30">{v.color} · {v.origin} → {v.destination}</p>
+                {claimVehicles.length === 0 ? (
+                  <div className="rounded-xl border border-dashed border-white/10 p-6 text-center">
+                    <Truck className="w-5 h-5 text-white/15 mx-auto mb-2" />
+                    <p className="text-xs text-white/30">No vehicles available</p>
+                    <p className="text-[10px] text-white/20 mt-1">Add vehicles via the Garage first</p>
+                  </div>
+                ) : (
+                  claimVehicles.map((v) => (
+                    <button
+                      key={v.id}
+                      onClick={() => setSelectedVehicle(v)}
+                      className={`w-full text-left p-3.5 rounded-xl border transition-all ${
+                        selectedVehicle?.id === v.id ? "border-amber-500/40 bg-amber-500/8" : "border-white/8 bg-white/[0.02] hover:bg-white/[0.04]"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-white">{v.name}</p>
+                          <p className="text-[10px] text-white/30">{v.color} · {v.origin} → {v.destination}</p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          {v.miles > 0 && <p className="text-xs text-white/40">{v.miles} mi</p>}
+                          {selectedVehicle?.id === v.id && <CheckCircle2 className="w-4 h-4 text-amber-400 ml-auto mt-1" />}
+                        </div>
                       </div>
-                      <div className="text-right shrink-0">
-                        <p className="text-xs text-white/40">{v.miles} mi</p>
-                        {selectedVehicle.id === v.id && <CheckCircle2 className="w-4 h-4 text-amber-400 ml-auto mt-1" />}
-                      </div>
-                    </div>
-                  </button>
-                ))}
+                    </button>
+                  ))
+                )}
               </div>
               <button
                 onClick={() => setStep("carrier")}
-                className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-sm transition-colors flex items-center justify-center gap-2"
+                disabled={!selectedVehicle}
+                className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed text-black font-bold text-sm transition-colors flex items-center justify-center gap-2"
               >
                 Select Carrier <ArrowRight className="w-4 h-4" />
               </button>
@@ -865,7 +899,7 @@ function ClaimModal({ carriers, onClose, onClaimed }: {
                         </p>
                       </div>
                       <div className="text-right shrink-0">
-                        <p className="text-sm font-bold text-amber-400">${Math.round(selectedVehicle.miles * c.ratePerMile).toLocaleString()}</p>
+                        <p className="text-sm font-bold text-amber-400">${Math.round((selectedVehicle?.miles ?? 0) * c.ratePerMile).toLocaleString()}</p>
                         <p className="text-[10px] text-white/25">est. cost</p>
                       </div>
                     </div>
@@ -939,7 +973,7 @@ export default function DropshipPage() {
       if (shipmentsRes.ok) {
         const d = await shipmentsRes.json();
         setShipments(d.shipments ?? []);
-        setStats(d.stats ?? {});
+        setStats({ total: 0, inTransit: 0, delivered: 0, totalVolume: 0, ...d.stats });
       }
       if (carriersRes.ok) {
         const d = await carriersRes.json();

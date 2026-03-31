@@ -1,4 +1,4 @@
-import { pgTable, text, serial, jsonb, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, jsonb, timestamp, index } from "drizzle-orm/pg-core";
 
 /**
  * Fire-and-forget event tracking for growth analytics.
@@ -15,6 +15,11 @@ export const analyticsEventsTable = pgTable("analytics_events", {
   ip:          text("ip"),
   userAgent:   text("user_agent"),
   createdAt:   timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}, (t) => [
+  index("analytics_user_id_idx").on(t.userId),
+  index("analytics_session_id_idx").on(t.sessionId),
+  index("analytics_event_idx").on(t.event),
+  index("analytics_created_at_idx").on(t.createdAt),
+]);
 
 export type AnalyticsEvent = typeof analyticsEventsTable.$inferSelect;

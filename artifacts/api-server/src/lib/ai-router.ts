@@ -120,7 +120,7 @@ async function callBedrock(messages: AiMessage[], model: string, systemPrompt?: 
 function getOpenAI(): OpenAI {
   if (!_openai) {
     _openai = new OpenAI({
-      apiKey:  process.env.AI_INTEGRATIONS_OPENAI_API_KEY ?? "placeholder",
+      apiKey:  process.env.AI_INTEGRATIONS_OPENAI_API_KEY ?? (() => { throw new Error("AI_INTEGRATIONS_OPENAI_API_KEY not configured"); })(),
       baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
     });
   }
@@ -130,7 +130,7 @@ function getOpenAI(): OpenAI {
 function getAnthropic(): Anthropic {
   if (!_anthropic) {
     _anthropic = new Anthropic({
-      apiKey:  process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY ?? "placeholder",
+      apiKey:  process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY ?? (() => { throw new Error("AI_INTEGRATIONS_ANTHROPIC_API_KEY not configured"); })(),
       baseURL: process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL,
     });
   }

@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, timestamp, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, timestamp, pgEnum, index } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { usersTable } from "./users";
@@ -37,7 +37,12 @@ export const gigTasksTable = pgTable("gig_tasks", {
   completedAt: timestamp("completed_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}, (t) => [
+  index("gig_tasks_vehicle_id_idx").on(t.vehicleId),
+  index("gig_tasks_runner_id_idx").on(t.assignedRunnerId),
+  index("gig_tasks_dealer_id_idx").on(t.postedByDealerId),
+  index("gig_tasks_status_idx").on(t.status),
+]);
 
 export const insertGigTaskSchema = createInsertSchema(gigTasksTable).omit({
   id: true,

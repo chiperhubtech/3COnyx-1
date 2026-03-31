@@ -1,6 +1,8 @@
 import { Router, type IRouter, type Request, type Response } from "express";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { appRouter } from "../lib/trpc";
+import { requireAuth } from "../middlewares/requireAuth";
+import { aiLimiter } from "../middlewares/rateLimiter";
 import blockchainRouter from "./blockchain";
 import orchestratorRouter from "./orchestrator";
 import healthRouter from "./health";
@@ -105,6 +107,8 @@ router.use(deliveryRouter);
 router.use(walletRouter);
 router.use(auditRouter);
 router.use(specialistsRouter);
+router.use("/gemini",  requireAuth, aiLimiter);
+router.use("/rewards", requireAuth, aiLimiter);
 router.use(geminiRouter);
 router.use(notificationsRouter);
 router.use(inspectionsRouter);
@@ -162,6 +166,7 @@ router.use(recommendationsRouter);
 router.use(vehicleLifecycleRouter);
 router.use(alibabaRouter);
 router.use(familyOfficeRouter);
+router.use("/orchestrator", requireAuth, aiLimiter);
 router.use(orchestratorRouter);
 
 router.use(
@@ -205,7 +210,7 @@ router.use("/transport",  transporterRouter);
 router.use("/banks",        bankPortalRouter);
 router.use("/rep",          repPortalRouter);
 router.use("/union",        unionRouter);
-router.use("/ask",          ask3cRouter);
+router.use("/ask", requireAuth, aiLimiter, ask3cRouter);
 router.use("/timeline",     timelineRouter);
 router.use("/monetization", monetizationRouter);
 router.use("/genesis",      genesisRouter);

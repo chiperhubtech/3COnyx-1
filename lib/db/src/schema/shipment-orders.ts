@@ -8,7 +8,7 @@
  * "The distance is invisible to the customer." — Ronald Antonio Cadet, CVO
  */
 import {
-  pgTable, text, serial, timestamp, pgEnum, numeric, boolean, jsonb, integer,
+  pgTable, text, serial, timestamp, pgEnum, numeric, boolean, jsonb, integer, index,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod/v4";
@@ -97,7 +97,11 @@ export const shipmentOrdersTable = pgTable("shipment_orders", {
   dvpStampedAt:      timestamp("dvp_stamped_at", { withTimezone: true }),
   createdAt:         timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt:         timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}, (t) => [
+  index("shipment_vin_idx").on(t.vin),
+  index("shipment_status_idx").on(t.status),
+  index("shipment_created_at_idx").on(t.createdAt),
+]);
 
 export const insertShipmentOrderSchema = createInsertSchema(shipmentOrdersTable);
 export const selectShipmentOrderSchema = createSelectSchema(shipmentOrdersTable);

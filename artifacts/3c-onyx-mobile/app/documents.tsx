@@ -157,7 +157,7 @@ export default function DocumentsScreen() {
     const uri = result.assets[0].uri;
     setUploading(doc.id);
     try {
-      await apiFetch("/api/documents/upload", {
+      await apiFetch("/documents/upload", {
         method: "POST",
         body: JSON.stringify({ type: doc.id, imageUri: uri }),
       });

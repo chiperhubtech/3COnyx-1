@@ -276,13 +276,12 @@ function KycModal({
   );
 }
 
-// ─── Dynasty Purchase Modal ────────────────────────────────────────────────────
-const DEMO_VEHICLES = [
-  { name: "2023 Rolls-Royce Ghost Extended", vin: "SCA664S51PUX98777", dealer: "Rolls-Royce Motor Cars Houston", price: 489_000 },
-  { name: "2022 Lamborghini Huracán EVO Spyder", vin: "ZHWUC4ZF7NLA09412", dealer: "Lamborghini Scottsdale", price: 283_798 },
-  { name: "2021 Bugatti Chiron Sport", vin: "VF9SA3V15MM795032", dealer: "Bugatti Newport Beach", price: 3_100_000 },
-  { name: "2024 Ferrari SF90 Stradale", vin: "ZFF95NJA1N0261983", dealer: "Ferrari of Beverly Hills", price: 620_000 },
-];
+interface PurchaseVehicle {
+  name: string;
+  vin: string;
+  dealer: string;
+  price: number;
+}
 
 function DynastyPurchaseModal({
   members,
@@ -294,12 +293,30 @@ function DynastyPurchaseModal({
   onSuccess: () => void;
 }) {
   const [step, setStep] = useState<"select" | "kyc" | "review" | "processing" | "done">("select");
-  const [selectedVehicle, setSelectedVehicle] = useState(DEMO_VEHICLES[0]);
+  const [inventoryVehicles, setInventoryVehicles] = useState<PurchaseVehicle[]>([]);
+  const [selectedVehicle, setSelectedVehicle] = useState<PurchaseVehicle | null>(null);
+  const [buyerName, setBuyerName] = useState("");
   const [selectedReferrer, setSelectedReferrer] = useState<Member | null>(members[0] ?? null);
   const [kycSessionId, setKycSessionId] = useState<string | null>(null);
   const [result, setResult] = useState<any>(null);
 
-  const salePrice = selectedVehicle.price;
+  useEffect(() => {
+    fetch("/api/garage/vehicles")
+      .then((r) => (r.ok ? r.json() : { vehicles: [] }))
+      .then((d) => {
+        const mapped: PurchaseVehicle[] = (d.vehicles ?? []).map((v: any) => ({
+          name: `${v.year} ${v.make} ${v.model}`,
+          vin: v.vin,
+          dealer: "3C Onyx Network",
+          price: v.priceUsd ? Number(v.priceUsd) : 0,
+        }));
+        setInventoryVehicles(mapped);
+        if (mapped.length > 0) setSelectedVehicle(mapped[0]);
+      })
+      .catch(() => {});
+  }, []);
+
+  const salePrice = selectedVehicle?.price ?? 0;
   const dealerPayment = Math.round(salePrice * 0.85);
   const transportFee = Math.round(salePrice * 0.025);
   const threeCProfit = salePrice - dealerPayment - transportFee;
@@ -317,11 +334,11 @@ function DynastyPurchaseModal({
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        vehicleName: selectedVehicle.name,
-        vehicleVin: selectedVehicle.vin,
+        vehicleName: selectedVehicle?.name ?? "",
+        vehicleVin: selectedVehicle?.vin ?? "",
         salePrice,
-        dealerName: selectedVehicle.dealer,
-        buyerName: "Alexander Harrington",
+        dealerName: selectedVehicle?.dealer ?? "",
+        buyerName,
         referrerId: selectedReferrer?.id ?? null,
         referrerName: selectedReferrer?.name ?? null,
         kycSessionId: kycSessionId ?? `kyc_sim_${Date.now()}`,
@@ -361,26 +378,43 @@ function DynastyPurchaseModal({
             <>
               <p className="text-[10px] text-white/30 uppercase tracking-wider mb-2">Select Vehicle</p>
               <div className="space-y-2 mb-5">
-                {DEMO_VEHICLES.map((v) => (
-                  <button
-                    key={v.vin}
-                    onClick={() => setSelectedVehicle(v)}
-                    className={`w-full text-left p-3.5 rounded-xl border transition-all ${
-                      selectedVehicle.vin === v.vin
-                        ? "border-amber-500/40 bg-amber-500/8"
-                        : "border-white/8 bg-white/[0.02] hover:bg-white/[0.04]"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-white">{v.name}</p>
-                        <p className="text-[10px] text-white/30 mt-0.5">{v.dealer}</p>
+                {inventoryVehicles.length === 0 ? (
+                  <div className="rounded-xl border border-dashed border-white/10 p-6 text-center">
+                    <Car className="w-5 h-5 text-white/15 mx-auto mb-2" />
+                    <p className="text-xs text-white/30">No vehicles in garage</p>
+                    <p className="text-[10px] text-white/20 mt-1">Add vehicles via the Garage to enable Dynasty purchases</p>
+                  </div>
+                ) : (
+                  inventoryVehicles.map((v) => (
+                    <button
+                      key={v.vin}
+                      onClick={() => setSelectedVehicle(v)}
+                      className={`w-full text-left p-3.5 rounded-xl border transition-all ${
+                        selectedVehicle?.vin === v.vin
+                          ? "border-amber-500/40 bg-amber-500/8"
+                          : "border-white/8 bg-white/[0.02] hover:bg-white/[0.04]"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-white">{v.name}</p>
+                          <p className="text-[10px] text-white/30 mt-0.5">{v.dealer}</p>
+                        </div>
+                        {v.price > 0 && <p className="text-sm font-bold text-amber-400 shrink-0">${v.price.toLocaleString()}</p>}
                       </div>
-                      <p className="text-sm font-bold text-amber-400 shrink-0">${v.price.toLocaleString()}</p>
-                    </div>
-                  </button>
-                ))}
+                    </button>
+                  ))
+                )}
               </div>
+
+              <p className="text-[10px] text-white/30 uppercase tracking-wider mb-2">Buyer Name</p>
+              <input
+                type="text"
+                value={buyerName}
+                onChange={(e) => setBuyerName(e.target.value)}
+                placeholder="Enter buyer's full name"
+                className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/20 focus:border-amber-500/50 focus:outline-none mb-5"
+              />
 
               <p className="text-[10px] text-white/30 uppercase tracking-wider mb-2">Referrer (receives 20% of 3C profit)</p>
               <div className="space-y-2 mb-6">
@@ -437,7 +471,8 @@ function DynastyPurchaseModal({
 
               <button
                 onClick={() => setStep("kyc")}
-                className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-sm transition-colors flex items-center justify-center gap-2"
+                disabled={!selectedVehicle || !buyerName.trim()}
+                className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed text-black font-bold text-sm transition-colors flex items-center justify-center gap-2"
               >
                 <ScanFace className="w-4 h-4" />
                 Verify Identity & Continue
@@ -448,9 +483,9 @@ function DynastyPurchaseModal({
           {/* Step: KYC */}
           {step === "kyc" && (
             <KycModal
-              buyerName="Alexander Harrington"
-              vehiclePrice={selectedVehicle.price}
-              vehicleName={selectedVehicle.name}
+              buyerName={buyerName}
+              vehiclePrice={selectedVehicle?.price ?? 0}
+              vehicleName={selectedVehicle?.name ?? ""}
               onVerified={handleKycVerified}
               onClose={() => setStep("select")}
             />
@@ -467,16 +502,16 @@ function DynastyPurchaseModal({
                 </div>
               </div>
 
-              <p className="text-sm font-semibold text-white mb-1">{selectedVehicle.name}</p>
+              <p className="text-sm font-semibold text-white mb-1">{selectedVehicle?.name ?? "Vehicle"}</p>
               <p className="text-xs text-white/30 mb-5">Sale price: <span className="text-white font-bold">${salePrice.toLocaleString()}</span></p>
 
               {/* Full split breakdown */}
               <div className="space-y-2.5 mb-6">
                 {[
-                  { icon: Building2, label: "Dealer Wholesale Payment", sub: selectedVehicle.dealer, amount: dealerPayment, pct: 85, color: legColors.dealer },
+                  { icon: Building2, label: "Dealer Wholesale Payment", sub: selectedVehicle?.dealer ?? "Dealer", amount: dealerPayment, pct: 85, color: legColors.dealer },
                   { icon: Truck, label: "Transport & Logistics Fee", sub: "3C Logistics Network", amount: transportFee, pct: 2.5, color: legColors.logistics },
-                  ...(selectedReferrer ? [{ icon: Users, label: "Referrer Passive Income", sub: `${selectedReferrer.name} · 20% of 3C profit`, amount: referrerSlice, pct: +(DEMO_VEHICLES[0].price * 0.125 * 0.20 / DEMO_VEHICLES[0].price * 100).toFixed(1), color: legColors.referrer }] : []),
-                  { icon: BarChart3, label: "3C Platform Retained", sub: "Net profit after splits", amount: platformRetained, pct: +(platformRetained / salePrice * 100).toFixed(1), color: legColors.platform },
+                  ...(selectedReferrer ? [{ icon: Users, label: "Referrer Passive Income", sub: `${selectedReferrer.name} · 20% of 3C profit`, amount: referrerSlice, pct: salePrice > 0 ? +((referrerSlice / salePrice) * 100).toFixed(1) : 0, color: legColors.referrer }] : []),
+                  { icon: BarChart3, label: "3C Platform Retained", sub: "Net profit after splits", amount: platformRetained, pct: salePrice > 0 ? +((platformRetained / salePrice) * 100).toFixed(1) : 0, color: legColors.platform },
                 ].map(({ icon: Icon, label, sub, amount, pct, color }) => (
                   <div key={label} className={`flex items-center gap-3 p-3.5 rounded-xl border ${color.bg} ${color.border}`}>
                     <div className={`w-8 h-8 rounded-lg border ${color.border} flex items-center justify-center shrink-0`} style={{ background: "rgba(0,0,0,0.3)" }}>
@@ -569,9 +604,9 @@ function DynastyPurchaseModal({
       {/* Floating KYC overlay inside the modal when step === kyc */}
       {step === "kyc" && (
         <KycModal
-          buyerName="Alexander Harrington"
-          vehiclePrice={selectedVehicle.price}
-          vehicleName={selectedVehicle.name}
+          buyerName={buyerName}
+          vehiclePrice={selectedVehicle?.price ?? 0}
+          vehicleName={selectedVehicle?.name ?? ""}
           onVerified={handleKycVerified}
           onClose={() => setStep("select")}
         />
@@ -797,19 +832,29 @@ function SimulatePayoutModal({
   const [done, setDone] = useState(false);
   const [result, setResult] = useState<{ memberSlice: number; stripeTransferId: string | null } | null>(null);
 
-  const DEMO_TASKS = [
-    { taskId: "task-demo-1", taskTitle: "Dealer Swap", vehicle: "2024 Porsche 911 GT3", taskPayout: 38000, runnerName: "Marcus Webb" },
-    { taskId: "task-demo-2", taskTitle: "Client Delivery", vehicle: "2024 Bentley Flying Spur", taskPayout: 55000, runnerName: "Priya Rao" },
-    { taskId: "task-demo-3", taskTitle: "Auction Transport", vehicle: "2023 McLaren Artura", taskPayout: 72000, runnerName: "Nikolai Petrov" },
-  ];
-  const [selected, setSelected] = useState(DEMO_TASKS[0]);
+  const [taskTitle, setTaskTitle] = useState("");
+  const [taskVehicle, setTaskVehicle] = useState("");
+  const [taskPayout, setTaskPayout] = useState("");
+  const [runnerName, setRunnerName] = useState("");
+
+  const payoutAmount = Number(taskPayout) || 0;
+  const sliceAmount = Math.round(payoutAmount * 0.05);
+  const canSubmit = taskTitle.trim() && taskVehicle.trim() && payoutAmount > 0 && runnerName.trim();
 
   const trigger = async () => {
+    if (!canSubmit) return;
     setSubmitting(true);
     const res = await fetch("/api/wallet/payout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...selected, referrerId: member.id }),
+      body: JSON.stringify({
+        taskId: `task-${Date.now()}`,
+        taskTitle: taskTitle.trim(),
+        vehicle: taskVehicle.trim(),
+        taskPayout: payoutAmount,
+        runnerName: runnerName.trim(),
+        referrerId: member.id,
+      }),
     });
     const data = await res.json();
     setResult(data);
@@ -845,38 +890,40 @@ function SimulatePayoutModal({
               <button onClick={onClose} className="text-white/30 hover:text-white/60"><X className="w-4 h-4" /></button>
             </div>
             <div className="p-5">
-              <p className="text-xs text-white/30 mb-3">Select a completed GigTask to trigger the 5% payout to {member.name.split(" ")[0]}:</p>
-              <div className="space-y-2 mb-4">
-                {DEMO_TASKS.map((t) => (
-                  <button
-                    key={t.taskId}
-                    onClick={() => setSelected(t)}
-                    className={`w-full text-left p-3 rounded-xl border text-sm transition-all ${
-                      selected.taskId === t.taskId ? "border-amber-500/40 bg-amber-500/10" : "border-white/10 bg-white/[0.02] hover:bg-white/[0.05]"
-                    }`}
-                  >
-                    <p className="font-medium text-white text-xs">{t.vehicle}</p>
-                    <div className="flex items-center justify-between mt-1">
-                      <p className="text-[10px] text-white/35">{t.taskTitle} · {t.runnerName}</p>
-                      <div className="flex items-center gap-2">
-                        <p className="text-[10px] text-white/35">Payout: ${t.taskPayout.toLocaleString()}</p>
-                        <p className="text-[10px] font-bold text-emerald-400">→ ${(t.taskPayout * 0.05).toLocaleString()}</p>
-                      </div>
-                    </div>
-                  </button>
-                ))}
+              <p className="text-xs text-white/30 mb-3">Enter completed GigTask details to trigger 5% payout to {member.name.split(" ")[0]}:</p>
+              <div className="space-y-3 mb-4">
+                <div>
+                  <label className="text-[10px] text-white/30 uppercase tracking-wider block mb-1">Task Title</label>
+                  <input type="text" value={taskTitle} onChange={(e) => setTaskTitle(e.target.value)} placeholder="e.g. Dealer Swap, Client Delivery" className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-xs placeholder:text-white/20 focus:border-amber-500/50 focus:outline-none" />
+                </div>
+                <div>
+                  <label className="text-[10px] text-white/30 uppercase tracking-wider block mb-1">Vehicle</label>
+                  <input type="text" value={taskVehicle} onChange={(e) => setTaskVehicle(e.target.value)} placeholder="e.g. 2024 Porsche 911 GT3" className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-xs placeholder:text-white/20 focus:border-amber-500/50 focus:outline-none" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[10px] text-white/30 uppercase tracking-wider block mb-1">Task Payout ($)</label>
+                    <input type="number" value={taskPayout} onChange={(e) => setTaskPayout(e.target.value)} placeholder="e.g. 38000" className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-xs placeholder:text-white/20 focus:border-amber-500/50 focus:outline-none" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-white/30 uppercase tracking-wider block mb-1">Runner Name</label>
+                    <input type="text" value={runnerName} onChange={(e) => setRunnerName(e.target.value)} placeholder="e.g. Marcus Webb" className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-xs placeholder:text-white/20 focus:border-amber-500/50 focus:outline-none" />
+                  </div>
+                </div>
               </div>
-              <div className="mb-4 p-3 rounded-xl bg-amber-500/5 border border-amber-500/20 flex items-start gap-2">
-                <Percent className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
-                <p className="text-[11px] text-amber-400/70">
-                  5% Member Slice of <span className="font-bold text-amber-300">${selected.taskPayout.toLocaleString()}</span> ={" "}
-                  <span className="font-bold text-amber-300">${(selected.taskPayout * 0.05).toLocaleString()}</span> transferred instantly.
-                </p>
-              </div>
+              {payoutAmount > 0 && (
+                <div className="mb-4 p-3 rounded-xl bg-amber-500/5 border border-amber-500/20 flex items-start gap-2">
+                  <Percent className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+                  <p className="text-[11px] text-amber-400/70">
+                    5% Member Slice of <span className="font-bold text-amber-300">${payoutAmount.toLocaleString()}</span> ={" "}
+                    <span className="font-bold text-amber-300">${sliceAmount.toLocaleString()}</span> transferred instantly.
+                  </p>
+                </div>
+              )}
               <button
                 onClick={trigger}
-                disabled={submitting}
-                className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-black font-semibold text-sm transition-colors flex items-center justify-center gap-2"
+                disabled={submitting || !canSubmit}
+                className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-50 disabled:cursor-not-allowed text-black font-semibold text-sm transition-colors flex items-center justify-center gap-2"
               >
                 {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
                 {submitting ? "Processing…" : "Send Member Slice Now"}

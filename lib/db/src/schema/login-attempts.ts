@@ -1,4 +1,4 @@
-import { pgTable, serial, varchar, boolean, timestamp, text } from "drizzle-orm/pg-core";
+import { pgTable, serial, varchar, boolean, timestamp, text, index } from "drizzle-orm/pg-core";
 
 /**
  * Login Attempts — tracks success/failure per email+IP for brute-force protection.
@@ -13,4 +13,8 @@ export const loginAttemptsTable = pgTable("login_attempts", {
   success:     boolean("success").notNull().default(false),
   failReason:  varchar("fail_reason", { length: 64 }),
   attemptedAt: timestamp("attempted_at").defaultNow().notNull(),
-});
+}, (t) => [
+  index("login_attempts_email_idx").on(t.email),
+  index("login_attempts_ip_idx").on(t.ipAddress),
+  index("login_attempts_at_idx").on(t.attemptedAt),
+]);

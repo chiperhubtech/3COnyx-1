@@ -1,8 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ClipboardCheck, Car, ChevronLeft, ChevronRight, CheckCircle2, AlertTriangle, Loader2, PenLine } from "lucide-react";
 import { Link } from "wouter";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+interface GarageVehicle {
+  id: string;
+  make: string;
+  model: string;
+  year: number;
+  vin: string;
+}
 
 interface ConditionState {
   front: number;
@@ -13,13 +21,6 @@ interface ConditionState {
 }
 
 type Step = "vehicle" | "conditions" | "sign" | "complete";
-
-const DEMO_VEHICLES = [
-  "2022 Porsche Cayenne Turbo S E-Hybrid",
-  "2021 Tesla Model S Plaid",
-  "2023 Rolls-Royce Ghost Extended",
-  "2023 Bentley Bentayga EWB",
-];
 
 const CONDITION_LABELS: Record<number, { label: string; color: string }> = {
   1: { label: "Critical damage", color: "text-red-400" },
@@ -79,6 +80,14 @@ export default function Inspection() {
   const [customVehicle, setCustomVehicle] = useState("");
   const [inspector, setInspector] = useState("");
   const [odometer, setOdometer] = useState("");
+  const [garageVehicles, setGarageVehicles] = useState<GarageVehicle[]>([]);
+
+  useEffect(() => {
+    fetch(`${BASE}/api/garage/vehicles`)
+      .then((r) => (r.ok ? r.json() : { vehicles: [] }))
+      .then((d) => setGarageVehicles(d.vehicles ?? []))
+      .catch(() => {});
+  }, []);
   const [conditions, setConditions] = useState<ConditionState>({
     front: 8, rear: 8, driverSide: 7, passengerSide: 8, interior: 9,
   });
@@ -173,9 +182,10 @@ export default function Inspection() {
                     className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-amber-500/50 focus:outline-none"
                   >
                     <option value="" className="bg-[#1a1a1f]">Choose a vehicle…</option>
-                    {DEMO_VEHICLES.map((v) => (
-                      <option key={v} value={v} className="bg-[#1a1a1f]">{v}</option>
-                    ))}
+                    {garageVehicles.map((v) => {
+                      const label = `${v.year} ${v.make} ${v.model}`;
+                      return <option key={v.id} value={label} className="bg-[#1a1a1f]">{label}</option>;
+                    })}
                     <option value="__custom__" className="bg-[#1a1a1f]">Other (enter manually)</option>
                   </select>
                 </div>

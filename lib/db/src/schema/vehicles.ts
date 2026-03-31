@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, timestamp, pgEnum, numeric } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, timestamp, pgEnum, numeric, index } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { usersTable } from "./users";
@@ -26,7 +26,11 @@ export const vehiclesTable = pgTable("vehicles", {
   notes: text("notes"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}, (t) => [
+  index("vehicles_dealer_id_idx").on(t.dealerId),
+  index("vehicles_status_idx").on(t.status),
+  index("vehicles_make_model_idx").on(t.make, t.model),
+]);
 
 export const insertVehicleSchema = createInsertSchema(vehiclesTable).omit({
   id: true,

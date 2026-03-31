@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, timestamp, pgEnum, numeric } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, timestamp, pgEnum, numeric, index } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { usersTable } from "./users";
@@ -43,7 +43,11 @@ export const commissionLedgerTable = pgTable("commission_ledger", {
   paidAt: timestamp("paid_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}, (t) => [
+  index("commission_recipient_id_idx").on(t.recipientId),
+  index("commission_vehicle_id_idx").on(t.vehicleId),
+  index("commission_status_idx").on(t.status),
+]);
 
 export const insertCommissionLedgerSchema = createInsertSchema(commissionLedgerTable).omit({
   id: true,

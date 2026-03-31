@@ -1,5 +1,5 @@
 import {
-  pgTable, text, serial, integer, timestamp, pgEnum, jsonb,
+  pgTable, text, serial, integer, timestamp, pgEnum, jsonb, index,
 } from "drizzle-orm/pg-core";
 import { createSelectSchema } from "drizzle-zod";
 import { z } from "zod/v4";
@@ -36,7 +36,12 @@ export const auditLogsTable = pgTable("audit_logs", {
   ipAddress: text("ip_address"),
   sha256Hash: text("sha256_hash"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}, (t) => [
+  index("audit_actor_id_idx").on(t.actorId),
+  index("audit_resource_id_idx").on(t.resourceId),
+  index("audit_created_at_idx").on(t.createdAt),
+  index("audit_event_type_idx").on(t.eventType),
+]);
 
 export const selectAuditLogSchema = createSelectSchema(auditLogsTable);
 export type AuditLog = typeof auditLogsTable.$inferSelect;

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { PageHeader } from "@/components/PageHeader";
 import {
@@ -46,12 +46,10 @@ type VehicleHistory = {
   simulated: boolean;
 };
 
-const PRESET_VINS = [
-  { label: "2023 Porsche Cayenne", vin: "WP1AF2A69NLA14821" },
-  { label: "2023 Tesla Model S", vin: "5YJSA1E26PF391842" },
-  { label: "2022 Ferrari 812", vin: "ZFF83CLA0N0261102" },
-  { label: "2021 Lamborghini Urus", vin: "ZPBUA1ZL4MLA12345" },
-];
+interface GaragePreset {
+  label: string;
+  vin: string;
+}
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
@@ -78,7 +76,22 @@ function CheckItem({ label, value, bad }: { label: string; value: boolean; bad?:
 }
 
 export default function VehicleHistory() {
-  const [vinInput, setVinInput] = useState("WP1AF2A69NLA14821");
+  const [vinInput, setVinInput] = useState("");
+  const [garagePresets, setGaragePresets] = useState<GaragePreset[]>([]);
+
+  useEffect(() => {
+    fetch(`${BASE}/api/garage/vehicles`)
+      .then((r) => (r.ok ? r.json() : { vehicles: [] }))
+      .then((d) => {
+        const presets: GaragePreset[] = (d.vehicles ?? []).map((v: any) => ({
+          label: `${v.year} ${v.make} ${v.model}`,
+          vin: v.vin,
+        }));
+        setGaragePresets(presets);
+        if (presets.length > 0 && !vinInput) setVinInput(presets[0].vin);
+      })
+      .catch(() => {});
+  }, []);
 
   const mutation = useMutation<VehicleHistory, Error, string>({
     mutationFn: (vin) => fetch(`${BASE}/api/motor/history/${vin}`).then((r) => r.json()),
@@ -136,7 +149,7 @@ export default function VehicleHistory() {
           </button>
         </div>
         <div className="flex flex-wrap gap-2">
-          {PRESET_VINS.map((p) => (
+          {garagePresets.map((p) => (
             <button
               key={p.vin}
               onClick={() => setVinInput(p.vin)}
