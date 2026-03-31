@@ -84,3 +84,9 @@ id = "6scViuv2LpA8lCLprGPCU"
 uri = "file://3C_ONYX_IP_Master_Ledger.pdf"
 type = "pdf"
 title = "3C ONYX — Master IP Ledger v2.0"
+
+[[outputs]]
+id = "KX7hvcVQZs-yDYZKAGpi4"
+uri = "file://artifacts/3c-onyx/public/3C_ONYX_Sovereign_Valuation_Brief.pdf"
+type = "pdf"
+title = "3C ONYX — Sovereign Valuation Brief (PDF)"
