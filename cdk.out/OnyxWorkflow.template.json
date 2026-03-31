@@ -1,0 +1,373 @@
+{
+ "Resources": {
+  "ComputeFeeFnServiceRoleB7A4FEFE": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ],
+    "Tags": [
+     {
+      "Key": "managed-by",
+      "Value": "cdk"
+     },
+     {
+      "Key": "project",
+      "Value": "3c-onyx"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "OnyxWorkflow/ComputeFeeFn/ServiceRole/Resource"
+   }
+  },
+  "ComputeFeeFnAC898F99": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "ZipFile": "\n        exports.handler = async (event) => {\n          const commissionUsd = Number(event.commissionUsd) || 0;\n          const dynastyFeeUsd = Math.round((commissionUsd / 3) * 100) / 100;\n          return { ...event, dynastyFeeUsd };\n        };\n      "
+    },
+    "Description": "Compute dynasty fee as commissionUsd / 3",
+    "FunctionName": "3c-onyx-compute-dynasty-fee",
+    "Handler": "index.handler",
+    "MemorySize": 128,
+    "Role": {
+     "Fn::GetAtt": [
+      "ComputeFeeFnServiceRoleB7A4FEFE",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs20.x",
+    "Tags": [
+     {
+      "Key": "managed-by",
+      "Value": "cdk"
+     },
+     {
+      "Key": "project",
+      "Value": "3c-onyx"
+     }
+    ],
+    "Timeout": 10
+   },
+   "DependsOn": [
+    "ComputeFeeFnServiceRoleB7A4FEFE"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "OnyxWorkflow/ComputeFeeFn/Resource"
+   }
+  },
+  "DynastyFeeLogGroupE8618636": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "LogGroupName": "/aws/stepfunctions/3c-onyx-dynasty-fee",
+    "RetentionInDays": 30,
+    "Tags": [
+     {
+      "Key": "managed-by",
+      "Value": "cdk"
+     },
+     {
+      "Key": "project",
+      "Value": "3c-onyx"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "OnyxWorkflow/DynastyFeeLogGroup/Resource"
+   }
+  },
+  "DynastyFeeStateMachineRole62F20AA9": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "states.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "Tags": [
+     {
+      "Key": "managed-by",
+      "Value": "cdk"
+     },
+     {
+      "Key": "project",
+      "Value": "3c-onyx"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "OnyxWorkflow/DynastyFeeStateMachine/Role/Resource"
+   }
+  },
+  "DynastyFeeStateMachineRoleDefaultPolicyED992A5B": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "lambda:InvokeFunction",
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "ComputeFeeFnAC898F99",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "ComputeFeeFnAC898F99",
+             "Arn"
+            ]
+           },
+           ":*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": "events:PutEvents",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:",
+          {
+           "Ref": "AWS::Partition"
+          },
+          ":events:us-east-1:",
+          {
+           "Ref": "AWS::AccountId"
+          },
+          ":event-bus/3c-onyx-event-bus"
+         ]
+        ]
+       }
+      },
+      {
+       "Action": [
+        "logs:CreateLogDelivery",
+        "logs:GetLogDelivery",
+        "logs:UpdateLogDelivery",
+        "logs:DeleteLogDelivery",
+        "logs:ListLogDeliveries",
+        "logs:PutResourcePolicy",
+        "logs:DescribeResourcePolicies",
+        "logs:DescribeLogGroups"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "xray:PutTraceSegments",
+        "xray:PutTelemetryRecords",
+        "xray:GetSamplingRules",
+        "xray:GetSamplingTargets"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "DynastyFeeStateMachineRoleDefaultPolicyED992A5B",
+    "Roles": [
+     {
+      "Ref": "DynastyFeeStateMachineRole62F20AA9"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "OnyxWorkflow/DynastyFeeStateMachine/Role/DefaultPolicy/Resource"
+   }
+  },
+  "DynastyFeeStateMachineB85FEAB3": {
+   "Type": "AWS::StepFunctions::StateMachine",
+   "Properties": {
+    "DefinitionString": {
+     "Fn::Join": [
+      "",
+      [
+       "{\"StartAt\":\"ComputeDynastyFee\",\"States\":{\"ComputeDynastyFee\":{\"Next\":\"EmitDynastyFeeEarned\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"Comment\":\"DealStructured → compute fee (commissionUsd × 1/3)\",\"OutputPath\":\"$.Payload\",\"Resource\":\"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":states:::lambda:invoke\",\"Parameters\":{\"FunctionName\":\"",
+       {
+        "Fn::GetAtt": [
+         "ComputeFeeFnAC898F99",
+         "Arn"
+        ]
+       },
+       "\",\"Payload.$\":\"$\"}},\"EmitDynastyFeeEarned\":{\"Next\":\"SettleReferralLedger\",\"Type\":\"Task\",\"ResultPath\":\"$.eventResult\",\"Resource\":\"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":states:::events:putEvents\",\"Parameters\":{\"Entries\":[{\"Detail\":{\"dealId.$\":\"$.dealId\",\"commissionUsd.$\":\"$.commissionUsd\",\"dynastyFeeUsd.$\":\"$.dynastyFeeUsd\",\"referrerId.$\":\"$.referrerId\",\"agentId.$\":\"$.agentId\",\"ts.$\":\"$.ts\"},\"DetailType\":\"payment.dynasty_fee.earned\",\"EventBusName\":\"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":events:us-east-1:",
+       {
+        "Ref": "AWS::AccountId"
+       },
+       ":event-bus/3c-onyx-event-bus\",\"Source\":\"3c-onyx-workflow\"}]}},\"SettleReferralLedger\":{\"Next\":\"Done\",\"Type\":\"Task\",\"ResultPath\":\"$.settleResult\",\"Resource\":\"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":states:::events:putEvents\",\"Parameters\":{\"Entries\":[{\"Detail\":{\"dealId.$\":\"$.dealId\",\"dynastyFeeUsd.$\":\"$.dynastyFeeUsd\",\"referrerId.$\":\"$.referrerId\",\"action\":\"settle\",\"ts.$\":\"$.ts\"},\"DetailType\":\"referral.settled\",\"EventBusName\":\"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":events:us-east-1:",
+       {
+        "Ref": "AWS::AccountId"
+       },
+       ":event-bus/3c-onyx-event-bus\",\"Source\":\"3c-onyx-workflow\"}]}},\"Done\":{\"Type\":\"Succeed\",\"Comment\":\"Dynasty fee flow complete\"}},\"TimeoutSeconds\":300,\"Comment\":\"Dynasty Fee calculation: deal closed → compute fee (commissionUsd × 1/3) → emit payment.dynasty_fee.earned → settle referral ledger\"}"
+      ]
+     ]
+    },
+    "LoggingConfiguration": {
+     "Destinations": [
+      {
+       "CloudWatchLogsLogGroup": {
+        "LogGroupArn": {
+         "Fn::GetAtt": [
+          "DynastyFeeLogGroupE8618636",
+          "Arn"
+         ]
+        }
+       }
+      }
+     ],
+     "IncludeExecutionData": true,
+     "Level": "ALL"
+    },
+    "RoleArn": {
+     "Fn::GetAtt": [
+      "DynastyFeeStateMachineRole62F20AA9",
+      "Arn"
+     ]
+    },
+    "StateMachineName": "3c-onyx-dynasty-fee",
+    "StateMachineType": "EXPRESS",
+    "Tags": [
+     {
+      "Key": "managed-by",
+      "Value": "cdk"
+     },
+     {
+      "Key": "project",
+      "Value": "3c-onyx"
+     }
+    ],
+    "TracingConfiguration": {
+     "Enabled": true
+    }
+   },
+   "DependsOn": [
+    "DynastyFeeStateMachineRoleDefaultPolicyED992A5B",
+    "DynastyFeeStateMachineRole62F20AA9"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "OnyxWorkflow/DynastyFeeStateMachine/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/11Q0U7DMAz8Ft5TD8r4ARBMk0BM5QOmLPE6r2lcNU4RivLvazomIZ7uzqezT66hXj/B/Z3+DpWxXeXoAOlLtOlUg4HjaFDN3j453R+shvQWvRFir16O/sazIt1DathhGS+4Y0fmp8gryyoIDsffRNiLDl2A9L6s3fqJO1SvE3p5Hsm2uIuyqPAvN5eLxiBaNZcU/NDmRH65+ldn5bgt27ndjByH4t94zkV9RhmiZOXZIpzDaqrX8PA4P+IciKoxeqEeobniBQl3eKklAQAA"
+   },
+   "Metadata": {
+    "aws:cdk:path": "OnyxWorkflow/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "DynastyFeeStateMachineArn": {
+   "Description": "Dynasty Fee Step Functions state machine ARN",
+   "Value": {
+    "Ref": "DynastyFeeStateMachineB85FEAB3"
+   },
+   "Export": {
+    "Name": "OnyxDynastyFeeStateMachineArn"
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

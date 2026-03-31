@@ -1,0 +1,47 @@
+{
+  "/OnyxSecurity": [
+    {
+      "type": "aws:cdk:stack-tags",
+      "data": [
+        {
+          "key": "managed-by",
+          "value": "cdk"
+        },
+        {
+          "key": "project",
+          "value": "3c-onyx"
+        }
+      ]
+    }
+  ],
+  "/OnyxSecurity/OnyxWebACL": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "OnyxWebACL"
+    }
+  ],
+  "/OnyxSecurity/WebAclArn": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WebAclArn"
+    }
+  ],
+  "/OnyxSecurity/BootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "BootstrapVersion"
+    }
+  ],
+  "/OnyxSecurity/CheckBootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CheckBootstrapVersion"
+    }
+  ],
+  "/OnyxSecurity/CDKMetadata/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CDKMetadata"
+    }
+  ]
+}

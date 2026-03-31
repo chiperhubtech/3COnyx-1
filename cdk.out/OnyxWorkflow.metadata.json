@@ -1,0 +1,77 @@
+{
+  "/OnyxWorkflow": [
+    {
+      "type": "aws:cdk:stack-tags",
+      "data": [
+        {
+          "key": "managed-by",
+          "value": "cdk"
+        },
+        {
+          "key": "project",
+          "value": "3c-onyx"
+        }
+      ]
+    }
+  ],
+  "/OnyxWorkflow/DynastyFeeStateMachineArn": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DynastyFeeStateMachineArn"
+    }
+  ],
+  "/OnyxWorkflow/BootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "BootstrapVersion"
+    }
+  ],
+  "/OnyxWorkflow/CheckBootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CheckBootstrapVersion"
+    }
+  ],
+  "/OnyxWorkflow/ComputeFeeFn/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ComputeFeeFnAC898F99"
+    }
+  ],
+  "/OnyxWorkflow/DynastyFeeLogGroup/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DynastyFeeLogGroupE8618636"
+    }
+  ],
+  "/OnyxWorkflow/DynastyFeeStateMachine/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DynastyFeeStateMachineB85FEAB3"
+    }
+  ],
+  "/OnyxWorkflow/CDKMetadata/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CDKMetadata"
+    }
+  ],
+  "/OnyxWorkflow/ComputeFeeFn/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ComputeFeeFnServiceRoleB7A4FEFE"
+    }
+  ],
+  "/OnyxWorkflow/DynastyFeeStateMachine/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DynastyFeeStateMachineRole62F20AA9"
+    }
+  ],
+  "/OnyxWorkflow/DynastyFeeStateMachine/Role/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DynastyFeeStateMachineRoleDefaultPolicyED992A5B"
+    }
+  ]
+}

@@ -10,6 +10,7 @@ import { db, vinPassportsTable, blockchainRecordsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { requireAuth } from "../middlewares/requireAuth";
 import { writeAudit } from "../lib/auditService";
+import { indexVehicle } from "../lib/vehicleSearch";
 import crypto from "crypto";
 
 const router = Router();
@@ -121,6 +122,19 @@ router.post("/vin/passport", requireAuth, async (req: Request, res: Response) =>
     aiSummaryEs:   summaryEs,
     blockchainHash: hash,
   }).returning();
+
+  indexVehicle({
+    id: String(passport!.id),
+    make: decoded.make,
+    model: decoded.model,
+    year: decoded.year,
+    trim: decoded.trim,
+    vin: cleanVin,
+    fuelType: decoded.fuelType,
+    bodyClass: decoded.bodyClass,
+    condition: "used",
+    createdAt: new Date().toISOString(),
+  }).catch(() => {});
 
   await writeAudit({
     eventType: "DB_CHANGE",

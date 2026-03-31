@@ -1,0 +1,8 @@
+{
+  "name": "3c-onyx-infra",
+  "private": true,
+  "scripts": {
+    "synth": "npx cdk synth",
+    "typecheck": "npx tsc --noEmit"
+  }
+}

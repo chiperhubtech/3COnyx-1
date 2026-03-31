@@ -1,0 +1,53 @@
+{
+  "/OnyxCompute": [
+    {
+      "type": "aws:cdk:stack-tags",
+      "data": [
+        {
+          "key": "managed-by",
+          "value": "cdk"
+        },
+        {
+          "key": "project",
+          "value": "3c-onyx"
+        }
+      ]
+    }
+  ],
+  "/OnyxCompute/RunnerTracker": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "RunnerTracker"
+    }
+  ],
+  "/OnyxCompute/TrackerName": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "TrackerName"
+    }
+  ],
+  "/OnyxCompute/TrackerArn": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "TrackerArn"
+    }
+  ],
+  "/OnyxCompute/BootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "BootstrapVersion"
+    }
+  ],
+  "/OnyxCompute/CheckBootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CheckBootstrapVersion"
+    }
+  ],
+  "/OnyxCompute/CDKMetadata/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CDKMetadata"
+    }
+  ]
+}

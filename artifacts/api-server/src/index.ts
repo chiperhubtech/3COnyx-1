@@ -29,22 +29,26 @@ const server = http.createServer(app);
 
 wsHub.attach(server);
 
-server.listen(port, () => {
-  logger.info({ port }, "Server listening");
-  logger.info("WebSocket hub active at /ws");
-  startPriceAlertJob();
-  startMaintenanceScheduler();
-  initChains().catch((err) => logger.warn({ err }, "initChains failed"));
-
-  // ── AWS service init (non-blocking) ─────────────────────────────────────
-  warmSecrets([...CRITICAL_SECRETS]).catch(err =>
-    logger.warn({ err: (err as Error).message }, "[startup] Secrets warm skipped")
-  );
-  ensureVehicleIndex().catch(err =>
+async function startServer() {
+  await ensureVehicleIndex().catch(err =>
     logger.warn({ err: (err as Error).message }, "[startup] Vehicle index init skipped")
   );
-  logger.info(eventBus.getStatus(), "[startup] EventBus initialized");
-});
+
+  server.listen(port, () => {
+    logger.info({ port }, "Server listening");
+    logger.info("WebSocket hub active at /ws");
+    startPriceAlertJob();
+    startMaintenanceScheduler();
+    initChains().catch((err) => logger.warn({ err }, "initChains failed"));
+
+    warmSecrets([...CRITICAL_SECRETS]).catch(err =>
+      logger.warn({ err: (err as Error).message }, "[startup] Secrets warm skipped")
+    );
+    logger.info(eventBus.getStatus(), "[startup] EventBus initialized");
+  });
+}
+
+startServer();
 
 server.on("error", (err) => {
   logger.error({ err }, "Server error");

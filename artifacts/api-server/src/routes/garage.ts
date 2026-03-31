@@ -1,5 +1,6 @@
 import { Router, type IRouter, type Request, type Response } from "express";
 import crypto from "crypto";
+import { indexVehicle } from "../lib/vehicleSearch";
 
 const router: IRouter = Router();
 
@@ -118,6 +119,18 @@ router.get("/garage/vehicles/:id/telemetry", async (req: Request, res: Response)
     vehicle.lastSync = new Date().toISOString();
   }
 
+  indexVehicle({
+    id: vehicle.id,
+    make: vehicle.make,
+    model: vehicle.model,
+    year: vehicle.year,
+    vin: vehicle.vin,
+    color: vehicle.color,
+    condition: "used",
+    mileage: vehicle.odometer,
+    createdAt: vehicle.lastSync,
+  }).catch(() => {});
+
   res.json({
     vehicleId: vehicle.id,
     odometer: vehicle.odometer,
@@ -180,6 +193,18 @@ router.post("/garage/connect", (req: Request, res: Response) => {
   const vehicles = getVehicles(sessionId);
   vehicles.push(newVehicle);
   garageStore.set(sessionId, vehicles);
+
+  indexVehicle({
+    id: newVehicle.id,
+    make: newVehicle.make,
+    model: newVehicle.model,
+    year: newVehicle.year,
+    vin: newVehicle.vin,
+    color: newVehicle.color,
+    condition: "used",
+    mileage: newVehicle.odometer,
+    createdAt: newVehicle.lastSync,
+  }).catch(() => {});
 
   res.json({ vehicle: newVehicle, mode: "live" });
 });

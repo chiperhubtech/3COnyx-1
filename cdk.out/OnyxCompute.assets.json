@@ -1,0 +1,21 @@
+{
+  "version": "53.0.0",
+  "files": {
+    "4c6e1d382c542f21c465e5c7fb48357cf1e39461caea136a3a6ebc174e60dcf9": {
+      "displayName": "OnyxCompute Template",
+      "source": {
+        "path": "OnyxCompute.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "current_account-us-east-1-7c3f2423": {
+          "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1",
+          "objectKey": "4c6e1d382c542f21c465e5c7fb48357cf1e39461caea136a3a6ebc174e60dcf9.json",
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-us-east-1"
+        }
+      }
+    }
+  },
+  "dockerImages": {}
+}

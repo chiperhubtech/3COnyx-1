@@ -1,0 +1,136 @@
+{
+  "/OnyxData": [
+    {
+      "type": "aws:cdk:stack-tags",
+      "data": [
+        {
+          "key": "managed-by",
+          "value": "cdk"
+        },
+        {
+          "key": "project",
+          "value": "3c-onyx"
+        }
+      ]
+    }
+  ],
+  "/OnyxData/VehicleSearchDomain": [
+    {
+      "type": "aws:cdk:hasPhysicalName",
+      "data": "onyx-vehicles"
+    }
+  ],
+  "/OnyxData/AWS679f53fac002430cb0da5b7982bd2287": [
+    {
+      "type": "aws:cdk:is-custom-resource-handler-singleton",
+      "data": true
+    },
+    {
+      "type": "aws:cdk:is-custom-resource-handler-runtime-family",
+      "data": 0
+    }
+  ],
+  "/OnyxData/OpenSearchEndpoint": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "OpenSearchEndpoint"
+    }
+  ],
+  "/OnyxData/OpenSearchDomainArn": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "OpenSearchDomainArn"
+    }
+  ],
+  "/OnyxData/BootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "BootstrapVersion"
+    }
+  ],
+  "/OnyxData/CheckBootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CheckBootstrapVersion"
+    }
+  ],
+  "/OnyxData/VehicleSearchDomain/ESLogGroupPolicyc84028a19358e70191cf93dc7022912d672ea0bcad": [
+    {
+      "type": "aws:cdk:warning",
+      "data": "installLatestAwsSdk was not specified, and defaults to true. You probably do not want this. Set the global context flag '@aws-cdk/customresources:installLatestAwsSdkDefault' to false to switch this behavior off project-wide, or set the property explicitly to true if you know you need to call APIs that are not in Lambda's built-in SDK version. [ack: @aws-cdk/custom-resources:installLatestAwsSdkNotSpecified]",
+      "trace": [
+        "Annotations.addMessage (/home/runner/workspace/node_modules/.pnpm/aws-cdk-lib@2.245.0_constructs@10.6.0/node_modules/aws-cdk-lib/core/lib/annotations.js:1:2270)",
+        "Annotations.addWarningV2 (/home/runner/workspace/node_modules/.pnpm/aws-cdk-lib@2.245.0_constructs@10.6.0/node_modules/aws-cdk-lib/core/lib/annotations.js:1:984)",
+        "new AwsCustomResource2 (/home/runner/workspace/node_modules/.pnpm/aws-cdk-lib@2.245.0_constructs@10.6.0/node_modules/aws-cdk-lib/custom-resources/lib/aws-custom-resource/aws-custom-resource.js:1:8373)",
+        "new AwsCustomResource2 (/home/runner/workspace/node_modules/.pnpm/aws-cdk-lib@2.245.0_constructs@10.6.0/node_modules/aws-cdk-lib/core/lib/prop-injectable.js:1:726)",
+        "new LogGroupResourcePolicy (/home/runner/workspace/node_modules/.pnpm/aws-cdk-lib@2.245.0_constructs@10.6.0/node_modules/aws-cdk-lib/aws-opensearchservice/lib/log-group-resource-policy.js:1:422)",
+        "new Domain2 (/home/runner/workspace/node_modules/.pnpm/aws-cdk-lib@2.245.0_constructs@10.6.0/node_modules/aws-cdk-lib/aws-opensearchservice/lib/domain.js:1:27756)",
+        "new Domain2 (/home/runner/workspace/node_modules/.pnpm/aws-cdk-lib@2.245.0_constructs@10.6.0/node_modules/aws-cdk-lib/core/lib/prop-injectable.js:1:726)",
+        "new DataStack (/home/runner/workspace/artifacts/api-server/infra/cdk.out/lib/data-stack.js:44:23)",
+        "Object.<anonymous> (/home/runner/workspace/artifacts/api-server/infra/cdk.out/bin/app.js:49:19)",
+        "Module._compile (node:internal/modules/cjs/loader:1761:14)",
+        "Object..js (node:internal/modules/cjs/loader:1893:10)",
+        "Module.load (node:internal/modules/cjs/loader:1481:32)",
+        "Module._load (node:internal/modules/cjs/loader:1300:12)",
+        "TracingChannel.traceSync (node:diagnostics_channel:328:14)",
+        "wrapModuleLoad (node:internal/modules/cjs/loader:245:24)",
+        "Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)",
+        "node:internal/main/run_main_module:33:47"
+      ]
+    }
+  ],
+  "/OnyxData/VehicleSearchDomain/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VehicleSearchDomain452C3061"
+    }
+  ],
+  "/OnyxData/AWS679f53fac002430cb0da5b7982bd2287/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AWS679f53fac002430cb0da5b7982bd22872D164C4C"
+    }
+  ],
+  "/OnyxData/CDKMetadata/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CDKMetadata"
+    }
+  ],
+  "/OnyxData/VehicleSearchDomain/SlowSearchLogs/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VehicleSearchDomainSlowSearchLogsD6017500"
+    }
+  ],
+  "/OnyxData/VehicleSearchDomain/SlowIndexLogs/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VehicleSearchDomainSlowIndexLogs0F49A3B8"
+    }
+  ],
+  "/OnyxData/VehicleSearchDomain/AppLogs/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VehicleSearchDomainAppLogs5AC94F3A"
+    }
+  ],
+  "/OnyxData/AWS679f53fac002430cb0da5b7982bd2287/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2"
+    }
+  ],
+  "/OnyxData/VehicleSearchDomain/ESLogGroupPolicyc84028a19358e70191cf93dc7022912d672ea0bcad/Resource/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VehicleSearchDomainESLogGroupPolicyc84028a19358e70191cf93dc7022912d672ea0bcad1D40719F"
+    }
+  ],
+  "/OnyxData/VehicleSearchDomain/ESLogGroupPolicyc84028a19358e70191cf93dc7022912d672ea0bcad/CustomResourcePolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VehicleSearchDomainESLogGroupPolicyc84028a19358e70191cf93dc7022912d672ea0bcadCustomResourcePolicy07B93614"
+    }
+  ]
+}

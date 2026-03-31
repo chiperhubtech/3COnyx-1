@@ -1,0 +1,21 @@
+{
+  "version": "53.0.0",
+  "files": {
+    "8c58a81db7b66be9f3a317e85a5f89c01471ba00bb4afb48f7cc03a2a6ee94df": {
+      "displayName": "OnyxWorkflow Template",
+      "source": {
+        "path": "OnyxWorkflow.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "current_account-us-east-1-90b2da1c": {
+          "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1",
+          "objectKey": "8c58a81db7b66be9f3a317e85a5f89c01471ba00bb4afb48f7cc03a2a6ee94df.json",
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-us-east-1"
+        }
+      }
+    }
+  },
+  "dockerImages": {}
+}

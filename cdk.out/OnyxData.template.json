@@ -1,0 +1,403 @@
+{
+ "Resources": {
+  "VehicleSearchDomainSlowSearchLogsD6017500": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "RetentionInDays": 30,
+    "Tags": [
+     {
+      "Key": "managed-by",
+      "Value": "cdk"
+     },
+     {
+      "Key": "project",
+      "Value": "3c-onyx"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "OnyxData/VehicleSearchDomain/SlowSearchLogs/Resource"
+   }
+  },
+  "VehicleSearchDomainSlowIndexLogs0F49A3B8": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "RetentionInDays": 30,
+    "Tags": [
+     {
+      "Key": "managed-by",
+      "Value": "cdk"
+     },
+     {
+      "Key": "project",
+      "Value": "3c-onyx"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "OnyxData/VehicleSearchDomain/SlowIndexLogs/Resource"
+   }
+  },
+  "VehicleSearchDomainAppLogs5AC94F3A": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "RetentionInDays": 30,
+    "Tags": [
+     {
+      "Key": "managed-by",
+      "Value": "cdk"
+     },
+     {
+      "Key": "project",
+      "Value": "3c-onyx"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "OnyxData/VehicleSearchDomain/AppLogs/Resource"
+   }
+  },
+  "VehicleSearchDomainESLogGroupPolicyc84028a19358e70191cf93dc7022912d672ea0bcad1D40719F": {
+   "Type": "Custom::CloudwatchLogResourcePolicy",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "AWS679f53fac002430cb0da5b7982bd22872D164C4C",
+      "Arn"
+     ]
+    },
+    "Create": {
+     "Fn::Join": [
+      "",
+      [
+       "{\"service\":\"CloudWatchLogs\",\"action\":\"putResourcePolicy\",\"parameters\":{\"policyName\":\"ESLogPolicyc84028a19358e70191cf93dc7022912d672ea0bcad\",\"policyDocument\":\"{\\\"Statement\\\":[{\\\"Action\\\":[\\\"logs:PutLogEvents\\\",\\\"logs:CreateLogStream\\\"],\\\"Effect\\\":\\\"Allow\\\",\\\"Principal\\\":{\\\"Service\\\":\\\"es.amazonaws.com\\\"},\\\"Resource\\\":[\\\"",
+       {
+        "Fn::GetAtt": [
+         "VehicleSearchDomainSlowSearchLogsD6017500",
+         "Arn"
+        ]
+       },
+       "\\\",\\\"",
+       {
+        "Fn::GetAtt": [
+         "VehicleSearchDomainSlowIndexLogs0F49A3B8",
+         "Arn"
+        ]
+       },
+       "\\\",\\\"",
+       {
+        "Fn::GetAtt": [
+         "VehicleSearchDomainAppLogs5AC94F3A",
+         "Arn"
+        ]
+       },
+       "\\\"]}],\\\"Version\\\":\\\"2012-10-17\\\"}\"},\"physicalResourceId\":{\"id\":\"ESLogGroupPolicyc84028a19358e70191cf93dc7022912d672ea0bcad\"}}"
+      ]
+     ]
+    },
+    "Update": {
+     "Fn::Join": [
+      "",
+      [
+       "{\"service\":\"CloudWatchLogs\",\"action\":\"putResourcePolicy\",\"parameters\":{\"policyName\":\"ESLogPolicyc84028a19358e70191cf93dc7022912d672ea0bcad\",\"policyDocument\":\"{\\\"Statement\\\":[{\\\"Action\\\":[\\\"logs:PutLogEvents\\\",\\\"logs:CreateLogStream\\\"],\\\"Effect\\\":\\\"Allow\\\",\\\"Principal\\\":{\\\"Service\\\":\\\"es.amazonaws.com\\\"},\\\"Resource\\\":[\\\"",
+       {
+        "Fn::GetAtt": [
+         "VehicleSearchDomainSlowSearchLogsD6017500",
+         "Arn"
+        ]
+       },
+       "\\\",\\\"",
+       {
+        "Fn::GetAtt": [
+         "VehicleSearchDomainSlowIndexLogs0F49A3B8",
+         "Arn"
+        ]
+       },
+       "\\\",\\\"",
+       {
+        "Fn::GetAtt": [
+         "VehicleSearchDomainAppLogs5AC94F3A",
+         "Arn"
+        ]
+       },
+       "\\\"]}],\\\"Version\\\":\\\"2012-10-17\\\"}\"},\"physicalResourceId\":{\"id\":\"ESLogGroupPolicyc84028a19358e70191cf93dc7022912d672ea0bcad\"}}"
+      ]
+     ]
+    },
+    "Delete": "{\"service\":\"CloudWatchLogs\",\"action\":\"deleteResourcePolicy\",\"parameters\":{\"policyName\":\"ESLogPolicyc84028a19358e70191cf93dc7022912d672ea0bcad\"},\"ignoreErrorCodesMatching\":\"ResourceNotFoundException\"}",
+    "InstallLatestAwsSdk": true
+   },
+   "DependsOn": [
+    "VehicleSearchDomainESLogGroupPolicyc84028a19358e70191cf93dc7022912d672ea0bcadCustomResourcePolicy07B93614"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "OnyxData/VehicleSearchDomain/ESLogGroupPolicyc84028a19358e70191cf93dc7022912d672ea0bcad/Resource/Default"
+   }
+  },
+  "VehicleSearchDomainESLogGroupPolicyc84028a19358e70191cf93dc7022912d672ea0bcadCustomResourcePolicy07B93614": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "logs:PutResourcePolicy",
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": "logs:DeleteResourcePolicy",
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "VehicleSearchDomainESLogGroupPolicyc84028a19358e70191cf93dc7022912d672ea0bcadCustomResourcePolicy07B93614",
+    "Roles": [
+     {
+      "Ref": "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "OnyxData/VehicleSearchDomain/ESLogGroupPolicyc84028a19358e70191cf93dc7022912d672ea0bcad/CustomResourcePolicy/Resource"
+   }
+  },
+  "VehicleSearchDomain452C3061": {
+   "Type": "AWS::OpenSearchService::Domain",
+   "Properties": {
+    "ClusterConfig": {
+     "DedicatedMasterEnabled": false,
+     "InstanceCount": 1,
+     "InstanceType": "t3.small.search",
+     "ZoneAwarenessEnabled": false
+    },
+    "DomainEndpointOptions": {
+     "EnforceHTTPS": true,
+     "TLSSecurityPolicy": "Policy-Min-TLS-1-2-2019-07"
+    },
+    "DomainName": "onyx-vehicles",
+    "EBSOptions": {
+     "EBSEnabled": true,
+     "VolumeSize": 20,
+     "VolumeType": "gp3"
+    },
+    "EncryptionAtRestOptions": {
+     "Enabled": true
+    },
+    "EngineVersion": "OpenSearch_2.11",
+    "LogPublishingOptions": {
+     "SEARCH_SLOW_LOGS": {
+      "CloudWatchLogsLogGroupArn": {
+       "Fn::GetAtt": [
+        "VehicleSearchDomainSlowSearchLogsD6017500",
+        "Arn"
+       ]
+      },
+      "Enabled": true
+     },
+     "INDEX_SLOW_LOGS": {
+      "CloudWatchLogsLogGroupArn": {
+       "Fn::GetAtt": [
+        "VehicleSearchDomainSlowIndexLogs0F49A3B8",
+        "Arn"
+       ]
+      },
+      "Enabled": true
+     },
+     "ES_APPLICATION_LOGS": {
+      "CloudWatchLogsLogGroupArn": {
+       "Fn::GetAtt": [
+        "VehicleSearchDomainAppLogs5AC94F3A",
+        "Arn"
+       ]
+      },
+      "Enabled": true
+     }
+    },
+    "NodeToNodeEncryptionOptions": {
+     "Enabled": true
+    },
+    "Tags": [
+     {
+      "Key": "managed-by",
+      "Value": "cdk"
+     },
+     {
+      "Key": "project",
+      "Value": "3c-onyx"
+     }
+    ]
+   },
+   "DependsOn": [
+    "VehicleSearchDomainESLogGroupPolicyc84028a19358e70191cf93dc7022912d672ea0bcadCustomResourcePolicy07B93614",
+    "VehicleSearchDomainESLogGroupPolicyc84028a19358e70191cf93dc7022912d672ea0bcad1D40719F"
+   ],
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "OnyxData/VehicleSearchDomain/Resource"
+   }
+  },
+  "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ],
+    "Tags": [
+     {
+      "Key": "managed-by",
+      "Value": "cdk"
+     },
+     {
+      "Key": "project",
+      "Value": "3c-onyx"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "OnyxData/AWS679f53fac002430cb0da5b7982bd2287/ServiceRole/Resource"
+   }
+  },
+  "AWS679f53fac002430cb0da5b7982bd22872D164C4C": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1"
+     },
+     "S3Key": "56f7467bbde8a5efebcf57ae9e460027607099bab9f844669dcf5d800172ee5a.zip"
+    },
+    "Handler": "index.handler",
+    "Role": {
+     "Fn::GetAtt": [
+      "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs22.x",
+    "Tags": [
+     {
+      "Key": "managed-by",
+      "Value": "cdk"
+     },
+     {
+      "Key": "project",
+      "Value": "3c-onyx"
+     }
+    ],
+    "Timeout": 120
+   },
+   "DependsOn": [
+    "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "OnyxData/AWS679f53fac002430cb0da5b7982bd2287/Resource",
+    "aws:asset:path": "asset.56f7467bbde8a5efebcf57ae9e460027607099bab9f844669dcf5d800172ee5a",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/12Q0U7DMAxFv4X31EA3PoANjRekTeUDqiw1JWsSV3GyCVX9d5xt5YGne+69lmW5hnr9Ak8P+sKV6YbK2SNMn0mbQUnUTjRiYNTRfDPGszUI0xt5bYPafoUbzcpRzzB9UP8eKY+lWVg67Y+dlp029A4ThV0OJlkK6g9kfuFZWe1hOpCz5qcUd2rIYbFFZ8WrVjNjYngtIh422QyYNpqlNpkT+TYiU44GZerC22vW3CP138rmha8r5QO9HFyKfU5jTrMK1CGc+PFcr+F5JS87sbVVzCFZj9Dc9BcQsarATwEAAA=="
+   },
+   "Metadata": {
+    "aws:cdk:path": "OnyxData/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "OpenSearchEndpoint": {
+   "Description": "OpenSearch domain endpoint for vehicle search",
+   "Value": {
+    "Fn::GetAtt": [
+     "VehicleSearchDomain452C3061",
+     "DomainEndpoint"
+    ]
+   },
+   "Export": {
+    "Name": "OnyxOpenSearchEndpoint"
+   }
+  },
+  "OpenSearchDomainArn": {
+   "Description": "OpenSearch domain ARN",
+   "Value": {
+    "Fn::GetAtt": [
+     "VehicleSearchDomain452C3061",
+     "Arn"
+    ]
+   },
+   "Export": {
+    "Name": "OnyxOpenSearchDomainArn"
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

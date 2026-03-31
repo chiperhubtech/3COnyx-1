@@ -1,0 +1,21 @@
+{
+  "version": "53.0.0",
+  "files": {
+    "0315c5a947f206bd2ac7684d5e5a153c578276be6a466e99be571e05b9946e89": {
+      "displayName": "OnyxSecurity Template",
+      "source": {
+        "path": "OnyxSecurity.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "current_account-us-east-1-4c49aef8": {
+          "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1",
+          "objectKey": "0315c5a947f206bd2ac7684d5e5a153c578276be6a466e99be571e05b9946e89.json",
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-us-east-1"
+        }
+      }
+    }
+  },
+  "dockerImages": {}
+}
