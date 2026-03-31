@@ -97,6 +97,7 @@ import timelineRouter from "./timeline";
 import monetizationRouter from "./monetization";
 import genesisRouter from "./genesis";
 import dealerflowRouter from "./dealerflow";
+import dealsRouter from "./deals";
 
 const router: IRouter = Router();
 
@@ -216,5 +217,6 @@ router.use("/timeline",     timelineRouter);
 router.use("/monetization", monetizationRouter);
 router.use("/genesis",      genesisRouter);
 router.use(dealerflowRouter);
+router.use(dealsRouter);
 
 export default router;

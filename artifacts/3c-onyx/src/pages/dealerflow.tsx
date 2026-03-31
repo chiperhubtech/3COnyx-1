@@ -4,6 +4,7 @@ import {
   Activity, AlertTriangle, ArrowRight, BarChart3, Camera, Check, CheckCircle2, Clock, DollarSign, FileText,
   Filter, Gauge, Inbox, Layers, MessageSquare, Plus, RefreshCw,
   Route, ScanLine, Send, Shield, Target, ThumbsUp, TrendingUp, Users, X, Zap,
+  Search, Car, Wallet, Store, Hash,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -238,7 +239,7 @@ function formatMinutes(mins: number) {
   return h > 0 ? `${h}h ${m}m` : `${m}m`;
 }
 
-type Tab = "dashboard" | "tasks" | "intake" | "tickets" | "queue" | "performance" | "vault" | "velocity";
+type Tab = "dashboard" | "deals" | "my-deals" | "tasks" | "intake" | "tickets" | "queue" | "performance" | "vault" | "velocity";
 
 export default function DealerFlowOS() {
   const [tab, setTab] = useState<Tab>("dashboard");
@@ -246,9 +247,12 @@ export default function DealerFlowOS() {
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [scopeFilter, setScopeFilter] = useState<string>("");
   const [queueDept, setQueueDept] = useState("DMV");
+  const [globalSearch, setGlobalSearch] = useState("");
 
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
     { id: "dashboard", label: "Command Center", icon: <Activity className="w-4 h-4" /> },
+    { id: "deals", label: "Deal Board", icon: <Car className="w-4 h-4" /> },
+    { id: "my-deals", label: "My Deals", icon: <Wallet className="w-4 h-4" /> },
     { id: "tasks", label: "Task Board", icon: <Layers className="w-4 h-4" /> },
     { id: "queue", label: "Dept Queue", icon: <Users className="w-4 h-4" /> },
     { id: "intake", label: "Scan & Route", icon: <ScanLine className="w-4 h-4" /> },
@@ -289,7 +293,11 @@ export default function DealerFlowOS() {
         </div>
       </header>
 
+      <GlobalSearchBar />
+
       {tab === "dashboard" && <CommandCenter onNavigate={setTab} onSelectDept={(d) => { setQueueDept(d); setTab("queue"); }} />}
+      {tab === "deals" && <DealBoard />}
+      {tab === "my-deals" && <MyDeals />}
       {tab === "tasks" && <TaskBoard deptFilter={deptFilter} setDeptFilter={setDeptFilter} statusFilter={statusFilter} setStatusFilter={setStatusFilter} scopeFilter={scopeFilter} setScopeFilter={setScopeFilter} />}
       {tab === "intake" && <IntakeScanner />}
       {tab === "tickets" && <TicketInbox />}
@@ -1806,6 +1814,469 @@ function GMVelocityDashboard() {
 
       <div className="text-center text-[10px] text-zinc-700 pt-4 border-t border-zinc-900">
         3C ONYX &mdash; DealerFlow OS GM View &mdash; Architect: Ronald Antonio Cadet &mdash; CUXTOMCANDYCLUB LLC
+      </div>
+    </div>
+  );
+}
+
+function GlobalSearchBar() {
+  const [query, setQuery] = useState("");
+  const [open, setOpen] = useState(false);
+
+  const { data, isLoading } = useQuery<{ query: string; results: { deals: any[]; tasks: any[]; totalResults: number } }>({
+    queryKey: ["global-search", query],
+    queryFn: () => authFetch(`${BASE}/api/deals/search/global?q=${encodeURIComponent(query)}`).then((r) => r.json()),
+    enabled: query.length >= 2,
+    staleTime: 5000,
+  });
+
+  return (
+    <div className="relative">
+      <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2">
+        <Search className="w-4 h-4 text-zinc-500" />
+        <input
+          value={query}
+          onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
+          onFocus={() => setOpen(true)}
+          placeholder="Search deals, tasks, VINs, customers..."
+          className="bg-transparent text-white text-sm flex-1 outline-none placeholder:text-zinc-600"
+        />
+        {query && (
+          <button onClick={() => { setQuery(""); setOpen(false); }} className="text-zinc-500 hover:text-white">
+            <X className="w-4 h-4" />
+          </button>
+        )}
+      </div>
+      {open && query.length >= 2 && data && (
+        <div className="absolute top-full left-0 right-0 mt-1 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl z-50 max-h-80 overflow-y-auto">
+          {data.results.totalResults === 0 ? (
+            <div className="p-4 text-sm text-zinc-500 text-center">No results for "{query}"</div>
+          ) : (
+            <div className="divide-y divide-zinc-800">
+              {data.results.deals.length > 0 && (
+                <div className="p-2">
+                  <p className="text-[10px] text-zinc-500 uppercase px-2 py-1 font-semibold">Deals ({data.results.deals.length})</p>
+                  {data.results.deals.map((d: any) => (
+                    <div key={d.id} className="px-3 py-2 hover:bg-zinc-800 rounded-lg cursor-pointer flex items-center gap-3">
+                      <Car className="w-4 h-4 text-amber-400" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-white truncate">{d.customerName} — {d.vehicleLabel || "No Vehicle"}</p>
+                        <p className="text-[10px] text-zinc-500">{d.dealNumber} {d.vin && `| VIN: ${d.vin}`}</p>
+                      </div>
+                      <span className={cn("text-[10px] px-2 py-0.5 rounded", dealStatusColor(d.status))}>{d.status.replace("_", " ")}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {data.results.tasks.length > 0 && (
+                <div className="p-2">
+                  <p className="text-[10px] text-zinc-500 uppercase px-2 py-1 font-semibold">Tasks ({data.results.tasks.length})</p>
+                  {data.results.tasks.map((t: any) => (
+                    <div key={t.id} className="px-3 py-2 hover:bg-zinc-800 rounded-lg cursor-pointer flex items-center gap-3">
+                      <Layers className="w-4 h-4 text-blue-400" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-white truncate">{t.title}</p>
+                        <p className="text-[10px] text-zinc-500">{t.department} | {t.status.replace("_", " ")}</p>
+                      </div>
+                      <span className={cn("text-[10px] px-2 py-0.5 rounded border", statusBadge(t.status))}>{t.status.replace("_", " ")}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function dealStatusColor(s: string) {
+  const map: Record<string, string> = {
+    Open: "bg-blue-500/20 text-blue-300",
+    In_Progress: "bg-yellow-500/20 text-yellow-300",
+    Pending_Finance: "bg-violet-500/20 text-violet-300",
+    Pending_Insurance: "bg-orange-500/20 text-orange-300",
+    Pending_DMV: "bg-purple-500/20 text-purple-300",
+    Pending_Recon: "bg-cyan-500/20 text-cyan-300",
+    Funded: "bg-emerald-500/20 text-emerald-300",
+    Delivered: "bg-green-500/20 text-green-300",
+    Unwound: "bg-red-500/20 text-red-300",
+    Cancelled: "bg-zinc-500/20 text-zinc-400",
+  };
+  return map[s] || map.Open;
+}
+
+function commissionColor(s: string) {
+  const map: Record<string, string> = {
+    Pending: "text-yellow-400",
+    Approved: "text-blue-400",
+    Paid: "text-emerald-400",
+    Held: "text-orange-400",
+    Clawback: "text-red-400",
+  };
+  return map[s] || "text-zinc-400";
+}
+
+function formatUsd(val: string | number | null | undefined) {
+  if (!val) return "$0";
+  const n = typeof val === "string" ? parseFloat(val) : val;
+  if (isNaN(n)) return "$0";
+  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n);
+}
+
+function DealBoard() {
+  const [showCreate, setShowCreate] = useState(false);
+  const [expandedDeal, setExpandedDeal] = useState<number | null>(null);
+  const [statusFilter, setStatusFilter] = useState("");
+  const qc = useQueryClient();
+
+  const { data, isLoading } = useQuery<{ deals: any[] }>({
+    queryKey: ["deals", statusFilter],
+    queryFn: () => {
+      const qs = statusFilter ? `?status=${statusFilter}` : "";
+      return authFetch(`${BASE}/api/deals${qs}`).then((r) => r.json());
+    },
+    refetchInterval: 10000,
+  });
+
+  const updateDeal = useMutation({
+    mutationFn: ({ id, ...body }: { id: number; [k: string]: any }) =>
+      authFetch(`${BASE}/api/deals/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then((r) => r.json()),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["deals"] });
+      qc.invalidateQueries({ queryKey: ["my-deals"] });
+    },
+  });
+
+  const deals = data?.deals || [];
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Filter className="w-4 h-4 text-zinc-500" />
+          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="bg-zinc-800 text-zinc-300 text-sm rounded-lg px-3 py-1.5 border border-zinc-700">
+            <option value="">All Statuses</option>
+            {["Open", "In_Progress", "Pending_Finance", "Pending_Insurance", "Pending_DMV", "Pending_Recon", "Funded", "Delivered", "Unwound", "Cancelled"].map((s) => (
+              <option key={s} value={s}>{s.replace(/_/g, " ")}</option>
+            ))}
+          </select>
+        </div>
+        <button onClick={() => setShowCreate(!showCreate)} className="flex items-center gap-2 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg px-4 py-1.5 text-sm font-medium hover:bg-amber-500/30 transition">
+          <Plus className="w-4 h-4" /> New Deal
+        </button>
+      </div>
+
+      {showCreate && <CreateDealForm onClose={() => setShowCreate(false)} />}
+
+      {isLoading ? (
+        <div className="flex justify-center py-12"><RefreshCw className="w-6 h-6 text-amber-400 animate-spin" /></div>
+      ) : deals.length === 0 ? (
+        <div className="text-center py-16 text-zinc-500">
+          <Car className="w-12 h-12 mx-auto mb-3 opacity-40" />
+          <p className="text-sm">No deals found. Create one to start the lifecycle engine.</p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {deals.map((deal: any) => {
+            const expanded = expandedDeal === deal.id;
+            return (
+              <div key={deal.id} className="bg-zinc-900/60 rounded-xl border border-zinc-800 hover:border-zinc-700 p-4 transition cursor-pointer" onClick={() => setExpandedDeal(expanded ? null : deal.id)}>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      <span className="text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">{deal.dealNumber}</span>
+                      <span className={cn("text-[10px] font-medium px-2 py-0.5 rounded", dealStatusColor(deal.status))}>{deal.status.replace(/_/g, " ")}</span>
+                      <span className="text-[10px] text-zinc-500">{deal.dealType?.replace(/_/g, " ")}</span>
+                    </div>
+                    <h4 className="text-sm font-semibold text-white">{deal.customerName}</h4>
+                    <p className="text-xs text-zinc-400 mt-0.5">{deal.vehicleLabel || "No vehicle"} {deal.vin && <span className="font-mono text-zinc-500">| {deal.vin}</span>}</p>
+                    <div className="flex items-center gap-4 mt-2 text-[10px] text-zinc-600">
+                      {deal.salePrice && <span className="text-emerald-400 font-semibold">{formatUsd(deal.salePrice)}</span>}
+                      {deal.commissionAmount && (
+                        <span className={cn("font-semibold", commissionColor(deal.commissionStatus))}>
+                          <DollarSign className="w-3 h-3 inline" /> {formatUsd(deal.commissionAmount)} {deal.commissionStatus}
+                        </span>
+                      )}
+                      <span>{timeAgo(deal.createdAt)}</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1" onClick={(e) => e.stopPropagation()}>
+                    {deal.status === "Open" && (
+                      <button onClick={() => updateDeal.mutate({ id: deal.id, status: "In_Progress" })} className="text-[10px] bg-yellow-500/20 text-yellow-300 px-2 py-1 rounded hover:bg-yellow-500/30">Start</button>
+                    )}
+                    {deal.status === "Funded" && (
+                      <button onClick={() => updateDeal.mutate({ id: deal.id, status: "Delivered" })} className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded hover:bg-emerald-500/30">Deliver</button>
+                    )}
+                    {deal.commissionStatus === "Pending" && (
+                      <button onClick={() => updateDeal.mutate({ id: deal.id, commissionStatus: "Approved" })} className="text-[10px] bg-blue-500/20 text-blue-300 px-2 py-1 rounded hover:bg-blue-500/30">Approve $</button>
+                    )}
+                    {deal.commissionStatus === "Approved" && (
+                      <button onClick={() => updateDeal.mutate({ id: deal.id, commissionStatus: "Paid" })} className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded hover:bg-emerald-500/30">Mark Paid</button>
+                    )}
+                  </div>
+                </div>
+                {expanded && <DealDetail dealId={deal.id} />}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DealDetail({ dealId }: { dealId: number }) {
+  const { data, isLoading } = useQuery<{ deal: any; tasks: any[]; progress: any }>({
+    queryKey: ["deal-detail", dealId],
+    queryFn: () => authFetch(`${BASE}/api/deals/${dealId}`).then((r) => r.json()),
+  });
+
+  if (isLoading) return <div className="mt-3 flex justify-center"><RefreshCw className="w-4 h-4 text-amber-400 animate-spin" /></div>;
+  if (!data) return null;
+
+  const { tasks, progress } = data;
+
+  return (
+    <div className="mt-4 pt-4 border-t border-zinc-800 space-y-3">
+      <div className="flex items-center gap-3">
+        <div className="flex-1 bg-zinc-800 rounded-full h-2 overflow-hidden">
+          <div className="bg-gradient-to-r from-amber-500 to-emerald-500 h-full transition-all" style={{ width: `${progress.percentage}%` }} />
+        </div>
+        <span className="text-xs font-semibold text-amber-300">{progress.percentage}%</span>
+        <span className="text-[10px] text-zinc-500">{progress.completed}/{progress.total} tasks</span>
+      </div>
+      {progress.blockers.length > 0 && (
+        <div className="bg-red-500/5 border border-red-500/20 rounded-lg px-3 py-2">
+          <p className="text-[10px] text-red-400 font-semibold uppercase mb-1">Blockers ({progress.blockers.length})</p>
+          {progress.blockers.map((b: any) => (
+            <div key={b.id} className="text-[10px] text-zinc-400 flex items-center gap-2">
+              <AlertTriangle className="w-3 h-3 text-red-400" />
+              <span className="text-white">{b.title}</span>
+              <span className="text-zinc-600">{b.department}</span>
+            </div>
+          ))}
+        </div>
+      )}
+      <div className="space-y-1">
+        <p className="text-[10px] text-zinc-500 uppercase font-semibold">Lifecycle Tasks</p>
+        {tasks.map((t: any) => (
+          <div key={t.id} className="flex items-center justify-between py-1.5 px-2 bg-zinc-800/50 rounded-lg">
+            <div className="flex items-center gap-2">
+              {t.status === "Completed" ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> : <Clock className="w-3.5 h-3.5 text-zinc-500" />}
+              <span className="text-xs text-white">{t.title.replace(/\[.*?\]\s*/, "")}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className={cn("text-[10px] px-1.5 py-0.5 rounded", deptColor(t.department))}>{t.department}</span>
+              <span className={cn("text-[10px] px-1.5 py-0.5 rounded border", statusBadge(t.status))}>{t.status.replace("_", " ")}</span>
+              {t.taskScope === "External" && <span className="text-[10px] bg-amber-600/20 text-amber-300 px-1.5 py-0.5 rounded">EXT</span>}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function CreateDealForm({ onClose }: { onClose: () => void }) {
+  const [customerName, setCustomerName] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
+  const [customerEmail, setCustomerEmail] = useState("");
+  const [vin, setVin] = useState("");
+  const [vehicleLabel, setVehicleLabel] = useState("");
+  const [dealType, setDealType] = useState("Used_Sale");
+  const [salePrice, setSalePrice] = useState("");
+  const [grossProfit, setGrossProfit] = useState("");
+  const [commissionAmount, setCommissionAmount] = useState("");
+  const [salespersonName, setSalespersonName] = useState("");
+  const [lenderName, setLenderName] = useState("");
+  const qc = useQueryClient();
+
+  const create = useMutation({
+    mutationFn: (body: any) =>
+      authFetch(`${BASE}/api/deals`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then((r) => r.json()),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["deals"] });
+      qc.invalidateQueries({ queryKey: ["my-deals"] });
+      qc.invalidateQueries({ queryKey: ["dealerflow-tasks"] });
+      qc.invalidateQueries({ queryKey: ["dealerflow-dashboard"] });
+      onClose();
+    },
+  });
+
+  return (
+    <div className="bg-zinc-900 rounded-xl border border-amber-500/30 p-5 space-y-4">
+      <h3 className="text-sm font-semibold text-amber-300 flex items-center gap-2">
+        <Car className="w-4 h-4" /> Create New Deal — Lifecycle Engine
+      </h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <input value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Customer Name *" className="bg-zinc-800 text-white text-sm rounded-lg px-3 py-2 border border-zinc-700 focus:border-amber-500/50 outline-none" />
+        <input value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} placeholder="Phone" className="bg-zinc-800 text-white text-sm rounded-lg px-3 py-2 border border-zinc-700 outline-none" />
+        <input value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} placeholder="Email" className="bg-zinc-800 text-white text-sm rounded-lg px-3 py-2 border border-zinc-700 outline-none" />
+        <input value={vehicleLabel} onChange={(e) => setVehicleLabel(e.target.value)} placeholder="Vehicle (e.g. 2024 Ram 1500)" className="bg-zinc-800 text-white text-sm rounded-lg px-3 py-2 border border-zinc-700 outline-none" />
+        <input value={vin} onChange={(e) => setVin(e.target.value)} placeholder="VIN" className="bg-zinc-800 text-white text-sm rounded-lg px-3 py-2 border border-zinc-700 outline-none font-mono" />
+        <select value={dealType} onChange={(e) => setDealType(e.target.value)} className="bg-zinc-800 text-zinc-300 text-sm rounded-lg px-3 py-2 border border-zinc-700">
+          {["New_Sale", "Used_Sale", "Lease", "Wholesale", "Trade_In"].map((t) => <option key={t} value={t}>{t.replace(/_/g, " ")}</option>)}
+        </select>
+        <input value={salePrice} onChange={(e) => setSalePrice(e.target.value)} placeholder="Sale Price $" type="number" className="bg-zinc-800 text-white text-sm rounded-lg px-3 py-2 border border-zinc-700 outline-none" />
+        <input value={grossProfit} onChange={(e) => setGrossProfit(e.target.value)} placeholder="Gross Profit $" type="number" className="bg-zinc-800 text-white text-sm rounded-lg px-3 py-2 border border-zinc-700 outline-none" />
+        <input value={commissionAmount} onChange={(e) => setCommissionAmount(e.target.value)} placeholder="Commission $" type="number" className="bg-zinc-800 text-white text-sm rounded-lg px-3 py-2 border border-zinc-700 outline-none" />
+        <input value={salespersonName} onChange={(e) => setSalespersonName(e.target.value)} placeholder="Salesperson Name" className="bg-zinc-800 text-white text-sm rounded-lg px-3 py-2 border border-zinc-700 outline-none" />
+        <input value={lenderName} onChange={(e) => setLenderName(e.target.value)} placeholder="Lender (e.g. Ally, Chase Auto)" className="bg-zinc-800 text-white text-sm rounded-lg px-3 py-2 border border-zinc-700 outline-none" />
+      </div>
+      <div className="bg-zinc-800/50 rounded-lg px-3 py-2 text-[10px] text-zinc-500">
+        <Zap className="w-3 h-3 inline text-amber-400 mr-1" /> Creating a Deal auto-generates 6 lifecycle tasks across the 7-Agent Mesh: Insurance, DMV, Recon, Parts, Finance, and Delivery.
+      </div>
+      <div className="flex gap-2 justify-end">
+        <button onClick={onClose} className="text-sm text-zinc-400 hover:text-white px-4 py-2 transition">Cancel</button>
+        <button
+          onClick={() => create.mutate({ customerName, customerPhone: customerPhone || undefined, customerEmail: customerEmail || undefined, vin: vin || undefined, vehicleLabel: vehicleLabel || undefined, dealType, salePrice: salePrice || undefined, grossProfit: grossProfit || undefined, commissionAmount: commissionAmount || undefined, salespersonName: salespersonName || undefined, lenderName: lenderName || undefined })}
+          disabled={!customerName || create.isPending}
+          className="text-sm bg-amber-500 text-black font-semibold px-4 py-2 rounded-lg hover:bg-amber-400 transition disabled:opacity-50"
+        >
+          {create.isPending ? "Creating Deal..." : "Create Deal & Deploy Agents"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function MyDeals() {
+  const { data, isLoading } = useQuery<{ salesperson: any; recentDeals: any[]; blockedDeals: any[] }>({
+    queryKey: ["my-deals"],
+    queryFn: () => authFetch(`${BASE}/api/deals/dashboard/my-deals`).then((r) => r.json()),
+    refetchInterval: 15000,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-20">
+        <RefreshCw className="w-8 h-8 text-amber-400 animate-spin" />
+      </div>
+    );
+  }
+
+  const s = data?.salesperson || {};
+  const recentDeals = data?.recentDeals || [];
+  const blockedDeals = data?.blockedDeals || [];
+
+  const earningsCards = [
+    { label: "Total Deals", value: s.totalDeals || 0, icon: <Car className="w-5 h-5" />, color: "text-amber-400", bg: "bg-amber-500/10 border-amber-500/20" },
+    { label: "Open Deals", value: s.openDeals || 0, icon: <Activity className="w-5 h-5" />, color: "text-blue-400", bg: "bg-blue-500/10 border-blue-500/20" },
+    { label: "Funded", value: s.fundedDeals || 0, icon: <CheckCircle2 className="w-5 h-5" />, color: "text-emerald-400", bg: "bg-emerald-500/10 border-emerald-500/20" },
+    { label: "Delivered", value: s.deliveredDeals || 0, icon: <Target className="w-5 h-5" />, color: "text-green-400", bg: "bg-green-500/10 border-green-500/20" },
+  ];
+
+  const commissionCards = [
+    { label: "Total Earned", value: formatUsd(s.totalCommission), color: "text-amber-400", bg: "bg-gradient-to-br from-amber-500/10 to-orange-600/10 border-amber-500/30" },
+    { label: "Pending", value: formatUsd(s.pendingCommission), color: "text-yellow-400", bg: "bg-yellow-500/10 border-yellow-500/20" },
+    { label: "Approved", value: formatUsd(s.approvedCommission), color: "text-blue-400", bg: "bg-blue-500/10 border-blue-500/20" },
+    { label: "Paid Out", value: formatUsd(s.paidCommission), color: "text-emerald-400", bg: "bg-emerald-500/10 border-emerald-500/20" },
+    { label: "On Hold", value: formatUsd(s.heldCommission), color: "text-orange-400", bg: "bg-orange-500/10 border-orange-500/20" },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center">
+          <Wallet className="w-5 h-5 text-white" />
+        </div>
+        <div>
+          <h2 className="text-lg font-bold text-white">My Deals — Commission Tracker</h2>
+          <p className="text-[10px] text-zinc-500">Real-time earnings &mdash; every dollar, every deal</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {earningsCards.map((m) => (
+          <div key={m.label} className={cn("rounded-xl border p-4", m.bg)}>
+            <div className="flex items-center gap-2 mb-2">
+              <span className={m.color}>{m.icon}</span>
+              <span className="text-[10px] text-zinc-400 uppercase">{m.label}</span>
+            </div>
+            <p className={cn("text-2xl font-bold", m.color)}>{m.value}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="bg-zinc-900 rounded-xl border border-emerald-500/20 p-5 space-y-4">
+        <h3 className="text-sm font-semibold text-emerald-300 flex items-center gap-2">
+          <DollarSign className="w-4 h-4" /> Commission Breakdown
+        </h3>
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+          {commissionCards.map((c) => (
+            <div key={c.label} className={cn("rounded-lg border p-3 text-center", c.bg)}>
+              <p className="text-[10px] text-zinc-400 uppercase mb-1">{c.label}</p>
+              <p className={cn("text-xl font-bold", c.color)}>{c.value}</p>
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-2 gap-3 pt-2 border-t border-zinc-800">
+          <div className="bg-zinc-800/50 rounded-lg p-3">
+            <p className="text-[10px] text-zinc-500 uppercase">Total Sale Volume</p>
+            <p className="text-lg font-bold text-white">{formatUsd(s.totalSaleVolume)}</p>
+          </div>
+          <div className="bg-zinc-800/50 rounded-lg p-3">
+            <p className="text-[10px] text-zinc-500 uppercase">Total Gross Profit</p>
+            <p className="text-lg font-bold text-amber-300">{formatUsd(s.totalGrossProfit)}</p>
+          </div>
+        </div>
+      </div>
+
+      {blockedDeals.length > 0 && (
+        <div className="bg-zinc-900 rounded-xl border border-red-500/20 p-5 space-y-3">
+          <h3 className="text-sm font-semibold text-red-300 flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4" /> Deals Blocked — Missing Steps ({blockedDeals.length})
+          </h3>
+          <p className="text-[10px] text-zinc-500">These open tasks are blocking your commission payout.</p>
+          {blockedDeals.map((bd: any) => (
+            <div key={bd.dealId} className="bg-zinc-800/50 rounded-lg p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-semibold text-amber-300">{bd.dealNumber}</span>
+                  <span className="text-xs text-white ml-2">{bd.customerName}</span>
+                  <span className="text-[10px] text-zinc-500 ml-2">{bd.vehicleLabel}</span>
+                </div>
+                {bd.commissionAmount && <span className="text-xs text-emerald-400 font-semibold">{formatUsd(bd.commissionAmount)}</span>}
+              </div>
+              <div className="space-y-1">
+                {bd.missingSteps.map((ms: any) => (
+                  <div key={ms.id} className="flex items-center gap-2 text-[10px]">
+                    {ms.slaOverdue ? <AlertTriangle className="w-3 h-3 text-red-400" /> : <Clock className="w-3 h-3 text-zinc-500" />}
+                    <span className="text-white">{ms.title.replace(/\[.*?\]\s*/, "")}</span>
+                    <span className={cn("px-1.5 py-0.5 rounded", deptColor(ms.department))}>{ms.department}</span>
+                    {ms.scope === "External" && <span className="bg-amber-600/20 text-amber-300 px-1.5 py-0.5 rounded">EXT</span>}
+                    {ms.slaOverdue && <span className="text-red-400 font-bold animate-pulse">OVERDUE</span>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="bg-zinc-900 rounded-xl border border-zinc-800 p-5 space-y-3">
+        <h3 className="text-sm font-semibold text-zinc-300">Recent Deals</h3>
+        <div className="space-y-1.5">
+          {recentDeals.map((d: any) => (
+            <div key={d.id} className="flex items-center justify-between py-2 px-3 bg-zinc-800/30 rounded-lg">
+              <div className="flex items-center gap-3">
+                <span className="text-[10px] text-amber-300 font-mono">{d.dealNumber}</span>
+                <span className="text-xs text-white">{d.customerName}</span>
+                <span className="text-[10px] text-zinc-500">{d.vehicleLabel}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {d.commissionAmount && <span className={cn("text-xs font-semibold", commissionColor(d.commissionStatus))}>{formatUsd(d.commissionAmount)}</span>}
+                <span className={cn("text-[10px] px-2 py-0.5 rounded", dealStatusColor(d.status))}>{d.status.replace(/_/g, " ")}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="text-center text-[10px] text-zinc-700 pt-4 border-t border-zinc-900">
+        3C ONYX &mdash; DealerFlow OS Commission Tracker &mdash; Architect: Ronald Antonio Cadet &mdash; CUXTOMCANDYCLUB LLC
       </div>
     </div>
   );

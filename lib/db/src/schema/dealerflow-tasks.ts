@@ -9,6 +9,7 @@ import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { usersTable } from "./users";
 import { vehiclesTable } from "./vehicles";
+import { dealsTable } from "./deals";
 
 export const dfDepartmentEnum = pgEnum("df_department", [
   "DMV",
@@ -64,6 +65,7 @@ export const dealerflowTasksTable = pgTable("dealerflow_tasks", {
   intakeType: dfIntakeTypeEnum("intake_type").notNull().default("Manual"),
   taskScope: dfTaskScopeEnum("task_scope").notNull().default("Internal"),
   vin: text("vin"),
+  dealId: integer("deal_id").references(() => dealsTable.id, { onDelete: "set null" }),
   vehicleId: integer("vehicle_id").references(() => vehiclesTable.id, { onDelete: "set null" }),
   customerId: integer("customer_id").references(() => usersTable.id, { onDelete: "set null" }),
   assignedToId: integer("assigned_to_id").references(() => usersTable.id, { onDelete: "set null" }),
@@ -85,6 +87,7 @@ export const dealerflowTasksTable = pgTable("dealerflow_tasks", {
   index("df_tasks_vin_idx").on(t.vin),
   index("df_tasks_sla_due_idx").on(t.slaDueAt),
   index("df_tasks_scope_idx").on(t.taskScope),
+  index("df_tasks_deal_idx").on(t.dealId),
 ]);
 
 export const insertDealerflowTaskSchema = createInsertSchema(dealerflowTasksTable).omit({
