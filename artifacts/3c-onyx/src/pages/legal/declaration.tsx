@@ -48,7 +48,7 @@ CUXTOMCANDYCLUB LLC:
 
 | Asset | Description |
 |-------|-------------|
-| **3C ONYX** | A luxury automotive Super App and sovereign infrastructure platform |
+| **3C ONYX** | A luxury Automotive Ecosystem OS and sovereign infrastructure platform |
 | **ONYX Neural Brain** | The artificial intelligence orchestration layer |
 | **Guardian** | VIN integrity and chain-of-custody verification system |
 | **Ghost Gate** | Cryptographic invite-only member access protocol |
@@ -640,7 +640,7 @@ export default function LegalDeclaration() {
                 </thead>
                 <tbody>
                   {[
-                    ["3C ONYX",             "Luxury automotive Super App and sovereign infrastructure platform"],
+                    ["3C ONYX",             "Luxury Automotive Ecosystem OS and sovereign infrastructure platform"],
                     ["ONYX Neural Brain",   "The artificial intelligence orchestration layer"],
                     ["Guardian",            "VIN integrity and chain-of-custody verification system"],
                     ["Ghost Gate",          "Cryptographic invite-only member access protocol"],

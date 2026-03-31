@@ -364,7 +364,7 @@ router.post("/analyze", async (req: Request, res: Response) => {
       model: BRAIN_MODEL,
       contents: [{
         role: "user", parts: [{ text: `You are the ONYX Strategic Intelligence Engine for CUXTOMCANDYCLUB LLC.
-Platform: 3C ONYX — Automotive Super App targeting 132M members, $30B valuation.
+Platform: 3C ONYX — Automotive Ecosystem OS targeting 132M members, $30B valuation.
 Founder: Ron. Network: I-95 Dynasty.
 
 SUBJECT: ${subject}

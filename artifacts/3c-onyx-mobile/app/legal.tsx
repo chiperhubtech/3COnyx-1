@@ -110,7 +110,7 @@ By downloading or using the App, you agree to be bound by these Terms. If you di
 
 2. DESCRIPTION OF SERVICE
 
-3C Onyx is an automotive super-app that provides vehicle management, market intelligence, roadside assistance coordination, document management, and connections to automotive businesses and professionals.
+3C Onyx is an Automotive Ecosystem OS that provides vehicle management, market intelligence, roadside assistance coordination, document management, and connections to automotive businesses and professionals.
 
 3. ELIGIBILITY
 

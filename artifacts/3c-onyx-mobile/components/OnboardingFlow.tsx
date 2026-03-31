@@ -271,7 +271,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
           <View style={s.introDivider} />
 
-          <Text style={s.introHeadline}>The Automotive Super App</Text>
+          <Text style={s.introHeadline}>The Automotive Ecosystem OS</Text>
           {inviterName ? (
             <View style={{ marginBottom: 8, paddingHorizontal: 4 }}>
               <Text style={[s.introTagline, { color: `${GOLD}CC`, fontSize: 11, letterSpacing: 1 }]}>

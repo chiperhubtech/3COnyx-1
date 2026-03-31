@@ -112,7 +112,7 @@ export default function ReferralTab() {
 
   const REFERRAL_CODE = user?.referralCode ?? "—";
   const REFERRAL_LINK = `https://cuxtomcandyclub.ai/join/${REFERRAL_CODE}`;
-  const INVITE_MSG    = `I joined 3C Onyx — the AI-powered automotive super app built for the industry. Use my code ${REFERRAL_CODE} to get in. ${REFERRAL_LINK}`;
+  const INVITE_MSG    = `I joined 3C Onyx — the AI-powered Automotive Ecosystem OS built for the industry. Use my code ${REFERRAL_CODE} to get in. ${REFERRAL_LINK}`;
 
   const filtered = contacts.filter((c) => c.name.toLowerCase().includes(search.toLowerCase()));
 

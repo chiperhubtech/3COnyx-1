@@ -68,7 +68,7 @@ export default function WaitlistPage() {
           IS HERE
         </h1>
         <p style={{ fontSize: 16, color: "rgba(255,255,255,0.5)", lineHeight: 1.7, maxWidth: 480, margin: "0 auto 48px" }}>
-          3C Onyx is the first AI-powered automotive super app for luxury vehicles. Get early access before we open to the public.
+          3C Onyx is the first AI-powered Automotive Ecosystem OS for luxury vehicles. Get early access before we open to the public.
         </p>
 
         {/* Perks */}

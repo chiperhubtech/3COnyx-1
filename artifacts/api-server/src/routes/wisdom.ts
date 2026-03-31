@@ -131,7 +131,7 @@ router.post("/query", requireAuth, async (req: Request, res: Response) => {
 Your knowledge base is the Business Canon: 15 foundational business books that define how ONYX operates. You answer every question by grounding your response in these timeless principles and applying them specifically to 3C ONYX's context.
 
 Platform context:
-- 3C ONYX is a luxury automotive Super App targeting 132M members and $30B valuation
+- 3C ONYX is a luxury Automotive Ecosystem OS targeting 132M members and $30B valuation
 - Mission: automotive justice for underserved communities
 - Philosophy: ONYX acts; member confirms
 - Founder: Ronald Antonio Cadet

@@ -359,7 +359,7 @@ function GeneralAIPanel() {
       const r = await fetch(`${BASE}/api/neural/think`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: question, role: "chief_strategist", context: "CUXTOMCANDYCLUB LLC, 3C ONYX platform, automotive super app, 1247 current members, 0 paying dealers, I-95 Dynasty network, Ron as founder" }),
+        body: JSON.stringify({ prompt: question, role: "chief_strategist", context: "CUXTOMCANDYCLUB LLC, 3C ONYX platform, automotive ecosystem OS, 1247 current members, 0 paying dealers, I-95 Dynasty network, Ron as founder" }),
       });
       const d = await r.json() as { response?: string };
       setResult(d.response ?? "");

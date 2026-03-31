@@ -26,7 +26,7 @@ import { useTheme } from "@/src/theme";
 
 const REFERRAL_CODE = "ONYX-8827";
 const REFERRAL_LINK = `https://3conyx.com/m/${REFERRAL_CODE}`;
-const INVITE_MSG = `I joined 3C Onyx — the AI-powered automotive super app built for people who care about their vehicles. Use my code ${REFERRAL_CODE} to skip the waitlist. ${REFERRAL_LINK}`;
+const INVITE_MSG = `I joined 3C Onyx — the AI-powered Automotive Ecosystem OS built for people who care about their vehicles. Use my code ${REFERRAL_CODE} to skip the waitlist. ${REFERRAL_LINK}`;
 
 // ─── Tier definitions (Bronze → Silver → Gold → Platinum) ──────────────────────
 

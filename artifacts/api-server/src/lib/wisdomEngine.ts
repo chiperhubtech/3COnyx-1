@@ -948,7 +948,7 @@ export function runONYXStressTest(): StressTestResult {
         "Creator outreach not yet fired — ambassador network building starts at zero",
       ],
       evidence: [
-        "AI super app model validated globally (WeChat, Grab, M-Pesa)",
+        "AI ecosystem OS model validated globally (WeChat, Grab, M-Pesa)",
         "US automotive market: $1.2T annually with documented trust deficit",
         "Post-COVID: 73% of car buyers prefer less dealer interaction (Cox Automotive Study)",
         "EV market creates new information needs that traditional dealers cannot serve",

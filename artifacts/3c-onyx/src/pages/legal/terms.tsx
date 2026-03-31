@@ -36,7 +36,7 @@ export default function TermsPage() {
       </S>
 
       <S title="2. Description of Services">
-        <p>3C ONYX is a technology-enabled luxury automotive super-application providing: (a) a peer-to-peer vehicle marketplace connecting buyers and sellers; (b) a logistics network ("Runner Network") for vehicle transport by independent contractors; (c) AI-powered vehicle inspection and valuation tools; (d) blockchain-based chain-of-custody records; (e) Dynasty Wallet financial transaction tools; (f) procurement services (ONYX Source); and (g) related concierge and advisory services.</p>
+        <p>3C ONYX is a technology-enabled luxury Automotive Ecosystem OS providing: (a) a peer-to-peer vehicle marketplace connecting buyers and sellers; (b) a logistics network ("Runner Network") for vehicle transport by independent contractors; (c) AI-powered vehicle inspection and valuation tools; (d) blockchain-based chain-of-custody records; (e) Dynasty Wallet financial transaction tools; (f) procurement services (ONYX Source); and (g) related concierge and advisory services.</p>
       </S>
 
       <S title="3. Technology Marketplace — Not a Licensed Dealer or Broker">

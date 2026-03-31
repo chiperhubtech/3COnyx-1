@@ -1,6 +1,6 @@
 /**
  * 3C Onyx — Ecosystem Hub
- * The automotive super-app marketplace. Every service. Every provider.
+ * The Automotive Ecosystem OS marketplace. Every service. Every provider.
  * From roadside emergencies to car rentals to finding any shop in America.
  */
 import { Feather } from "@expo/vector-icons";

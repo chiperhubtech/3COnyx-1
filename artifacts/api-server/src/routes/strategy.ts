@@ -178,7 +178,7 @@ export const STRATEGY = {
     aaa: { members: 66_000_000, revenue: 7_700_000_000, products: 12, aiFeatures: 0, automotive_focus: "partial" },
     onyx: { members: 132_000_000, revenue: 2_000_000_000, products: 50, aiFeatures: 8, automotive_focus: "100%" },
     advantages: [
-      "First automotive-native super app (AAA is insurance-first, not automotive-first)",
+      "First automotive-native ecosystem OS (AAA is insurance-first, not automotive-first)",
       "AI-powered across every workflow vs. zero AI at AAA",
       "Gamification + points economy creates lock-in AAA cannot replicate",
       "Bottom-up specialist acquisition — self-propagating growth AAA cannot copy",

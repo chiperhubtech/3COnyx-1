@@ -1035,7 +1035,7 @@ router.get("/ip-manifest", (_req: Request, res: Response) => {
     entityId: "7788320",
     state: "New York",
     formed: "2021-12-21",
-    platform: "3C ONYX — Sovereign AI Automotive Super App",
+    platform: "3C ONYX — Automotive Ecosystem OS",
     honeyToken: "3CONYX-RAC-20260328-SOVEREIGN-ORIGIN-LOCKED",
     genesis: "2026-03-28T23:37:21.908Z",
     legalStrategy: "Provisional Patent filings active — PAT-01 through PAT-04",
