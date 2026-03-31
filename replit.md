@@ -72,6 +72,18 @@ The platform's architectural decisions prioritize an AI-first approach with:
 
 **Fraud Scoring Middleware** — rule-based engine + AWS Fraud Detector hook. Scores 0-100 on every registration and payment. CRIT (80+) = block.
 
+## DealerFlow OS — Industry Professional Integration Layer
+
+**DealerFlow OS** is the Unified Integration Layer for automotive industry professionals (dealerships, fleet managers, service centers). It does NOT replace existing dealership software (AutoMate, Mopar, DealerCONNECT) — it acts as the "Intelligent Connective Tissue" (UACL) that automates the gaps between people, systems, and documents.
+
+- **Smart Routing Engine** (`smart-router.ts`): Keyword-based auto-classification routes incoming tasks to the correct department (DMV, Parts, Service, Finance, Logistics, Sales, Customer Service) and assigns the appropriate UACL agent (Guardian, Source, Finance, Logistics, Concierge). Includes VIN extraction and part number detection.
+- **DealerFlow Task Engine**: PostgreSQL-backed task management with SLA timers, priority levels, department routing, and status tracking. Every action is visible on the live operations dashboard.
+- **Universal Intake Gateway**: Document scanning intake (invoices, DMV forms, titles, Mopar sheets, warranty claims) with smart routing — paste text/OCR output and the system extracts VINs, customer names, part numbers, then auto-creates routed tasks.
+- **Customer Ticket Inbox**: Unified customer communication hub with auto-responses, channel tracking (SMS, Email, Phone, Walk-In, App, WhatsApp), and category-based routing.
+- **DB Tables**: `dealerflow_tasks`, `document_scans`, `customer_tickets` with full indexing.
+- **API Routes**: `/api/dealerflow/tasks`, `/api/dealerflow/intake`, `/api/dealerflow/tickets`, `/api/dealerflow/dashboard`, `/api/dealerflow/route`.
+- **Web Dashboard**: `dealerflow.tsx` — Card-based operations dashboard with Command Center (stats), Task Board (filterable), Scan & Route (intake), and Customer Inbox tabs.
+
 ## Architectural Upgrades
 
 Recent architectural enhancements include CarPlay/Android Auto integration, a tRPC Type-Safe API Layer, an Admin API for platform management, and a robust Beta Waitlist system.

@@ -96,6 +96,7 @@ import ask3cRouter from "./ask3c";
 import timelineRouter from "./timeline";
 import monetizationRouter from "./monetization";
 import genesisRouter from "./genesis";
+import dealerflowRouter from "./dealerflow";
 
 const router: IRouter = Router();
 
@@ -214,5 +215,6 @@ router.use("/ask", requireAuth, aiLimiter, ask3cRouter);
 router.use("/timeline",     timelineRouter);
 router.use("/monetization", monetizationRouter);
 router.use("/genesis",      genesisRouter);
+router.use(dealerflowRouter);
 
 export default router;

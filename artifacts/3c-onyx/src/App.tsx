@@ -77,6 +77,7 @@ import FounderDeclaration from "@/pages/founder-declaration";
 import CreatorOutreachHub from "@/pages/creator-outreach";
 import WisdomEngine from "@/pages/wisdom-engine";
 import AgentMesh from "@/pages/agent-mesh";
+import DealerFlowOS from "@/pages/dealerflow";
 
 // Auth + launch pages
 import LoginPage    from "@/pages/login";
@@ -223,6 +224,9 @@ function AppRoutes() {
             <Route path="/pro"                  component={Pro} />
             <Route path="/custody"              component={Custody} />
             <Route path="/ar-viewer"            component={ARViewer} />
+
+            {/* DealerFlow OS — Industry Professional */}
+            <Route path="/dealerflow"           component={DealerFlowOS} />
 
             {/* Growth Engine */}
             <Route path="/growth"               component={GrowthDashboard} />

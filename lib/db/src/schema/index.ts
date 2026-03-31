@@ -36,3 +36,6 @@ export * from "./document-vault";
 export * from "./service-nodes";
 export * from "./bank-nodes";
 export * from "./shipment-orders";
+export * from "./dealerflow-tasks";
+export * from "./document-scans";
+export * from "./customer-tickets";
