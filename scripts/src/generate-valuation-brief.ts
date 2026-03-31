@@ -669,6 +669,211 @@ function generate() {
 
   pageFooter(doc, 4);
 
+  // ── PAGE 5: KPI ACHIEVEMENT TIMELINE ──
+  doc.addPage();
+  addPageBackground(doc);
+  drawCornerMarks(doc);
+
+  y = 50;
+  y = sectionHeader(doc, "IX.  KPI Achievement Timeline — Path to Scale", y);
+
+  y = bodyText(
+    doc,
+    "Every milestone below is measured against real transaction flow — not vanity metrics. The infrastructure is built. What remains is plugging nodes into the mesh and proving the revenue capture model.",
+    y,
+    { color: GREY_LIGHT },
+  );
+  y += 10;
+
+  // Timeline helper
+  const BLUE = "#4FC3F7";
+  const AMBER = "#F59E0B";
+  const timelineKpis: Array<{
+    phase: string;
+    phaseColor: string;
+    window: string;
+    kpis: Array<{ metric: string; target: string; valuation?: string }>;
+  }> = [
+    {
+      phase: "PHASE 0 — GENESIS (COMPLETE)",
+      phaseColor: GREEN,
+      window: "Day 0  ·  March 2026",
+      kpis: [
+        { metric: "Platform Build", target: "100% — Zero Tech Debt" },
+        { metric: "Agent Mesh", target: "12/12 Agents Operational" },
+        { metric: "Security Posture", target: "NIST 800-53 / FIPS 140-3 / SOC2 / CJIS" },
+        { metric: "IP Assets Filed", target: "14 Sovereign Assets Identified" },
+        { metric: "Baseline Valuation", target: "$15M — $20M", valuation: "$15M–$20M" },
+      ],
+    },
+    {
+      phase: 'PHASE 1 — "GROUND TRUTH" ACTIVATION',
+      phaseColor: GOLD,
+      window: "Days 1–30  ·  April 2026",
+      kpis: [
+        { metric: "Service Nodes Onboarded", target: "5 Active Nodes (Bird-Dog Ledger)" },
+        { metric: "Transactions Routed", target: "10 Deals via Broker AI Layer" },
+        { metric: "3% Tech Fee Captured", target: "First Revenue — Proof of Model" },
+        { metric: "Provisional Patents", target: "Filed on 14-Asset IP Ledger" },
+        { metric: "Monthly GMV Target", target: "$400K+ (10 × $40K avg)" },
+      ],
+    },
+    {
+      phase: 'PHASE 2 — "PAPERWORK-KILLER" DEPLOYMENT',
+      phaseColor: BLUE,
+      window: "Days 31–60  ·  May 2026",
+      kpis: [
+        { metric: "CIT Funding Time", target: "5 Days → 2 Hours (Bank-Verified)" },
+        { metric: "Bank/Lender Pilot", target: "1 Tier-1 Lender Integration" },
+        { metric: "Document Vault Live", target: "4-Contract Stellantis Standard" },
+        { metric: "Investor Pitch Deck", target: "Data-Backed with Live CIT Metrics" },
+        { metric: "Nodes Scaling", target: "25+ Active Service Nodes" },
+      ],
+    },
+    {
+      phase: 'PHASE 3 — "SOVEREIGN" FEDERAL PUSH',
+      phaseColor: AMBER,
+      window: "Days 61–90  ·  June 2026",
+      kpis: [
+        { metric: "Federal Technical Intake", target: "Submitted to FBI/DOT" },
+        { metric: "VIN Verification Pilot", target: "NMVTIS/Nlets via Guardian Agent" },
+        { metric: "Monthly Transactions", target: "50+ Deals/Month Through Mesh" },
+        { metric: "Monthly GMV", target: "$2M+ Gross Merchandise Value" },
+        { metric: "3% Tech Fee Revenue", target: "$60K+/Month ($720K ARR Run Rate)" },
+      ],
+    },
+    {
+      phase: "PHASE 4 — 100-NODE NETWORK",
+      phaseColor: WHITE,
+      window: "Days 90–180  ·  Q3 2026",
+      kpis: [
+        { metric: "Active Nodes", target: "100+ Service/Dealer/Runner Nodes" },
+        { metric: "Monthly Transactions", target: "100+ Deals Routed Through AI Layer" },
+        { metric: "Monthly GMV", target: "$4,000,000" },
+        { metric: "Monthly Revenue", target: "$120,000 (3% Tech Fee)" },
+        { metric: "Annual Run Rate", target: "$1.44M ARR" },
+        { metric: "Implied Valuation (18x)", target: "$25M — $35M" },
+      ],
+    },
+    {
+      phase: "PHASE 5 — INSTITUTIONAL SCALE",
+      phaseColor: GOLD,
+      window: "Days 180–365  ·  Q4 2026 → Q1 2027",
+      kpis: [
+        { metric: "Institutional Partner", target: "Stellantis / Tier-1 Lender Signed" },
+        { metric: "Federal Authorization", target: "CRADA or Data-Sharing Agreement" },
+        { metric: "Monthly GMV", target: "$20M+" },
+        { metric: "Monthly Revenue", target: "$600K+ (3% Tech Fee)" },
+        { metric: "Annual Run Rate", target: "$7.2M+ ARR" },
+        { metric: "Implied Valuation", target: "$50M — $75M+" },
+      ],
+    },
+  ];
+
+  for (const phase of timelineKpis) {
+    if (y > PAGE_H - 160) {
+      pageFooter(doc, 5);
+      doc.addPage();
+      addPageBackground(doc);
+      drawCornerMarks(doc);
+      y = 50;
+    }
+
+    doc
+      .save()
+      .roundedRect(MARGIN, y, CONTENT_W, 4, 2)
+      .fillColor(phase.phaseColor)
+      .fillOpacity(0.7)
+      .fill()
+      .restore();
+    y += 10;
+
+    doc
+      .font("Helvetica-Bold")
+      .fontSize(10)
+      .fillColor(phase.phaseColor)
+      .fillOpacity(1)
+      .text(phase.phase, MARGIN, y, { width: CONTENT_W });
+    y = doc.y + 2;
+
+    doc
+      .font("Helvetica")
+      .fontSize(8)
+      .fillColor(GREY)
+      .text(phase.window, MARGIN, y, { characterSpacing: 1 });
+    y = doc.y + 6;
+
+    for (const kpi of phase.kpis) {
+      const metricW = 180;
+      doc
+        .font("Helvetica")
+        .fontSize(8)
+        .fillColor(GREY)
+        .text(kpi.metric, MARGIN + 14, y, { width: metricW });
+      doc
+        .font("Helvetica-Bold")
+        .fontSize(8)
+        .fillColor(kpi.valuation ? GOLD : GREY_LIGHT)
+        .text(kpi.target, MARGIN + 14 + metricW + 10, y, { width: CONTENT_W - metricW - 24 });
+      y = doc.y + 3;
+    }
+    y += 10;
+  }
+
+  // Time-to-value summary box
+  if (y > PAGE_H - 140) {
+    pageFooter(doc, 5);
+    doc.addPage();
+    addPageBackground(doc);
+    drawCornerMarks(doc);
+    y = 50;
+  }
+
+  y += 5;
+  drawGoldLine(doc, y);
+  y += 15;
+
+  y = bodyText(doc, "TIME-TO-VALUE SUMMARY", y, { bold: true, color: GOLD, size: 11 });
+  y += 4;
+
+  const summaryItems = [
+    ["First Revenue (3% Tech Fee)", "30 Days", GREEN],
+    ["Bank/Lender Proof Point (CIT 5d → 2h)", "60 Days", BLUE],
+    ["Federal Technical Intake Filed", "90 Days", AMBER],
+    ["$1.44M ARR Run Rate (100 Nodes)", "6 Months", WHITE],
+    ["$50M+ Valuation (Institutional Pilot)", "12 Months", GOLD],
+    ["Dynasty Trajectory ($251B Target)", "Generational", GOLD],
+  ] as const;
+
+  for (const [label, time, color] of summaryItems) {
+    doc
+      .font("Helvetica")
+      .fontSize(9)
+      .fillColor(GREY_LIGHT)
+      .text(`▸  ${label}`, MARGIN + 10, y, { continued: true, width: 320 });
+    doc
+      .font("Helvetica-Bold")
+      .fontSize(9)
+      .fillColor(color)
+      .text(`  ${time}`, { width: 150 });
+    y = doc.y + 4;
+  }
+
+  y += 10;
+  doc
+    .font("Helvetica")
+    .fontSize(8)
+    .fillColor(GREY)
+    .text(
+      "All projections assume organic node activation. Zero marketing spend required — the mesh is the growth engine.",
+      MARGIN,
+      y,
+      { width: CONTENT_W, align: "center" },
+    );
+
+  pageFooter(doc, 5);
+
+  // ── PAGE 6 (was 5): CVO CONCLUSION ──
   doc.addPage();
   addPageBackground(doc);
   drawCornerMarks(doc);
@@ -806,7 +1011,7 @@ function generate() {
       characterSpacing: 1,
     });
 
-  pageFooter(doc, 5);
+  pageFooter(doc, 7);
 
   doc.end();
 
@@ -814,7 +1019,7 @@ function generate() {
     const stats = fs.statSync(OUTPUT_PATH);
     const sizeKB = Math.round(stats.size / 1024);
     console.log(`\n✅  PDF generated: ${OUTPUT_PATH}`);
-    console.log(`    Size: ${sizeKB} KB | 5 pages`);
+    console.log(`    Size: ${sizeKB} KB | 7 pages`);
     console.log(`    Title: 3C ONYX — Sovereign Valuation Brief`);
     console.log(`    Author: Ronald Antonio Cadet — CVO/Founder, CUXTOMCANDYCLUB LLC\n`);
   });
