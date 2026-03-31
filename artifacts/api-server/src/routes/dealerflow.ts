@@ -1,9 +1,71 @@
 import { Router, type Request, type Response } from "express";
-import { db, dealerflowTasksTable, documentScansTable, customerTicketsTable, commissionLedgerTable } from "@workspace/db";
+import { db, dealerflowTasksTable, documentScansTable, customerTicketsTable, commissionLedgerTable, dealsTable } from "@workspace/db";
 import { eq, desc, and, sql, count, asc, lt, ne, gte, lte, inArray } from "drizzle-orm";
 import { smartRoute, extractVinFromText, extractPartNumbers, extractCustomerName, extractPhoneNumber, checkSlaBreached, calculateTechFee, suggestNextStep } from "../lib/smart-router";
 import { analyzeImage } from "../lib/ai-router";
 import { requireAuth } from "../middlewares/requireAuth";
+
+const AUTO_STATUS_MESSAGES: Record<string, string> = {
+  DMV: "Your registration and title processing is complete. You'll receive your plates shortly.",
+  Parts: "The parts for your vehicle have arrived and been installed.",
+  Service: "Your vehicle reconditioning is complete and the car is ready.",
+  Finance: "Your finance package has been approved and processed.",
+  Sales: "Your vehicle delivery is being finalized — we'll contact you to schedule pickup.",
+  Insurance: "Your insurance binder has been confirmed and is on file.",
+  Logistics: "Your vehicle transport has been completed.",
+  General: "A step in your vehicle process has been completed.",
+};
+
+async function autoDispatchCustomerUpdate(taskId: number, dealId: number | null) {
+  try {
+    if (!dealId) return null;
+
+    const [freshTask] = await db.select().from(dealerflowTasksTable).where(eq(dealerflowTasksTable.id, taskId)).limit(1);
+    if (!freshTask) return null;
+
+    const [deal] = await db.select().from(dealsTable).where(eq(dealsTable.id, dealId)).limit(1);
+    if (!deal || (!deal.customerPhone && !deal.customerEmail)) return null;
+
+    const dept = freshTask.department || "General";
+    const message = AUTO_STATUS_MESSAGES[dept] || AUTO_STATUS_MESSAGES.General;
+
+    const notification = {
+      type: "auto_dispatch",
+      channel: deal.customerPhone ? "SMS" : "Email",
+      recipient: deal.customerPhone || deal.customerEmail,
+      customerName: deal.customerName,
+      dealNumber: deal.dealNumber,
+      message,
+      department: dept,
+      taskTitle: freshTask.title?.replace(/\[.*?\]\s*/, ""),
+      dispatchedAt: new Date().toISOString(),
+      status: "queued",
+    };
+
+    const meta = (freshTask.metadata || {}) as Record<string, any>;
+    if (!Array.isArray(meta.notifications)) meta.notifications = [];
+    meta.notifications.push(notification);
+    meta.lastAutoNotifiedAt = notification.dispatchedAt;
+
+    await db.update(dealerflowTasksTable)
+      .set({ metadata: meta })
+      .where(eq(dealerflowTasksTable.id, taskId));
+
+    const allDealTasks = await db.select().from(dealerflowTasksTable)
+      .where(eq(dealerflowTasksTable.dealId, dealId));
+    const allCompleted = allDealTasks.length > 0 && allDealTasks.every((t) => t.status === "Completed" || t.status === "Cancelled");
+
+    if (allCompleted && deal.status !== "Delivered" && deal.status !== "Funded") {
+      await db.update(dealsTable)
+        .set({ status: "Funded", updatedAt: new Date() })
+        .where(eq(dealsTable.id, dealId));
+    }
+
+    return notification;
+  } catch {
+    return null;
+  }
+}
 
 const router = Router();
 
@@ -215,6 +277,7 @@ router.patch("/dealerflow/tasks/:id", requireAuth, async (req: Request, res: Res
 
     let techFeeLogged = false;
     let bankVaultEligible = false;
+    let customerNotification: any = null;
 
     if (isNewCompletion && task) {
       const meta = (task.metadata as any) || {};
@@ -240,9 +303,11 @@ router.patch("/dealerflow/tasks/:id", requireAuth, async (req: Request, res: Res
       } catch {
         techFeeLogged = false;
       }
+
+      customerNotification = await autoDispatchCustomerUpdate(task.id, task.dealId);
     }
 
-    res.json({ task, techFeeLogged, bankVaultEligible });
+    res.json({ task, techFeeLogged, bankVaultEligible, customerNotification });
   } catch {
     res.status(500).json({ error: sanitizeError() });
   }

@@ -239,7 +239,7 @@ function formatMinutes(mins: number) {
   return h > 0 ? `${h}h ${m}m` : `${m}m`;
 }
 
-type Tab = "dashboard" | "deals" | "my-deals" | "tasks" | "intake" | "tickets" | "queue" | "performance" | "vault" | "velocity";
+type Tab = "dashboard" | "deals" | "my-deals" | "tasks" | "intake" | "tickets" | "queue" | "performance" | "store" | "vault" | "velocity";
 
 export default function DealerFlowOS() {
   const [tab, setTab] = useState<Tab>("dashboard");
@@ -258,7 +258,8 @@ export default function DealerFlowOS() {
     { id: "intake", label: "Scan & Route", icon: <ScanLine className="w-4 h-4" /> },
     { id: "tickets", label: "Inbox", icon: <Inbox className="w-4 h-4" /> },
     { id: "vault", label: "Bank Vault", icon: <DollarSign className="w-4 h-4" /> },
-    { id: "performance", label: "Performance", icon: <BarChart3 className="w-4 h-4" /> },
+    { id: "performance", label: "Ops Report", icon: <BarChart3 className="w-4 h-4" /> },
+    { id: "store", label: "Store P&L", icon: <Store className="w-4 h-4" /> },
     { id: "velocity", label: "GM View", icon: <Gauge className="w-4 h-4" /> },
   ];
 
@@ -304,6 +305,7 @@ export default function DealerFlowOS() {
       {tab === "queue" && <DeptQueue department={queueDept} setDepartment={setQueueDept} />}
       {tab === "vault" && <BankVault />}
       {tab === "performance" && <PerformanceReport />}
+      {tab === "store" && <StorePerformanceDashboard />}
       {tab === "velocity" && <GMVelocityDashboard />}
     </div>
   );
@@ -2277,6 +2279,170 @@ function MyDeals() {
 
       <div className="text-center text-[10px] text-zinc-700 pt-4 border-t border-zinc-900">
         3C ONYX &mdash; DealerFlow OS Commission Tracker &mdash; Architect: Ronald Antonio Cadet &mdash; CUXTOMCANDYCLUB LLC
+      </div>
+    </div>
+  );
+}
+
+function StorePerformanceDashboard() {
+  const { data, isLoading, refetch } = useQuery<{
+    store: any;
+    dealsByStatus: any[];
+    dealsByType: any[];
+  }>({
+    queryKey: ["store-performance"],
+    queryFn: () => authFetch(`${BASE}/api/deals/dashboard/store-performance`).then((r) => r.json()),
+    refetchInterval: 15000,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-20">
+        <RefreshCw className="w-8 h-8 text-amber-400 animate-spin" />
+      </div>
+    );
+  }
+
+  const s = data?.store || {};
+  const byStatus = data?.dealsByStatus || [];
+  const byType = data?.dealsByType || [];
+
+  const topCards = [
+    { label: "Total Deals", value: s.totalDeals || 0, color: "text-amber-400", bg: "bg-amber-500/10 border-amber-500/20", icon: <Car className="w-5 h-5" /> },
+    { label: "Active Deals", value: s.openDeals || 0, color: "text-blue-400", bg: "bg-blue-500/10 border-blue-500/20", icon: <Activity className="w-5 h-5" /> },
+    { label: "Funded", value: s.fundedDeals || 0, color: "text-emerald-400", bg: "bg-emerald-500/10 border-emerald-500/20", icon: <CheckCircle2 className="w-5 h-5" /> },
+    { label: "Delivered", value: s.deliveredDeals || 0, color: "text-green-400", bg: "bg-green-500/10 border-green-500/20", icon: <Target className="w-5 h-5" /> },
+    { label: "This Month", value: s.dealsThisMonth || 0, color: "text-violet-400", bg: "bg-violet-500/10 border-violet-500/20", icon: <TrendingUp className="w-5 h-5" /> },
+    { label: "Delivered (Mo)", value: s.deliveredThisMonth || 0, color: "text-cyan-400", bg: "bg-cyan-500/10 border-cyan-500/20", icon: <Check className="w-5 h-5" /> },
+  ];
+
+  const revenueCards = [
+    { label: "Total Revenue", value: formatUsd(s.totalRevenue), color: "text-emerald-400", bg: "bg-gradient-to-br from-emerald-500/10 to-green-600/10 border-emerald-500/30" },
+    { label: "Total Gross", value: formatUsd(s.totalGross), color: "text-amber-400", bg: "bg-gradient-to-br from-amber-500/10 to-orange-600/10 border-amber-500/30" },
+    { label: "Back-End Profit", value: formatUsd(s.totalBackEnd), color: "text-violet-400", bg: "bg-violet-500/10 border-violet-500/20" },
+    { label: "Avg Gross / Deal", value: formatUsd(s.avgGrossPerDeal), color: "text-cyan-400", bg: "bg-cyan-500/10 border-cyan-500/20" },
+  ];
+
+  const commissionCards = [
+    { label: "Commissions Owed", value: formatUsd(s.totalCommissionsOwed), color: "text-yellow-400", bg: "bg-yellow-500/10 border-yellow-500/20" },
+    { label: "Commissions Paid", value: formatUsd(s.totalCommissionsPaid), color: "text-emerald-400", bg: "bg-emerald-500/10 border-emerald-500/20" },
+    { label: "Pending Approvals", value: s.pendingApprovals || 0, color: "text-orange-400", bg: "bg-orange-500/10 border-orange-500/20" },
+  ];
+
+  const totalDeals = Number(s.totalDeals) || 1;
+
+  return (
+    <div className="space-y-6">
+      <div className="bg-gradient-to-br from-emerald-900/20 to-zinc-900 rounded-xl border border-emerald-500/30 p-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center">
+              <Store className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-white">Store Performance — Manager P&L Dashboard</h2>
+              <p className="text-[10px] text-zinc-500">Real-time store financials, deal flow, and commission liability</p>
+            </div>
+          </div>
+          <button onClick={() => refetch()} className="text-zinc-500 hover:text-white transition">
+            <RefreshCw className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        {topCards.map((c) => (
+          <div key={c.label} className={cn("rounded-xl border p-4", c.bg)}>
+            <div className="flex items-center gap-2 mb-2">
+              <span className={c.color}>{c.icon}</span>
+              <span className="text-[10px] text-zinc-400 uppercase">{c.label}</span>
+            </div>
+            <p className={cn("text-2xl font-bold", c.color)}>{c.value}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {revenueCards.map((c) => (
+          <div key={c.label} className={cn("rounded-xl border p-4", c.bg)}>
+            <p className="text-[10px] text-zinc-400 uppercase mb-1">{c.label}</p>
+            <p className={cn("text-xl font-bold", c.color)}>{c.value}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {commissionCards.map((c) => (
+          <div key={c.label} className={cn("rounded-xl border p-5 text-center", c.bg)}>
+            <p className="text-[10px] text-zinc-400 uppercase mb-2">{c.label}</p>
+            <p className={cn("text-2xl font-bold", c.color)}>{typeof c.value === "number" ? c.value : c.value}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-5">
+          <h4 className="text-sm font-semibold text-zinc-300 mb-4 flex items-center gap-2">
+            <Activity className="w-4 h-4 text-amber-400" /> Deal Pipeline by Status
+          </h4>
+          <div className="space-y-2">
+            {byStatus.map((row: any) => {
+              const pct = Math.round((Number(row.count) / totalDeals) * 100);
+              return (
+                <div key={row.status} className="space-y-1">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className={cn("px-2 py-0.5 rounded", dealStatusColor(row.status))}>{row.status.replace(/_/g, " ")}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-zinc-300 font-semibold">{row.count}</span>
+                      <span className="text-zinc-600">|</span>
+                      <span className="text-emerald-400 text-[10px]">{formatUsd(row.totalValue)}</span>
+                    </div>
+                  </div>
+                  <div className="bg-zinc-800 rounded-full h-1.5 overflow-hidden">
+                    <div className="bg-gradient-to-r from-amber-500 to-emerald-500 h-full transition-all" style={{ width: `${pct}%` }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-5">
+          <h4 className="text-sm font-semibold text-zinc-300 mb-4 flex items-center gap-2">
+            <Hash className="w-4 h-4 text-violet-400" /> Deal Mix by Type
+          </h4>
+          <div className="space-y-2">
+            {byType.map((row: any) => {
+              const pct = Math.round((Number(row.count) / totalDeals) * 100);
+              const typeColors: Record<string, string> = {
+                New_Sale: "text-blue-400 bg-blue-500/10",
+                Used_Sale: "text-amber-400 bg-amber-500/10",
+                Lease: "text-violet-400 bg-violet-500/10",
+                Wholesale: "text-cyan-400 bg-cyan-500/10",
+                Trade_In: "text-green-400 bg-green-500/10",
+              };
+              return (
+                <div key={row.dealType} className="space-y-1">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className={cn("px-2 py-0.5 rounded", typeColors[row.dealType] || "text-zinc-400 bg-zinc-800")}>{row.dealType.replace(/_/g, " ")}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-zinc-300 font-semibold">{row.count}</span>
+                      <span className="text-zinc-600">|</span>
+                      <span className="text-emerald-400 text-[10px]">{formatUsd(row.totalValue)}</span>
+                    </div>
+                  </div>
+                  <div className="bg-zinc-800 rounded-full h-1.5 overflow-hidden">
+                    <div className="bg-gradient-to-r from-violet-500 to-cyan-500 h-full transition-all" style={{ width: `${pct}%` }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      <div className="text-center text-[10px] text-zinc-700 pt-4 border-t border-zinc-900">
+        3C ONYX &mdash; DealerFlow OS Store P&L &mdash; Architect: Ronald Antonio Cadet &mdash; CUXTOMCANDYCLUB LLC
       </div>
     </div>
   );

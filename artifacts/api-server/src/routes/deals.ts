@@ -14,9 +14,11 @@ function sanitizeError() { return "Internal server error"; }
 function safeParseInt(val: any, def: number) { const n = parseInt(val, 10); return isNaN(n) ? def : n; }
 
 function requireUserId(req: Request, res: Response): number | null {
-  const userId = (req as any).userId;
-  if (!userId) { res.status(401).json({ error: "Unauthorized" }); return null; }
-  return userId;
+  const sub = (req as any).user?.sub ?? (req as any).userId;
+  if (!sub) { res.status(401).json({ error: "Unauthorized" }); return null; }
+  const id = parseInt(String(sub), 10);
+  if (!Number.isFinite(id)) { res.status(401).json({ error: "Invalid user identity" }); return null; }
+  return id;
 }
 
 function generateDealNumber(): string {
