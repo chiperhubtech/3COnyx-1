@@ -78,3 +78,9 @@ timeoutMs = 20000
 
 [nix]
 channel = "stable-25_05"
+
+[userenv]
+
+[userenv.shared]
+NAMECHEAP_API_USER = "Ron3c"
+NAMECHEAP_CLIENT_IP = "34.23.128.152"
