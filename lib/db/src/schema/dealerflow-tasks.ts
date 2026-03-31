@@ -4,7 +4,7 @@
  * Sovereign Infrastructure — Unified Automotive Command Layer (UACL)
  * Trade Secret TS-DEALERFLOW — Proprietary Task Routing & SLA Engine
  */
-import { pgTable, text, serial, integer, timestamp, pgEnum, jsonb, index } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, timestamp, pgEnum, jsonb, index, type AnyPgColumn } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { usersTable } from "./users";
@@ -38,6 +38,7 @@ export const dfTaskStatusEnum = pgEnum("df_task_status", [
   "Completed",
   "Escalated",
   "Cancelled",
+  "Blocked",
 ]);
 
 export const dfTaskScopeEnum = pgEnum("df_task_scope", [
@@ -74,6 +75,7 @@ export const dealerflowTasksTable = pgTable("dealerflow_tasks", {
   slaDueAt: timestamp("sla_due_at", { withTimezone: true }),
   routedByAgent: text("routed_by_agent"),
   routingConfidence: text("routing_confidence"),
+  dependsOnTaskId: integer("depends_on_task_id").references((): AnyPgColumn => dealerflowTasksTable.id, { onDelete: "set null" }),
   metadata: jsonb("metadata"),
   resolvedAt: timestamp("resolved_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -88,6 +90,7 @@ export const dealerflowTasksTable = pgTable("dealerflow_tasks", {
   index("df_tasks_sla_due_idx").on(t.slaDueAt),
   index("df_tasks_scope_idx").on(t.taskScope),
   index("df_tasks_deal_idx").on(t.dealId),
+  index("df_tasks_depends_on_idx").on(t.dependsOnTaskId),
 ]);
 
 export const insertDealerflowTaskSchema = createInsertSchema(dealerflowTasksTable).omit({

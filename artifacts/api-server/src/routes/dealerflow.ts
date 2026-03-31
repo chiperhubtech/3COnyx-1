@@ -70,7 +70,7 @@ async function autoDispatchCustomerUpdate(taskId: number, dealId: number | null)
 const router = Router();
 
 const VALID_DEPARTMENTS = ["DMV", "Parts", "Service", "Finance", "Logistics", "Sales", "Customer_Service", "General"] as const;
-const VALID_STATUSES = ["Open", "In_Progress", "Waiting", "Pending_Approval", "Pending_External", "Completed", "Escalated", "Cancelled"] as const;
+const VALID_STATUSES = ["Open", "In_Progress", "Waiting", "Pending_Approval", "Pending_External", "Completed", "Escalated", "Cancelled", "Blocked"] as const;
 const VALID_SCOPES = ["Internal", "External"] as const;
 const VALID_PRIORITIES = ["Critical", "High", "Medium", "Low"] as const;
 const VALID_DOC_TYPES = ["Invoice", "DMV_Form", "Title", "Registration", "Mopar_Sheet", "Parts_Order", "Warranty_Claim", "Insurance_Doc", "Bill_of_Sale", "Other"] as const;
@@ -104,6 +104,43 @@ function getUserId(req: Request): number | null {
   if (!sub) return null;
   const id = parseInt(String(sub), 10);
   return Number.isFinite(id) ? id : null;
+}
+
+async function unlockDependentTasks(completedTaskId: number, dealershipId: number, dealId: number | null) {
+  const conditions = [
+    eq(dealerflowTasksTable.dependsOnTaskId, completedTaskId),
+    eq(dealerflowTasksTable.status, "Blocked"),
+    eq(dealerflowTasksTable.dealershipId, dealershipId),
+  ];
+  if (dealId) {
+    conditions.push(eq(dealerflowTasksTable.dealId, dealId));
+  }
+
+  const blockedTasks = await db.select().from(dealerflowTasksTable)
+    .where(and(...conditions));
+
+  const unlocked: typeof blockedTasks = [];
+  const now = new Date();
+  for (const bt of blockedTasks) {
+    const slaDue = new Date(now.getTime() + bt.slaMinutes * 60 * 1000);
+    const meta = (bt.metadata || {}) as Record<string, unknown>;
+    meta.unlockedAt = now.toISOString();
+    meta.unlockedBy = completedTaskId;
+    if (!Array.isArray(meta.notifications)) meta.notifications = [];
+    (meta.notifications as unknown[]).push({
+      type: "dependency_unlocked",
+      message: `Task unlocked — predecessor task #${completedTaskId} completed`,
+      channel: "System",
+      dispatchedAt: now.toISOString(),
+    });
+
+    const [updated] = await db.update(dealerflowTasksTable)
+      .set({ status: "Open", slaDueAt: slaDue, metadata: meta, updatedAt: now })
+      .where(eq(dealerflowTasksTable.id, bt.id))
+      .returning();
+    if (updated) unlocked.push(updated);
+  }
+  return unlocked;
 }
 
 function requireUserId(req: Request, res: Response): number | null {
@@ -146,13 +183,24 @@ router.get("/dealerflow/tasks", requireAuth, async (req: Request, res: Response)
       .orderBy(desc(dealerflowTasksTable.createdAt))
       .limit(maxRows);
 
-    const SLA_PAUSED_STATUSES = ["Completed", "Cancelled", "Pending_Approval", "Pending_External"];
+    const SLA_PAUSED_STATUSES = ["Completed", "Cancelled", "Pending_Approval", "Pending_External", "Blocked"];
+
+    const blockedTaskIds = tasks.filter((t) => t.status === "Blocked" && t.dependsOnTaskId).map((t) => t.dependsOnTaskId!);
+    let predecessorMap = new Map<number, string>();
+    if (blockedTaskIds.length > 0) {
+      const predecessors = await db.select({ id: dealerflowTasksTable.id, title: dealerflowTasksTable.title })
+        .from(dealerflowTasksTable)
+        .where(inArray(dealerflowTasksTable.id, blockedTaskIds));
+      predecessorMap = new Map(predecessors.map((p) => [p.id, p.title.replace(/\[.*?\]\s*/, "")]));
+    }
+
     const enriched = tasks.map((t) => {
+      const blockerName = t.status === "Blocked" && t.dependsOnTaskId ? predecessorMap.get(t.dependsOnTaskId) || null : null;
       if (SLA_PAUSED_STATUSES.includes(t.status)) {
-        return { ...t, slaBreached: false, minutesOverdue: 0 };
+        return { ...t, slaBreached: false, minutesOverdue: 0, blockerName };
       }
       const sla = checkSlaBreached(t.slaDueAt);
-      return { ...t, slaBreached: sla.breached, minutesOverdue: sla.minutesOverdue };
+      return { ...t, slaBreached: sla.breached, minutesOverdue: sla.minutesOverdue, blockerName };
     });
 
     res.json({ tasks: enriched, count: enriched.length });
@@ -236,6 +284,11 @@ router.patch("/dealerflow/tasks/:id", requireAuth, async (req: Request, res: Res
       return;
     }
 
+    if (existing.status === "Blocked" && req.body.status && req.body.status !== "Blocked") {
+      res.status(400).json({ error: "Task is blocked by a dependency — it will be unlocked automatically when the predecessor completes" });
+      return;
+    }
+
     const updates: Record<string, unknown> = { updatedAt: new Date() };
     const meta = (existing.metadata || {}) as Record<string, any>;
 
@@ -307,7 +360,12 @@ router.patch("/dealerflow/tasks/:id", requireAuth, async (req: Request, res: Res
       customerNotification = await autoDispatchCustomerUpdate(task.id, task.dealId);
     }
 
-    res.json({ task, techFeeLogged, bankVaultEligible, customerNotification });
+    let unlockedTasks: Awaited<ReturnType<typeof unlockDependentTasks>> = [];
+    if (isNewCompletion && task) {
+      unlockedTasks = await unlockDependentTasks(task.id, userId, task.dealId);
+    }
+
+    res.json({ task, techFeeLogged, bankVaultEligible, customerNotification, unlockedTasks });
   } catch {
     res.status(500).json({ error: sanitizeError() });
   }
@@ -405,7 +463,12 @@ router.post("/dealerflow/tasks/:id/approve", requireAuth, async (req: Request, r
       .where(and(eq(dealerflowTasksTable.id, id), eq(dealerflowTasksTable.dealershipId, userId)))
       .returning();
 
-    res.json({ task, decision, message: `Task ${decision.toLowerCase()} — status set to ${newStatus.replace("_", " ")}` });
+    let unlockedTasks: Awaited<ReturnType<typeof unlockDependentTasks>> = [];
+    if (task && newStatus === "Cancelled") {
+      unlockedTasks = await unlockDependentTasks(task.id, userId, task.dealId);
+    }
+
+    res.json({ task, decision, unlockedTasks, message: `Task ${decision.toLowerCase()} — status set to ${newStatus.replace("_", " ")}` });
   } catch {
     res.status(500).json({ error: sanitizeError() });
   }
@@ -695,8 +758,8 @@ router.get("/dealerflow/dashboard", requireAuth, async (req: Request, res: Respo
         waiting: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} = 'Waiting')`,
         completedToday: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} = 'Completed' and ${dealerflowTasksTable.resolvedAt} >= ${todayStart})`,
         completedThisWeek: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} = 'Completed' and ${dealerflowTasksTable.resolvedAt} >= ${weekStart})`,
-        overdueSla: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} not in ('Completed', 'Cancelled', 'Pending_Approval', 'Pending_External') and ${dealerflowTasksTable.slaDueAt} < ${now})`,
-        critical: sql<number>`count(*) filter (where ${dealerflowTasksTable.priority} = 'Critical' and ${dealerflowTasksTable.status} not in ('Completed', 'Cancelled'))`,
+        overdueSla: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} not in ('Completed', 'Cancelled', 'Pending_Approval', 'Pending_External', 'Blocked') and ${dealerflowTasksTable.slaDueAt} < ${now})`,
+        critical: sql<number>`count(*) filter (where ${dealerflowTasksTable.priority} = 'Critical' and ${dealerflowTasksTable.status} not in ('Completed', 'Cancelled', 'Blocked'))`,
         avgResolutionMinutes: sql<number>`coalesce(avg(extract(epoch from (${dealerflowTasksTable.resolvedAt} - ${dealerflowTasksTable.createdAt})) / 60) filter (where ${dealerflowTasksTable.resolvedAt} is not null), 0)`,
         pendingApprovals: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} = 'Pending_Approval')`,
         pendingExternal: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} = 'Pending_External')`,
@@ -713,7 +776,7 @@ router.get("/dealerflow/dashboard", requireAuth, async (req: Request, res: Respo
         total: count(),
         open: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} = 'Open')`,
         inProgress: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} = 'In_Progress')`,
-        overdue: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} not in ('Completed', 'Cancelled', 'Pending_Approval', 'Pending_External') and ${dealerflowTasksTable.slaDueAt} < ${now})`,
+        overdue: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} not in ('Completed', 'Cancelled', 'Pending_Approval', 'Pending_External', 'Blocked') and ${dealerflowTasksTable.slaDueAt} < ${now})`,
         completed: sql<number>`count(*) filter (where ${dealerflowTasksTable.status} = 'Completed')`,
       })
       .from(dealerflowTasksTable)
@@ -796,7 +859,7 @@ router.get("/dealerflow/queue", requireAuth, async (req: Request, res: Response)
       )
       .limit(maxRows);
 
-    const SLA_PAUSED = ["Completed", "Cancelled", "Pending_Approval", "Pending_External"];
+    const SLA_PAUSED = ["Completed", "Cancelled", "Pending_Approval", "Pending_External", "Blocked"];
     const enriched = tasks.map((t, i) => {
       const paused = SLA_PAUSED.includes(t.status);
       const sla = paused ? { breached: false, minutesOverdue: 0 } : checkSlaBreached(t.slaDueAt);
@@ -828,7 +891,7 @@ router.post("/dealerflow/escalate", requireAuth, async (req: Request, res: Respo
       .where(
         and(
           eq(dealerflowTasksTable.dealershipId, userId),
-          sql`${dealerflowTasksTable.status} not in ('Completed', 'Cancelled', 'Escalated', 'Pending_Approval', 'Pending_External')`,
+          sql`${dealerflowTasksTable.status} not in ('Completed', 'Cancelled', 'Escalated', 'Pending_Approval', 'Pending_External', 'Blocked')`,
           lt(dealerflowTasksTable.slaDueAt, now)
         )
       );

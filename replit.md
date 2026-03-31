@@ -75,8 +75,9 @@ DealerFlow OS is an industrial infrastructure layer for automotive professionals
 - **Proactive Next-Step Suggestions**: AI-driven routing suggestions based on workflow patterns.
 - **Pipeline Journey Visualization**: Visualizes department-to-department task flow.
 - **Approval Queue**: Real-time list of tasks awaiting manager approval.
-- **Deal Lifecycle Engine**: Manages car sales deals as parent containers, auto-generating sub-tasks across the 7-Agent Mesh.
-- **My Deals — Commission Tracker**: Salesperson dashboard for real-time earnings and commission tracking.
+- **Deal Lifecycle Engine**: Manages car sales deals as parent containers, auto-generating sub-tasks across the 7-Agent Mesh with a dependency-aware DAG execution chain.
+- **Dependency-Aware DAG Execution**: Tasks have `dependsOnTaskId` (self-referential FK) forming a strict dependency chain. Blocked tasks auto-unlock when predecessors complete, with SLA timers starting on unlock. Visual dependency map in Deal Detail, blocker chain in commission tracker, and lock badges in Task Board.
+- **My Deals — Commission Tracker**: Salesperson dashboard for real-time earnings and commission tracking with dependency chain visibility showing exactly which tasks block payout.
 - **Deal Board**: UI for full deal lifecycle management, including commission approval and payment.
 - **Global Search**: Unified search across Deals and Tasks.
 - **Auto-Status Customer Updates**: Automated customer notifications upon task completion.

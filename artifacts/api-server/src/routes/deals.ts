@@ -28,12 +28,12 @@ function generateDealNumber(): string {
 }
 
 const DEAL_LIFECYCLE_TASKS = [
-  { title: "Insurance Binder Request", department: "Finance", scope: "External", priority: "High", sla: 240, agent: "Insurance Agent", reason: "Waiting on insurance provider" },
-  { title: "DMV Title & Plates Processing", department: "DMV", scope: "External", priority: "High", sla: 1440, agent: "Title Agent", reason: "Waiting on government agency" },
-  { title: "Vehicle Reconditioning Inspection", department: "Service", scope: "Internal", priority: "Medium", sla: 480, agent: "Service Agent", reason: null },
-  { title: "Due-Bill Parts Order", department: "Parts", scope: "Internal", priority: "Medium", sla: 480, agent: "Parts Agent", reason: null },
-  { title: "Finance Package — Bank-Ready Submission", department: "Finance", scope: "External", priority: "Critical", sla: 120, agent: "Finance Agent", reason: "Waiting on lender/bank" },
-  { title: "Delivery Prep & Customer Handoff", department: "Sales", scope: "Internal", priority: "Medium", sla: 1440, agent: "Delivery Agent", reason: null },
+  { title: "Vehicle Reconditioning Inspection", department: "Service", scope: "Internal", priority: "Medium", sla: 480, agent: "Service Agent", reason: null, order: 0, dependsOnIndex: null },
+  { title: "Due-Bill Parts Order", department: "Parts", scope: "Internal", priority: "Medium", sla: 480, agent: "Parts Agent", reason: null, order: 0, dependsOnIndex: null },
+  { title: "Insurance Binder Request", department: "Finance", scope: "External", priority: "High", sla: 240, agent: "Insurance Agent", reason: "Waiting on insurance provider", order: 1, dependsOnIndex: 0 },
+  { title: "DMV Title & Plates Processing", department: "DMV", scope: "External", priority: "High", sla: 1440, agent: "Title Agent", reason: "Waiting on government agency", order: 2, dependsOnIndex: 2 },
+  { title: "Finance Package — Bank-Ready Submission", department: "Finance", scope: "External", priority: "Critical", sla: 120, agent: "Finance Agent", reason: "Waiting on lender/bank", order: 3, dependsOnIndex: 3 },
+  { title: "Delivery Prep & Customer Handoff", department: "Sales", scope: "Internal", priority: "Medium", sla: 1440, agent: "Delivery Agent", reason: null, order: 4, dependsOnIndex: 4 },
 ];
 
 router.post("/deals", requireAuth, async (req: Request, res: Response) => {
@@ -77,15 +77,19 @@ router.post("/deals", requireAuth, async (req: Request, res: Response) => {
     }).returning();
 
     const now = new Date();
-    const createdTasks = [];
-    for (const tmpl of DEAL_LIFECYCLE_TASKS) {
-      const slaDue = new Date(now.getTime() + tmpl.sla * 60 * 1000);
+    const createdTasks: any[] = [];
+    for (let i = 0; i < DEAL_LIFECYCLE_TASKS.length; i++) {
+      const tmpl = DEAL_LIFECYCLE_TASKS[i];
+      const hasUnmetDep = tmpl.dependsOnIndex !== null;
+      const predecessorId = hasUnmetDep ? createdTasks[tmpl.dependsOnIndex]?.id ?? null : null;
+      const initialStatus = predecessorId ? "Blocked" : "Open";
+      const slaDue = initialStatus === "Blocked" ? null : new Date(now.getTime() + tmpl.sla * 60 * 1000);
       const [task] = await db.insert(dealerflowTasksTable).values({
         title: `[${dealNumber}] ${tmpl.title}`,
         description: `Auto-generated for Deal ${dealNumber} — ${customerName}`,
         department: tmpl.department as any,
         priority: tmpl.priority as any,
-        status: "Open",
+        status: initialStatus,
         intakeType: "Manual",
         taskScope: tmpl.scope as any,
         vin: vin || null,
@@ -93,12 +97,14 @@ router.post("/deals", requireAuth, async (req: Request, res: Response) => {
         dealershipId: userId,
         slaMinutes: tmpl.sla,
         slaDueAt: slaDue,
+        dependsOnTaskId: predecessorId,
         routedByAgent: tmpl.agent,
         routingConfidence: "1",
         metadata: {
           dealNumber,
           dealId: deal.id,
           lifecycleTask: true,
+          lifecycleOrder: tmpl.order,
           taskScope: tmpl.scope,
           externalParty: tmpl.scope === "External" ? tmpl.title.split(" ")[0] : null,
           externalReason: tmpl.reason,
@@ -171,14 +177,27 @@ router.get("/deals/:id", requireAuth, async (req: Request, res: Response) => {
     const totalTasks = tasks.length;
     const blockers = tasks.filter((t) => !["Completed", "Cancelled"].includes(t.status) && t.priority === "Critical");
 
+    const taskMap = new Map(tasks.map((t) => [t.id, t]));
+    const enrichedTasks = tasks.map((t) => {
+      const predecessor = t.dependsOnTaskId ? taskMap.get(t.dependsOnTaskId) : null;
+      return {
+        ...t,
+        predecessorTitle: predecessor ? predecessor.title.replace(/\[.*?\]\s*/, "") : null,
+        predecessorStatus: predecessor ? predecessor.status : null,
+      };
+    });
+
+    const nextAction = enrichedTasks.find((t) => !["Completed", "Cancelled", "Blocked"].includes(t.status));
+
     res.json({
       deal,
-      tasks,
+      tasks: enrichedTasks,
       progress: {
         completed: completedTasks,
         total: totalTasks,
         percentage: totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0,
         blockers: blockers.map((b) => ({ id: b.id, title: b.title, status: b.status, department: b.department })),
+        nextActionTaskId: nextAction?.id ?? null,
       },
     });
   } catch {
@@ -267,6 +286,7 @@ router.get("/deals/dashboard/my-deals", requireAuth, async (req: Request, res: R
         department: dealerflowTasksTable.department,
         taskScope: dealerflowTasksTable.taskScope,
         slaDueAt: dealerflowTasksTable.slaDueAt,
+        dependsOnTaskId: dealerflowTasksTable.dependsOnTaskId,
       }).from(dealerflowTasksTable)
         .where(and(
           eq(dealerflowTasksTable.dealId, deal.id),
@@ -275,12 +295,54 @@ router.get("/deals/dashboard/my-deals", requireAuth, async (req: Request, res: R
         ));
 
       if (tasks.length > 0) {
+        const allDealTasks = await db.select({
+          id: dealerflowTasksTable.id,
+          title: dealerflowTasksTable.title,
+          status: dealerflowTasksTable.status,
+          dependsOnTaskId: dealerflowTasksTable.dependsOnTaskId,
+        }).from(dealerflowTasksTable)
+          .where(eq(dealerflowTasksTable.dealId, deal.id));
+
+        const taskMap = new Map(allDealTasks.map((t) => [t.id, t]));
+
+        function buildBlockerChain(taskId: number): string[] {
+          const chain: string[] = [];
+          const visited = new Set<number>();
+          const startTask = taskMap.get(taskId);
+          if (startTask && startTask.status !== "Completed") {
+            chain.push(startTask.title.replace(/\[.*?\]\s*/, ""));
+          }
+          let current = startTask;
+          while (current && current.dependsOnTaskId && !visited.has(current.id)) {
+            visited.add(current.id);
+            const pred = taskMap.get(current.dependsOnTaskId);
+            if (pred && pred.status !== "Completed") {
+              chain.push(pred.title.replace(/\[.*?\]\s*/, ""));
+              current = pred;
+            } else {
+              break;
+            }
+          }
+          return chain;
+        }
+
+        const incompleteTasks = tasks
+          .filter((t) => t.status !== "Completed" && t.status !== "Cancelled")
+          .sort((a, b) => {
+            if (a.status === "Blocked" && b.status !== "Blocked") return -1;
+            if (a.status !== "Blocked" && b.status === "Blocked") return 1;
+            return 0;
+          });
+        const firstBlocker = incompleteTasks[0] || null;
+        const blockerChain = firstBlocker ? buildBlockerChain(firstBlocker.id).reverse() : [];
+
         blockedDeals.push({
           dealId: deal.id,
           dealNumber: deal.dealNumber,
           customerName: deal.customerName,
           vehicleLabel: deal.vehicleLabel,
           commissionAmount: deal.commissionAmount,
+          blockerChain: blockerChain.length > 0 ? blockerChain : null,
           missingSteps: tasks.map((t) => ({
             id: t.id,
             title: t.title,

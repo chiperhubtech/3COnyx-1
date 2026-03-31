@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Activity, AlertTriangle, ArrowRight, BarChart3, Camera, Check, CheckCircle2, Clock, DollarSign, FileText,
-  Filter, Gauge, Inbox, Layers, MessageSquare, Plus, RefreshCw,
+  Filter, Gauge, Inbox, Layers, Lock, MessageSquare, Plus, RefreshCw,
   Route, ScanLine, Send, Shield, Target, ThumbsUp, TrendingUp, Users, X, Zap,
   Search, Car, Wallet, Store, Hash,
 } from "lucide-react";
@@ -44,6 +44,10 @@ type DFTask = {
   resolvedAt: string | null;
   createdAt: string;
   metadata: any;
+  dependsOnTaskId?: number | null;
+  predecessorTitle?: string | null;
+  predecessorStatus?: string | null;
+  blockerName?: string | null;
   slaBreached?: boolean;
   minutesOverdue?: number;
   queuePosition?: number;
@@ -161,7 +165,7 @@ type PerformanceData = {
 };
 
 const DEPARTMENTS = ["DMV", "Parts", "Service", "Finance", "Logistics", "Sales", "Customer_Service", "General"];
-const STATUSES = ["Open", "In_Progress", "Waiting", "Pending_Approval", "Pending_External", "Completed", "Escalated", "Cancelled"];
+const STATUSES = ["Open", "In_Progress", "Waiting", "Pending_Approval", "Pending_External", "Completed", "Escalated", "Cancelled", "Blocked"];
 const PRIORITIES = ["Critical", "High", "Medium", "Low"];
 
 function deptColor(dept: string) {
@@ -195,6 +199,7 @@ function statusBadge(s: string) {
     Pending_External: "bg-amber-600/20 text-amber-300 border-amber-600/30",
     Completed: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
     Escalated: "bg-red-500/20 text-red-300 border-red-500/30",
+    Blocked: "bg-red-600/20 text-red-300 border-red-600/30",
     Cancelled: "bg-zinc-500/20 text-zinc-400 border-zinc-500/30",
     New: "bg-indigo-500/20 text-indigo-300 border-indigo-500/30",
     Resolved: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
@@ -223,7 +228,7 @@ function timeAgo(iso: string) {
 }
 
 function slaStatus(slaDueAt: string | null, status: string) {
-  if (!slaDueAt || status === "Completed" || status === "Cancelled" || status === "Pending_Approval" || status === "Pending_External") return null;
+  if (!slaDueAt || status === "Completed" || status === "Cancelled" || status === "Pending_Approval" || status === "Pending_External" || status === "Blocked") return null;
   const remaining = new Date(slaDueAt).getTime() - Date.now();
   if (remaining < 0) return { label: "OVERDUE", color: "text-red-400 animate-pulse" };
   const mins = Math.floor(remaining / 60000);
@@ -548,6 +553,11 @@ function TaskBoard({ deptFilter, setDeptFilter, statusFilter, setStatusFilter, s
                           <Users className="w-3 h-3" /> External
                         </span>
                       )}
+                      {task.status === "Blocked" && (
+                        <span className="text-[10px] bg-red-600/20 text-red-300 px-2 py-0.5 rounded flex items-center gap-1 border border-red-600/30">
+                          <Lock className="w-3 h-3" /> Waiting on: {task.blockerName || "predecessor"}
+                        </span>
+                      )}
                     </div>
                     <h4 className="text-sm font-semibold text-white truncate">{task.title}</h4>
                     {task.description && <p className="text-xs text-zinc-500 mt-1 line-clamp-2">{task.description}</p>}
@@ -560,6 +570,11 @@ function TaskBoard({ deptFilter, setDeptFilter, statusFilter, setStatusFilter, s
                     </div>
                   </div>
                   <div className="flex flex-col gap-1" onClick={(e) => e.stopPropagation()}>
+                    {task.status === "Blocked" && (
+                      <span className="text-[10px] bg-red-600/20 text-red-300 px-2 py-1 rounded flex items-center gap-1">
+                        <Lock className="w-3 h-3" /> Locked
+                      </span>
+                    )}
                     {task.status === "Open" && (
                       <button onClick={() => updateTask.mutate({ id: task.id, status: "In_Progress" })} className="text-[10px] bg-yellow-500/20 text-yellow-300 px-2 py-1 rounded hover:bg-yellow-500/30 transition">
                         Start
@@ -2062,20 +2077,44 @@ function DealDetail({ dealId }: { dealId: number }) {
         </div>
       )}
       <div className="space-y-1">
-        <p className="text-[10px] text-zinc-500 uppercase font-semibold">Lifecycle Tasks</p>
-        {tasks.map((t: any) => (
-          <div key={t.id} className="flex items-center justify-between py-1.5 px-2 bg-zinc-800/50 rounded-lg">
-            <div className="flex items-center gap-2">
-              {t.status === "Completed" ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> : <Clock className="w-3.5 h-3.5 text-zinc-500" />}
-              <span className="text-xs text-white">{t.title.replace(/\[.*?\]\s*/, "")}</span>
+        <p className="text-[10px] text-zinc-500 uppercase font-semibold">Lifecycle Tasks — Dependency Chain</p>
+        {tasks.map((t: any) => {
+          const isNextAction = progress.nextActionTaskId === t.id;
+          const isBlocked = t.status === "Blocked";
+          return (
+            <div key={t.id} className={cn(
+              "flex items-center justify-between py-1.5 px-2 rounded-lg",
+              isNextAction ? "bg-amber-500/10 border border-amber-500/30" : "bg-zinc-800/50",
+              isBlocked ? "opacity-60" : ""
+            )}>
+              <div className="flex items-center gap-2">
+                {t.predecessorTitle && (
+                  <span className="text-[10px] text-zinc-500 flex items-center gap-1" title={`Depends on: ${t.predecessorTitle}`}>
+                    <ArrowRight className="w-3 h-3" />
+                  </span>
+                )}
+                {t.status === "Completed" ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> : isBlocked ? <Lock className="w-3.5 h-3.5 text-red-400" /> : isNextAction ? <Zap className="w-3.5 h-3.5 text-amber-400" /> : <Clock className="w-3.5 h-3.5 text-zinc-500" />}
+                <span className="text-xs text-white">{t.title.replace(/\[.*?\]\s*/, "")}</span>
+                {isNextAction && <span className="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded font-semibold">NEXT ACTION</span>}
+              </div>
+              <div className="flex items-center gap-2">
+                {t.predecessorTitle && isBlocked && (
+                  <span className="text-[10px] bg-red-600/10 text-red-300 px-1.5 py-0.5 rounded border border-red-600/20 flex items-center gap-1">
+                    <Lock className="w-3 h-3" /> Waiting on: {t.predecessorTitle}
+                  </span>
+                )}
+                {t.predecessorTitle && !isBlocked && (
+                  <span className="text-[10px] bg-zinc-700/50 text-zinc-400 px-1.5 py-0.5 rounded flex items-center gap-1">
+                    <ArrowRight className="w-3 h-3" /> After: {t.predecessorTitle}
+                  </span>
+                )}
+                <span className={cn("text-[10px] px-1.5 py-0.5 rounded", deptColor(t.department))}>{t.department}</span>
+                <span className={cn("text-[10px] px-1.5 py-0.5 rounded border", statusBadge(t.status))}>{t.status.replace("_", " ")}</span>
+                {t.taskScope === "External" && <span className="text-[10px] bg-amber-600/20 text-amber-300 px-1.5 py-0.5 rounded">EXT</span>}
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <span className={cn("text-[10px] px-1.5 py-0.5 rounded", deptColor(t.department))}>{t.department}</span>
-              <span className={cn("text-[10px] px-1.5 py-0.5 rounded border", statusBadge(t.status))}>{t.status.replace("_", " ")}</span>
-              {t.taskScope === "External" && <span className="text-[10px] bg-amber-600/20 text-amber-300 px-1.5 py-0.5 rounded">EXT</span>}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
@@ -2242,12 +2281,23 @@ function MyDeals() {
                 </div>
                 {bd.commissionAmount && <span className="text-xs text-emerald-400 font-semibold">{formatUsd(bd.commissionAmount)}</span>}
               </div>
+              {bd.blockerChain && bd.blockerChain.length > 0 && (
+                <div className="bg-red-600/5 border border-red-600/20 rounded-lg px-3 py-2">
+                  <p className="text-[10px] text-red-300 font-semibold flex items-center gap-1">
+                    <Lock className="w-3 h-3" /> Commission blocked by:
+                  </p>
+                  <p className="text-[10px] text-red-200 mt-1">
+                    {bd.blockerChain.join(" → ")}
+                  </p>
+                </div>
+              )}
               <div className="space-y-1">
                 {bd.missingSteps.map((ms: any) => (
                   <div key={ms.id} className="flex items-center gap-2 text-[10px]">
-                    {ms.slaOverdue ? <AlertTriangle className="w-3 h-3 text-red-400" /> : <Clock className="w-3 h-3 text-zinc-500" />}
+                    {ms.status === "Blocked" ? <Lock className="w-3 h-3 text-red-400" /> : ms.slaOverdue ? <AlertTriangle className="w-3 h-3 text-red-400" /> : <Clock className="w-3 h-3 text-zinc-500" />}
                     <span className="text-white">{ms.title.replace(/\[.*?\]\s*/, "")}</span>
                     <span className={cn("px-1.5 py-0.5 rounded", deptColor(ms.department))}>{ms.department}</span>
+                    {ms.status === "Blocked" && <span className="bg-red-600/20 text-red-300 px-1.5 py-0.5 rounded">BLOCKED</span>}
                     {ms.scope === "External" && <span className="bg-amber-600/20 text-amber-300 px-1.5 py-0.5 rounded">EXT</span>}
                     {ms.slaOverdue && <span className="text-red-400 font-bold animate-pulse">OVERDUE</span>}
                   </div>
