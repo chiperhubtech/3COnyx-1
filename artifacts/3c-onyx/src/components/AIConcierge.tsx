@@ -3,6 +3,7 @@ import {
   X, Sparkles, Send, ChevronDown, Car, Zap, MapPin, RotateCcw,
   AlertTriangle, CheckCircle2, Wrench, DollarSign, ArrowRight,
   Brain, Route, Shield, Users, TrendingDown, PlayCircle, ChevronRight,
+  Camera, Image as ImageIcon, HelpCircle, MessageCircle,
 } from "lucide-react";
 
 type AIMode = "consumer" | "professional";
@@ -94,10 +95,12 @@ const INTENT_COLORS: Record<string, string> = {
 };
 
 const QUICK_CHIPS = [
-  { label: "Diagnose my vehicle", icon: Wrench },
-  { label: "Book a Runner", icon: MapPin },
-  { label: "My car won't start", icon: Zap },
-  { label: "Browse luxury inventory", icon: Sparkles },
+  { label: "What can you do?", icon: HelpCircle },
+  { label: "Something's wrong with my car", icon: Wrench },
+  { label: "Find me a car", icon: Car },
+  { label: "Check my warranty", icon: Shield },
+  { label: "Ship a vehicle", icon: MapPin },
+  { label: "My referral earnings", icon: DollarSign },
 ];
 
 function generateId() {
@@ -453,8 +456,11 @@ export function AIConcierge() {
   const [pulse, setPulse] = useState(true);
   const [routingIntent, setRoutingIntent] = useState<IntentResult | null>(null);
   const [mode, setMode] = useState<AIMode>(() => (localStorage.getItem("onyx-mode") as AIMode) ?? "consumer");
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isAnalyzingImage, setIsAnalyzingImage] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   function toggleMode() {
     const next: AIMode = mode === "consumer" ? "professional" : "consumer";
@@ -630,7 +636,85 @@ export function AIConcierge() {
     setConversationId(null);
     setMessages([]);
     setRoutingIntent(null);
+    setImagePreview(null);
     initConversation();
+  }
+
+  function handleImageSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const maxSize = 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setMessages(prev => [...prev, {
+        id: generateId(), role: "assistant",
+        content: "That photo is too large (over 10 MB). Please use a smaller image or take a new one.",
+      }]);
+      e.target.value = "";
+      return;
+    }
+    if (!file.type.startsWith("image/")) {
+      setMessages(prev => [...prev, {
+        id: generateId(), role: "assistant",
+        content: "I can only analyze image files (JPG, PNG, etc). Please try again with a photo.",
+      }]);
+      e.target.value = "";
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      setImagePreview(result);
+    };
+    reader.onerror = () => {
+      setMessages(prev => [...prev, {
+        id: generateId(), role: "assistant",
+        content: "I couldn't read that file. Please try a different photo.",
+      }]);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  }
+
+  async function handleImageAnalysis() {
+    if (!imagePreview || isAnalyzingImage) return;
+    setIsAnalyzingImage(true);
+
+    const userMsg: Message = {
+      id: generateId(),
+      role: "user",
+      content: input.trim() || "What do you see in this photo?",
+    };
+    const assistantId = generateId();
+    const assistantMsg: Message = { id: assistantId, role: "assistant", content: "", streaming: true };
+    setMessages(prev => [...prev, userMsg, assistantMsg]);
+    setInput("");
+
+    try {
+      const base64 = imagePreview.includes(",") ? imagePreview.split(",")[1] : imagePreview;
+      const res = await fetch(`${BASE}/api/ask/vision`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: base64, prompt: input.trim() || undefined }),
+      });
+      const data = await res.json();
+
+      setMessages(prev =>
+        prev.map(m => m.id === assistantId
+          ? { ...m, content: data.analysis || data.error || "I couldn't analyze that image. Try again?", streaming: false }
+          : m
+        )
+      );
+      if (data.analysis) setImagePreview(null);
+    } catch {
+      setMessages(prev =>
+        prev.map(m => m.id === assistantId
+          ? { ...m, content: "I had trouble analyzing that photo. Please try again.", streaming: false }
+          : m
+        )
+      );
+    } finally {
+      setIsAnalyzingImage(false);
+    }
   }
 
   return (
@@ -745,7 +829,7 @@ export function AIConcierge() {
               style={{ padding: 6, borderRadius: 8, background: "none", border: "none", cursor: "pointer", color: "#9CA3AF" }}>
               <RotateCcw size={13} />
             </button>
-            <button onClick={() => setOpen(false)}
+            <button onClick={() => setOpen(false)} aria-label="Close concierge"
               style={{ padding: 6, borderRadius: 8, background: "none", border: "none", cursor: "pointer", color: "#9CA3AF" }}>
               <X size={13} />
             </button>
@@ -825,46 +909,107 @@ export function AIConcierge() {
           </div>
         )}
 
+        {/* Image Preview */}
+        {imagePreview && (
+          <div style={{
+            padding: "8px 12px", borderTop: "1px solid rgba(255,255,255,0.06)", flexShrink: 0,
+            display: "flex", alignItems: "center", gap: 10,
+            background: "rgba(245,158,11,0.04)",
+          }}>
+            <div style={{ position: "relative" }}>
+              <img src={imagePreview} alt="Upload preview"
+                style={{ width: 56, height: 56, borderRadius: 10, objectFit: "cover", border: "1px solid rgba(245,158,11,0.3)" }} />
+              <button onClick={() => setImagePreview(null)}
+                style={{
+                  position: "absolute", top: -6, right: -6,
+                  width: 18, height: 18, borderRadius: "50%",
+                  background: "#ef4444", border: "none", cursor: "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}>
+                <X size={10} style={{ color: "#fff" }} />
+              </button>
+            </div>
+            <div style={{ flex: 1 }}>
+              <p style={{ margin: 0, fontSize: 12, fontWeight: 600, color: "#F59E0B" }}>
+                <Camera size={12} style={{ verticalAlign: "middle", marginRight: 4 }} />
+                Photo ready to analyze
+              </p>
+              <p style={{ margin: "2px 0 0", fontSize: 10, color: "rgba(255,255,255,0.4)" }}>
+                Tap send to scan for VIN, damage, or details
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Input */}
         <div style={{ padding: "10px 12px", borderTop: "1px solid rgba(255,255,255,0.06)", flexShrink: 0 }}>
+          <input ref={fileInputRef} type="file" accept="image/*" capture="environment"
+            onChange={handleImageSelect} style={{ display: "none" }} />
           <div style={{
             display: "flex", alignItems: "center", gap: 8,
-            padding: "8px 12px", borderRadius: 12,
+            padding: "8px 12px", borderRadius: 14,
             background: "rgba(255,255,255,0.04)",
             border: "1px solid rgba(245,158,11,0.18)",
           }}>
+            <button onClick={() => fileInputRef.current?.click()}
+              disabled={isStreaming || isAnalyzingImage}
+              title="Take a photo or upload an image"
+              style={{
+                width: 34, height: 34, borderRadius: 10, border: "none", cursor: "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                background: imagePreview ? "rgba(245,158,11,0.15)" : "rgba(255,255,255,0.06)",
+                transition: "all 0.2s",
+              }}>
+              <Camera size={16} style={{ color: imagePreview ? "#F59E0B" : "#6B7280" }} />
+            </button>
             <input
               ref={inputRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(input); } }}
-              disabled={isStreaming}
-              placeholder="What's going on with your vehicle?"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  if (imagePreview) handleImageAnalysis();
+                  else sendMessage(input);
+                }
+              }}
+              disabled={isStreaming || isAnalyzingImage}
+              placeholder={imagePreview ? "Describe what to look for (optional)" : "Ask me anything about your vehicle..."}
               style={{
                 flex: 1, background: "transparent", border: "none", outline: "none",
-                fontSize: 13, color: "#fff", opacity: isStreaming ? 0.5 : 1,
+                fontSize: 14, color: "#fff", opacity: (isStreaming || isAnalyzingImage) ? 0.5 : 1,
               }}
             />
-            <button onClick={() => sendMessage(input)}
-              disabled={!input.trim() || isStreaming}
+            <button onClick={() => imagePreview ? handleImageAnalysis() : sendMessage(input)}
+              disabled={(!input.trim() && !imagePreview) || isStreaming || isAnalyzingImage}
               style={{
-                width: 30, height: 30, borderRadius: 9, border: "none", cursor: "pointer",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                background: input.trim() && !isStreaming
+                width: 36, height: 36, borderRadius: 10, border: "none", cursor: "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                background: (input.trim() || imagePreview) && !isStreaming && !isAnalyzingImage
                   ? "linear-gradient(135deg,#F59E0B,#D97706)"
                   : "rgba(255,255,255,0.08)",
-                opacity: !input.trim() || isStreaming ? 0.4 : 1,
+                opacity: (!input.trim() && !imagePreview) || isStreaming || isAnalyzingImage ? 0.4 : 1,
                 transition: "all 0.2s",
               }}>
-              <Send size={13} style={{ color: input.trim() && !isStreaming ? "#000" : "#6B7280" }} />
+              {isAnalyzingImage
+                ? <div style={{ width: 14, height: 14, border: "2px solid #000", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+                : <Send size={15} style={{ color: (input.trim() || imagePreview) && !isStreaming ? "#000" : "#6B7280" }} />
+              }
             </button>
           </div>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: 5, gap: 4 }}>
-            <Car size={8} style={{ color: "rgba(255,255,255,0.15)" }} />
-            <span style={{ fontSize: 9, color: "rgba(255,255,255,0.15)", letterSpacing: "0.05em" }}>
-              DIAGNOSE · ROUTE · REWARD · SECURE
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: 6, gap: 6 }}>
+            <span style={{ fontSize: 8, color: "rgba(255,255,255,0.2)", letterSpacing: "0.1em", fontWeight: 600 }}>
+              ENTERPRISE AI v4.0
             </span>
-            <Shield size={8} style={{ color: "rgba(255,255,255,0.15)" }} />
+            <span style={{ color: "rgba(255,255,255,0.1)" }}>·</span>
+            <span style={{ fontSize: 8, color: "rgba(255,255,255,0.15)", letterSpacing: "0.05em" }}>
+              TEXT · PHOTO · VISION
+            </span>
+            <span style={{ color: "rgba(255,255,255,0.1)" }}>·</span>
+            <Shield size={7} style={{ color: "rgba(255,255,255,0.15)" }} />
+            <span style={{ fontSize: 8, color: "rgba(255,255,255,0.15)", letterSpacing: "0.05em" }}>
+              VERIFIED
+            </span>
           </div>
         </div>
       </div>
@@ -883,6 +1028,10 @@ export function AIConcierge() {
         @keyframes typing-bounce {
           0%, 60%, 100% { transform: translateY(0); }
           30%            { transform: translateY(-4px); }
+        }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to   { transform: rotate(360deg); }
         }
       `}</style>
     </>

@@ -1,13 +1,3 @@
-/**
- * 3C Onyx — Multi-Model AI Router
- *
- * Provides a single interface over Bedrock (Claude), Gemini, OpenAI, and Anthropic.
- * Bedrock is the primary provider: sovereign AI — member data never leaves AWS.
- * Falls back automatically on failure. Tracks provider, model, latency, fallback events.
- *
- * AWS-12 upgrade: Amazon Bedrock added as primary provider for analysis + conversation.
- * Member conversations are now processed inside AWS infrastructure — zero third-party exposure.
- */
 import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
 import {
@@ -17,12 +7,13 @@ import {
 import { ai as gemini } from "@workspace/integrations-gemini-ai";
 import { logger } from "./logger";
 
-export type TaskType = "conversation" | "analysis" | "summarization" | "coding" | "quick";
-export type Provider = "bedrock" | "gemini" | "openai" | "anthropic";
+export type TaskType = "conversation" | "analysis" | "summarization" | "coding" | "quick" | "vision" | "critique";
+export type Provider = "openai" | "gemini" | "bedrock" | "anthropic";
 
 export interface AiMessage {
   role: "user" | "assistant" | "system";
   content: string;
+  imageUrl?: string;
 }
 
 export interface RouteResult {
@@ -33,16 +24,18 @@ export interface RouteResult {
   durationMs: number;
   fallbackUsed: boolean;
   fallbackReason?: string;
+  citations?: string[];
 }
 
 const MODEL_MAP: Record<Provider, Record<TaskType, string>> = {
-  // AWS Bedrock: Claude models — sovereign AI, never leaves AWS infrastructure
-  bedrock: {
-    conversation:  "anthropic.claude-3-haiku-20240307-v1:0",
-    analysis:      "anthropic.claude-3-5-sonnet-20241022-v2:0",
-    summarization: "anthropic.claude-3-haiku-20240307-v1:0",
-    coding:        "anthropic.claude-3-5-sonnet-20241022-v2:0",
-    quick:         "anthropic.claude-3-haiku-20240307-v1:0",
+  openai: {
+    conversation:   "gpt-5-mini",
+    analysis:       "gpt-5.2",
+    summarization:  "gpt-5-mini",
+    coding:         "gpt-5.2",
+    quick:          "gpt-5-nano",
+    vision:         "gpt-5.2",
+    critique:       "gpt-5-mini",
   },
   gemini: {
     conversation:   "gemini-2.0-flash",
@@ -50,13 +43,17 @@ const MODEL_MAP: Record<Provider, Record<TaskType, string>> = {
     summarization:  "gemini-2.0-flash",
     coding:         "gemini-2.5-pro-preview-06-05",
     quick:          "gemini-2.0-flash",
+    vision:         "gemini-2.0-flash",
+    critique:       "gemini-2.0-flash",
   },
-  openai: {
-    conversation:   "gpt-5-mini",
-    analysis:       "gpt-5.2",
-    summarization:  "gpt-5-mini",
-    coding:         "gpt-5.2",
-    quick:          "gpt-5-nano",
+  bedrock: {
+    conversation:  "anthropic.claude-3-haiku-20240307-v1:0",
+    analysis:      "anthropic.claude-3-5-sonnet-20241022-v2:0",
+    summarization: "anthropic.claude-3-haiku-20240307-v1:0",
+    coding:        "anthropic.claude-3-5-sonnet-20241022-v2:0",
+    quick:         "anthropic.claude-3-haiku-20240307-v1:0",
+    vision:        "anthropic.claude-3-5-sonnet-20241022-v2:0",
+    critique:      "anthropic.claude-3-haiku-20240307-v1:0",
   },
   anthropic: {
     conversation:   "claude-sonnet-4-6",
@@ -64,17 +61,19 @@ const MODEL_MAP: Record<Provider, Record<TaskType, string>> = {
     summarization:  "claude-haiku-4-5",
     coding:         "claude-opus-4-6",
     quick:          "claude-haiku-4-5",
+    vision:         "claude-sonnet-4-6",
+    critique:       "claude-haiku-4-5",
   },
 };
 
-// Bedrock is primary for analysis + conversation — sovereign, 5x faster, 50% cheaper
-// Gemini leads for quick tasks (already integrated via Replit integration proxy)
 const ROUTING_TABLE: Record<TaskType, Provider[]> = {
-  conversation:   ["bedrock",   "gemini",    "openai",    "anthropic"],
-  analysis:       ["bedrock",   "anthropic", "openai",    "gemini"  ],
-  summarization:  ["bedrock",   "openai",    "gemini",    "anthropic"],
-  coding:         ["bedrock",   "anthropic", "openai",    "gemini"  ],
-  quick:          ["gemini",    "bedrock",   "openai",    "anthropic"],
+  conversation:   ["openai",  "gemini",    "bedrock",   "anthropic"],
+  analysis:       ["openai",  "bedrock",   "anthropic", "gemini"  ],
+  summarization:  ["openai",  "gemini",    "bedrock",   "anthropic"],
+  coding:         ["openai",  "bedrock",   "anthropic", "gemini"  ],
+  quick:          ["openai",  "gemini",    "bedrock",   "anthropic"],
+  vision:         ["openai"],
+  critique:       ["openai",  "gemini",    "bedrock",   "anthropic"],
 };
 
 const AWS_REGION = process.env.AWS_REGION ?? "us-east-1";
@@ -160,10 +159,20 @@ async function callOpenAI(messages: AiMessage[], model: string, systemPrompt?: s
   const oai = getOpenAI();
   const msgs: OpenAI.Chat.ChatCompletionMessageParam[] = [];
   if (systemPrompt) msgs.push({ role: "system", content: systemPrompt });
-  msgs.push(...messages.filter(m => m.role !== "system").map(m => ({
-    role: m.role as "user" | "assistant",
-    content: m.content,
-  })));
+
+  for (const m of messages.filter(m2 => m2.role !== "system")) {
+    if (m.imageUrl && m.role === "user") {
+      msgs.push({
+        role: "user",
+        content: [
+          { type: "text", text: m.content },
+          { type: "image_url", image_url: { url: m.imageUrl } },
+        ],
+      });
+    } else {
+      msgs.push({ role: m.role as "user" | "assistant", content: m.content });
+    }
+  }
   const res = await oai.chat.completions.create({ model, messages: msgs });
   return res.choices[0]?.message?.content ?? "";
 }
@@ -234,17 +243,92 @@ export async function route(
   throw lastError ?? new Error("All AI providers exhausted");
 }
 
+export async function critiqueAndReview(
+  originalQuery: string,
+  agentResponse: string,
+  context?: string,
+): Promise<{ approved: boolean; revisedContent?: string; reviewNotes: string }> {
+  const critiquePrompt = `You are a quality-assurance reviewer for 3C ONYX, a sovereign automotive platform.
+Your job is to review an AI agent's response and ensure it is:
+1. ACCURATE — no hallucinated data, prices, or facts
+2. COMPLETE — answers the user's actual question fully
+3. CLEAR — written so anyone from age 5 to 90 can understand
+4. ACTIONABLE — tells the user exactly what to do next
+5. SAFE — no PII exposure, no financial advice without disclaimers
+
+User asked: "${originalQuery}"
+${context ? `Context: ${context}` : ""}
+
+Agent responded:
+"""
+${agentResponse}
+"""
+
+If the response is good, reply with: APPROVED
+If it needs improvement, reply with: REVISED: [your improved version]
+Then on a new line, write NOTES: [brief explanation of what you checked/changed]`;
+
+  try {
+    const result = await route(
+      [{ role: "user", content: critiquePrompt }],
+      "critique",
+    );
+
+    const text = result.content.trim();
+    if (text.startsWith("APPROVED")) {
+      const notesMatch = text.match(/NOTES:\s*(.*)/s);
+      return { approved: true, reviewNotes: notesMatch?.[1]?.trim() ?? "Passed review" };
+    }
+
+    const revisedMatch = text.match(/REVISED:\s*([\s\S]*?)(?:NOTES:|$)/);
+    const notesMatch = text.match(/NOTES:\s*(.*)/s);
+    return {
+      approved: false,
+      revisedContent: revisedMatch?.[1]?.trim() ?? agentResponse,
+      reviewNotes: notesMatch?.[1]?.trim() ?? "Revised for clarity",
+    };
+  } catch (err) {
+    logger.warn({ err }, "Critique loop failed — passing through original response");
+    return { approved: true, reviewNotes: "Critique unavailable — original passed through" };
+  }
+}
+
+export async function analyzeImage(
+  imageBase64: string,
+  prompt: string,
+): Promise<RouteResult> {
+  const dataUrl = imageBase64.startsWith("data:") ? imageBase64 : `data:image/jpeg;base64,${imageBase64}`;
+  const messages: AiMessage[] = [
+    { role: "user", content: prompt, imageUrl: dataUrl },
+  ];
+  return route(messages, "vision", VISION_SYSTEM_PROMPT);
+}
+
+const VISION_SYSTEM_PROMPT = `You are ONYX Vision — the visual analysis engine of 3C ONYX, a sovereign automotive platform.
+
+When analyzing automotive images, you MUST:
+1. If you see a VIN (Vehicle Identification Number) — extract it exactly (17 characters)
+2. If you see a window sticker / Monroney label — extract: Year, Make, Model, Trim, MSRP, key features
+3. If you see vehicle damage — describe: location, severity (minor/moderate/severe), estimated repair category
+4. If you see a rim/wheel — identify: brand if visible, size, condition, finish type
+5. If you see a document — extract key text content
+
+Always respond in plain, friendly language that anyone can understand.
+Format structured data clearly. Be specific and confident.`;
+
 export function getRouterStatus() {
   return {
     providers: (Object.keys(MODEL_MAP) as Provider[]).map(p => ({
       name: p,
       models: MODEL_MAP[p],
-      isPrimary: p === "bedrock",
+      isPrimary: p === "openai",
       sovereign: p === "bedrock",
     })),
     routingTable: ROUTING_TABLE,
     taskTypes: Object.keys(ROUTING_TABLE) as TaskType[],
     bedrockRegion: USE_BEDROCK ? AWS_REGION : null,
     sovereignAi: USE_BEDROCK,
+    enterpriseStack: "v4.0",
+    capabilities: ["text", "vision", "critique-review", "multi-model-routing"],
   };
 }

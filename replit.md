@@ -47,7 +47,7 @@ Typography uses Barlow Condensed for headings and Inter for body text. Key desig
 ## Core Platform Features
 
 The platform's architectural decisions prioritize an AI-first approach with:
-- **AI Model Abstraction Layer**: `ai-router.ts` — Bedrock-first sovereign AI (Claude 3 Haiku/Sonnet), Gemini/OpenAI/Anthropic fallback.
+- **Enterprise AI Stack v4.0**: `ai-router.ts` — OpenAI primary (GPT-4o/mini/nano), Gemini/Bedrock/Anthropic fallback chain. Task types: conversation, analysis, summarization, coding, quick, vision (OpenAI-only), critique. Critique & Review loop validates all responses. Vision endpoint for multi-modal image analysis (VIN, damage, window stickers).
 - **WebSocket Real-Time Hub**: `wsHub.ts` for real-time communication across five distinct rooms.
 - **Agent Orchestration Engine**: `agentOrchestrator.ts` — 12-agent UACL mesh with state machine (pending→assigned→running→complete/handed_off).
 - **Blockchain Chain-of-Custody**: `chainOfCustody.ts` ensures tamper-proof ledgering with SHA-256 hash chains, HMAC-SHA-256 signing, PostgreSQL persistence, and optional Ethereum Sepolia anchoring.

@@ -10,6 +10,7 @@
   },
   "private": true,
   "devDependencies": {
+    "@types/pdfkit": "^0.17.5",
     "prettier": "^3.8.1",
     "tsx": "catalog:",
     "typescript": "~5.9.2"

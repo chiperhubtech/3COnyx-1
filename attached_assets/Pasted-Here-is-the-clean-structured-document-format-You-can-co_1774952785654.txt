@@ -1,0 +1,27 @@
+Here is the clean, structured document format. You can copy this entire block, save it as a PDF for your technical records, and copy/paste the core text directly into Replit to execute the build.
+TECHNICAL DEPLOYMENT MEMORANDUM
+PROJECT: 3C ONYX / CUXTOMCANDYCLUB
+MODULE: Enterprise AI Stack Upgrade (v4.0)
+AUTHOR: Ronald Antonio Cadet, CVO
+DATE: March 31, 2026
+SYSTEM ARCHITECTURE DIRECTIVE
+Target: Replit AI Agent
+Action: Execute System-Wide Upgrade
+(COPY AND PASTE THE TEXT BELOW INTO REPLIT)
+Execute the 'Enterprise AI Stack' Upgrade for the 3C Onyx Command Layer. We are evolving the platform across the 5 core layers of AI infrastructure (Models, Data, Orchestration, Application, and Hardware optimization) without breaking the existing live API or the 7-Agent Mesh.
+ * MODEL LAYER (Hugging Face Integration):
+   Integrate the Hugging Face API and Inference Endpoints into the 7-Agent Mesh. Move away from a single monolithic LLM. Route tasks to specialized Small Language Models (SLMs) based on the requirement. For example, use a fast, lightweight classification model from Hugging Face for the 'Ask 3C' input router, and route heavy reasoning tasks (like the Finance Agent deal structuring) to more robust models.
+ * DATA LAYER (Deploy RAG & Vector Database):
+   Initialize a Vector Database (e.g., Pinecone or local ChromaDB) to power Retrieval-Augmented Generation (RAG). The Guardian, Finance, and Service Agents must use RAG to retrieve real-time data from uploaded PDF manuals, Stellantis funding guidelines, and federal compliance documents. The system must retrieve ground-truth documents to ensure zero hallucinations in user outputs.
+ * ORCHESTRATION LAYER (Plan, Execute, Review):
+   Upgrade the 'Ask 3C' neural gateway with a rigorous Critique & Review Loop. Before the 7-Agent Mesh returns a final deal structure or logistics route to the user, the system must self-review the output against the user's constraints to ensure 100% accuracy. Formalize the Tool-Calling / Function-Calling protocols so agents can autonomously trigger external APIs (like the Honk transport integration).
+ * APPLICATION LAYER (Multi-Modal & User-Friendly UX):
+   Upgrade the interface to accept multi-modal inputs. Allow users and service nodes to upload images (e.g., a photo of a damaged rim, or a picture of a window sticker). Use vision models to automatically extract the VIN, trim, and damage assessment. Additionally, the UI must display citations for its actions. When presenting a deal, show the user exactly where the data came from (e.g., '[Source: RAG - Stellantis Q3 Rate Sheet]').
+ * SECURITY & INFRASTRUCTURE:
+   Ensure all data routed through Hugging Face endpoints and the Vector DB maintains the existing NIST 800-53 and FIPS 140-3 encryption standards. Maintain the 'Zero-Error' typecheck state of the current live API.
+Goal: Transform 3C Onyx into a highly usable, multi-modal Enterprise OS driven by specialized Hugging Face models and ground-truth RAG data. Execute the upgrade immediately.
+(END OF COPY/PASTE BLOCK)
+DEPLOYMENT NOTES FOR CVO RECORD
+ * Cost Optimization: Hugging Face SLM routing reduces compute overhead by up to 80%.
+ * Trust & Verification: RAG implementation eliminates LLM hallucinations, securing the platform for Tier-1 Bank (Stellantis) and Federal (FBI/DOT) pilot usage.
+ * Status: Pending Replit Execution.

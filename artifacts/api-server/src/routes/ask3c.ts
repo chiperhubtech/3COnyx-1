@@ -53,7 +53,7 @@ import {
   documentVaultTable,
   warrantyRecordsTable,
 } from "@workspace/db";
-import { route as routeToAI } from "../lib/ai-router";
+import { route as routeToAI, critiqueAndReview, analyzeImage } from "../lib/ai-router";
 import { eventBus } from "../lib/eventBus";
 import { buildProtocolTrace, UACL_AGENT_MAP, SOVEREIGN_IDENTITY } from "../lib/protocols";
 import { generateShipmentQuote } from "../lib/transporterAgent";
@@ -545,6 +545,20 @@ router.post("/", async (req: Request, res: Response) => {
 
     const elapsedMs = Date.now() - startMs;
 
+    // Enterprise AI Stack v4.0: Critique & Review Loop
+    let reviewedAnswer = result.answer;
+    let reviewNotes = "";
+    try {
+      const review = await critiqueAndReview(query, result.answer);
+      if (!review.approved && review.revisedContent) {
+        reviewedAnswer = review.revisedContent;
+      }
+      reviewNotes = review.reviewNotes;
+    } catch {
+      reviewNotes = "Review skipped";
+    }
+    result.answer = reviewedAnswer;
+
     // Emit Ask3C event for timeline
     await eventBus.emit("node.appointment.scheduled", {
       appointmentId: `ASK-${Date.now()}`,
@@ -579,6 +593,7 @@ router.post("/", async (req: Request, res: Response) => {
       data:       result.data,
       protocols:  protocolTrace,
       sovereign:  SOVEREIGN_IDENTITY,
+      review: reviewNotes || undefined,
       meta: {
         resolvedIn:   `${elapsedMs}ms`,
         extractedVin: classified.extractedVin,
@@ -587,11 +602,66 @@ router.post("/", async (req: Request, res: Response) => {
         platform:     SOVEREIGN_IDENTITY.platform,
         patent:       SOVEREIGN_IDENTITY.patent,
         fingerprint:  SOVEREIGN_IDENTITY.fingerprint,
+        stack:        "Enterprise AI v4.0",
       },
     });
   } catch (err) {
     console.error("[ask3c]", err);
     return res.status(500).json({ error: "Command execution failed", intent: classified.intent });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// POST /api/ask/vision — Multi-Modal Image Analysis (Enterprise AI v4.0)
+// Upload a photo → ONYX Vision extracts VIN, damage assessment, sticker data
+// ─────────────────────────────────────────────────────────────────────────────
+
+router.post("/vision", async (req: Request, res: Response): Promise<void> => {
+  const { image, prompt } = req.body as { image?: string; prompt?: string };
+
+  if (!image) {
+    res.status(400).json({
+      error: "Image required. Send base64-encoded image in the 'image' field.",
+      usage: "POST /api/ask/vision with { image: 'base64...', prompt: 'What is this?' }",
+    });
+    return;
+  }
+
+  const maxBase64Bytes = 15 * 1024 * 1024;
+  if (image.length > maxBase64Bytes) {
+    res.status(413).json({ error: "Image too large. Maximum 10 MB." });
+    return;
+  }
+
+  const userPrompt = prompt ?? "Analyze this automotive image. Extract any VIN, vehicle details, damage, or document content you can see.";
+  const startMs = Date.now();
+
+  try {
+    const result = await analyzeImage(image, userPrompt);
+
+    const review = await critiqueAndReview(userPrompt, result.content).catch(() => ({
+      approved: true,
+      reviewNotes: "Review skipped",
+      revisedContent: undefined,
+    }));
+
+    const finalContent = (!review.approved && review.revisedContent) ? review.revisedContent : result.content;
+
+    const vinMatch = finalContent.match(/\b([A-HJ-NPR-Z0-9]{17})\b/i);
+
+    res.json({
+      analysis: finalContent,
+      extractedVin: vinMatch?.[1]?.toUpperCase() ?? null,
+      provider: result.provider,
+      model: result.model,
+      resolvedIn: `${Date.now() - startMs}ms`,
+      review: review.reviewNotes,
+      stack: "Enterprise AI v4.0 — ONYX Vision",
+      sovereign: SOVEREIGN_IDENTITY,
+    });
+  } catch (err) {
+    console.error("[ask3c:vision]", err);
+    res.status(500).json({ error: "Vision analysis failed" });
   }
 });
 
