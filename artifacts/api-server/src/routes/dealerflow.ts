@@ -6,6 +6,7 @@ import { analyzeImage } from "../lib/ai-router";
 import { onSubmissionAccepted, onSubmissionRejected } from "../lib/trust-engine";
 import { requireAuth } from "../middlewares/requireAuth";
 import { eventBus } from "../lib/eventBus";
+import { parsePagination, paginatedResponse } from "../lib/pagination";
 
 const AI_CONFIDENCE_THRESHOLD = 0.85;
 const MAX_RETRIES = 3;
@@ -195,7 +196,8 @@ router.get("/dealerflow/tasks", requireAuth, async (req: Request, res: Response)
     const userId = requireUserId(req, res);
     if (!userId) return;
 
-    const { department, status, priority, scope, limit: rawLimit } = req.query;
+    const { department, status, priority, scope } = req.query;
+    const pg = parsePagination(req, { limit: 50, maxLimit: 200 });
     const conditions: ReturnType<typeof eq>[] = [eq(dealerflowTasksTable.dealershipId, userId)];
 
     if (department && typeof department === "string" && (VALID_DEPARTMENTS as readonly string[]).includes(department)) {
@@ -211,15 +213,17 @@ router.get("/dealerflow/tasks", requireAuth, async (req: Request, res: Response)
       conditions.push(eq(dealerflowTasksTable.taskScope, scope as typeof VALID_SCOPES[number]));
     }
 
-    const maxRows = Math.min(Math.max(safeParseInt(rawLimit, 50), 1), 200);
     const where = and(...conditions);
 
-    const tasks = await db
-      .select()
-      .from(dealerflowTasksTable)
-      .where(where)
-      .orderBy(desc(dealerflowTasksTable.createdAt))
-      .limit(maxRows);
+    const [totalResult, tasks] = await Promise.all([
+      db.select({ count: sql<number>`count(*)::int` }).from(dealerflowTasksTable).where(where),
+      db.select()
+        .from(dealerflowTasksTable)
+        .where(where)
+        .orderBy(desc(dealerflowTasksTable.createdAt))
+        .limit(pg.limit)
+        .offset(pg.offset),
+    ]);
 
     const SLA_PAUSED_STATUSES = ["Completed", "Cancelled", "Pending_Approval", "Pending_External", "Blocked"];
 
@@ -247,7 +251,9 @@ router.get("/dealerflow/tasks", requireAuth, async (req: Request, res: Response)
       return { ...t, slaBreached: sla.breached, minutesOverdue: sla.minutesOverdue, blockerName, aiConfidence, executionMode, retryCount, escalationNeeded: escalation.escalate, escalationReason: escalation.reason };
     });
 
-    res.json({ tasks: enriched, count: enriched.length });
+    const total = totalResult[0]?.count ?? 0;
+    const paginated = paginatedResponse(enriched, total, pg);
+    res.json({ tasks: paginated.data, count: total, pagination: paginated.pagination });
   } catch {
     res.status(500).json({ error: sanitizeError() });
   }

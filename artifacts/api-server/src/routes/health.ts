@@ -11,10 +11,11 @@
  */
 import { Router, type IRouter } from "express";
 import { sql } from "drizzle-orm";
-import { db } from "@workspace/db";
+import { db, pool } from "@workspace/db";
 import * as wsHub from "../lib/wsHub";
 import { blockedIpCount } from "../middlewares/scannerDetector";
 import { allCircuitStatuses } from "../lib/circuitBreaker";
+import { apiCache } from "../lib/apiCache";
 import os from "os";
 
 const router: IRouter = Router();
@@ -86,6 +87,12 @@ router.get("/healthz", async (_req, res) => {
   const circuitBreakers = allCircuitStatuses();
   const openCircuits = circuitBreakers.filter((c) => c.state !== "CLOSED");
 
+  const poolStats = {
+    totalCount:     pool.totalCount,
+    idleCount:      pool.idleCount,
+    waitingCount:   pool.waitingCount,
+  };
+
   res.status(degraded ? 503 : 200).json({
     status:      degraded ? "degraded" : "healthy",
     version:     PLATFORM_VERSION,
@@ -97,6 +104,13 @@ router.get("/healthz", async (_req, res) => {
       all:    circuitBreakers,
       open:   openCircuits.length,
       status: openCircuits.length === 0 ? "all_closed" : `${openCircuits.length}_open`,
+    },
+    performance: {
+      connectionPool: poolStats,
+      cache:          apiCache.stats(),
+      compression:    "gzip/brotli level-6 (threshold 1KB)",
+      pagination:     "standardized (page/limit/offset)",
+      asyncLogging:   "fire-and-forget (res.on finish)",
     },
     metrics,
     ts: new Date().toISOString(),

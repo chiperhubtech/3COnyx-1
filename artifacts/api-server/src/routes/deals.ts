@@ -3,6 +3,7 @@ import { db, dealsTable, dealerflowTasksTable, commissionLedgerTable } from "@wo
 import { eq, desc, and, sql, count, asc, ne, inArray } from "drizzle-orm";
 import { smartRoute, checkSlaBreached } from "../lib/smart-router";
 import { requireAuth } from "../middlewares/requireAuth";
+import { parsePagination, paginatedResponse } from "../lib/pagination";
 
 function calculateTaskAiConfidence(task: any): number {
   const routingConf = parseFloat(task.routingConfidence) || 0;
@@ -151,7 +152,8 @@ router.get("/deals", requireAuth, async (req: Request, res: Response) => {
     const userId = requireUserId(req, res);
     if (!userId) return;
 
-    const { status, dealType, limit: rawLimit } = req.query;
+    const { status, dealType } = req.query;
+    const pg = parsePagination(req, { limit: 50, maxLimit: 200 });
     const conditions: ReturnType<typeof eq>[] = [eq(dealsTable.dealershipId, userId)];
 
     if (status && typeof status === "string" && (VALID_DEAL_STATUSES as readonly string[]).includes(status)) {
@@ -161,15 +163,20 @@ router.get("/deals", requireAuth, async (req: Request, res: Response) => {
       conditions.push(eq(dealsTable.dealType, dealType as typeof VALID_DEAL_TYPES[number]));
     }
 
-    const maxRows = Math.min(Math.max(safeParseInt(rawLimit, 50), 1), 200);
     const where = and(...conditions);
 
-    const deals = await db.select().from(dealsTable)
-      .where(where)
-      .orderBy(desc(dealsTable.createdAt))
-      .limit(maxRows);
+    const [totalResult, deals] = await Promise.all([
+      db.select({ count: sql<number>`count(*)::int` }).from(dealsTable).where(where),
+      db.select().from(dealsTable)
+        .where(where)
+        .orderBy(desc(dealsTable.createdAt))
+        .limit(pg.limit)
+        .offset(pg.offset),
+    ]);
 
-    res.json({ deals, count: deals.length });
+    const total = totalResult[0]?.count ?? 0;
+    const paginated = paginatedResponse(deals, total, pg);
+    res.json({ deals: paginated.data, count: total, pagination: paginated.pagination });
   } catch {
     res.status(500).json({ error: sanitizeError() });
   }

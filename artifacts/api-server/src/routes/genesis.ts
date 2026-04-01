@@ -3,6 +3,7 @@ import { db, usersTable } from "@workspace/db";
 import { sql } from "drizzle-orm";
 import { SOVEREIGN_IDENTITY, UACL_AGENT_MAP } from "../lib/protocols";
 import { SOVEREIGN_TOKEN } from "../lib/honeyToken";
+import { apiCache } from "../lib/apiCache";
 
 const router = Router();
 const GENESIS_TS = "2026-03-28T23:37:21.908Z";
@@ -53,7 +54,6 @@ const AGENT_MESH = Object.entries(UACL_AGENT_MAP)
   .filter(([k]) => k !== "unknown")
   .map(([intent, { agent, action }]) => ({ intent, agent, action }));
 
-let pulseCache: { data: Record<string, unknown>; ts: number } | null = null;
 const PULSE_TTL_MS = 30_000;
 
 router.get("/manifest", (_req: Request, res: Response) => {
@@ -120,49 +120,45 @@ router.get("/manifest", (_req: Request, res: Response) => {
 });
 
 router.get("/pulse", async (_req: Request, res: Response): Promise<void> => {
-  if (pulseCache && Date.now() - pulseCache.ts < PULSE_TTL_MS) {
-    res.json(pulseCache.data);
-    return;
-  }
+  const data = await apiCache.get("genesis:pulse", async () => {
+    const uptimeSeconds = Math.floor(process.uptime());
+    const days  = Math.floor(uptimeSeconds / 86400);
+    const hours = Math.floor((uptimeSeconds % 86400) / 3600);
+    const mins  = Math.floor((uptimeSeconds % 3600) / 60);
+    const secs  = uptimeSeconds % 60;
+    const uptime = `${days}d ${hours}h ${mins}m ${secs}s`;
 
-  const uptimeSeconds = Math.floor(process.uptime());
-  const days  = Math.floor(uptimeSeconds / 86400);
-  const hours = Math.floor((uptimeSeconds % 86400) / 3600);
-  const mins  = Math.floor((uptimeSeconds % 3600) / 60);
-  const secs  = uptimeSeconds % 60;
-  const uptime = `${days}d ${hours}h ${mins}m ${secs}s`;
+    let dbStatus: "connected" | "disconnected" = "disconnected";
+    try {
+      await db.select({ count: sql<number>`1` }).from(usersTable);
+      dbStatus = "connected";
+    } catch {
+      dbStatus = "disconnected";
+    }
 
-  let dbStatus: "connected" | "disconnected" = "disconnected";
-  try {
-    await db.select({ count: sql<number>`1` }).from(usersTable);
-    dbStatus = "connected";
-  } catch {
-    dbStatus = "disconnected";
-  }
+    return {
+      protocol: "GENESIS_PULSE",
+      status:   "SOVEREIGN_COMMAND_LAYER_ACTIVE",
+      architect: SOVEREIGN_IDENTITY.architect,
+      fingerprint: SOVEREIGN_IDENTITY.fingerprint,
+      uptime,
+      genesis:  GENESIS_TS,
+      database: dbStatus,
+      agentMesh: {
+        totalAgents:  AGENT_MESH.length,
+        operational:  AGENT_MESH.length,
+      },
+      protocols: {
+        s1: "CLASSIFY & AUTHENTICATE — active",
+        s2: "EXECUTE & VERIFY — active",
+        s3: "LOG & AUDIT — active",
+      },
+      encryption: "AES-256-GCM · FIPS 140-3",
+      compliance: "NIST-800-53 · SOC2 · CJIS",
+      ts: new Date().toISOString(),
+    };
+  }, PULSE_TTL_MS, 10_000);
 
-  const data: Record<string, unknown> = {
-    protocol: "GENESIS_PULSE",
-    status:   "SOVEREIGN_COMMAND_LAYER_ACTIVE",
-    architect: SOVEREIGN_IDENTITY.architect,
-    fingerprint: SOVEREIGN_IDENTITY.fingerprint,
-    uptime,
-    genesis:  GENESIS_TS,
-    database: dbStatus,
-    agentMesh: {
-      totalAgents:  AGENT_MESH.length,
-      operational:  AGENT_MESH.length,
-    },
-    protocols: {
-      s1: "CLASSIFY & AUTHENTICATE — active",
-      s2: "EXECUTE & VERIFY — active",
-      s3: "LOG & AUDIT — active",
-    },
-    encryption: "AES-256-GCM · FIPS 140-3",
-    compliance: "NIST-800-53 · SOC2 · CJIS",
-    ts: new Date().toISOString(),
-  };
-
-  pulseCache = { data, ts: Date.now() };
   res.json(data);
 });
 

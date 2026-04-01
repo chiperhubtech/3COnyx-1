@@ -6,6 +6,7 @@ import { eventBus } from "../lib/eventBus";
 import { getUserReferralStats } from "../lib/growth-engine";
 import { logger } from "../lib/logger";
 import crypto from "crypto";
+import { parsePagination, paginatedResponse } from "../lib/pagination";
 
 const router = Router();
 
@@ -169,20 +170,29 @@ router.get("/referrals/ledger", requireAuth, async (req: Request, res: Response)
     const userId = parseInt(req.user?.sub || "0", 10);
     if (!userId) { res.status(401).json({ error: "Unauthorized" }); return; }
 
-    const entries = await db.select().from(referralLedgerTable)
-      .where(eq(referralLedgerTable.referringNodeId, userId))
-      .orderBy(desc(referralLedgerTable.createdAt))
-      .limit(50);
+    const pg = parsePagination(req, { limit: 50, maxLimit: 100 });
 
-    const commissions = await db.select().from(commissionLedgerTable)
-      .where(and(
-        eq(commissionLedgerTable.recipientId, userId),
-        eq(commissionLedgerTable.entryType, "Referral"),
-      ))
-      .orderBy(desc(commissionLedgerTable.createdAt))
-      .limit(50);
+    const [totalResult, entries, commissions] = await Promise.all([
+      db.select({ count: sql<number>`count(*)::int` }).from(referralLedgerTable)
+        .where(eq(referralLedgerTable.referringNodeId, userId)),
+      db.select().from(referralLedgerTable)
+        .where(eq(referralLedgerTable.referringNodeId, userId))
+        .orderBy(desc(referralLedgerTable.createdAt))
+        .limit(pg.limit)
+        .offset(pg.offset),
+      db.select().from(commissionLedgerTable)
+        .where(and(
+          eq(commissionLedgerTable.recipientId, userId),
+          eq(commissionLedgerTable.entryType, "Referral"),
+        ))
+        .orderBy(desc(commissionLedgerTable.createdAt))
+        .limit(pg.limit)
+        .offset(pg.offset),
+    ]);
 
-    res.json({ referrals: entries, commissions });
+    const total = totalResult[0]?.count ?? 0;
+    const paginated = paginatedResponse(entries, total, pg);
+    res.json({ referrals: paginated.data, commissions, pagination: paginated.pagination });
   } catch (err) {
     logger.error({ err: (err as Error).message }, "[Referrals] Ledger error");
     res.status(500).json({ error: "Failed to fetch referral ledger" });

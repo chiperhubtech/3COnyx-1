@@ -3,6 +3,8 @@ import { db, usersTable, referralLedgerTable, commissionLedgerTable, dealerflowT
 import { eq, and, sql, desc, or } from "drizzle-orm";
 import { requireAuth } from "../middlewares/requireAuth";
 import { logger } from "../lib/logger";
+import { parsePagination, paginatedResponse } from "../lib/pagination";
+import { apiCache } from "../lib/apiCache";
 
 const router = Router();
 
@@ -128,19 +130,25 @@ router.get("/community/network-feed", requireAuth, async (req: Request, res: Res
       return;
     }
 
-    const activeTasks = await db.select({
-      id: dealerflowTasksTable.id,
-      title: dealerflowTasksTable.title,
-      department: dealerflowTasksTable.department,
-      status: dealerflowTasksTable.status,
-      initiatorName: dealerflowTasksTable.initiatorName,
-      createdAt: dealerflowTasksTable.createdAt,
-    }).from(dealerflowTasksTable)
-      .where(
-        or(...referredIds.map(id => eq(dealerflowTasksTable.initiatorId, id)))
-      )
-      .orderBy(desc(dealerflowTasksTable.createdAt))
-      .limit(20);
+    const pg = parsePagination(req, { limit: 20, maxLimit: 50 });
+
+    const [totalResult, activeTasks] = await Promise.all([
+      db.select({ count: sql<number>`count(*)::int` })
+        .from(dealerflowTasksTable)
+        .where(or(...referredIds.map(id => eq(dealerflowTasksTable.initiatorId, id)))),
+      db.select({
+        id: dealerflowTasksTable.id,
+        title: dealerflowTasksTable.title,
+        department: dealerflowTasksTable.department,
+        status: dealerflowTasksTable.status,
+        initiatorName: dealerflowTasksTable.initiatorName,
+        createdAt: dealerflowTasksTable.createdAt,
+      }).from(dealerflowTasksTable)
+        .where(or(...referredIds.map(id => eq(dealerflowTasksTable.initiatorId, id))))
+        .orderBy(desc(dealerflowTasksTable.createdAt))
+        .limit(pg.limit)
+        .offset(pg.offset),
+    ]);
 
     const feed = activeTasks.map(t => {
       const firstName = (t.initiatorName || "Someone").split(" ")[0];
@@ -159,7 +167,9 @@ router.get("/community/network-feed", requireAuth, async (req: Request, res: Res
       };
     });
 
-    res.json({ feed });
+    const total = totalResult[0]?.count ?? 0;
+    const paginated = paginatedResponse(feed, total, pg);
+    res.json({ feed: paginated.data, pagination: paginated.pagination });
   } catch (err) {
     logger.error({ err: (err as Error).message }, "[Community] Network feed failed");
     res.status(500).json({ error: "Failed to load network feed" });
