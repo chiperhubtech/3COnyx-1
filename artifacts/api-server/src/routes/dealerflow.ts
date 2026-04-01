@@ -1,5 +1,5 @@
 import { Router, type Request, type Response } from "express";
-import { db, dealerflowTasksTable, documentScansTable, customerTicketsTable, commissionLedgerTable, dealsTable } from "@workspace/db";
+import { db, dealerflowTasksTable, dealerflowAuditLogTable, documentScansTable, customerTicketsTable, commissionLedgerTable, dealsTable } from "@workspace/db";
 import { eq, desc, and, sql, count, asc, lt, ne, gte, lte, inArray } from "drizzle-orm";
 import { smartRoute, extractVinFromText, extractPartNumbers, extractCustomerName, extractPhoneNumber, checkSlaBreached, calculateTechFee, suggestNextStep } from "../lib/smart-router";
 import { analyzeImage } from "../lib/ai-router";
@@ -331,6 +331,24 @@ router.patch("/dealerflow/tasks/:id", requireAuth, async (req: Request, res: Res
       return;
     }
 
+    const callerRole = req.user?.role || "Member";
+    const callerId = parseInt(req.user?.sub || "0", 10);
+    const EXECUTION_ROLES = ["Admin", "Dealer", "Specialist"];
+    const EXECUTION_STATUSES = ["In_Progress", "Completed", "Cancelled", "Escalated"];
+
+    if (existing.initiatorId && existing.initiatorId === callerId) {
+      if (req.body.status && EXECUTION_STATUSES.includes(req.body.status)) {
+        res.status(403).json({ error: "Initiators cannot execute their own submitted tasks. Use your tracking code to monitor progress.", code: "RBAC_INITIATOR_LOCKED" });
+        return;
+      }
+    }
+
+    if (req.body.status && EXECUTION_STATUSES.includes(req.body.status) && !EXECUTION_ROLES.includes(callerRole)) {
+      res.status(403).json({ error: "Only authorized roles (Admin, Dealer, Specialist) can execute task state changes.", code: "RBAC_UNAUTHORIZED_EXECUTION" });
+      return;
+    }
+
+    const previousStatus = existing.status;
     const updates: Record<string, unknown> = { updatedAt: new Date() };
     const meta = (existing.metadata || {}) as Record<string, any>;
 
@@ -363,12 +381,36 @@ router.patch("/dealerflow/tasks/:id", requireAuth, async (req: Request, res: Res
     const isNewCompletion = req.body.status === "Completed" && existing.status !== "Completed";
     if (isNewCompletion) {
       updates.resolvedAt = new Date();
+      updates.authorizerId = callerId;
+      updates.authorizedAt = new Date();
+    }
+
+    if (req.body.status === "In_Progress" && !existing.ownerId) {
+      updates.ownerId = callerId;
     }
 
     const [task] = await db.update(dealerflowTasksTable)
       .set(updates)
       .where(and(eq(dealerflowTasksTable.id, id), eq(dealerflowTasksTable.dealershipId, userId)))
       .returning();
+
+    if (task && task.status !== previousStatus) {
+      try {
+        await db.insert(dealerflowAuditLogTable).values({
+          taskId: task.id,
+          userId: callerId,
+          userName: req.user?.name || "System",
+          userRole: callerRole,
+          actionType: "STATUS_CHANGE",
+          previousStatus,
+          newStatus: task.status,
+          details: { department: task.department, priority: task.priority, isCompletion: isNewCompletion },
+          ipAddress: (req.ip || req.headers["x-forwarded-for"] || "unknown") as string,
+        });
+      } catch (auditErr) {
+        console.error("[AUDIT] Failed to write audit log for task", task.id, auditErr);
+      }
+    }
 
     let techFeeLogged = false;
     let bankVaultEligible = false;
@@ -1645,6 +1687,55 @@ router.post("/dealerflow/route", requireAuth, async (req: Request, res: Response
     const phone = extractPhoneNumber(safeText);
 
     res.json({ routing, extractedVin: vin, extractedPartNumbers: parts, extractedCustomerName: customerName, extractedPhone: phone });
+  } catch {
+    res.status(500).json({ error: sanitizeError() });
+  }
+});
+
+router.get("/dealerflow/tasks/:id/audit-trail", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const userId = requireUserId(req, res);
+    if (!userId) return;
+
+    const taskId = safeParseInt(req.params.id, 0);
+    if (!taskId) {
+      res.status(400).json({ error: "Invalid task ID" });
+      return;
+    }
+
+    const [task] = await db.select().from(dealerflowTasksTable)
+      .where(and(eq(dealerflowTasksTable.id, taskId), eq(dealerflowTasksTable.dealershipId, userId)));
+
+    if (!task) {
+      res.status(404).json({ error: "Task not found" });
+      return;
+    }
+
+    const entries = await db.select().from(dealerflowAuditLogTable)
+      .where(eq(dealerflowAuditLogTable.taskId, taskId))
+      .orderBy(desc(dealerflowAuditLogTable.createdAt))
+      .limit(100);
+
+    const callerRole = req.user?.role || "Member";
+    const sanitized = entries.map((e) => {
+      const base = { id: e.id, actionType: e.actionType, previousStatus: e.previousStatus, newStatus: e.newStatus, createdAt: e.createdAt };
+      if (["Admin", "Dealer"].includes(callerRole)) {
+        return { ...base, userName: e.userName, userRole: e.userRole, userId: e.userId, details: e.details, ipAddress: e.ipAddress };
+      }
+      return base;
+    });
+
+    res.json({
+      taskId,
+      initiator: { id: task.initiatorId, name: task.initiatorName, tier: task.initiatorTier },
+      owner: task.ownerId,
+      authorizer: task.authorizerId,
+      authorizedAt: task.authorizedAt,
+      auditTrail: sanitized,
+      immutable: true,
+      protocol: "3C ONYX — Forensic Audit Trail",
+      architect: "Ronald Antonio Cadet",
+    });
   } catch {
     res.status(500).json({ error: sanitizeError() });
   }

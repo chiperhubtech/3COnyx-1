@@ -98,6 +98,7 @@ import monetizationRouter from "./monetization";
 import genesisRouter from "./genesis";
 import dealerflowRouter from "./dealerflow";
 import dealsRouter from "./deals";
+import omniNodeRouter from "./omni-node";
 
 const router: IRouter = Router();
 
@@ -218,5 +219,6 @@ router.use("/monetization", monetizationRouter);
 router.use("/genesis",      genesisRouter);
 router.use(dealerflowRouter);
 router.use(dealsRouter);
+router.use(omniNodeRouter);
 
 export default router;

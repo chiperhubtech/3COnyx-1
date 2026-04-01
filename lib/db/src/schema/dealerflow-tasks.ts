@@ -3,6 +3,7 @@
  * Architect: Ronald Antonio Cadet — CUXTOMCANDYCLUB LLC
  * Sovereign Infrastructure — Unified Automotive Command Layer (UACL)
  * Trade Secret TS-DEALERFLOW — Proprietary Task Routing & SLA Engine
+ * Zero-Trust Delegation Architecture — Open Initiation + Controlled Execution
  */
 import { pgTable, text, serial, integer, timestamp, pgEnum, jsonb, index, type AnyPgColumn } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
@@ -54,6 +55,16 @@ export const dfIntakeTypeEnum = pgEnum("df_intake_type", [
   "Phone",
   "Walk_In",
   "Vision_Scan",
+  "Omni_Node",
+]);
+
+export const dfInitiatorTierEnum = pgEnum("df_initiator_tier", [
+  "Authenticated",
+  "Lot_Attendant",
+  "Detailer",
+  "Customer",
+  "External_Vendor",
+  "Anonymous",
 ]);
 
 export const dealerflowTasksTable = pgTable("dealerflow_tasks", {
@@ -71,6 +82,13 @@ export const dealerflowTasksTable = pgTable("dealerflow_tasks", {
   customerId: integer("customer_id").references(() => usersTable.id, { onDelete: "set null" }),
   assignedToId: integer("assigned_to_id").references(() => usersTable.id, { onDelete: "set null" }),
   dealershipId: integer("dealership_id").references(() => usersTable.id, { onDelete: "set null" }),
+  initiatorId: integer("initiator_id").references(() => usersTable.id, { onDelete: "set null" }),
+  initiatorName: text("initiator_name"),
+  initiatorTier: dfInitiatorTierEnum("initiator_tier").default("Authenticated"),
+  ownerId: integer("owner_id").references(() => usersTable.id, { onDelete: "set null" }),
+  authorizerId: integer("authorizer_id").references(() => usersTable.id, { onDelete: "set null" }),
+  authorizedAt: timestamp("authorized_at", { withTimezone: true }),
+  trackingCode: text("tracking_code").unique(),
   slaMinutes: integer("sla_minutes").notNull().default(480),
   slaDueAt: timestamp("sla_due_at", { withTimezone: true }),
   routedByAgent: text("routed_by_agent"),
@@ -91,6 +109,29 @@ export const dealerflowTasksTable = pgTable("dealerflow_tasks", {
   index("df_tasks_scope_idx").on(t.taskScope),
   index("df_tasks_deal_idx").on(t.dealId),
   index("df_tasks_depends_on_idx").on(t.dependsOnTaskId),
+  index("df_tasks_initiator_idx").on(t.initiatorId),
+  index("df_tasks_owner_idx").on(t.ownerId),
+  index("df_tasks_tracking_idx").on(t.trackingCode),
+]);
+
+export const dealerflowAuditLogTable = pgTable("dealerflow_audit_log", {
+  id: serial("id").primaryKey(),
+  taskId: integer("task_id").references(() => dealerflowTasksTable.id, { onDelete: "cascade" }).notNull(),
+  userId: integer("user_id").references(() => usersTable.id, { onDelete: "set null" }),
+  userName: text("user_name"),
+  userRole: text("user_role"),
+  actionType: text("action_type").notNull(),
+  previousStatus: text("previous_status"),
+  newStatus: text("new_status"),
+  details: jsonb("details"),
+  ipAddress: text("ip_address"),
+  architect: text("architect").notNull().default("Ronald Antonio Cadet"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index("df_audit_task_idx").on(t.taskId),
+  index("df_audit_user_idx").on(t.userId),
+  index("df_audit_action_idx").on(t.actionType),
+  index("df_audit_created_idx").on(t.createdAt),
 ]);
 
 export const insertDealerflowTaskSchema = createInsertSchema(dealerflowTasksTable).omit({

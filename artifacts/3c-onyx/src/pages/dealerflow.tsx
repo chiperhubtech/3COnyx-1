@@ -244,7 +244,7 @@ function formatMinutes(mins: number) {
   return h > 0 ? `${h}h ${m}m` : `${m}m`;
 }
 
-type Tab = "dashboard" | "deals" | "my-deals" | "tasks" | "intake" | "tickets" | "queue" | "performance" | "store" | "vault" | "velocity";
+type Tab = "dashboard" | "deals" | "my-deals" | "tasks" | "intake" | "tickets" | "queue" | "performance" | "store" | "vault" | "velocity" | "omni-node";
 
 export default function DealerFlowOS() {
   const [tab, setTab] = useState<Tab>("dashboard");
@@ -266,6 +266,7 @@ export default function DealerFlowOS() {
     { id: "performance", label: "Ops Report", icon: <BarChart3 className="w-4 h-4" /> },
     { id: "store", label: "Store P&L", icon: <Store className="w-4 h-4" /> },
     { id: "velocity", label: "GM View", icon: <Gauge className="w-4 h-4" /> },
+    { id: "omni-node", label: "Open Intake", icon: <Send className="w-4 h-4" /> },
   ];
 
   return (
@@ -312,6 +313,7 @@ export default function DealerFlowOS() {
       {tab === "performance" && <PerformanceReport />}
       {tab === "store" && <StorePerformanceDashboard />}
       {tab === "velocity" && <GMVelocityDashboard />}
+      {tab === "omni-node" && <OmniNodeIntake />}
     </div>
   );
 }
@@ -2660,6 +2662,227 @@ function StorePerformanceDashboard() {
 
       <div className="text-center text-[10px] text-zinc-700 pt-4 border-t border-zinc-900">
         3C ONYX &mdash; DealerFlow OS Store P&L &mdash; Architect: Ronald Antonio Cadet &mdash; CUXTOMCANDYCLUB LLC
+      </div>
+    </div>
+  );
+}
+
+function OmniNodeIntake() {
+  const qc = useQueryClient();
+  const [mode, setMode] = useState<"submit" | "track">("submit");
+  const [trackingCode, setTrackingCode] = useState("");
+  const [form, setForm] = useState({ title: "", description: "", intakeType: "Walk_In", department: "Sales", urgency: "Medium", photos: [] as string[], contactName: "", contactPhone: "", contactEmail: "" });
+  const [submitted, setSubmitted] = useState<{ trackingCode: string; id: number } | null>(null);
+
+  const submitMut = useMutation({
+    mutationFn: (data: typeof form) =>
+      authFetch(`${BASE}/api/omni-node/submit`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }).then((r) => r.json()),
+    onSuccess: (data: any) => {
+      if (data.trackingCode) {
+        setSubmitted({ trackingCode: data.trackingCode, id: data.task?.id || 0 });
+        setForm({ title: "", description: "", intakeType: "Walk_In", department: "Sales", urgency: "Medium", photos: [], contactName: "", contactPhone: "", contactEmail: "" });
+      }
+    },
+  });
+
+  const trackQuery = useQuery({
+    queryKey: ["omni-track", trackingCode],
+    queryFn: () => fetch(`${BASE}/api/omni-node/track/${trackingCode}`).then((r) => r.json()),
+    enabled: mode === "track" && trackingCode.length > 5,
+    refetchInterval: 10000,
+  });
+
+  const mySubsQuery = useQuery({
+    queryKey: ["omni-my-subs"],
+    queryFn: () => authFetch(`${BASE}/api/omni-node/my-submissions`).then((r) => r.json()),
+    refetchInterval: 30000,
+  });
+
+  const intakeTypes = ["Walk_In", "Phone_Call", "Email", "Text_Message", "Service_Drive", "Omni_Node"];
+  const departments = ["Sales", "Finance", "Service", "Parts", "BDC", "Detailing", "Reconditioning", "Title_Clerk", "Management"];
+  const urgencies = ["Low", "Medium", "High", "Critical"];
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-bold text-white">Omni-Node Open Intake</h2>
+          <p className="text-xs text-zinc-500">Zero-Trust Submission Portal — Anyone can submit, only authorized roles execute</p>
+        </div>
+        <div className="flex gap-1 bg-zinc-900 rounded-lg p-1 border border-zinc-800">
+          <button onClick={() => setMode("submit")} className={cn("px-3 py-1.5 rounded-md text-xs font-medium transition-all", mode === "submit" ? "bg-amber-500/20 text-amber-300 border border-amber-500/30" : "text-zinc-400 hover:text-white")}>
+            <Plus className="w-3 h-3 inline mr-1" />Submit
+          </button>
+          <button onClick={() => setMode("track")} className={cn("px-3 py-1.5 rounded-md text-xs font-medium transition-all", mode === "track" ? "bg-amber-500/20 text-amber-300 border border-amber-500/30" : "text-zinc-400 hover:text-white")}>
+            <Search className="w-3 h-3 inline mr-1" />Track
+          </button>
+        </div>
+      </div>
+
+      {submitted && (
+        <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+            <span className="text-emerald-300 font-semibold text-sm">Submission Accepted</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-zinc-400">Tracking Code:</span>
+            <code className="bg-zinc-900 text-amber-300 px-3 py-1 rounded font-mono text-sm">{submitted.trackingCode}</code>
+            <button onClick={() => { navigator.clipboard.writeText(submitted.trackingCode); }} className="text-xs text-zinc-500 hover:text-white">Copy</button>
+          </div>
+          <p className="text-xs text-zinc-500 mt-2">Save this code to track your submission status. No login required.</p>
+          <button onClick={() => { setTrackingCode(submitted.trackingCode); setMode("track"); setSubmitted(null); }} className="mt-2 text-xs text-amber-400 hover:underline">Track this submission →</button>
+        </div>
+      )}
+
+      {mode === "submit" && (
+        <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-6 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="md:col-span-2">
+              <label className="text-xs text-zinc-400 block mb-1">Title *</label>
+              <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Brief description of the issue or request" className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-600 focus:border-amber-500/50 focus:outline-none" />
+            </div>
+            <div className="md:col-span-2">
+              <label className="text-xs text-zinc-400 block mb-1">Description</label>
+              <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Detailed explanation — more detail improves routing accuracy" rows={3} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-600 focus:border-amber-500/50 focus:outline-none resize-none" />
+            </div>
+            <div>
+              <label className="text-xs text-zinc-400 block mb-1">Intake Type</label>
+              <select value={form.intakeType} onChange={(e) => setForm({ ...form, intakeType: e.target.value })} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white focus:border-amber-500/50 focus:outline-none">
+                {intakeTypes.map((t) => <option key={t} value={t}>{t.replace(/_/g, " ")}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="text-xs text-zinc-400 block mb-1">Department</label>
+              <select value={form.department} onChange={(e) => setForm({ ...form, department: e.target.value })} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white focus:border-amber-500/50 focus:outline-none">
+                {departments.map((d) => <option key={d} value={d}>{d.replace(/_/g, " ")}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="text-xs text-zinc-400 block mb-1">Urgency</label>
+              <select value={form.urgency} onChange={(e) => setForm({ ...form, urgency: e.target.value })} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white focus:border-amber-500/50 focus:outline-none">
+                {urgencies.map((u) => <option key={u} value={u}>{u}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="text-xs text-zinc-400 block mb-1">Contact Name</label>
+              <input value={form.contactName} onChange={(e) => setForm({ ...form, contactName: e.target.value })} placeholder="Your name (optional)" className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-600 focus:border-amber-500/50 focus:outline-none" />
+            </div>
+            <div>
+              <label className="text-xs text-zinc-400 block mb-1">Phone</label>
+              <input value={form.contactPhone} onChange={(e) => setForm({ ...form, contactPhone: e.target.value })} placeholder="(555) 123-4567" className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-600 focus:border-amber-500/50 focus:outline-none" />
+            </div>
+            <div>
+              <label className="text-xs text-zinc-400 block mb-1">Email</label>
+              <input value={form.contactEmail} onChange={(e) => setForm({ ...form, contactEmail: e.target.value })} placeholder="email@example.com" className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-600 focus:border-amber-500/50 focus:outline-none" />
+            </div>
+          </div>
+          <div className="flex justify-end pt-2">
+            <button
+              onClick={() => { if (form.title.trim()) submitMut.mutate(form); }}
+              disabled={!form.title.trim() || submitMut.isPending}
+              className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-600 text-black font-semibold rounded-lg text-sm hover:brightness-110 disabled:opacity-40 transition-all"
+            >
+              <Send className="w-4 h-4" />
+              {submitMut.isPending ? "Submitting..." : "Submit Request"}
+            </button>
+          </div>
+          {submitMut.isError && <p className="text-red-400 text-xs">Submission failed — please try again.</p>}
+        </div>
+      )}
+
+      {mode === "track" && (
+        <div className="space-y-4">
+          <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-4">
+            <label className="text-xs text-zinc-400 block mb-2">Enter Tracking Code</label>
+            <div className="flex gap-2">
+              <input value={trackingCode} onChange={(e) => setTrackingCode(e.target.value.toUpperCase())} placeholder="3CX-XXXXXXXX-XXXXXX" className="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white font-mono placeholder-zinc-600 focus:border-amber-500/50 focus:outline-none" />
+              <button onClick={() => qc.invalidateQueries({ queryKey: ["omni-track", trackingCode] })} className="px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-zinc-400 hover:text-white text-sm">
+                <RefreshCw className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {trackQuery.data?.status && !trackQuery.data?.error && (
+            <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-zinc-500">Tracking: <code className="text-amber-400 font-mono">{trackQuery.data.trackingCode}</code></p>
+                  <p className="text-sm text-zinc-300 mt-1">{trackQuery.data.statusMessage}</p>
+                </div>
+                <span className={cn("px-2.5 py-1 rounded-full text-xs font-medium",
+                  trackQuery.data.status === "Completed" ? "bg-emerald-500/20 text-emerald-300" :
+                  trackQuery.data.status === "In_Progress" ? "bg-blue-500/20 text-blue-300" :
+                  trackQuery.data.status === "Escalated" ? "bg-red-500/20 text-red-300" :
+                  "bg-zinc-700 text-zinc-300"
+                )}>
+                  {trackQuery.data.status?.replace(/_/g, " ")}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                <div><span className="text-zinc-500">Department</span><p className="text-white">{trackQuery.data.department}</p></div>
+                <div><span className="text-zinc-500">Priority</span><p className="text-white">{trackQuery.data.priority}</p></div>
+                <div><span className="text-zinc-500">Submitted</span><p className="text-white">{trackQuery.data.submittedAt ? new Date(trackQuery.data.submittedAt).toLocaleDateString() : "—"}</p></div>
+                <div><span className="text-zinc-500">Last Updated</span><p className="text-white">{trackQuery.data.lastUpdated ? new Date(trackQuery.data.lastUpdated).toLocaleDateString() : "—"}</p></div>
+              </div>
+
+              {trackQuery.data.timeline && trackQuery.data.timeline.length > 0 && (
+                <div className="border-t border-zinc-800 pt-4">
+                  <h4 className="text-xs font-medium text-zinc-400 mb-3">Activity Timeline</h4>
+                  <div className="space-y-2">
+                    {trackQuery.data.timeline.map((entry: any, i: number) => (
+                      <div key={i} className="flex items-start gap-3">
+                        <div className="w-1.5 h-1.5 mt-1.5 rounded-full bg-amber-500/60" />
+                        <div>
+                          <p className="text-xs text-white">{entry.action?.replace(/_/g, " ")}: → {entry.status?.replace(/_/g, " ")}</p>
+                          <p className="text-[10px] text-zinc-600">{entry.timestamp ? new Date(entry.timestamp).toLocaleString() : ""}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {trackQuery.data?.error && (
+            <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 text-center">
+              <p className="text-red-400 text-sm">{trackQuery.data.error}</p>
+              <p className="text-xs text-zinc-500 mt-1">Double-check your tracking code and try again.</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {mySubsQuery.data?.submissions && mySubsQuery.data.submissions.length > 0 && (
+        <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-4">
+          <h3 className="text-sm font-semibold text-white mb-3">My Submissions</h3>
+          <div className="space-y-2">
+            {mySubsQuery.data.submissions.map((s: any) => (
+              <div key={s.id} className="flex items-center justify-between bg-zinc-800/50 rounded-lg px-3 py-2 border border-zinc-700/50">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-white truncate">{s.title}</p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <code className="text-[10px] text-amber-400 font-mono">{s.trackingCode}</code>
+                    <span className="text-[10px] text-zinc-600">{s.department}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-medium",
+                    s.status === "Completed" ? "bg-emerald-500/20 text-emerald-300" :
+                    s.status === "In_Progress" ? "bg-blue-500/20 text-blue-300" :
+                    "bg-zinc-700 text-zinc-400"
+                  )}>{s.status?.replace(/_/g, " ")}</span>
+                  <button onClick={() => { setTrackingCode(s.trackingCode); setMode("track"); }} className="text-[10px] text-amber-400 hover:underline">Track</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="text-center text-[10px] text-zinc-700 pt-4 border-t border-zinc-900">
+        3C ONYX &mdash; Omni-Node Open Intake &mdash; Zero-Trust Delegation Architecture &mdash; Ronald Antonio Cadet
       </div>
     </div>
   );
