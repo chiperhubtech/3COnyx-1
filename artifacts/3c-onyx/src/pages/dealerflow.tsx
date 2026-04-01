@@ -1,10 +1,10 @@
 import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  Activity, AlertTriangle, ArrowRight, BarChart3, Camera, Check, CheckCircle2, Clock, DollarSign,
-  Gauge, Inbox, Layers, Lock, MessageSquare, Plus, RefreshCw, RotateCcw,
-  ScanLine, Send, Shield, ShieldAlert, Target, ThumbsUp, Users, X, Zap,
-  Search, Car, Store, Home, MoreHorizontal
+  AlertTriangle, ArrowRight, BarChart3, Camera, Check, CheckCircle2, Clock, DollarSign,
+  Gauge, Inbox, Layers, Lock, Plus, RefreshCw,
+  ScanLine, Send, Shield, ShieldAlert, ThumbsUp, Users, X, Zap,
+  Search, Car, Store, Home, MoreHorizontal, UserPlus
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -164,6 +164,23 @@ type PerformanceData = {
   };
 };
 
+function getGreeting(): string {
+  const h = new Date().getHours();
+  if (h < 12) return "Good morning";
+  if (h < 17) return "Good afternoon";
+  return "Good evening";
+}
+
+function getUserFirstName(): string {
+  try {
+    const token = localStorage.getItem("onyxToken");
+    if (!token) return "";
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    const name = payload.name || payload.email || "";
+    return name.split(" ")[0] || name;
+  } catch { return ""; }
+}
+
 const DEPARTMENTS = ["DMV", "Parts", "Service", "Finance", "Logistics", "Sales", "Customer_Service", "General"];
 const STATUSES = ["Open", "In_Progress", "Waiting", "Pending_Approval", "Pending_External", "Completed", "Escalated", "Cancelled", "Blocked"];
 const PRIORITIES = ["Critical", "High", "Medium", "Low"];
@@ -316,16 +333,13 @@ export default function DealerFlowOS() {
 
   return (
     <div className="min-h-screen bg-zinc-950 pb-24 relative">
-      <header className="sticky top-0 z-40 bg-zinc-950/95 backdrop-blur-sm border-b border-zinc-800/50 px-4 py-3">
+      <header className="sticky top-0 z-40 bg-zinc-950/95 backdrop-blur-sm border-b border-zinc-800/50 px-5 py-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
-              <Shield className="w-4 h-4 text-white" />
-            </div>
-            <div>
-              <h1 className="text-base font-bold text-white tracking-tight leading-tight">DealerFlow</h1>
-              <p className="text-[9px] text-zinc-600 uppercase tracking-widest">3C ONYX</p>
-            </div>
+          <div>
+            <h1 className="text-xl font-extrabold text-white tracking-tight leading-tight">
+              {getGreeting()}{getUserFirstName() ? `, ${getUserFirstName()}` : ""}
+            </h1>
+            <PulseSubtext />
           </div>
           <QuickStats />
         </div>
@@ -436,6 +450,37 @@ function NavTab({ icon, label, active, onClick }: { icon: React.ReactNode; label
       {icon}
       <span className="text-[10px] font-medium">{label}</span>
     </button>
+  );
+}
+
+function PulseSubtext() {
+  const { data: stats } = useQuery<DashboardStats>({
+    queryKey: ["dealerflow-dashboard"],
+    queryFn: () => authFetch(`${BASE}/api/dealerflow/dashboard`).then((r) => r.json()),
+    refetchInterval: 15000,
+  });
+
+  const { data: dealsData } = useQuery<{ deals: any[] }>({
+    queryKey: ["deals"],
+    queryFn: () => authFetch(`${BASE}/api/deals`).then((r) => r.json()),
+    refetchInterval: 15000,
+  });
+
+  const s = stats?.tasks;
+  const activeDeals = (dealsData?.deals || []).filter((d: any) => d.status !== "Delivered" && d.status !== "Cancelled" && d.status !== "Unwound");
+  const urgentCount = s ? (s.overdueSla || 0) + (s.escalated || 0) : 0;
+
+  const parts: string[] = [];
+  if (activeDeals.length > 0) parts.push(`${activeDeals.length} deal${activeDeals.length !== 1 ? "s" : ""} in progress`);
+  if (urgentCount > 0) parts.push(`${urgentCount} need${urgentCount !== 1 ? "" : "s"} attention`);
+  if (parts.length === 0 && s) parts.push("All clear — nothing needs attention");
+
+  return (
+    <p className="text-xs text-zinc-500 mt-0.5 flex items-center gap-1.5">
+      {urgentCount > 0 && <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />}
+      {urgentCount === 0 && parts.length > 0 && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
+      {parts.join(" · ")}
+    </p>
   );
 }
 
@@ -564,7 +609,6 @@ function ActivityFeed({ onOpenDeal }: { onOpenDeal: (id: number) => void }) {
   const deals = dealsData?.deals || [];
 
   const activeTasks = tasks.filter((t) => t.status !== "Completed" && t.status !== "Cancelled");
-  const overdueTask = activeTasks.find((t) => t.slaBreached);
   const activeDeals = deals.filter((d: any) => d.status !== "Delivered" && d.status !== "Cancelled" && d.status !== "Unwound");
 
   const feedItems: Array<{ type: string; priority: number; data: any }> = [];
@@ -579,55 +623,42 @@ function ActivityFeed({ onOpenDeal }: { onOpenDeal: (id: number) => void }) {
 
   activeTasks.filter((t) => t.priority === "Critical" && t.status !== "Escalated").slice(0, 3).forEach((t) => feedItems.push({ type: "critical", priority: 3, data: t }));
 
-  activeTasks.filter((t) => t.status === "In_Progress").slice(0, 5).forEach((t) => feedItems.push({ type: "in-progress", priority: 4, data: t }));
+  activeDeals.slice(0, 3).forEach((d: any) => feedItems.push({ type: "deal", priority: 4, data: d }));
 
-  activeDeals.slice(0, 3).forEach((d: any) => feedItems.push({ type: "deal", priority: 5, data: d }));
+  activeTasks.filter((t) => t.status === "In_Progress").slice(0, 5).forEach((t) => feedItems.push({ type: "in-progress", priority: 5, data: t }));
 
   activeTasks.filter((t) => t.status === "Open").slice(0, 5).forEach((t) => feedItems.push({ type: "ready", priority: 6, data: t }));
 
   feedItems.sort((a, b) => a.priority - b.priority);
 
   return (
-    <div className="space-y-3 pb-4">
-      <div className="grid grid-cols-3 gap-2">
-        <div className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-3 text-center">
-          <p className="text-2xl font-bold text-emerald-400">{s.completedToday}</p>
-          <p className="text-[10px] text-zinc-500 uppercase mt-0.5">Done Today</p>
-        </div>
-        <div className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-3 text-center">
-          <p className="text-2xl font-bold text-blue-400">{s.inProgress}</p>
-          <p className="text-[10px] text-zinc-500 uppercase mt-0.5">Active</p>
-        </div>
-        <div className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-3 text-center">
-          <p className={cn("text-2xl font-bold", s.overdueSla > 0 ? "text-red-400" : "text-zinc-600")}>{s.overdueSla}</p>
-          <p className="text-[10px] text-zinc-500 uppercase mt-0.5">Overdue</p>
-        </div>
-      </div>
-
+    <div className="space-y-4 pb-4">
       {feedItems.length === 0 ? (
-        <div className="text-center py-16">
-          <CheckCircle2 className="w-16 h-16 mx-auto mb-4 text-emerald-500/30" />
-          <p className="text-lg font-semibold text-white">All clear</p>
-          <p className="text-sm text-zinc-500 mt-1">Nothing needs your attention right now</p>
+        <div className="text-center py-20">
+          <CheckCircle2 className="w-20 h-20 mx-auto mb-5 text-emerald-500/20" />
+          <p className="text-xl font-bold text-white">All clear</p>
+          <p className="text-sm text-zinc-500 mt-2">Nothing needs your attention right now</p>
         </div>
       ) : (
         feedItems.map((item, i) => {
           if (item.type === "alert-overdue") {
             return (
-              <div key={`alert-${i}`} className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center shrink-0">
-                  <AlertTriangle className="w-5 h-5 text-red-400" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-red-300">{item.data.count} task{item.data.count !== 1 ? "s" : ""} past SLA deadline</p>
-                  <p className="text-xs text-zinc-500">Needs immediate attention</p>
+              <div key={`alert-${i}`} className="bg-red-500/10 border border-red-500/20 rounded-2xl p-5">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 rounded-2xl bg-red-500/20 flex items-center justify-center shrink-0">
+                    <AlertTriangle className="w-6 h-6 text-red-400" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-base font-bold text-red-300">{item.data.count} task{item.data.count !== 1 ? "s" : ""} overdue</p>
+                    <p className="text-xs text-zinc-500">Needs immediate attention</p>
+                  </div>
                 </div>
                 <button
                   onClick={() => escalate.mutate()}
                   disabled={escalate.isPending}
-                  className="bg-red-500/20 text-red-300 border border-red-500/30 px-4 py-2.5 rounded-xl text-xs font-semibold active:bg-red-500/30 transition shrink-0"
+                  className="w-full py-4 bg-red-500/20 text-red-200 border border-red-500/30 rounded-2xl text-base font-bold active:bg-red-500/30 transition"
                 >
-                  Escalate
+                  Escalate All
                 </button>
               </div>
             );
@@ -635,38 +666,32 @@ function ActivityFeed({ onOpenDeal }: { onOpenDeal: (id: number) => void }) {
 
           if (item.type === "approval") {
             const task = item.data as DFTask;
-            const meta = (task.metadata || {}) as any;
             return (
-              <div key={`appr-${task.id}`} className="bg-violet-500/5 border border-violet-500/20 rounded-2xl p-4">
-                <div className="flex items-start gap-3 mb-3">
-                  <div className="w-10 h-10 rounded-xl bg-violet-500/20 flex items-center justify-center shrink-0">
-                    <ThumbsUp className="w-5 h-5 text-violet-400" />
+              <div key={`appr-${task.id}`} className="bg-violet-500/5 border border-violet-500/20 rounded-2xl p-5">
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="w-12 h-12 rounded-2xl bg-violet-500/20 flex items-center justify-center shrink-0">
+                    <ThumbsUp className="w-6 h-6 text-violet-400" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-[10px] text-violet-400 uppercase font-bold tracking-wider">Needs Your Approval</p>
-                    <h4 className="text-sm font-semibold text-white mt-0.5 leading-snug">{task.title}</h4>
-                    <div className="flex items-center gap-2 mt-1 flex-wrap">
-                      <span className={cn("text-[10px] px-2 py-0.5 rounded border", deptColor(task.department))}>{deptIcon(task.department)} {task.department.replace("_", " ")}</span>
-                      {meta.pendingApproval?.note && <span className="text-[10px] text-zinc-400 italic">"{meta.pendingApproval.note}"</span>}
-                    </div>
+                    <h4 className="text-base font-bold text-white mt-1 leading-snug">{task.title}</h4>
+                    <span className={cn("text-[10px] px-2 py-0.5 rounded border mt-1.5 inline-block", deptColor(task.department))}>{deptIcon(task.department)} {task.department.replace("_", " ")}</span>
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => decide.mutate({ id: task.id, decision: "Approved" })}
-                    disabled={decide.isPending}
-                    className="flex-1 flex items-center justify-center gap-2 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 py-3 rounded-xl text-sm font-semibold active:bg-emerald-500/30 transition"
-                  >
-                    <Check className="w-4 h-4" /> Approve
-                  </button>
-                  <button
-                    onClick={() => decide.mutate({ id: task.id, decision: "Rejected" })}
-                    disabled={decide.isPending}
-                    className="flex-1 flex items-center justify-center gap-2 bg-red-500/10 text-red-300 border border-red-500/20 py-3 rounded-xl text-sm font-semibold active:bg-red-500/20 transition"
-                  >
-                    <X className="w-4 h-4" /> Reject
-                  </button>
-                </div>
+                <button
+                  onClick={() => decide.mutate({ id: task.id, decision: "Approved" })}
+                  disabled={decide.isPending}
+                  className="w-full flex items-center justify-center gap-2 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 py-4 rounded-2xl text-base font-bold active:bg-emerald-500/30 transition mb-2"
+                >
+                  <Check className="w-5 h-5" /> Approve
+                </button>
+                <button
+                  onClick={() => decide.mutate({ id: task.id, decision: "Rejected" })}
+                  disabled={decide.isPending}
+                  className="w-full text-center text-sm text-zinc-500 py-2 active:text-red-300 transition"
+                >
+                  Reject
+                </button>
               </div>
             );
           }
@@ -674,15 +699,21 @@ function ActivityFeed({ onOpenDeal }: { onOpenDeal: (id: number) => void }) {
           if (item.type === "deal") {
             const deal = item.data as any;
             const si = statusIndicator(deal.status);
+            const progressPct = deal.status === "Delivered" ? 100 : deal.status === "Funded" ? 85 : deal.status === "In_Progress" ? 50 : 20;
             return (
-              <button key={`deal-${deal.id}`} onClick={() => onOpenDeal(deal.id)} className="w-full bg-zinc-900/60 border border-zinc-800 rounded-2xl p-4 text-left active:bg-zinc-800/60 transition">
-                <div className="flex items-center gap-3">
-                  <div className={cn("w-3 h-3 rounded-full shrink-0", si.dot)} />
+              <button key={`deal-${deal.id}`} onClick={() => onOpenDeal(deal.id)} className="w-full bg-zinc-900/60 border border-zinc-800 rounded-2xl p-5 text-left active:bg-zinc-800/60 transition">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className={cn("w-3.5 h-3.5 rounded-full shrink-0", si.dot)} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-white truncate">{deal.customerName}</p>
-                    <p className="text-xs text-zinc-500 mt-0.5">{deal.vehicleLabel || "Vehicle"} &middot; {friendlyStatus(deal.status)}</p>
+                    <p className="text-base font-bold text-white truncate">{deal.vehicleLabel || "Vehicle"} — {deal.customerName}</p>
+                    <p className="text-xs text-zinc-500 mt-0.5">{friendlyStatus(deal.status)}</p>
                   </div>
-                  <ArrowRight className="w-4 h-4 text-zinc-600 shrink-0" />
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 bg-zinc-800 rounded-full h-2 overflow-hidden">
+                    <div className="bg-gradient-to-r from-amber-500 to-emerald-500 h-full rounded-full transition-all" style={{ width: `${progressPct}%` }} />
+                  </div>
+                  <span className="text-xs font-bold text-zinc-400">{progressPct}%</span>
                 </div>
               </button>
             );
@@ -692,41 +723,34 @@ function ActivityFeed({ onOpenDeal }: { onOpenDeal: (id: number) => void }) {
           const si = statusIndicator(task.status);
           const sla = slaStatus(task.slaDueAt, task.status);
 
-          const nextAction = task.status === "Open" ? { label: "Start", action: () => updateTask.mutate({ id: task.id, status: "In_Progress" }) }
-            : task.status === "In_Progress" ? { label: "Complete", action: () => updateTask.mutate({ id: task.id, status: "Completed" }) }
+          const nextAction = task.status === "Open" ? () => updateTask.mutate({ id: task.id, status: "In_Progress" })
+            : task.status === "In_Progress" ? () => updateTask.mutate({ id: task.id, status: "Completed" })
             : null;
 
           return (
             <div key={`task-${task.id}-${item.type}`} className={cn(
-              "bg-zinc-900/60 border rounded-2xl p-4 transition",
+              "bg-zinc-900/60 border rounded-2xl p-5 transition",
               item.type === "escalated" ? "border-red-500/20" : item.type === "critical" ? "border-orange-500/20" : "border-zinc-800"
             )}>
-              <div className="flex items-start gap-3">
-                <div className={cn("w-3 h-3 rounded-full mt-1 shrink-0", si.dot)} />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-white leading-snug">{task.title}</p>
-                  <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                    <span className={cn("text-[10px] px-2 py-0.5 rounded border", deptColor(task.department))}>{deptIcon(task.department)} {task.department.replace("_", " ")}</span>
-                    <span className="text-[10px] text-zinc-500">{si.label}</span>
-                    {sla && <span className={cn("text-[10px] font-medium", sla.color)}>{sla.label}</span>}
-                    {task.slaBreached && <span className="text-[10px] text-red-400 font-bold">OVERDUE</span>}
-                  </div>
-                </div>
-                {nextAction && (
-                  <button
-                    onClick={() => nextAction.action()}
-                    disabled={updateTask.isPending}
-                    className={cn(
-                      "shrink-0 px-4 py-2.5 rounded-xl text-sm font-semibold transition active:scale-95",
-                      task.status === "Open"
-                        ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
-                        : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                    )}
-                  >
-                    {nextAction.label}
-                  </button>
-                )}
+              <div className="flex items-center gap-3 mb-1">
+                <div className={cn("w-3.5 h-3.5 rounded-full shrink-0", si.dot)} />
+                <p className="text-base font-bold text-white leading-snug flex-1">{task.title}</p>
               </div>
+              <div className="flex items-center gap-2 ml-[26px] flex-wrap">
+                <span className={cn("text-[10px] px-2 py-0.5 rounded border", deptColor(task.department))}>{deptIcon(task.department)} {task.department.replace("_", " ")}</span>
+                <span className="text-[10px] text-zinc-500">{si.label}</span>
+                {sla && <span className={cn("text-[10px] font-medium", sla.color)}>{sla.label}</span>}
+                {task.slaBreached && <span className="text-[10px] text-red-400 font-bold">OVERDUE</span>}
+              </div>
+              {nextAction && (
+                <button
+                  onClick={nextAction}
+                  disabled={updateTask.isPending}
+                  className="w-full mt-4 py-4 rounded-2xl text-base font-bold transition active:scale-[0.98] bg-gradient-to-r from-amber-500 to-orange-600 text-black"
+                >
+                  Continue
+                </button>
+              )}
             </div>
           );
         })
@@ -736,7 +760,7 @@ function ActivityFeed({ onOpenDeal }: { onOpenDeal: (id: number) => void }) {
         <div className="flex items-center gap-2 py-2">
           <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
           <span className="text-xs text-zinc-500">
-            DealerFlow OS &middot; Architected by Ronald Antonio Cadet
+            DealerFlow OS · Architected by Ronald Antonio Cadet
           </span>
         </div>
       </div>
@@ -900,53 +924,67 @@ function DealsView({ expandedDealId, setExpandedDealId, showCreateDeal, setShowC
 }
 
 function DealDetailCard({ deal, updateDeal }: { deal: any; updateDeal: any }) {
-  const si = statusIndicator(deal.status);
-
   const primaryAction = deal.status === "Open" ? { label: "Start This Deal", fn: () => updateDeal.mutate({ id: deal.id, status: "In_Progress" }), style: "bg-gradient-to-r from-amber-500 to-orange-600 text-black" }
     : deal.status === "Funded" ? { label: "Mark as Delivered", fn: () => updateDeal.mutate({ id: deal.id, status: "Delivered" }), style: "bg-gradient-to-r from-emerald-500 to-green-600 text-white" }
     : deal.commissionStatus === "Pending" ? { label: "Approve Commission", fn: () => updateDeal.mutate({ id: deal.id, commissionStatus: "Approved" }), style: "bg-gradient-to-r from-blue-500 to-indigo-600 text-white" }
     : deal.commissionStatus === "Approved" ? { label: "Mark Commission Paid", fn: () => updateDeal.mutate({ id: deal.id, commissionStatus: "Paid" }), style: "bg-gradient-to-r from-emerald-500 to-green-600 text-white" }
     : null;
 
+  const dealStages = [
+    { key: "Open", label: "Deal Created" },
+    { key: "In_Progress", label: "In Progress" },
+    { key: "Pending_Finance", label: "Financing" },
+    { key: "Pending_Insurance", label: "Insurance" },
+    { key: "Pending_DMV", label: "Registration" },
+    { key: "Pending_Recon", label: "Vehicle Prep" },
+    { key: "Funded", label: "Funded" },
+    { key: "Delivered", label: "Delivered" },
+  ];
+
+  const currentIdx = dealStages.findIndex((st) => st.key === deal.status);
+
   return (
-    <div className="bg-zinc-900/60 border border-zinc-800 rounded-2xl p-5 space-y-4">
-      <div className="flex items-center gap-3">
-        <div className={cn("w-4 h-4 rounded-full", si.dot)} />
-        <div className="flex-1">
-          <p className="text-lg font-bold text-white">{deal.customerName}</p>
-          <p className="text-xs text-zinc-400">{deal.vehicleLabel || "No vehicle"} {deal.vin && <span className="font-mono text-zinc-500">· {deal.vin}</span>}</p>
-        </div>
-        <span className="text-xs text-amber-400 font-mono bg-amber-500/10 px-2 py-1 rounded">{deal.dealNumber}</span>
+    <div className="bg-zinc-900/60 border border-zinc-800 rounded-2xl p-6 space-y-5">
+      <div>
+        <p className="text-xl font-extrabold text-white">{deal.vehicleLabel || "Vehicle"}</p>
+        <p className="text-sm text-zinc-400 mt-0.5">{deal.customerName} {deal.vin && <span className="font-mono text-zinc-600">· {deal.vin}</span>}</p>
       </div>
 
-      <div className="text-center py-2">
-        <p className="text-lg font-medium text-zinc-300">{friendlyStatus(deal.status)}</p>
-      </div>
-
-      <div className="grid grid-cols-3 gap-2 text-center">
-        {deal.salePrice && (
-          <div className="bg-zinc-800/50 rounded-xl p-2.5">
-            <p className="text-xs text-zinc-500">Sale</p>
-            <p className="text-sm font-bold text-white">{formatUsd(deal.salePrice)}</p>
-          </div>
-        )}
-        {deal.commissionAmount && (
-          <div className="bg-zinc-800/50 rounded-xl p-2.5">
-            <p className="text-xs text-zinc-500">Commission</p>
-            <p className={cn("text-sm font-bold", commissionColor(deal.commissionStatus))}>{formatUsd(deal.commissionAmount)}</p>
-          </div>
-        )}
-        <div className="bg-zinc-800/50 rounded-xl p-2.5">
-          <p className="text-xs text-zinc-500">Type</p>
-          <p className="text-sm font-bold text-white">{deal.dealType?.replace(/_/g, " ") || "—"}</p>
-        </div>
+      <div className="space-y-0">
+        {dealStages.map((stage, idx) => {
+          const isDone = idx < currentIdx || deal.status === "Delivered";
+          const isCurrent = idx === currentIdx && deal.status !== "Delivered";
+          return (
+            <div key={stage.key} className="flex items-start gap-4">
+              <div className="flex flex-col items-center">
+                <div className={cn(
+                  "w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0",
+                  isDone ? "bg-emerald-500/20 text-emerald-400" :
+                  isCurrent ? "bg-amber-500/20 text-amber-400 ring-2 ring-amber-500/40" :
+                  "bg-zinc-800 text-zinc-600"
+                )}>
+                  {isDone ? "✓" : isCurrent ? "●" : "○"}
+                </div>
+                {idx < dealStages.length - 1 && (
+                  <div className={cn("w-0.5 h-6", isDone ? "bg-emerald-500/40" : "bg-zinc-800")} />
+                )}
+              </div>
+              <p className={cn(
+                "text-sm font-semibold pt-1.5",
+                isDone ? "text-emerald-400" : isCurrent ? "text-amber-300" : "text-zinc-600"
+              )}>
+                {stage.label}
+              </p>
+            </div>
+          );
+        })}
       </div>
 
       {primaryAction && (
         <button
           onClick={primaryAction.fn}
           disabled={updateDeal.isPending}
-          className={cn("w-full py-4 rounded-2xl text-base font-bold transition active:scale-[0.98] disabled:opacity-50", primaryAction.style)}
+          className={cn("w-full py-5 rounded-2xl text-lg font-extrabold transition active:scale-[0.98] disabled:opacity-50", primaryAction.style)}
         >
           {updateDeal.isPending ? "Processing..." : primaryAction.label}
         </button>
@@ -1209,35 +1247,49 @@ function ScanView() {
 }
 
 function CustomerTracker({ data }: { data: any }) {
+  const si = statusIndicator(data.status);
   return (
     <div className="bg-zinc-900/60 border border-zinc-800 rounded-2xl overflow-hidden">
-      <div className="bg-gradient-to-r from-amber-500/10 to-transparent p-5">
-        <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Status Update</p>
-        <p className="text-lg font-bold text-white mt-1">{friendlyStatus(data.status)}</p>
-        {data.statusMessage && <p className="text-sm text-zinc-400 mt-1">{data.statusMessage}</p>}
-      </div>
-      <div className="px-5 py-4 space-y-3">
-        <div className="grid grid-cols-2 gap-3">
-          <div><p className="text-[10px] text-zinc-500 uppercase">Department</p><p className="text-sm text-white">{data.department}</p></div>
-          <div><p className="text-[10px] text-zinc-500 uppercase">Priority</p><p className="text-sm text-white">{data.priority}</p></div>
+      <div className="bg-gradient-to-r from-amber-500/10 to-transparent p-6 text-center">
+        <div className={cn("w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center", si.dot.includes("emerald") ? "bg-emerald-500/20" : si.dot.includes("yellow") ? "bg-amber-500/20" : si.dot.includes("red") ? "bg-red-500/20" : "bg-blue-500/20")}>
+          {si.dot.includes("emerald") ? <CheckCircle2 className="w-8 h-8 text-emerald-400" /> :
+           si.dot.includes("red") ? <AlertTriangle className="w-8 h-8 text-red-400" /> :
+           <Clock className="w-8 h-8 text-amber-400" />}
         </div>
+        <p className="text-2xl font-extrabold text-white">{friendlyStatus(data.status)}</p>
+        {data.statusMessage && <p className="text-sm text-zinc-400 mt-2">{data.statusMessage}</p>}
+      </div>
 
-        {data.timeline && data.timeline.length > 0 && (
-          <div className="border-t border-zinc-800 pt-3">
-            <p className="text-xs text-zinc-400 mb-2">Timeline</p>
-            <div className="space-y-2">
-              {data.timeline.map((entry: any, i: number) => (
-                <div key={i} className="flex items-start gap-3">
-                  <div className={cn("w-2 h-2 mt-1.5 rounded-full", i === 0 ? "bg-amber-400" : "bg-zinc-700")} />
-                  <div>
-                    <p className="text-xs text-white">{friendlyStatus(entry.status || entry.action)}</p>
+      {data.timeline && data.timeline.length > 0 && (
+        <div className="px-6 py-5">
+          <div className="space-y-0">
+            {data.timeline.map((entry: any, i: number) => {
+              const isFirst = i === 0;
+              const isLast = i === data.timeline.length - 1;
+              return (
+                <div key={i} className="flex items-start gap-4">
+                  <div className="flex flex-col items-center">
+                    <div className={cn(
+                      "w-6 h-6 rounded-full flex items-center justify-center text-xs shrink-0",
+                      isFirst ? "bg-amber-500/20 text-amber-400 ring-2 ring-amber-500/30" : "bg-zinc-800 text-zinc-600"
+                    )}>
+                      {isFirst ? "●" : "✓"}
+                    </div>
+                    {!isLast && <div className={cn("w-0.5 h-5", isFirst ? "bg-amber-500/30" : "bg-zinc-800")} />}
+                  </div>
+                  <div className="pt-0.5">
+                    <p className={cn("text-sm font-medium", isFirst ? "text-white" : "text-zinc-500")}>{friendlyStatus(entry.status || entry.action)}</p>
                     <p className="text-[10px] text-zinc-600">{entry.timestamp ? new Date(entry.timestamp).toLocaleString() : ""}</p>
                   </div>
                 </div>
-              ))}
-            </div>
+              );
+            })}
           </div>
-        )}
+        </div>
+      )}
+
+      <div className="px-6 pb-6">
+        <p className="text-sm text-zinc-500 text-center">We're handling everything for you.</p>
       </div>
     </div>
   );
@@ -1254,6 +1306,7 @@ function MoreView({ section, setSection }: { section: string | null; setSection:
   if (section === "tickets") return <MoreWrapper title="Customer Inbox" onBack={() => setSection(null)}><TicketInbox /></MoreWrapper>;
   if (section === "trust") return <MoreWrapper title="Trust Network" onBack={() => setSection(null)}><TrustDashboard /></MoreWrapper>;
   if (section === "search") return <MoreWrapper title="Global Search" onBack={() => setSection(null)}><GlobalSearchBar /></MoreWrapper>;
+  if (section === "referral") return <MoreWrapper title="Refer Someone" onBack={() => setSection(null)}><ReferralLoop /></MoreWrapper>;
 
   const items = [
     { id: "tasks", icon: <Layers className="w-5 h-5 text-blue-400" />, label: "All Tasks", desc: "Full task board with filters" },
@@ -1268,12 +1321,25 @@ function MoreView({ section, setSection }: { section: string | null; setSection:
   ];
 
   return (
-    <div className="space-y-2 pb-4">
+    <div className="space-y-3 pb-4">
+      <button onClick={() => setSection("referral")} className="w-full bg-gradient-to-r from-amber-500/10 to-orange-600/10 border border-amber-500/20 rounded-2xl p-5 text-left active:bg-amber-500/10 transition">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-amber-500/20 flex items-center justify-center shrink-0">
+            <UserPlus className="w-6 h-6 text-amber-400" />
+          </div>
+          <div className="flex-1">
+            <p className="text-base font-bold text-white">Know someone who needs help?</p>
+            <p className="text-xs text-zinc-500">Refer them and get notified when they move forward</p>
+          </div>
+          <ArrowRight className="w-4 h-4 text-amber-400 shrink-0" />
+        </div>
+      </button>
+
       {items.map((item) => (
         <button key={item.id} onClick={() => setSection(item.id)} className="w-full flex items-center gap-4 bg-zinc-900/60 border border-zinc-800 rounded-2xl p-4 text-left active:bg-zinc-800/60 transition">
-          <div className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center shrink-0">{item.icon}</div>
+          <div className="w-12 h-12 rounded-xl bg-zinc-800 flex items-center justify-center shrink-0">{item.icon}</div>
           <div className="flex-1">
-            <p className="text-sm font-semibold text-white">{item.label}</p>
+            <p className="text-sm font-bold text-white">{item.label}</p>
             <p className="text-xs text-zinc-500">{item.desc}</p>
           </div>
           <ArrowRight className="w-4 h-4 text-zinc-600 shrink-0" />
@@ -1794,6 +1860,76 @@ function TrustDashboard() {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+
+function ReferralLoop() {
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [sent, setSent] = useState(false);
+
+  const submit = useMutation({
+    mutationFn: (body: { referralName: string; referralPhone: string }) =>
+      authFetch(`${BASE}/api/omni-node/submit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: `Referral: ${body.referralName}`, description: `Referred contact: ${body.referralName}, Phone: ${body.referralPhone}`, intakeType: "Walk_In", department: "Sales", urgency: "Medium" }),
+      }).then((r) => r.json()),
+    onSuccess: () => {
+      setSent(true);
+      setName("");
+      setPhone("");
+    },
+  });
+
+  if (sent) {
+    return (
+      <div className="text-center py-16 space-y-4">
+        <div className="w-20 h-20 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto">
+          <CheckCircle2 className="w-10 h-10 text-emerald-400" />
+        </div>
+        <p className="text-xl font-extrabold text-white">Sent!</p>
+        <p className="text-sm text-zinc-500">You'll be notified if they move forward.</p>
+        <button onClick={() => setSent(false)} className="text-sm text-amber-400 font-medium mt-4">Refer someone else</button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6 py-4">
+      <div className="text-center">
+        <div className="w-20 h-20 rounded-full bg-amber-500/20 flex items-center justify-center mx-auto mb-4">
+          <UserPlus className="w-10 h-10 text-amber-400" />
+        </div>
+        <p className="text-xl font-extrabold text-white">Know someone who needs help?</p>
+        <p className="text-sm text-zinc-500 mt-2">Send their info and we'll take care of the rest</p>
+      </div>
+
+      <div className="space-y-3">
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Their name"
+          className="w-full bg-zinc-800 text-white text-base rounded-2xl px-5 py-4 border border-zinc-700 focus:border-amber-500/50 outline-none"
+        />
+        <input
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          placeholder="Their phone number"
+          type="tel"
+          className="w-full bg-zinc-800 text-white text-base rounded-2xl px-5 py-4 border border-zinc-700 focus:border-amber-500/50 outline-none"
+        />
+      </div>
+
+      <button
+        onClick={() => { if (name.trim() && phone.trim()) submit.mutate({ referralName: name, referralPhone: phone }); }}
+        disabled={!name.trim() || !phone.trim() || submit.isPending}
+        className="w-full py-5 bg-gradient-to-r from-amber-500 to-orange-600 text-black text-lg font-extrabold rounded-2xl active:scale-[0.98] transition disabled:opacity-40"
+      >
+        {submit.isPending ? "Sending..." : "Send"}
+      </button>
     </div>
   );
 }
