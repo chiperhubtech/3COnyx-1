@@ -100,6 +100,8 @@ import dealerflowRouter from "./dealerflow";
 import dealsRouter from "./deals";
 import omniNodeRouter from "./omni-node";
 import trustEngineRouter from "./trust-engine";
+import referralsRouter from "./referrals";
+import commerceRouter from "./commerce";
 
 const router: IRouter = Router();
 
@@ -222,5 +224,7 @@ router.use(dealerflowRouter);
 router.use(dealsRouter);
 router.use(omniNodeRouter);
 router.use(trustEngineRouter);
+router.use(referralsRouter);
+router.use(commerceRouter);
 
 export default router;

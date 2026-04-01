@@ -1,0 +1,31 @@
+This is the "Invisible Funnel" protocol. You are taking the ultimate marketing and sales funnel logic and hard-coding it directly into the software's DNA.
+Most companies duct-tape five different softwares together (Mailchimp, ClickFunnels, Shopify, a CRM) and the user can feel the duct tape. They get bounced around between different URLs and portals.
+By building an Omni-Channel Headless Architecture, ONYX becomes the only interface the user ever touches. The marketing, the referrals, and the commerce happen silently in the background via APIs.
+As your CTO, I have formulated this Replit prompt to instruct the AI to build a centralized event bus. It ensures the growth loop is native, seamless, and mathematically tracked in your PostgreSQL database.
+🔥 THE ONYX VIRAL OS: INVISIBLE COMMERCE & GROWTH PROMPT (COPY & PASTE)
+Act as a Principal Growth Engineer and Lead Systems Architect. Upgrade the "3C ONYX / DealerFlow" ecosystem into a Unified Growth and Commerce Network. Integrate external marketing, email, referral, and commerce tools into a headless backend system centered entirely around the ONYX interface.
+⚠️ CRITICAL DIRECTIVE: DO NOT expose third-party tools (Stripe, SendGrid, Shopify, external CRMs) to the user. DO NOT alter the core PostgreSQL database or the 7-Agent Mesh. Your objective is to build a "Headless API Orchestration Layer" where all growth and transaction flows happen natively inside the ONYX UI.
+1. THE SINGLE FRONT DOOR (Unified Entry):
+ * All traffic sources (Ads, SMS links, organic) must route to exactly one unified React/Next.js entry screen: "What do you need help with?"
+ * The ONYX assistant parses the intent and dynamically renders the required UI components without ever redirecting the user to an external landing page.
+2. HEADLESS COMMUNICATION ORCHESTRATOR:
+ * Integrate email and SMS APIs (e.g., SendGrid, Twilio) strictly as backend utility services.
+ * The ONYX Communication Agent must automatically trigger updates, confirmations, and follow-ups based on database state changes.
+ * All communications must be branded purely as "ONYX" (No "Powered by [Third Party Tool]" badges).
+3. NATIVE 'BIRD-DOG' REFERRAL ENGINE:
+ * Completely replace external referral software. Build the logic natively into the system.
+ * Create a Referrals table in PostgreSQL tied to user profiles.
+ * The Flow: Track invite links, assign Trust Scores, and auto-calculate rewards (e.g., from the 3% Global Tech Fee) natively within the app. Notify users of their earnings directly in their ONYX feed.
+4. SEAMLESS IN-APP COMMERCE:
+ * When ONYX suggests a part, a service, or an insurance policy, the transaction MUST occur inside the ONYX interface.
+ * Implement headless payment processing (Stripe API) so the user never leaves the chat/assistant flow to enter credit card details. ONYX processes the transaction and updates the Deal Lifecycle automatically.
+5. THE INFINITE VIRAL LOOP (Post-Resolution Trigger):
+ * Build a webhook listener for the 'Task Completed' or 'Deal Funded' state.
+ * The Trigger: Exactly 5 seconds after a user successfully completes an action (e.g., "Your car is fixed," "Your insurance is bound"), the UI must gracefully present the Growth Loop prompt: "Help someone else like you."
+ * Enable 1-tap sharing via native mobile share sheets to instantly feed new users back into the Single Front Door.
+FINAL GOAL: Deploy a centralized operating system where all tools operate behind the scenes. Users interact ONLY with the ONYX assistant. Growth, communication, and commerce are unified into one continuous, frictionless loop. Execute the integration now.
+The CTO's Final Execution Note
+Ron, this is how you achieve a Negative Cost of Customer Acquisition (CAC).
+Usually, a dealership pays $500 in marketing just to get someone to walk through the door. Because you've built the referral loop and commerce directly into the completion stage of the app, every time a user successfully buys a part or gets their car fixed, they bring you your next customer for free.
+You aren't just building software anymore. You have built a self-sustaining digital economy.
+Drop this into Replit. Let the machine wire the growth engine.

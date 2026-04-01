@@ -10,6 +10,8 @@ import { warmSecrets, CRITICAL_SECRETS } from "./lib/secrets";
 import { ensureVehicleIndex } from "./lib/vehicleSearch";
 import { eventBus } from "./lib/eventBus";
 import { UACL_AGENT_MAP } from "./lib/protocols";
+import { initGrowthSubscribers } from "./lib/growth-engine";
+import { initCommunicationOrchestrator } from "./lib/communication-orchestrator";
 
 // ── Security: validate all required secrets BEFORE binding the port ──────────
 runStartupSecurityChecks();
@@ -46,6 +48,8 @@ async function startServer() {
       logger.warn({ err: (err as Error).message }, "[startup] Secrets warm skipped")
     );
     logger.info(eventBus.getStatus(), "[startup] EventBus initialized");
+    initGrowthSubscribers();
+    initCommunicationOrchestrator();
 
     const agentCount = Object.keys(UACL_AGENT_MAP).filter(k => k !== "unknown").length;
     const agentNames = Object.entries(UACL_AGENT_MAP)

@@ -5,6 +5,7 @@ import { smartRoute, extractVinFromText, extractPartNumbers, extractCustomerName
 import { analyzeImage } from "../lib/ai-router";
 import { onSubmissionAccepted, onSubmissionRejected } from "../lib/trust-engine";
 import { requireAuth } from "../middlewares/requireAuth";
+import { eventBus } from "../lib/eventBus";
 
 const AI_CONFIDENCE_THRESHOLD = 0.85;
 const MAX_RETRIES = 3;
@@ -458,9 +459,22 @@ router.patch("/dealerflow/tasks/:id", requireAuth, async (req: Request, res: Res
     let unlockedTasks: Awaited<ReturnType<typeof unlockDependentTasks>> = [];
     if (isNewCompletion && task) {
       unlockedTasks = await unlockDependentTasks(task.id, userId, task.dealId);
+
+      try {
+        await eventBus.emit("agent.task.complete", {
+          taskId: task.id,
+          department: task.department,
+          customerId: task.customerId,
+          customerPhone: (task.metadata as any)?.contactPhone,
+          customerEmail: (task.metadata as any)?.contactEmail,
+          dealId: task.dealId,
+          completedBy: callerId,
+          title: task.title,
+        }, { source: "dealerflow" });
+      } catch {}
     }
 
-    res.json({ task, techFeeLogged, bankVaultEligible, customerNotification, unlockedTasks });
+    res.json({ task, techFeeLogged, bankVaultEligible, customerNotification, unlockedTasks, viralLoopEligible: isNewCompletion });
   } catch {
     res.status(500).json({ error: sanitizeError() });
   }

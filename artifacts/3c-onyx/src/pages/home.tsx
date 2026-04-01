@@ -6,6 +6,7 @@ import {
   MessageCircle, ArrowRight, ChevronRight,
   Send, X, Loader2, CheckCircle2,
   Clock, MapPin, Sparkles,
+  Gift, Share2, Users, DollarSign, Copy,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
@@ -415,6 +416,173 @@ function RecentActivity() {
   );
 }
 
+function ReferralEarningsCard() {
+  const { data, isLoading } = useQuery({
+    queryKey: ["referral-stats"],
+    queryFn: () => authFetch(`${BASE}/api/referrals/my-stats`).then((r) => r.ok ? r.json() : null),
+    refetchInterval: 30_000,
+  });
+
+  const [linkData, setLinkData] = useState<{ referralLink?: string; shareText?: string } | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const generateLink = async () => {
+    try {
+      const res = await authFetch(`${BASE}/api/referrals/generate-link`, { method: "POST" });
+      if (res.ok) {
+        const d = await res.json();
+        setLinkData(d);
+      }
+    } catch {}
+  };
+
+  const handleShare = async () => {
+    if (!linkData) {
+      await generateLink();
+      return;
+    }
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: "Join me on ONYX", text: linkData.shareText, url: linkData.referralLink });
+      } catch {}
+    } else if (linkData.referralLink) {
+      navigator.clipboard.writeText(linkData.referralLink).catch(() => {});
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  if (isLoading || !data) return null;
+
+  return (
+    <div style={{
+      marginBottom: 24,
+      background: "linear-gradient(135deg, rgba(201,162,39,0.08), rgba(201,162,39,0.02))",
+      border: "1px solid rgba(201,162,39,0.15)",
+      borderRadius: 16, padding: "20px",
+    }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+        <div style={{
+          width: 36, height: 36, borderRadius: 10,
+          background: "rgba(201,162,39,0.15)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
+          <Gift size={18} style={{ color: "#C9A227" }} />
+        </div>
+        <div>
+          <p style={{ fontSize: 14, fontWeight: 700, color: "#fff", margin: 0 }}>Your Referral Earnings</p>
+          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", margin: 0 }}>Earn rewards for every friend you refer</p>
+        </div>
+      </div>
+
+      <div style={{ display: "flex", gap: 12, marginBottom: 16 }}>
+        <div style={{ flex: 1, background: "rgba(255,255,255,0.03)", borderRadius: 10, padding: "12px", textAlign: "center" }}>
+          <p style={{ fontSize: 20, fontWeight: 800, color: "#C9A227", margin: 0 }}>{data.referralsCount}</p>
+          <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", margin: "2px 0 0" }}>Referrals</p>
+        </div>
+        <div style={{ flex: 1, background: "rgba(255,255,255,0.03)", borderRadius: 10, padding: "12px", textAlign: "center" }}>
+          <p style={{ fontSize: 20, fontWeight: 800, color: "#34D399", margin: 0 }}>${data.totalEarnings.toFixed(2)}</p>
+          <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", margin: "2px 0 0" }}>Earned</p>
+        </div>
+        <div style={{ flex: 1, background: "rgba(255,255,255,0.03)", borderRadius: 10, padding: "12px", textAlign: "center" }}>
+          <p style={{ fontSize: 20, fontWeight: 800, color: "#F59E0B", margin: 0 }}>{data.points}</p>
+          <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", margin: "2px 0 0" }}>Points</p>
+        </div>
+      </div>
+
+      <button
+        onClick={handleShare}
+        style={{
+          width: "100%", padding: "14px", borderRadius: 12,
+          background: "rgba(201,162,39,0.15)", border: "1px solid rgba(201,162,39,0.25)",
+          color: "#C9A227", fontWeight: 700, fontSize: 14,
+          cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+        }}
+      >
+        {copied ? <><CheckCircle2 size={16} /> Copied!</> : <><Share2 size={16} /> Share your invite link</>}
+      </button>
+    </div>
+  );
+}
+
+function ViralLoopPrompt() {
+  const [visible, setVisible] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setVisible(true), 5000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!visible || dismissed) return null;
+
+  const handleShare = async () => {
+    try {
+      const res = await authFetch(`${BASE}/api/referrals/generate-link`, { method: "POST" });
+      if (res.ok) {
+        const d = await res.json();
+        if (navigator.share) {
+          await navigator.share({ title: "Join me on ONYX", text: d.shareText, url: d.referralLink });
+        } else {
+          navigator.clipboard.writeText(d.referralLink).catch(() => {});
+        }
+      }
+    } catch {}
+    setDismissed(true);
+  };
+
+  return (
+    <div style={{
+      marginBottom: 24,
+      background: "linear-gradient(135deg, rgba(52,211,153,0.1), rgba(52,211,153,0.03))",
+      border: "1px solid rgba(52,211,153,0.2)",
+      borderRadius: 16, padding: "24px 20px",
+      textAlign: "center",
+      animation: "fadeIn 0.5s ease",
+    }}>
+      <div style={{
+        width: 48, height: 48, borderRadius: 14,
+        background: "rgba(52,211,153,0.15)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        margin: "0 auto 16px",
+      }}>
+        <Users size={24} style={{ color: "#34D399" }} />
+      </div>
+      <h3 style={{ fontSize: 18, fontWeight: 800, color: "#fff", margin: "0 0 6px" }}>
+        Help someone like you
+      </h3>
+      <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", margin: "0 0 20px", lineHeight: 1.5 }}>
+        Know someone who could use ONYX? Share your link and earn rewards on every referral.
+      </p>
+      <div style={{ display: "flex", gap: 10 }}>
+        <button
+          onClick={handleShare}
+          style={{
+            flex: 1, padding: "14px", borderRadius: 12,
+            background: "#34D399", border: "none",
+            color: "#000", fontWeight: 700, fontSize: 14,
+            cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+          }}
+        >
+          <Share2 size={16} /> Share Now
+        </button>
+        <button
+          onClick={() => setDismissed(true)}
+          style={{
+            padding: "14px 16px", borderRadius: 12,
+            background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)",
+            color: "rgba(255,255,255,0.4)", fontWeight: 600, fontSize: 14,
+            cursor: "pointer",
+          }}
+        >
+          Later
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function Home() {
   const { token } = useAuth();
   const [showAskOnyx, setShowAskOnyx] = useState(false);
@@ -503,6 +671,12 @@ export default function Home() {
             <p style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.35)", marginBottom: 12, paddingLeft: 4 }}>Your active deal</p>
             <ActiveFlowCard deal={activeDeal} />
           </div>
+        )}
+
+        {token && <ReferralEarningsCard />}
+
+        {token && myDeals?.recentDeals?.some((d: any) => d.status === "Delivered" || d.status === "Funded") && (
+          <ViralLoopPrompt />
         )}
 
         <RecentActivity />

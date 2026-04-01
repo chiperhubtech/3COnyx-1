@@ -116,6 +116,25 @@ Guest flow eradicates the login wall — users get instant value in 10 seconds w
 - **Backend Route**: `omni-node/submit` uses `optionalAuth` middleware — guests submit as "Customer" tier with IP-based trust scoring; authenticated members get `Authenticated` tier with user-linked trust profiles.
 - **Files**: `guest-flow.tsx` (new), `home.tsx` (updated routes), `App.tsx` (routing changes — `/` and `/flow` now public)
 
+## Invisible Funnel Protocol (Headless API Orchestration Layer)
+
+All growth, communication, and commerce happen natively inside ONYX. No third-party tool (Stripe, SendGrid, Twilio, etc.) is ever exposed to the user. Everything is branded as "ONYX."
+
+### Backend Infrastructure
+- **Growth Event Bus** (`lib/growth-event-bus.ts`): Subscribes to `agent.task.complete`, `referral.created`, `payment.escrow.released`. Auto-calculates referral rewards from 3% Tech Fee, updates Trust Scores, logs to commission_ledger.
+- **Communication Orchestrator** (`lib/communication-orchestrator.ts`): Headless SMS (Twilio) + Email (SendGrid) triggered by event bus. All branded as "ONYX Concierge." Queues messages when API keys are not yet configured.
+- **Referral Engine API** (`routes/referrals.ts`): `POST /referrals/generate-link`, `POST /referrals/track`, `GET /referrals/my-stats`, `GET /referrals/ledger`. Uses existing `referral_ledger` + `commission_ledger` DB tables. Generates `ONYX-XXXXXXXX` codes.
+- **Commerce API** (`routes/commerce.ts`): `GET /commerce/config`, `POST /commerce/create-intent`, `POST /commerce/confirm-payment`, `GET /commerce/payment-status/:intentId`. Headless Stripe PaymentIntents — user never leaves ONYX.
+- **DealerFlow Event Emission**: Task completion now fires `agent.task.complete` event with `taskId`, `department`, `customerId`, phone/email for downstream growth + communication subscribers.
+
+### Frontend Growth Components
+- **Referral Earnings Card** (home.tsx): For authenticated users — shows referral count, total earnings, points, and "Share your invite link" button with native share sheet.
+- **Viral Loop Prompt** (home.tsx): Appears 5 seconds after page load for users with completed deals. "Help someone like you" with green accent, Share Now button, and Later dismiss.
+- **Guest Flow Referral Modal** (guest-flow.tsx): Post-completion referral capture — Name/Phone + native share sheet, routed to Bird-Dog Ledger.
+
+### The Infinite Loop
+`User arrives → "What do you need help with?" → 1-tap execution → ONYX completes task → 5 seconds later: "Help someone like you" → Share → New user arrives → Loop repeats`
+
 ## Architectural Upgrades
 
 Recent upgrades include CarPlay/Android Auto integration, a tRPC Type-Safe API Layer, an Admin API, and a Beta Waitlist system.
