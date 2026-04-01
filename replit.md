@@ -67,3 +67,15 @@ The architecture prioritizes an AI-first approach with:
 -   **Data Intelligence**: Fullpath
 -   **Vehicle Market Data**: MarketCheck
 -   **Push Notifications**: Expo
+
+# Community & Identity Engine (Viral OS)
+
+ONYX is a movement, not a utility. The platform uses community-driven identity to create network effects.
+
+- **Global Nomenclature**: "User" → "ONYX Network Member", "Referral" → "Connection", "Invite" → "Help Someone", "Commission" → "Earnings"
+- **Role-Based Identity**: `communityRole` on users table — Member (base), Connector (after first settlement), Operator (dealership keyholder). Auto-promotion in growth-engine.ts.
+- **Impact Dashboard**: Replaces referral card with People Helped, Total Earnings, Connections metrics + role badge + network tier + "Help Someone" CTA. Data from `GET /api/community/profile`.
+- **Celebration Modal**: Post-success dopamine — "You helped [Name] solve their [service] problem" + "+$X earned" + "Help Someone Else" share button. Data from `GET /api/community/celebration-check`.
+- **Network Feed**: Connectors see their connections' active tasks with friendly status (green/yellow/red dots). Data from `GET /api/community/network-feed`.
+- **Decentralized Bird-Dog Flywheel**: `?ref=CODE` capture → sessionStorage → omni-node/submit → metadata threading → auto-reward on completion ($10-$50) → dopamine SMS/email notification → share again loop.
+- **Mission Manifesto**: "We handle everything automotive so people don't have to." in guest empty states.

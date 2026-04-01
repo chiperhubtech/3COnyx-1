@@ -29,6 +29,7 @@ export const usersTable = pgTable("users", {
   pushToken:          text("push_token"),
   pushTokenUpdatedAt: timestamp("push_token_updated_at", { withTimezone: true }),
   onboardingRole:     text("onboarding_role"),
+  communityRole:      text("community_role").notNull().default("Member"),
   referralCode:       text("referral_code").unique(),
   referredBy:         integer("referred_by"),
   points:             integer("points").notNull().default(0),

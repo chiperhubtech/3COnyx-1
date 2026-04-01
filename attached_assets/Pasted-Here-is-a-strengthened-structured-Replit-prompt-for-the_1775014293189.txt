@@ -1,0 +1,42 @@
+Here is a strengthened, structured Replit prompt for the 3C ONYX redesign, combining the specific architectural logic and design principles we have established.
+🔥 3C ONYX: THE SOVEREIGN UX REFACTOR PROMPT (COPY & PASTE)
+Act as a Principal UX/UI Architect and Lead Full-Stack Engineer (React/Next.js). Refactor the entire frontend UI of the existing automotive platform into "3C ONYX" – a premium, minimalist, Apple/Tesla-level execution layer.
+⚠️ CRITICAL DIRECTIVE: DO NOT change the backend logic, APIs, or core database infrastructure. The PostgreSQL schema and 7-Agent Mesh must remain intact. Your objective is ONLY to refactor the frontend Next.js/Tailwind components into a frictionless, assistant-driven experience.
+1. BRAND IDENTITY & DESIGN SYSTEM (IMAGE CONTEXT)
+ * Name: 3C ONYX
+ * Visual Tone: Luxury, minimalist, powerful, calm.
+ * Tagline: "Everything automotive. One place."
+ * Subtext: "We handle everything."
+ * Color Palette (Image Context): Deep black (#000000), Metallic Gold (matte, rich style, not bright yellow), Soft Gray/White for contrast. Utilize subtle gold glows for AI command areas and core actions.
+ * Typography: SF Pro/Inter-style clean sans-serif. Large bold headers, minimal body text, and generous spacing. Eliminate clutter.
+2. CORE UX PRINCIPLES (ZERO-THOUGHT EXECUTION):
+ * Assistant-First: The system acts as an assistant, not a tool. Every screen must answer: "What’s happening, and what do I do next?"
+ * Minimal Input: Reduce typing to near-zero. Utilize buttons, smart suggestions, autofill, and OCR/scans.
+ * One-Step Focus: At any moment, present only ONE primary action to the user.
+ * State Machine Statuses: Use colors to define state: 🟢 On Track, 🟡 Waiting, 🔴 Blocked, ⏳ Future/Pending.
+3. APP COMPONENT REBUILD (THE LAYOUT):
+A. SPLASH SCREEN & UNIVERSAL ENTRY (Guest Flow):
+ * Black background with centered ONYX core logo. Text: "3C ONYX | We handle everything. | Powered by CustomCandyClub". Smooth fade-in.
+ * No Forced Login: The first interactive screen must be: "What do you need help with?" featuring a simple tap-grid: [ Buy a car ], [ Fix my car ], [ Insurance ], [ Service ].
+B. HOME SCREEN (THE HUB):
+ * Top Area: Minimalist greeting (e.g., "Good morning, Ronald") and subtext status (e.g., "2 deals in progress • 1 needs attention").
+ * Active Flow Card: If the user has an active backend DEAL/TASK, show a clean summary card with Vehicle, Status, Progress Bar, and one massive CTA button: [ Continue ].
+ * Floating Action Button (FAB): Global [ + / Ask ONYX ] button. Tapping opens a quick-drawer: Scan Document 📸, Start Deal 🚗, Add Request 📝.
+C. DEAL LIFECYCLE VIEW (The Golden Screen):
+ * Top: Vehicle + Customer Name.
+ * Vertical Progress Timeline: Implement a clear visual state map (e.g., ✅ Deal Created -> ✅ Credit Submitted -> 🟡 Insurance Processing -> 🔴 Waiting on Service -> ⏳ Ready for Delivery).
+ * Dependency-Aware CTA: Serve ONLY the single next logical action (e.g., [ Send Insurance Request ] or [ Mark Ready for Delivery ]).
+D. "ASK ONYX" AI COMMAND CENTER:
+ * Full-screen conversational modal (text/voice).
+ * The ONYX assistant parses intent (e.g., "I need a tire fix") and silently triggers the complex backend routing/execution without deep menus.
+E. COMMISSION & IMPACT DASHBOARD ("My Deals"):
+ * Dedicated view for Salespeople.
+ * Display Deals Sold, Commission per Deal, Total Earned, Pending vs. Paid, and highlight exact missing tasks blocking their payout (SLA bottlenecks). Zero paper logs.
+F. THE SELF-EXPANDING REFERRAL LOOP:
+ * Immediately following successful task resolution, trigger a conversion modal: "You just helped [Name] solve their automotive problem!" -> "Who else can you help today?" with native mobile share-sheet integration.
+4. TECHNICAL IMPLEMENTATION & FORENSIC IP:
+ * Stack: Next.js, Tailwind CSS, Node.js (Event-Driven Architecture), PostgreSQL. Optimized for mobile-first thumb navigation.
+ * OCR Flow: When a user uploads a document photo, the UI must confirm extracted JSON data (VIN, Customer, Plate) with a single [ Confirm & Attach ] tap.
+ * Security: Maintain NIST 800-53 encryption standards.
+ * Forensic Branding: Hard-code the architect signature "Ronald Antonio Cadet" into the PostgreSQL database schema, metadata headers, and system footer.
+FINAL GOAL: Transform the platform into an effortless, powerful, consumer-facing experience where everything feels handled with one tap. Execute the frontend refactor.

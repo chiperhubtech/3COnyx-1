@@ -102,6 +102,7 @@ import omniNodeRouter from "./omni-node";
 import trustEngineRouter from "./trust-engine";
 import referralsRouter from "./referrals";
 import commerceRouter from "./commerce";
+import communityRouter from "./community";
 
 const router: IRouter = Router();
 
@@ -226,5 +227,6 @@ router.use(omniNodeRouter);
 router.use(trustEngineRouter);
 router.use(referralsRouter);
 router.use(commerceRouter);
+router.use(communityRouter);
 
 export default router;

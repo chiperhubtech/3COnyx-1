@@ -7,6 +7,7 @@ import {
   Send, X, Loader2, CheckCircle2,
   Clock, MapPin, Sparkles,
   Gift, Share2, Users, DollarSign, Copy,
+  Zap, TrendingUp, Award, Network, Star, Heart,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
@@ -416,92 +417,313 @@ function RecentActivity() {
   );
 }
 
-function ReferralEarningsCard() {
+const ROLE_BADGE: Record<string, { label: string; color: string; icon: any }> = {
+  Member: { label: "ONYX Network Member", color: "#C9A227", icon: Star },
+  Connector: { label: "ONYX Connector", color: "#34D399", icon: Network },
+  Operator: { label: "ONYX Operator", color: "#60A5FA", icon: Zap },
+};
+
+const TIER_COLORS: Record<string, string> = {
+  Starter: "rgba(255,255,255,0.3)",
+  Bronze: "#CD7F32",
+  Silver: "#C0C0C0",
+  Gold: "#FFD700",
+  Platinum: "#E5E4E2",
+};
+
+function ImpactDashboard() {
   const { data, isLoading } = useQuery({
-    queryKey: ["referral-stats"],
-    queryFn: () => authFetch(`${BASE}/api/referrals/my-stats`).then((r) => r.ok ? r.json() : null),
+    queryKey: ["community-profile"],
+    queryFn: () => authFetch(`${BASE}/api/community/profile`).then((r) => r.ok ? r.json() : null),
     refetchInterval: 30_000,
   });
 
-  const [linkData, setLinkData] = useState<{ referralLink?: string; shareText?: string } | null>(null);
   const [copied, setCopied] = useState(false);
 
-  const generateLink = async () => {
+  const handleHelpSomeone = async () => {
     try {
       const res = await authFetch(`${BASE}/api/referrals/generate-link`, { method: "POST" });
       if (res.ok) {
         const d = await res.json();
-        setLinkData(d);
+        if (navigator.share) {
+          await navigator.share({
+            title: "Join me on ONYX",
+            text: "I'm part of a network changing how the automotive industry works. Join me.",
+            url: d.referralLink,
+          });
+        } else if (d.referralLink) {
+          navigator.clipboard.writeText(d.referralLink).catch(() => {});
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        }
       }
     } catch {}
   };
 
-  const handleShare = async () => {
-    if (!linkData) {
-      await generateLink();
-      return;
-    }
-
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: "Join me on ONYX", text: linkData.shareText, url: linkData.referralLink });
-      } catch {}
-    } else if (linkData.referralLink) {
-      navigator.clipboard.writeText(linkData.referralLink).catch(() => {});
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
-
   if (isLoading || !data) return null;
+
+  const badge = ROLE_BADGE[data.communityRole] || ROLE_BADGE.Member;
+  const BadgeIcon = badge.icon;
+  const tierColor = TIER_COLORS[data.impact?.networkTier] || TIER_COLORS.Starter;
+
+  return (
+    <div style={{ marginBottom: 24 }}>
+      <div style={{
+        background: "linear-gradient(135deg, rgba(201,162,39,0.1), rgba(201,162,39,0.02))",
+        border: "1px solid rgba(201,162,39,0.15)",
+        borderRadius: 20, padding: "24px 20px",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+          <div style={{
+            width: 44, height: 44, borderRadius: 14,
+            background: `${badge.color}18`,
+            border: `1px solid ${badge.color}30`,
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <BadgeIcon size={22} style={{ color: badge.color }} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <p style={{ fontSize: 16, fontWeight: 800, color: "#fff", margin: 0, letterSpacing: 0.3 }}>
+              Your Impact
+            </p>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+              <span style={{
+                fontSize: 10, fontWeight: 800, color: badge.color,
+                background: `${badge.color}15`, padding: "2px 8px", borderRadius: 6,
+                letterSpacing: 1, textTransform: "uppercase",
+              }}>
+                {badge.label}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
+          <div style={{
+            flex: 1, background: "rgba(255,255,255,0.04)", borderRadius: 14,
+            padding: "16px 12px", textAlign: "center",
+            border: "1px solid rgba(255,255,255,0.04)",
+          }}>
+            <Heart size={18} style={{ color: "#34D399", marginBottom: 6 }} />
+            <p style={{ fontSize: 28, fontWeight: 900, color: "#34D399", margin: 0, lineHeight: 1 }}>
+              {data.impact?.peopleHelped || 0}
+            </p>
+            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", margin: "6px 0 0", fontWeight: 600 }}>
+              People Helped
+            </p>
+          </div>
+          <div style={{
+            flex: 1, background: "rgba(255,255,255,0.04)", borderRadius: 14,
+            padding: "16px 12px", textAlign: "center",
+            border: "1px solid rgba(255,255,255,0.04)",
+          }}>
+            <DollarSign size={18} style={{ color: "#C9A227", marginBottom: 6 }} />
+            <p style={{ fontSize: 28, fontWeight: 900, color: "#C9A227", margin: 0, lineHeight: 1 }}>
+              ${(data.impact?.totalEarnings || 0).toFixed(0)}
+            </p>
+            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", margin: "6px 0 0", fontWeight: 600 }}>
+              Total Earnings
+            </p>
+          </div>
+          <div style={{
+            flex: 1, background: "rgba(255,255,255,0.04)", borderRadius: 14,
+            padding: "16px 12px", textAlign: "center",
+            border: "1px solid rgba(255,255,255,0.04)",
+          }}>
+            <TrendingUp size={18} style={{ color: tierColor, marginBottom: 6 }} />
+            <p style={{ fontSize: 28, fontWeight: 900, color: tierColor, margin: 0, lineHeight: 1 }}>
+              {data.impact?.connections || 0}
+            </p>
+            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", margin: "6px 0 0", fontWeight: 600 }}>
+              Connections
+            </p>
+          </div>
+        </div>
+
+        {data.impact?.networkTier && data.impact.networkTier !== "Starter" && (
+          <div style={{
+            display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+            marginBottom: 16, padding: "8px 0",
+          }}>
+            <Award size={14} style={{ color: tierColor }} />
+            <span style={{ fontSize: 12, fontWeight: 800, color: tierColor, letterSpacing: 1.5, textTransform: "uppercase" }}>
+              {data.impact.networkTier} Network
+            </span>
+          </div>
+        )}
+
+        <button
+          onClick={handleHelpSomeone}
+          style={{
+            width: "100%", padding: "16px", borderRadius: 14,
+            background: "linear-gradient(135deg, #34D399, #10B981)",
+            border: "none", color: "#000", fontWeight: 800, fontSize: 15,
+            cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+            boxShadow: "0 4px 20px rgba(52,211,153,0.25)",
+          }}
+        >
+          {copied ? <><CheckCircle2 size={18} /> Link Copied!</> : <><Heart size={18} /> Help Someone</>}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function NetworkFeed() {
+  const { data, isLoading } = useQuery({
+    queryKey: ["network-feed"],
+    queryFn: () => authFetch(`${BASE}/api/community/network-feed`).then((r) => r.ok ? r.json() : null),
+    refetchInterval: 30_000,
+  });
+
+  if (isLoading || !data?.feed?.length) return null;
+
+  const statusDotColor: Record<string, string> = {
+    green: "#34D399",
+    yellow: "#F59E0B",
+    red: "#EF4444",
+    blue: "#60A5FA",
+  };
 
   return (
     <div style={{
       marginBottom: 24,
-      background: "linear-gradient(135deg, rgba(201,162,39,0.08), rgba(201,162,39,0.02))",
-      border: "1px solid rgba(201,162,39,0.15)",
+      background: "rgba(255,255,255,0.02)",
+      border: "1px solid rgba(255,255,255,0.06)",
       borderRadius: 16, padding: "20px",
     }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+        <Network size={16} style={{ color: "#C9A227" }} />
+        <p style={{ fontSize: 14, fontWeight: 700, color: "#fff", margin: 0 }}>Your Network</p>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+        {data.feed.slice(0, 8).map((item: any, i: number) => (
+          <div key={item.id} style={{
+            display: "flex", alignItems: "center", gap: 10,
+            padding: "12px 0",
+            borderTop: i > 0 ? "1px solid rgba(255,255,255,0.04)" : "none",
+          }}>
+            <div style={{
+              width: 8, height: 8, borderRadius: "50%", flexShrink: 0,
+              background: statusDotColor[item.statusDot] || statusDotColor.blue,
+              boxShadow: `0 0 6px ${statusDotColor[item.statusDot] || statusDotColor.blue}60`,
+            }} />
+            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.6)", margin: 0, lineHeight: 1.4 }}>
+              {item.message}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function CelebrationModal({ onClose }: { onClose: (celebrationId?: number) => void }) {
+  const lastSeenId = sessionStorage.getItem("onyx_last_celebration_id") || "0";
+  const { data } = useQuery({
+    queryKey: ["celebration-check", lastSeenId],
+    queryFn: () => authFetch(`${BASE}/api/community/celebration-check?lastSeenId=${lastSeenId}`).then((r) => r.ok ? r.json() : null),
+  });
+
+  const handleHelpAnother = async () => {
+    try {
+      const res = await authFetch(`${BASE}/api/referrals/generate-link`, { method: "POST" });
+      if (res.ok) {
+        const d = await res.json();
+        if (navigator.share) {
+          await navigator.share({
+            title: "Join the ONYX network",
+            text: "I just helped someone through ONYX. Join the movement.",
+            url: d.referralLink,
+          });
+        } else if (d.referralLink) {
+          navigator.clipboard.writeText(d.referralLink).catch(() => {});
+        }
+      }
+    } catch {}
+    onClose();
+  };
+
+  if (!data?.hasCelebration) return null;
+
+  const c = data.celebration;
+
+  return (
+    <div style={{
+      position: "fixed", inset: 0, zIndex: 10000,
+      display: "flex", alignItems: "center", justifyContent: "center",
+    }}>
+      <div onClick={() => onClose(c.celebrationDbId)} style={{
+        position: "absolute", inset: 0,
+        background: "rgba(0,0,0,0.75)",
+        backdropFilter: "blur(12px)",
+      }} />
+      <div style={{
+        position: "relative", width: "90%", maxWidth: 400,
+        background: "linear-gradient(180deg, #111114, #0A0A0D)",
+        borderRadius: 28, padding: "40px 28px 32px",
+        border: "1px solid rgba(52,211,153,0.2)",
+        textAlign: "center",
+        animation: "fadeIn 0.4s ease",
+        boxShadow: "0 24px 80px rgba(0,0,0,0.6), 0 0 40px rgba(52,211,153,0.1)",
+      }}>
         <div style={{
-          width: 36, height: 36, borderRadius: 10,
-          background: "rgba(201,162,39,0.15)",
+          width: 72, height: 72, borderRadius: 22,
+          background: "linear-gradient(135deg, rgba(52,211,153,0.2), rgba(52,211,153,0.05))",
+          border: "1px solid rgba(52,211,153,0.3)",
           display: "flex", alignItems: "center", justifyContent: "center",
+          margin: "0 auto 24px",
         }}>
-          <Gift size={18} style={{ color: "#C9A227" }} />
+          <Sparkles size={36} style={{ color: "#34D399" }} />
         </div>
-        <div>
-          <p style={{ fontSize: 14, fontWeight: 700, color: "#fff", margin: 0 }}>Your Referral Earnings</p>
-          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", margin: 0 }}>Earn rewards for every friend you refer</p>
-        </div>
-      </div>
 
-      <div style={{ display: "flex", gap: 12, marginBottom: 16 }}>
-        <div style={{ flex: 1, background: "rgba(255,255,255,0.03)", borderRadius: 10, padding: "12px", textAlign: "center" }}>
-          <p style={{ fontSize: 20, fontWeight: 800, color: "#C9A227", margin: 0 }}>{data.referralsCount}</p>
-          <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", margin: "2px 0 0" }}>Referrals</p>
-        </div>
-        <div style={{ flex: 1, background: "rgba(255,255,255,0.03)", borderRadius: 10, padding: "12px", textAlign: "center" }}>
-          <p style={{ fontSize: 20, fontWeight: 800, color: "#34D399", margin: 0 }}>${data.totalEarnings.toFixed(2)}</p>
-          <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", margin: "2px 0 0" }}>Earned</p>
-        </div>
-        <div style={{ flex: 1, background: "rgba(255,255,255,0.03)", borderRadius: 10, padding: "12px", textAlign: "center" }}>
-          <p style={{ fontSize: 20, fontWeight: 800, color: "#F59E0B", margin: 0 }}>{data.points}</p>
-          <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", margin: "2px 0 0" }}>Points</p>
-        </div>
-      </div>
+        <h2 style={{
+          fontSize: 24, fontWeight: 900, color: "#fff", margin: "0 0 8px",
+          fontFamily: "'Barlow Condensed', sans-serif",
+        }}>
+          You made a difference
+        </h2>
+        <p style={{
+          fontSize: 16, color: "rgba(255,255,255,0.7)", margin: "0 0 8px", lineHeight: 1.5,
+        }}>
+          You helped <span style={{ color: "#34D399", fontWeight: 700 }}>{c.personHelped}</span> solve their {c.serviceType} problem
+        </p>
 
-      <button
-        onClick={handleShare}
-        style={{
-          width: "100%", padding: "14px", borderRadius: 12,
-          background: "rgba(201,162,39,0.15)", border: "1px solid rgba(201,162,39,0.25)",
-          color: "#C9A227", fontWeight: 700, fontSize: 14,
-          cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-        }}
-      >
-        {copied ? <><CheckCircle2 size={16} /> Copied!</> : <><Share2 size={16} /> Share your invite link</>}
-      </button>
+        {c.earned > 0 && (
+          <p style={{
+            fontSize: 32, fontWeight: 900, color: "#C9A227", margin: "16px 0",
+            fontFamily: "'Barlow Condensed', sans-serif",
+          }}>
+            +${c.earned.toFixed(0)} earned
+          </p>
+        )}
+
+        <button
+          onClick={handleHelpAnother}
+          style={{
+            width: "100%", padding: "18px", borderRadius: 16,
+            background: "linear-gradient(135deg, #34D399, #10B981)",
+            border: "none", color: "#000", fontWeight: 800, fontSize: 16,
+            cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+            boxShadow: "0 8px 32px rgba(52,211,153,0.3)",
+            marginBottom: 12,
+          }}
+        >
+          <Heart size={20} /> Help Someone Else
+        </button>
+
+        <button
+          onClick={() => onClose(c.celebrationDbId)}
+          style={{
+            width: "100%", padding: "14px", borderRadius: 14,
+            background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
+            color: "rgba(255,255,255,0.4)", fontWeight: 600, fontSize: 14,
+            cursor: "pointer",
+          }}
+        >
+          Later
+        </button>
+      </div>
     </div>
   );
 }
@@ -523,7 +745,11 @@ function ViralLoopPrompt() {
       if (res.ok) {
         const d = await res.json();
         if (navigator.share) {
-          await navigator.share({ title: "Join me on ONYX", text: d.shareText, url: d.referralLink });
+          await navigator.share({
+            title: "Join the ONYX network",
+            text: "We handle everything automotive so people don't have to. Join the movement.",
+            url: d.referralLink,
+          });
         } else {
           navigator.clipboard.writeText(d.referralLink).catch(() => {});
         }
@@ -547,13 +773,13 @@ function ViralLoopPrompt() {
         display: "flex", alignItems: "center", justifyContent: "center",
         margin: "0 auto 16px",
       }}>
-        <Users size={24} style={{ color: "#34D399" }} />
+        <Heart size={24} style={{ color: "#34D399" }} />
       </div>
       <h3 style={{ fontSize: 18, fontWeight: 800, color: "#fff", margin: "0 0 6px" }}>
-        Help someone like you
+        You can help someone right now
       </h3>
       <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", margin: "0 0 20px", lineHeight: 1.5 }}>
-        Know someone who could use ONYX? Share your link and earn rewards on every referral.
+        Know someone struggling with anything automotive? Connect them to ONYX — you earn every time they're helped.
       </p>
       <div style={{ display: "flex", gap: 10 }}>
         <button
@@ -565,7 +791,7 @@ function ViralLoopPrompt() {
             cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
           }}
         >
-          <Share2 size={16} /> Share Now
+          <Heart size={16} /> Help Someone
         </button>
         <button
           onClick={() => setDismissed(true)}
@@ -586,6 +812,7 @@ function ViralLoopPrompt() {
 export default function Home() {
   const { token } = useAuth();
   const [showAskOnyx, setShowAskOnyx] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
   const firstName = getFirstName(token);
   const greeting = getGreeting();
 
@@ -597,6 +824,22 @@ export default function Home() {
       window.history.replaceState({}, "", window.location.pathname);
     }
   }, []);
+
+  useEffect(() => {
+    if (!token) return;
+    const celebrationShown = sessionStorage.getItem("onyx_celebration_shown");
+    if (celebrationShown) return;
+    const timer = setTimeout(() => setShowCelebration(true), 2000);
+    return () => clearTimeout(timer);
+  }, [token]);
+
+  const handleCloseCelebration = (celebrationId?: number) => {
+    setShowCelebration(false);
+    if (celebrationId) {
+      sessionStorage.setItem("onyx_last_celebration_id", String(celebrationId));
+    }
+    sessionStorage.setItem("onyx_celebration_shown", "1");
+  };
 
   const { data: myDeals } = useQuery({
     queryKey: ["my-deals-home"],
@@ -682,10 +925,24 @@ export default function Home() {
           </div>
         )}
 
-        {token && <ReferralEarningsCard />}
+        {token && <ImpactDashboard />}
+
+        {token && <NetworkFeed />}
 
         {token && myDeals?.recentDeals?.some((d: any) => d.status === "Delivered" || d.status === "Funded") && (
           <ViralLoopPrompt />
+        )}
+
+        {!token && (
+          <div style={{
+            marginBottom: 24, padding: "20px", textAlign: "center",
+            background: "rgba(255,255,255,0.02)", borderRadius: 16,
+            border: "1px solid rgba(255,255,255,0.04)",
+          }}>
+            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.3)", margin: 0, lineHeight: 1.6, fontStyle: "italic" }}>
+              We handle everything automotive so people don't have to.
+            </p>
+          </div>
         )}
 
         <RecentActivity />
@@ -712,6 +969,8 @@ export default function Home() {
       </button>
 
       <AskOnyxModal open={showAskOnyx} onClose={() => setShowAskOnyx(false)} />
+
+      {showCelebration && token && <CelebrationModal onClose={handleCloseCelebration} />}
 
       <div style={{
         padding: "20px 24px 32px", textAlign: "center",

@@ -108,6 +108,16 @@ export function initGrowthSubscribers() {
         .where(eq(usersTable.id, referrer.id));
 
       settledTaskIds.add(taskId);
+
+      const [currentUser] = await db.select({ communityRole: usersTable.communityRole })
+        .from(usersTable).where(eq(usersTable.id, referrer.id));
+      if (currentUser && currentUser.communityRole === "Member") {
+        await db.update(usersTable)
+          .set({ communityRole: "Connector", updatedAt: new Date() })
+          .where(eq(usersTable.id, referrer.id));
+        logger.info({ referrerId: referrer.id }, "[GrowthEngine] Promoted to Connector — first successful connection");
+      }
+
       logger.info({ referrerId: referrer.id, reward, refId, taskId }, "[GrowthEngine] Bird-Dog reward settled");
 
       await eventBus.emit("referral.settled", {
