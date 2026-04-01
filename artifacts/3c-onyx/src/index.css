@@ -238,6 +238,398 @@
   --onyx-sidebar-bg: linear-gradient(180deg, #05050a 0%, #070710 100%);
 }
 
+/* ── SEASONAL THEMES — Override accent colors ───────────────── */
+
+/* 🎄 Christmas — Deep Red & Forest Green with Gold Ornament Accents */
+.season-christmas {
+  --primary: 348 84% 45%;
+  --primary-foreground: 0 0% 98%;
+  --ring: 348 84% 45%;
+  --sidebar-primary: 348 84% 50%;
+  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-ring: 348 84% 50%;
+  --chart-1: 348 84% 45%;
+  --chart-2: 140 60% 35%;
+  --chart-3: 38 92% 55%;
+  --chart-4: 0 0% 85%;
+  --chart-5: 140 45% 50%;
+  --onyx-gold: #C41E3A;
+  --onyx-gold-glow: rgba(196,30,58,0.15);
+  --onyx-border-accent: rgba(196,30,58,0.25);
+  --onyx-emerald: #228B22;
+}
+
+.season-christmas:not(.dark) {
+  --primary: 348 84% 38%;
+  --sidebar-primary: 348 84% 38%;
+  --ring: 348 84% 38%;
+  --onyx-gold: #9A1830;
+  --onyx-gold-glow: rgba(154,24,48,0.12);
+}
+
+/* 🎃 Halloween — Pumpkin Orange & Eerie Purple with Lime Glow */
+.season-halloween {
+  --primary: 24 100% 50%;
+  --primary-foreground: 0 0% 5%;
+  --ring: 24 100% 50%;
+  --sidebar-primary: 24 100% 55%;
+  --sidebar-primary-foreground: 0 0% 5%;
+  --sidebar-ring: 24 100% 55%;
+  --chart-1: 24 100% 50%;
+  --chart-2: 270 60% 50%;
+  --chart-3: 120 100% 55%;
+  --chart-4: 0 0% 70%;
+  --chart-5: 300 70% 45%;
+  --onyx-gold: #FF6600;
+  --onyx-gold-glow: rgba(255,102,0,0.15);
+  --onyx-border-accent: rgba(255,102,0,0.25);
+  --onyx-emerald: #39FF14;
+}
+
+.season-halloween.dark {
+  --background: 270 8% 6%;
+  --card: 270 6% 9%;
+  --sidebar: 270 8% 5%;
+  --sidebar-border: 270 6% 13%;
+  --border: 270 6% 15%;
+  --muted: 270 6% 11%;
+  --accent: 270 5% 14%;
+  --input: 270 6% 17%;
+  --onyx-page-bg: #0a060e;
+  --onyx-page-bg-alt: #0c0810;
+  --onyx-sidebar-bg: linear-gradient(180deg, #08050c 0%, #0a0710 100%);
+}
+
+.season-halloween:not(.dark) {
+  --primary: 24 100% 42%;
+  --sidebar-primary: 24 100% 42%;
+  --ring: 24 100% 42%;
+  --onyx-gold: #CC5200;
+  --onyx-gold-glow: rgba(204,82,0,0.12);
+}
+
+/* 🇺🇸 Fourth of July — Patriotic Red, White & Navy Blue */
+.season-july4th {
+  --primary: 220 100% 40%;
+  --primary-foreground: 0 0% 98%;
+  --ring: 220 100% 40%;
+  --sidebar-primary: 220 100% 50%;
+  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-ring: 220 100% 50%;
+  --chart-1: 220 100% 45%;
+  --chart-2: 0 85% 50%;
+  --chart-3: 0 0% 90%;
+  --chart-4: 220 70% 65%;
+  --chart-5: 0 70% 60%;
+  --onyx-gold: #002868;
+  --onyx-gold-glow: rgba(0,40,104,0.2);
+  --onyx-border-accent: rgba(0,40,104,0.3);
+  --onyx-emerald: #B31942;
+}
+
+.season-july4th.dark {
+  --background: 220 12% 6%;
+  --card: 220 10% 9%;
+  --sidebar: 220 12% 5%;
+  --sidebar-border: 220 8% 13%;
+  --border: 220 8% 15%;
+  --muted: 220 8% 11%;
+  --accent: 220 7% 14%;
+  --input: 220 8% 17%;
+  --onyx-page-bg: #060810;
+  --onyx-page-bg-alt: #080a14;
+  --onyx-sidebar-bg: linear-gradient(180deg, #04060e 0%, #060810 100%);
+}
+
+.season-july4th:not(.dark) {
+  --primary: 220 100% 32%;
+  --sidebar-primary: 220 100% 35%;
+  --ring: 220 100% 32%;
+  --onyx-gold: #001A4D;
+  --onyx-gold-glow: rgba(0,26,77,0.12);
+}
+
+/* 🦃 Thanksgiving — Warm Harvest Amber & Burnt Orange */
+.season-thanksgiving {
+  --primary: 30 85% 45%;
+  --primary-foreground: 0 0% 98%;
+  --ring: 30 85% 45%;
+  --sidebar-primary: 30 85% 50%;
+  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-ring: 30 85% 50%;
+  --chart-1: 30 85% 45%;
+  --chart-2: 15 70% 40%;
+  --chart-3: 45 80% 50%;
+  --chart-4: 0 60% 42%;
+  --chart-5: 38 70% 55%;
+  --onyx-gold: #B8660D;
+  --onyx-gold-glow: rgba(184,102,13,0.15);
+  --onyx-border-accent: rgba(184,102,13,0.25);
+  --onyx-emerald: #8B4513;
+}
+
+.season-thanksgiving.dark {
+  --background: 25 10% 6%;
+  --card: 25 8% 9%;
+  --sidebar: 25 10% 5%;
+  --onyx-page-bg: #0a0806;
+  --onyx-page-bg-alt: #0c0a08;
+  --onyx-sidebar-bg: linear-gradient(180deg, #080604 0%, #0a0806 100%);
+}
+
+/* 🐣 Easter — Soft Pastel Spring (light-base) */
+.season-easter {
+  --primary: 280 50% 55%;
+  --primary-foreground: 0 0% 98%;
+  --ring: 280 50% 55%;
+  --sidebar-primary: 280 50% 50%;
+  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-ring: 280 50% 50%;
+  --chart-1: 280 50% 55%;
+  --chart-2: 150 55% 50%;
+  --chart-3: 40 80% 60%;
+  --chart-4: 200 60% 60%;
+  --chart-5: 330 55% 55%;
+  --onyx-gold: #9B59B6;
+  --onyx-gold-glow: rgba(155,89,182,0.12);
+  --onyx-border-accent: rgba(155,89,182,0.25);
+  --onyx-emerald: #66BB6A;
+}
+
+.season-easter:not(.dark) {
+  --background: 270 30% 96%;
+  --card: 270 20% 98%;
+  --sidebar: 270 25% 94%;
+  --onyx-page-bg: #F0E8F5;
+  --onyx-page-bg-alt: #EBE3F0;
+  --onyx-surface: rgba(255,255,255,0.9);
+  --onyx-sidebar-bg: linear-gradient(180deg, #EBE3F0 0%, #E5DDE8 100%);
+}
+
+/* 💕 Valentine's Day — Rose Pink & Deep Red */
+.season-valentines {
+  --primary: 340 82% 52%;
+  --primary-foreground: 0 0% 98%;
+  --ring: 340 82% 52%;
+  --sidebar-primary: 340 82% 55%;
+  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-ring: 340 82% 55%;
+  --chart-1: 340 82% 52%;
+  --chart-2: 350 70% 60%;
+  --chart-3: 330 60% 45%;
+  --chart-4: 0 70% 55%;
+  --chart-5: 315 50% 55%;
+  --onyx-gold: #E91E63;
+  --onyx-gold-glow: rgba(233,30,99,0.15);
+  --onyx-border-accent: rgba(233,30,99,0.25);
+  --onyx-emerald: #F48FB1;
+}
+
+.season-valentines.dark {
+  --background: 340 10% 6%;
+  --card: 340 8% 9%;
+  --sidebar: 340 10% 5%;
+  --onyx-page-bg: #0a0608;
+  --onyx-page-bg-alt: #0c080a;
+  --onyx-sidebar-bg: linear-gradient(180deg, #080406 0%, #0a0608 100%);
+}
+
+/* ☘️ St. Patrick's Day — Lucky Emerald Green */
+.season-stpatricks {
+  --primary: 125 60% 35%;
+  --primary-foreground: 0 0% 98%;
+  --ring: 125 60% 35%;
+  --sidebar-primary: 125 60% 40%;
+  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-ring: 125 60% 40%;
+  --chart-1: 125 60% 35%;
+  --chart-2: 140 50% 45%;
+  --chart-3: 38 80% 50%;
+  --chart-4: 100 40% 50%;
+  --chart-5: 160 50% 40%;
+  --onyx-gold: #2E7D32;
+  --onyx-gold-glow: rgba(46,125,50,0.15);
+  --onyx-border-accent: rgba(46,125,50,0.25);
+  --onyx-emerald: #4CAF50;
+}
+
+.season-stpatricks.dark {
+  --background: 140 10% 5%;
+  --card: 140 8% 8%;
+  --sidebar: 140 10% 4%;
+  --onyx-page-bg: #060a06;
+  --onyx-page-bg-alt: #080c08;
+  --onyx-sidebar-bg: linear-gradient(180deg, #040804 0%, #060a06 100%);
+}
+
+/* 🪅 Cinco de Mayo — Vibrant Fiesta Colors */
+.season-cincodemayo {
+  --primary: 24 100% 45%;
+  --primary-foreground: 0 0% 98%;
+  --ring: 24 100% 45%;
+  --sidebar-primary: 24 100% 50%;
+  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-ring: 24 100% 50%;
+  --chart-1: 24 100% 45%;
+  --chart-2: 140 70% 40%;
+  --chart-3: 0 80% 50%;
+  --chart-4: 45 90% 55%;
+  --chart-5: 200 70% 50%;
+  --onyx-gold: #E65100;
+  --onyx-gold-glow: rgba(230,81,0,0.15);
+  --onyx-border-accent: rgba(230,81,0,0.25);
+  --onyx-emerald: #2E7D32;
+}
+
+.season-cincodemayo.dark {
+  --background: 20 10% 6%;
+  --card: 20 8% 9%;
+  --sidebar: 20 10% 5%;
+  --onyx-page-bg: #0a0806;
+  --onyx-page-bg-alt: #0c0a08;
+  --onyx-sidebar-bg: linear-gradient(180deg, #080604 0%, #0a0806 100%);
+}
+
+/* 🧧 Chinese New Year — Imperial Red & Gold */
+.season-chinesenewyear {
+  --primary: 0 72% 45%;
+  --primary-foreground: 45 100% 90%;
+  --ring: 0 72% 45%;
+  --sidebar-primary: 0 72% 50%;
+  --sidebar-primary-foreground: 45 100% 90%;
+  --sidebar-ring: 0 72% 50%;
+  --chart-1: 0 72% 45%;
+  --chart-2: 38 92% 55%;
+  --chart-3: 0 90% 60%;
+  --chart-4: 45 80% 50%;
+  --chart-5: 15 70% 50%;
+  --onyx-gold: #D32F2F;
+  --onyx-gold-glow: rgba(211,47,47,0.15);
+  --onyx-border-accent: rgba(211,47,47,0.25);
+  --onyx-emerald: #FFD700;
+}
+
+.season-chinesenewyear.dark {
+  --background: 0 10% 5%;
+  --card: 0 8% 8%;
+  --sidebar: 0 10% 4%;
+  --onyx-page-bg: #0a0606;
+  --onyx-page-bg-alt: #0c0808;
+  --onyx-sidebar-bg: linear-gradient(180deg, #080404 0%, #0a0606 100%);
+}
+
+/* 🎆 New Year's Eve — Midnight Gold Sparkle */
+.season-newyears {
+  --primary: 45 100% 50%;
+  --primary-foreground: 0 0% 5%;
+  --ring: 45 100% 50%;
+  --sidebar-primary: 45 100% 55%;
+  --sidebar-primary-foreground: 0 0% 5%;
+  --sidebar-ring: 45 100% 55%;
+  --chart-1: 45 100% 50%;
+  --chart-2: 0 0% 75%;
+  --chart-3: 220 60% 55%;
+  --chart-4: 38 80% 55%;
+  --chart-5: 270 50% 55%;
+  --onyx-gold: #FFD700;
+  --onyx-gold-glow: rgba(255,215,0,0.2);
+  --onyx-border-accent: rgba(255,215,0,0.3);
+  --onyx-emerald: #C0C0C0;
+}
+
+.season-newyears.dark {
+  --background: 240 8% 4%;
+  --card: 240 6% 7%;
+  --sidebar: 240 8% 3%;
+  --onyx-page-bg: #050508;
+  --onyx-page-bg-alt: #070710;
+  --onyx-sidebar-bg: linear-gradient(180deg, #030308 0%, #050508 100%);
+}
+
+/* 🎭 Mardi Gras — Purple, Gold & Green */
+.season-mardigras {
+  --primary: 280 60% 48%;
+  --primary-foreground: 0 0% 98%;
+  --ring: 280 60% 48%;
+  --sidebar-primary: 280 60% 52%;
+  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-ring: 280 60% 52%;
+  --chart-1: 280 60% 48%;
+  --chart-2: 45 100% 50%;
+  --chart-3: 140 60% 40%;
+  --chart-4: 290 50% 55%;
+  --chart-5: 38 80% 55%;
+  --onyx-gold: #7B1FA2;
+  --onyx-gold-glow: rgba(123,31,162,0.15);
+  --onyx-border-accent: rgba(123,31,162,0.25);
+  --onyx-emerald: #FFD700;
+}
+
+.season-mardigras.dark {
+  --background: 280 10% 5%;
+  --card: 280 8% 8%;
+  --sidebar: 280 10% 4%;
+  --onyx-page-bg: #08060a;
+  --onyx-page-bg-alt: #0a080c;
+  --onyx-sidebar-bg: linear-gradient(180deg, #060408 0%, #08060a 100%);
+}
+
+/* 🪔 Diwali — Festival of Lights — Warm Gold & Saffron */
+.season-diwali {
+  --primary: 35 100% 50%;
+  --primary-foreground: 0 0% 5%;
+  --ring: 35 100% 50%;
+  --sidebar-primary: 35 100% 55%;
+  --sidebar-primary-foreground: 0 0% 5%;
+  --sidebar-ring: 35 100% 55%;
+  --chart-1: 35 100% 50%;
+  --chart-2: 0 80% 50%;
+  --chart-3: 45 90% 55%;
+  --chart-4: 20 90% 50%;
+  --chart-5: 50 80% 45%;
+  --onyx-gold: #FF8F00;
+  --onyx-gold-glow: rgba(255,143,0,0.2);
+  --onyx-border-accent: rgba(255,143,0,0.25);
+  --onyx-emerald: #FF5722;
+}
+
+.season-diwali.dark {
+  --background: 30 12% 5%;
+  --card: 30 10% 8%;
+  --sidebar: 30 12% 4%;
+  --onyx-page-bg: #0a0806;
+  --onyx-page-bg-alt: #0c0a08;
+  --onyx-sidebar-bg: linear-gradient(180deg, #080604 0%, #0a0806 100%);
+}
+
+/* 🎂 Birthday — Celebration Purple & Pink with Confetti Energy */
+.season-birthday {
+  --primary: 291 64% 60%;
+  --primary-foreground: 0 0% 98%;
+  --ring: 291 64% 60%;
+  --sidebar-primary: 291 64% 65%;
+  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-ring: 291 64% 65%;
+  --chart-1: 291 64% 60%;
+  --chart-2: 45 100% 50%;
+  --chart-3: 180 70% 50%;
+  --chart-4: 340 80% 55%;
+  --chart-5: 120 60% 50%;
+  --onyx-gold: #E040FB;
+  --onyx-gold-glow: rgba(224,64,251,0.2);
+  --onyx-border-accent: rgba(224,64,251,0.3);
+  --onyx-emerald: #FFD700;
+}
+
+.season-birthday.dark {
+  --background: 280 10% 5%;
+  --card: 280 8% 8%;
+  --sidebar: 280 10% 4%;
+  --onyx-page-bg: #0a0610;
+  --onyx-page-bg-alt: #0c0812;
+  --onyx-sidebar-bg: linear-gradient(180deg, #06040c 0%, #0a0610 100%);
+}
+
 @layer base {
   html {
     color-scheme: light;

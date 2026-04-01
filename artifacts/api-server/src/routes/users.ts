@@ -3,7 +3,7 @@
  *
  * PATCH /api/users/push-token  — Save Expo push token to user record
  * GET   /api/users/profile     — Get current user profile (me)
- * PATCH /api/users/profile     — Update name, phone, avatarUrl
+ * PATCH /api/users/profile     — Update name, phone, avatarUrl, birthday
  * PATCH /api/users/role        — Update onboarding role detail
  */
 import { Router, type Request, type Response } from "express";
@@ -41,11 +41,12 @@ router.get("/users/profile", requireAuth, async (req: Request, res: Response) =>
 
 // ─── PATCH /api/users/profile ─────────────────────────────────────────────────
 router.patch("/users/profile", requireAuth, async (req: Request, res: Response) => {
-  const { name, phone, avatarUrl, onboardingRole } = req.body as {
+  const { name, phone, avatarUrl, onboardingRole, birthday } = req.body as {
     name?: string;
     phone?: string;
     avatarUrl?: string;
     onboardingRole?: string;
+    birthday?: string;
   };
   const userId = Number(req.user!.sub);
   const patch: Record<string, unknown> = { updatedAt: new Date() };
@@ -53,6 +54,7 @@ router.patch("/users/profile", requireAuth, async (req: Request, res: Response) 
   if (phone?.trim())       patch["phone"]         = phone.trim();
   if (avatarUrl?.trim())   patch["avatarUrl"]     = avatarUrl.trim();
   if (onboardingRole)      patch["onboardingRole"] = onboardingRole;
+  if (birthday)            patch["birthday"]      = birthday;
 
   await db.update(usersTable).set(patch).where(eq(usersTable.id, userId));
   const [updated] = await db.select().from(usersTable).where(eq(usersTable.id, userId)).limit(1);

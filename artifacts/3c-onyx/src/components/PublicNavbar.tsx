@@ -4,7 +4,7 @@
  * Sticky · blur backdrop · dual theme
  */
 import { Link } from "wouter";
-import { ThemeToggle } from "./ThemeToggle";
+import { ThemeSelector } from "./ThemeSelector";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -104,7 +104,7 @@ export function PublicNavbar() {
         {/* Right actions */}
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <LanguageSelector compact />
-          <ThemeToggle size="sm" />
+          <ThemeSelector size="sm" />
           <Link href="/join">
             <div style={{
               padding: "7px 16px", borderRadius: 9,

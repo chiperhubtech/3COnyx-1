@@ -17,6 +17,7 @@ export interface AuthUser {
   isActive: boolean;
   isVerified: boolean;
   stripeCustomerId?: string | null;
+  birthday?: string | null;
   createdAt: string;
 }
 

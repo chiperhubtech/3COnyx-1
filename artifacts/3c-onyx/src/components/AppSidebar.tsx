@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { NotificationBell } from "./NotificationBell";
-import { ThemeToggle } from "./ThemeToggle";
+import { ThemeSelector } from "./ThemeSelector";
 import LanguageSelector from "./LanguageSelector";
 import { OnyxLogo } from "./OnyxLogo";
 
@@ -322,7 +322,7 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <LanguageSelector compact />
-            <ThemeToggle size="sm" />
+            <ThemeSelector size="sm" />
           </div>
         </div>
         {/* Security badge */}

@@ -9,6 +9,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { ProtectedRoute, PublicRoute } from "@/components/ProtectedRoute";
 import { OnboardingModal, useOnboarding } from "@/components/OnboardingModal";
+import { useSeasonalTheme } from "@/context/SeasonalThemeContext";
 
 import Home from "@/pages/home";
 import LandingPage from "@/pages/landing";
@@ -104,6 +105,15 @@ const queryClient = new QueryClient({
     mutations: { retry: 1 },
   },
 });
+
+function BirthdaySync() {
+  const { user } = useAuth();
+  const { setUserBirthday } = useSeasonalTheme();
+  useEffect(() => {
+    setUserBirthday(user?.birthday ?? null);
+  }, [user?.birthday, setUserBirthday]);
+  return null;
+}
 
 /* ─── Onboarding Gate — wraps authenticated app ─────────────────────────── */
 function OnboardingGate({ children }: { children: React.ReactNode }) {
@@ -262,6 +272,7 @@ function App() {
         <TooltipProvider>
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
             <AuthProvider>
+              <BirthdaySync />
               <ErrorBoundary>
                 <AppRoutes />
               </ErrorBoundary>

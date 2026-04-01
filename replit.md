@@ -18,7 +18,8 @@ The system is designed for AWS, utilizing Route 53, CloudFront, S3, ALB, ECS Far
 
 ## UI/UX Design (3C Onyx Visual Language)
 
-The platform features a cinematic "Apple × GTA" visual language with a dual-theme system (dark default, warm ivory light mode). Typography uses Barlow Condensed for headings and Inter for body text. Key design elements include a "THE AUTOMOTIVE INTELLIGENCE LAYER" hero, amber accents, translucent glassmorphism, and a custom AI-Native Design System with futuristic components and dynamic animations. The UI also features a "Google Search Bar" pivot for a consumer-first assistant experience, de-jargonized status labels, and a mobile-first design with a Zero-Thought Assistant-First UI.
+The platform features a cinematic "Apple × GTA" visual language with a multi-theme system (dark default, warm ivory light mode, plus 12 holiday/seasonal themes and auto-birthday detection). Typography uses Barlow Condensed for headings and Inter for body text. Key design elements include a "THE AUTOMOTIVE INTELLIGENCE LAYER" hero, amber accents, translucent glassmorphism, and a custom AI-Native Design System with futuristic components and dynamic animations. The UI also features a "Google Search Bar" pivot for a consumer-first assistant experience, de-jargonized status labels, and a mobile-first design with a Zero-Thought Assistant-First UI.
+- **Theme System**: SeasonalThemeContext (`context/SeasonalThemeContext.tsx`) + ThemeSelector component (`components/ThemeSelector.tsx`). Supports: Dark, Light, Christmas, Halloween, 4th of July, Thanksgiving, Easter, Valentine's Day, St. Patrick's Day, Cinco de Mayo, Chinese New Year, New Year's Eve, Mardi Gras, Diwali, Birthday. Birthday auto-activates on user's birthday (synced from `users.birthday` DB column). CSS variable overrides in `index.css` per season. Persisted in localStorage (`onyx-seasonal-theme`).
 
 ## Core Platform Features
 
