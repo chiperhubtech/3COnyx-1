@@ -2669,10 +2669,11 @@ function StorePerformanceDashboard() {
 
 function OmniNodeIntake() {
   const qc = useQueryClient();
-  const [mode, setMode] = useState<"submit" | "track">("submit");
+  const [mode, setMode] = useState<"submit" | "track" | "trust">("submit");
   const [trackingCode, setTrackingCode] = useState("");
   const [form, setForm] = useState({ title: "", description: "", intakeType: "Walk_In", department: "Sales", urgency: "Medium", photos: [] as string[], contactName: "", contactPhone: "", contactEmail: "" });
   const [submitted, setSubmitted] = useState<{ trackingCode: string; id: number } | null>(null);
+  const [verifyForm, setVerifyForm] = useState({ fullName: "", phone: "", email: "", governmentIdType: "drivers_license", governmentIdLast4: "", selfieConfirmation: false });
 
   const submitMut = useMutation({
     mutationFn: (data: typeof form) =>
@@ -2698,6 +2699,24 @@ function OmniNodeIntake() {
     refetchInterval: 30000,
   });
 
+  const trustProfileQuery = useQuery({
+    queryKey: ["trust-profile"],
+    queryFn: () => authFetch(`${BASE}/api/trust/profile`).then((r) => r.json()),
+    refetchInterval: 30000,
+  });
+
+  const leaderboardQuery = useQuery({
+    queryKey: ["trust-leaderboard"],
+    queryFn: () => fetch(`${BASE}/api/trust/leaderboard`).then((r) => r.json()),
+    enabled: mode === "trust",
+  });
+
+  const verifyMut = useMutation({
+    mutationFn: (data: typeof verifyForm) =>
+      authFetch(`${BASE}/api/trust/verify`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }).then((r) => r.json()),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["trust-profile"] }); },
+  });
+
   const intakeTypes = ["Walk_In", "Phone_Call", "Email", "Text_Message", "Service_Drive", "Omni_Node"];
   const departments = ["Sales", "Finance", "Service", "Parts", "BDC", "Detailing", "Reconditioning", "Title_Clerk", "Management"];
   const urgencies = ["Low", "Medium", "High", "Critical"];
@@ -2715,6 +2734,9 @@ function OmniNodeIntake() {
           </button>
           <button onClick={() => setMode("track")} className={cn("px-3 py-1.5 rounded-md text-xs font-medium transition-all", mode === "track" ? "bg-amber-500/20 text-amber-300 border border-amber-500/30" : "text-zinc-400 hover:text-white")}>
             <Search className="w-3 h-3 inline mr-1" />Track
+          </button>
+          <button onClick={() => setMode("trust")} className={cn("px-3 py-1.5 rounded-md text-xs font-medium transition-all", mode === "trust" ? "bg-amber-500/20 text-amber-300 border border-amber-500/30" : "text-zinc-400 hover:text-white")}>
+            <Shield className="w-3 h-3 inline mr-1" />Trust
           </button>
         </div>
       </div>
@@ -2881,8 +2903,197 @@ function OmniNodeIntake() {
         </div>
       )}
 
+      {mode === "trust" && (
+        <div className="space-y-4">
+          {trustProfileQuery.data?.profile && (
+            <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-white font-semibold">Your Trust Profile</h3>
+                <span className={cn("px-3 py-1 rounded-full text-xs font-bold",
+                  trustProfileQuery.data.profile.tier === "Keyholder" ? "bg-amber-500/20 text-amber-300 border border-amber-500/30" :
+                  trustProfileQuery.data.profile.tier === "Trusted_Node" ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" :
+                  trustProfileQuery.data.profile.tier === "Verified_Node" ? "bg-blue-500/20 text-blue-300 border border-blue-500/30" :
+                  trustProfileQuery.data.profile.tier === "Contributor" ? "bg-violet-500/20 text-violet-300 border border-violet-500/30" :
+                  "bg-zinc-700 text-zinc-400"
+                )}>
+                  {trustProfileQuery.data.profile.tier?.replace(/_/g, " ")}
+                </span>
+              </div>
+
+              <div className="mb-4">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs text-zinc-400">Trust Score</span>
+                  <span className="text-lg font-bold text-amber-300">{trustProfileQuery.data.profile.trustScore.toFixed(1)}</span>
+                </div>
+                <div className="bg-zinc-800 rounded-full h-3 overflow-hidden">
+                  <div className="h-full rounded-full transition-all bg-gradient-to-r from-red-500 via-amber-500 to-emerald-500" style={{ width: `${trustProfileQuery.data.profile.trustScore}%` }} />
+                </div>
+                <div className="flex justify-between text-[10px] text-zinc-600 mt-1">
+                  <span>0</span><span>Unverified</span><span>Contributor</span><span>Verified</span><span>Trusted</span><span>100</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                <div className="bg-zinc-800/50 rounded-lg p-2.5 text-center">
+                  <p className="text-zinc-500">Submissions</p>
+                  <p className="text-lg font-bold text-white">{trustProfileQuery.data.profile.totalSubmissions}</p>
+                </div>
+                <div className="bg-zinc-800/50 rounded-lg p-2.5 text-center">
+                  <p className="text-zinc-500">Accepted</p>
+                  <p className="text-lg font-bold text-emerald-400">{trustProfileQuery.data.profile.acceptedSubmissions}</p>
+                </div>
+                <div className="bg-zinc-800/50 rounded-lg p-2.5 text-center">
+                  <p className="text-zinc-500">Deals Closed</p>
+                  <p className="text-lg font-bold text-amber-300">{trustProfileQuery.data.profile.dealsClosed}</p>
+                </div>
+                <div className="bg-zinc-800/50 rounded-lg p-2.5 text-center">
+                  <p className="text-zinc-500">Earned</p>
+                  <p className="text-lg font-bold text-emerald-400">${trustProfileQuery.data.profile.totalCommissionEarnedUsd.toFixed(2)}</p>
+                </div>
+              </div>
+
+              {trustProfileQuery.data.profile.bypassesFiltering && (
+                <div className="mt-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-2 text-center">
+                  <p className="text-emerald-300 text-xs font-medium">AI Filtering Bypassed — Your submissions are auto-prioritized</p>
+                </div>
+              )}
+
+              {trustProfileQuery.data.profile.verificationStatus !== "Verified" && (
+                <div className="mt-4 bg-amber-500/10 border border-amber-500/30 rounded-xl p-4">
+                  <h4 className="text-sm font-semibold text-amber-300 mb-3">Upgrade to Verified Node</h4>
+                  <p className="text-xs text-zinc-400 mb-3">Verified Nodes get priority routing, Bird-Dog referral payouts, and bypass AI spam filtering.</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-[10px] text-zinc-500 block mb-1">Full Name *</label>
+                      <input value={verifyForm.fullName} onChange={(e) => setVerifyForm({ ...verifyForm, fullName: e.target.value })} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-1.5 text-xs text-white focus:border-amber-500/50 focus:outline-none" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-zinc-500 block mb-1">Phone *</label>
+                      <input value={verifyForm.phone} onChange={(e) => setVerifyForm({ ...verifyForm, phone: e.target.value })} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-1.5 text-xs text-white focus:border-amber-500/50 focus:outline-none" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-zinc-500 block mb-1">Email *</label>
+                      <input value={verifyForm.email} onChange={(e) => setVerifyForm({ ...verifyForm, email: e.target.value })} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-1.5 text-xs text-white focus:border-amber-500/50 focus:outline-none" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-zinc-500 block mb-1">ID Last 4</label>
+                      <input value={verifyForm.governmentIdLast4} onChange={(e) => setVerifyForm({ ...verifyForm, governmentIdLast4: e.target.value })} maxLength={4} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-1.5 text-xs text-white focus:border-amber-500/50 focus:outline-none" />
+                    </div>
+                  </div>
+                  <label className="flex items-center gap-2 mt-3">
+                    <input type="checkbox" checked={verifyForm.selfieConfirmation} onChange={(e) => setVerifyForm({ ...verifyForm, selfieConfirmation: e.target.checked })} className="rounded" />
+                    <span className="text-xs text-zinc-400">I confirm my identity is accurate</span>
+                  </label>
+                  <button
+                    onClick={() => { if (verifyForm.fullName && verifyForm.phone && verifyForm.email && verifyForm.selfieConfirmation) verifyMut.mutate(verifyForm); }}
+                    disabled={!verifyForm.fullName || !verifyForm.phone || !verifyForm.email || !verifyForm.selfieConfirmation || verifyMut.isPending}
+                    className="mt-3 px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-600 text-black font-semibold rounded-lg text-xs hover:brightness-110 disabled:opacity-40 transition-all"
+                  >
+                    {verifyMut.isPending ? "Verifying..." : "Verify Identity"}
+                  </button>
+                  {verifyMut.data?.message && <p className="text-emerald-300 text-xs mt-2">{verifyMut.data.message}</p>}
+                </div>
+              )}
+            </div>
+          )}
+
+          {trustProfileQuery.data?.recentEvents && trustProfileQuery.data.recentEvents.length > 0 && (
+            <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-4">
+              <h4 className="text-sm font-semibold text-white mb-3">Trust Event History</h4>
+              <div className="space-y-2">
+                {trustProfileQuery.data.recentEvents.map((e: any, i: number) => (
+                  <div key={i} className="flex items-center justify-between bg-zinc-800/50 rounded-lg px-3 py-2">
+                    <div className="flex items-center gap-2">
+                      <div className={cn("w-2 h-2 rounded-full", Number(e.scoreDelta) > 0 ? "bg-emerald-400" : Number(e.scoreDelta) < 0 ? "bg-red-400" : "bg-zinc-500")} />
+                      <div>
+                        <p className="text-xs text-white">{e.eventType?.replace(/_/g, " ")}</p>
+                        <p className="text-[10px] text-zinc-600">{e.reason}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <span className={cn("text-xs font-mono font-bold", Number(e.scoreDelta) > 0 ? "text-emerald-400" : Number(e.scoreDelta) < 0 ? "text-red-400" : "text-zinc-500")}>
+                        {Number(e.scoreDelta) > 0 ? "+" : ""}{Number(e.scoreDelta).toFixed(1)}
+                      </span>
+                      <p className="text-[10px] text-zinc-600">{e.createdAt ? new Date(e.createdAt).toLocaleDateString() : ""}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {leaderboardQuery.data?.leaderboard && (
+            <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-sm font-semibold text-white">Trust Leaderboard</h4>
+                {leaderboardQuery.data.networkStats && (
+                  <span className="text-[10px] text-zinc-500">
+                    {leaderboardQuery.data.networkStats.verifiedNodes} verified / {leaderboardQuery.data.networkStats.totalNodes} total nodes
+                  </span>
+                )}
+              </div>
+              <div className="space-y-1.5">
+                {leaderboardQuery.data.leaderboard.slice(0, 15).map((node: any) => (
+                  <div key={node.rank} className="flex items-center gap-3 bg-zinc-800/50 rounded-lg px-3 py-2">
+                    <span className={cn("w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold",
+                      node.rank === 1 ? "bg-amber-500/30 text-amber-300" :
+                      node.rank === 2 ? "bg-zinc-400/30 text-zinc-300" :
+                      node.rank === 3 ? "bg-orange-500/30 text-orange-300" :
+                      "bg-zinc-700 text-zinc-400"
+                    )}>{node.rank}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-white truncate">{node.displayName}</p>
+                      <div className="flex items-center gap-2">
+                        <span className={cn("text-[10px] font-medium",
+                          node.tier === "Keyholder" ? "text-amber-300" :
+                          node.tier === "Trusted_Node" ? "text-emerald-300" :
+                          node.tier === "Verified_Node" ? "text-blue-300" :
+                          "text-zinc-400"
+                        )}>{node.tier?.replace(/_/g, " ")}</span>
+                        {node.verified && <CheckCircle2 className="w-3 h-3 text-blue-400" />}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-bold text-amber-300">{node.trustScore.toFixed(1)}</p>
+                      <p className="text-[10px] text-zinc-600">{node.acceptanceRate}% accept</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {mySubsQuery.data?.submissions && mySubsQuery.data.submissions.length > 0 && mode !== "trust" && (
+        <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-4">
+          <h3 className="text-sm font-semibold text-white mb-3">My Submissions</h3>
+          <div className="space-y-2">
+            {mySubsQuery.data.submissions.map((s: any) => (
+              <div key={s.id} className="flex items-center justify-between bg-zinc-800/50 rounded-lg px-3 py-2 border border-zinc-700/50">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-white truncate">{s.title}</p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <code className="text-[10px] text-amber-400 font-mono">{s.trackingCode}</code>
+                    <span className="text-[10px] text-zinc-600">{s.department}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-medium",
+                    s.status === "Completed" ? "bg-emerald-500/20 text-emerald-300" :
+                    s.status === "In_Progress" ? "bg-blue-500/20 text-blue-300" :
+                    "bg-zinc-700 text-zinc-400"
+                  )}>{s.status?.replace(/_/g, " ")}</span>
+                  <button onClick={() => { setTrackingCode(s.trackingCode); setMode("track"); }} className="text-[10px] text-amber-400 hover:underline">Track</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="text-center text-[10px] text-zinc-700 pt-4 border-t border-zinc-900">
-        3C ONYX &mdash; Omni-Node Open Intake &mdash; Zero-Trust Delegation Architecture &mdash; Ronald Antonio Cadet
+        3C ONYX &mdash; Global Trust &amp; Authority Layer &mdash; Zero-Trust Delegation Architecture &mdash; Ronald Antonio Cadet
       </div>
     </div>
   );

@@ -40,3 +40,4 @@ export * from "./deals";
 export * from "./dealerflow-tasks";
 export * from "./document-scans";
 export * from "./customer-tickets";
+export * from "./trust-scores";

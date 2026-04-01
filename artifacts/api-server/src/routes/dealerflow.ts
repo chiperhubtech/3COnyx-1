@@ -3,6 +3,7 @@ import { db, dealerflowTasksTable, dealerflowAuditLogTable, documentScansTable, 
 import { eq, desc, and, sql, count, asc, lt, ne, gte, lte, inArray } from "drizzle-orm";
 import { smartRoute, extractVinFromText, extractPartNumbers, extractCustomerName, extractPhoneNumber, checkSlaBreached, calculateTechFee, suggestNextStep } from "../lib/smart-router";
 import { analyzeImage } from "../lib/ai-router";
+import { onSubmissionAccepted, onSubmissionRejected } from "../lib/trust-engine";
 import { requireAuth } from "../middlewares/requireAuth";
 
 const AI_CONFIDENCE_THRESHOLD = 0.85;
@@ -412,6 +413,16 @@ router.patch("/dealerflow/tasks/:id", requireAuth, async (req: Request, res: Res
       }
     }
 
+    if (task && task.initiatorId && task.intakeType === "Omni_Node") {
+      try {
+        if (task.status === "In_Progress" && previousStatus === "Open") {
+          await onSubmissionAccepted(task.initiatorId, task.id);
+        } else if (task.status === "Cancelled" && previousStatus !== "Cancelled") {
+          await onSubmissionRejected(task.initiatorId, task.id, "Task cancelled");
+        }
+      } catch {}
+    }
+
     let techFeeLogged = false;
     let bankVaultEligible = false;
     let customerNotification: any = null;
@@ -546,6 +557,16 @@ router.post("/dealerflow/tasks/:id/approve", requireAuth, async (req: Request, r
       .set({ status: newStatus, metadata: meta, updatedAt: new Date() })
       .where(and(eq(dealerflowTasksTable.id, id), eq(dealerflowTasksTable.dealershipId, userId)))
       .returning();
+
+    if (task && task.intakeType === "Omni_Node" && task.initiatorId) {
+      try {
+        if (newStatus === "In_Progress") {
+          await onSubmissionAccepted(task.initiatorId, task.id);
+        } else if (newStatus === "Cancelled") {
+          await onSubmissionRejected(task.initiatorId, task.id, "Task rejected via approval");
+        }
+      } catch {}
+    }
 
     let unlockedTasks: Awaited<ReturnType<typeof unlockDependentTasks>> = [];
     if (task && newStatus === "Cancelled") {

@@ -2,6 +2,7 @@ import { Router, type Request, type Response } from "express";
 import { db, dealerflowTasksTable, dealerflowAuditLogTable } from "@workspace/db";
 import { eq, and, sql, desc, gte } from "drizzle-orm";
 import { smartRoute, extractVinFromText, extractCustomerName, extractPhoneNumber } from "../lib/smart-router";
+import { assessSpamRisk, shouldBypassFiltering, onSubmissionCreated, onSpamFlagged, getOrCreateTrustProfile } from "../lib/trust-engine";
 import { optionalAuth } from "../middlewares/requireAuth";
 import { randomBytes } from "crypto";
 
@@ -81,6 +82,26 @@ router.post("/omni-node/submit", optionalAuth, async (req: Request, res: Respons
     const reliability = assessReliability(effectiveTier, !!photoUrl, (description || "").length);
 
     const dealershipId = hasAuth ? parseInt(req.user!.sub, 10) : null;
+    const ipFingerprint = (req.ip || req.headers["x-forwarded-for"] || "unknown") as string;
+
+    const trustProfile = await getOrCreateTrustProfile(dealershipId, hasAuth ? undefined : ipFingerprint, extractedName);
+    const currentTrustScore = trustProfile ? Number(trustProfile.trustScore) : 50;
+    const bypassFilter = trustProfile ? shouldBypassFiltering(currentTrustScore, trustProfile.tier) : false;
+
+    if (!bypassFilter) {
+      const spamCheck = assessSpamRisk(title, description || null, currentTrustScore);
+      if (spamCheck.isSpam) {
+        if (trustProfile) await onSpamFlagged(dealershipId, hasAuth ? undefined : ipFingerprint);
+        res.status(422).json({
+          error: "Submission flagged by AI Spam Firewall. Please provide more specific, detailed information.",
+          spamScore: spamCheck.spamScore,
+          reasons: spamCheck.reasons,
+          protocol: "3C ONYX — AI Spam Firewall v1.0",
+          architect: "Ronald Antonio Cadet",
+        });
+        return;
+      }
+    }
 
     const dupCheck = await detectDuplicate(title, description || null, dealershipId);
     if (dupCheck.isDuplicate) {
@@ -144,9 +165,13 @@ router.post("/omni-node/submit", optionalAuth, async (req: Request, res: Respons
       actionType: "OMNI_NODE_CREATED",
       previousStatus: null,
       newStatus: "Open",
-      details: { initiatorTier: effectiveTier, reliability, routing: { department: routing.department, agent: routing.agent, confidence: routing.confidence } },
-      ipAddress: (req.ip || req.headers["x-forwarded-for"] || "unknown") as string,
+      details: { initiatorTier: effectiveTier, reliability, trustScore: currentTrustScore, trustTier: trustProfile?.tier, routing: { department: routing.department, agent: routing.agent, confidence: routing.confidence } },
+      ipAddress: ipFingerprint,
     });
+
+    try {
+      await onSubmissionCreated(dealershipId, hasAuth ? undefined : ipFingerprint, extractedName);
+    } catch {}
 
     res.status(201).json({
       trackingCode,

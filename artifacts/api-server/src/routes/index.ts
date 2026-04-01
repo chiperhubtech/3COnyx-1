@@ -99,6 +99,7 @@ import genesisRouter from "./genesis";
 import dealerflowRouter from "./dealerflow";
 import dealsRouter from "./deals";
 import omniNodeRouter from "./omni-node";
+import trustEngineRouter from "./trust-engine";
 
 const router: IRouter = Router();
 
@@ -220,5 +221,6 @@ router.use("/genesis",      genesisRouter);
 router.use(dealerflowRouter);
 router.use(dealsRouter);
 router.use(omniNodeRouter);
+router.use(trustEngineRouter);
 
 export default router;
