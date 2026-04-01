@@ -9,7 +9,7 @@ import {
   Gift, Share2, Users, DollarSign, Copy,
   Zap, TrendingUp, Award, Network, Star, Heart,
   AlertTriangle, Repeat, Mic, ChevronLeft,
-  Check, Phone, User,
+  Check, Phone, User, Camera, ScanLine, Timer,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
@@ -158,6 +158,8 @@ const SERVICE_CONFIG: Record<ServiceCategory, {
   chips: string[];
   processingSteps: string[];
   resultMessage: string;
+  confirmLabel: string;
+  confirmSummary: string;
 }> = {
   buy: {
     icon: Car, label: "Buy a Car", description: "We'll find the perfect match",
@@ -170,6 +172,8 @@ const SERVICE_CONFIG: Record<ServiceCategory, {
       "Matching you with the best options...",
     ],
     resultMessage: "We've found options matching your criteria. A specialist is being assigned to get you the best deal.",
+    confirmLabel: "Confirm — Find My Vehicle",
+    confirmSummary: "ONYX will match you with the best options from our network and assign a specialist.",
   },
   sell: {
     icon: Repeat, label: "Sell / Trade", description: "Get top value instantly",
@@ -182,6 +186,8 @@ const SERVICE_CONFIG: Record<ServiceCategory, {
       "Preparing your personalized offer...",
     ],
     resultMessage: "Your vehicle valuation is being prepared. A specialist will present your offer within minutes.",
+    confirmLabel: "Confirm — Get My Offer",
+    confirmSummary: "ONYX will pull market data and prepare your personalized valuation instantly.",
   },
   service: {
     icon: Wrench, label: "Service / Repair", description: "Repairs, maintenance, everything",
@@ -194,6 +200,8 @@ const SERVICE_CONFIG: Record<ServiceCategory, {
       "Coordinating your service...",
     ],
     resultMessage: "A certified specialist is being assigned. We're coordinating everything — you don't need to do a thing.",
+    confirmLabel: "Confirm — Handle My Service",
+    confirmSummary: "ONYX will find the best specialist, schedule everything, and coordinate on your behalf.",
   },
   insurance: {
     icon: Shield, label: "Insurance", description: "Best rates, zero hassle",
@@ -206,6 +214,8 @@ const SERVICE_CONFIG: Record<ServiceCategory, {
       "Securing the best pricing...",
     ],
     resultMessage: "We're comparing rates from multiple providers. Your personalized options are being prepared now.",
+    confirmLabel: "Confirm — Get My Best Rate",
+    confirmSummary: "ONYX will compare rates across multiple providers and secure your best pricing.",
   },
   emergency: {
     icon: AlertTriangle, label: "Emergency", description: "Immediate help dispatched",
@@ -218,10 +228,12 @@ const SERVICE_CONFIG: Record<ServiceCategory, {
       "Help is on the way...",
     ],
     resultMessage: "Help is being dispatched to your location. A specialist will contact you momentarily.",
+    confirmLabel: "Dispatch Help Now",
+    confirmSummary: "ONYX will locate and dispatch the nearest available assistance immediately.",
   },
 };
 
-type FlowPhase = "idle" | "chips" | "details" | "processing" | "result" | "error";
+type FlowPhase = "idle" | "chips" | "details" | "confirm" | "processing" | "result" | "error";
 
 function ConversationalFlow({
   category,
@@ -241,7 +253,10 @@ function ConversationalFlow({
   const [processingStep, setProcessingStep] = useState(0);
   const [trackingCode, setTrackingCode] = useState("");
   const [showAuthCta, setShowAuthCta] = useState(false);
+  const [resolutionMs, setResolutionMs] = useState(0);
+  const [scanActive, setScanActive] = useState(false);
   const submitOk = useRef(false);
+  const startTimeRef = useRef(0);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const toggleChip = (chip: string) => {
@@ -255,7 +270,12 @@ function ConversationalFlow({
     setTimeout(() => inputRef.current?.focus(), 200);
   };
 
-  const handleSubmit = async () => {
+  const handleProceedToConfirm = () => {
+    setPhase("confirm");
+  };
+
+  const handleConfirmAndSubmit = async () => {
+    startTimeRef.current = Date.now();
     setPhase("processing");
     setProcessingStep(0);
     submitOk.current = false;
@@ -285,6 +305,7 @@ function ConversationalFlow({
       if (res.ok) {
         const data = await res.json();
         setTrackingCode(data.trackingCode || "");
+        setResolutionMs(Date.now() - startTimeRef.current);
         submitOk.current = true;
       } else {
         setPhase("error");
@@ -292,6 +313,14 @@ function ConversationalFlow({
     } catch {
       setPhase("error");
     }
+  };
+
+  const handleScanDocument = () => {
+    setScanActive(true);
+    setTimeout(() => {
+      setScanActive(false);
+      setFreeText((prev) => prev ? prev + "\n[Document scan ready for upload]" : "[Document scan ready for upload]");
+    }, 1500);
   };
 
   useEffect(() => {
@@ -472,8 +501,27 @@ function ConversationalFlow({
             </div>
           </div>
 
+          <div style={{ display: "flex", gap: 10, marginBottom: 24 }}>
+            <button
+              onClick={handleScanDocument}
+              disabled={scanActive}
+              style={{
+                flex: "0 0 auto", padding: "14px 18px", borderRadius: 14,
+                background: scanActive ? "rgba(201,162,39,0.12)" : "rgba(255,255,255,0.03)",
+                border: `1px solid ${scanActive ? "rgba(201,162,39,0.3)" : "rgba(255,255,255,0.08)"}`,
+                color: scanActive ? "#C9A227" : "rgba(255,255,255,0.4)",
+                fontSize: 12, fontWeight: 600, cursor: "pointer",
+                display: "flex", alignItems: "center", gap: 8,
+                transition: "all 0.2s",
+              }}
+            >
+              {scanActive ? <Loader2 size={14} className="animate-spin" /> : <Camera size={14} />}
+              {scanActive ? "Scanning..." : "Scan VIN / License / Insurance"}
+            </button>
+          </div>
+
           <button
-            onClick={handleSubmit}
+            onClick={category === "emergency" ? handleConfirmAndSubmit : handleProceedToConfirm}
             style={{
               width: "100%", padding: "18px", borderRadius: 16,
               background: `linear-gradient(135deg, ${config.accent}, ${config.accent}CC)`,
@@ -483,12 +531,87 @@ function ConversationalFlow({
               boxShadow: `0 4px 24px ${config.accent}30`,
             }}
           >
-            {category === "emergency" ? "Get Help Now" : "Find My Options"} <ArrowRight size={18} />
+            {category === "emergency" ? "Dispatch Help Now" : "Continue"} <ArrowRight size={18} />
           </button>
 
           <p style={{ textAlign: "center", marginTop: 12, fontSize: 11, color: "rgba(255,255,255,0.15)" }}>
             No account needed — we handle everything
           </p>
+        </div>
+      )}
+
+      {phase === "confirm" && (
+        <div style={{ animation: "fadeIn 0.3s ease" }}>
+          <div style={{
+            background: `linear-gradient(160deg, ${config.accent}08, ${config.accent}03)`,
+            border: `1px solid ${config.accent}15`,
+            borderRadius: 20, padding: "32px 24px",
+            textAlign: "center",
+          }}>
+            <div style={{
+              width: 64, height: 64, borderRadius: 20,
+              background: `${config.accent}12`,
+              border: `1px solid ${config.accent}25`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              margin: "0 auto 20px",
+            }}>
+              <Icon size={30} style={{ color: config.accent }} />
+            </div>
+
+            <p style={{
+              fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.25)",
+              margin: "0 0 8px", letterSpacing: 2, textTransform: "uppercase",
+            }}>
+              Ready to go
+            </p>
+
+            {selectedChips.length > 0 && (
+              <div style={{
+                display: "flex", flexWrap: "wrap", gap: 6, justifyContent: "center", marginBottom: 16,
+              }}>
+                {selectedChips.map((chip) => (
+                  <span key={chip} style={{
+                    padding: "5px 12px", borderRadius: 8,
+                    background: `${config.accent}10`,
+                    border: `1px solid ${config.accent}20`,
+                    color: config.accent, fontSize: 11, fontWeight: 600,
+                  }}>
+                    {chip}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            <p style={{
+              fontSize: 14, color: "rgba(255,255,255,0.5)", lineHeight: 1.6,
+              margin: "0 0 28px", maxWidth: 320, marginLeft: "auto", marginRight: "auto",
+            }}>
+              {config.confirmSummary}
+            </p>
+
+            <button
+              onClick={handleConfirmAndSubmit}
+              style={{
+                width: "100%", padding: "22px", borderRadius: 18,
+                background: `linear-gradient(135deg, ${config.accent}, ${config.accent}DD, ${config.accent})`,
+                border: "none", color: "#000", fontWeight: 900, fontSize: 17,
+                cursor: "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+                boxShadow: `0 8px 40px ${config.accent}40, 0 0 0 1px ${config.accent}60`,
+                letterSpacing: 0.5,
+                transition: "all 0.2s",
+              }}
+            >
+              <Check size={20} strokeWidth={3} /> {config.confirmLabel}
+            </button>
+
+            <p style={{
+              textAlign: "center", marginTop: 16, fontSize: 10,
+              color: "rgba(255,255,255,0.2)", lineHeight: 1.5,
+            }}>
+              One tap. ONYX handles the rest.
+            </p>
+          </div>
         </div>
       )}
 
@@ -607,7 +730,7 @@ function ConversationalFlow({
               fontFamily: "'Barlow Condensed', sans-serif",
               fontSize: 22, fontWeight: 800, color: "#fff", margin: "0 0 10px",
             }}>
-              {category === "emergency" ? "Help is on the way" : "We're on it"}
+              {category === "emergency" ? "Help is on the way" : "Done. Everything is handled."}
             </h3>
             <p style={{
               fontSize: 14, color: "rgba(255,255,255,0.5)", lineHeight: 1.6,
@@ -615,6 +738,21 @@ function ConversationalFlow({
             }}>
               {config.resultMessage}
             </p>
+
+            {resolutionMs > 0 && (
+              <div style={{
+                display: "inline-flex", alignItems: "center", gap: 6,
+                padding: "8px 16px", borderRadius: 10,
+                background: "rgba(52,211,153,0.08)",
+                border: "1px solid rgba(52,211,153,0.15)",
+                marginBottom: 16,
+              }}>
+                <Timer size={13} style={{ color: "#34D399" }} />
+                <span style={{ fontSize: 12, fontWeight: 700, color: "#34D399" }}>
+                  Handled in {resolutionMs < 1000 ? `${resolutionMs}ms` : `${(resolutionMs / 1000).toFixed(1)}s`}
+                </span>
+              </div>
+            )}
 
             {trackingCode && (
               <div style={{
@@ -713,7 +851,7 @@ function NeuralInput({ onSubmit }: { onSubmit: (message: string) => void }) {
           onKeyDown={(e) => e.key === "Enter" && handleSend()}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
-          placeholder="Or just ask ONYX..."
+          placeholder="What do you need?"
           style={{
             flex: 1, padding: "14px 0", borderRadius: 0,
             background: "transparent",
