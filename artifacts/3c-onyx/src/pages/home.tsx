@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "wouter";
+import { Link, useParams } from "wouter";
 import {
   Car, Wrench, Shield, HeartPulse, HelpCircle,
   MessageCircle, ArrowRight, ChevronRight,
@@ -1038,8 +1038,8 @@ function ImpactDashboard() {
         const d = await res.json();
         if (navigator.share) {
           await navigator.share({
-            title: "Join me on ONYX",
-            text: "I'm part of a network changing how the automotive industry works. Join me.",
+            title: `${d.referrerName || "A friend"} sent you ONYX`,
+            text: d.shareText || "This handles everything automotive.",
             url: d.referralLink,
           });
         } else if (d.referralLink) {
@@ -1206,8 +1206,8 @@ function CelebrationModal({ onClose }: { onClose: (celebrationId?: number) => vo
         const d = await res.json();
         if (navigator.share) {
           await navigator.share({
-            title: "Join the ONYX network",
-            text: "I just helped someone through ONYX. Join the movement.",
+            title: `${d.referrerName || "A friend"} sent you ONYX`,
+            text: d.shareText || "This handles everything automotive.",
             url: d.referralLink,
           });
         } else if (d.referralLink) {
@@ -1299,8 +1299,8 @@ function ViralLoopPrompt() {
         const d = await res.json();
         if (navigator.share) {
           await navigator.share({
-            title: "Join the ONYX network",
-            text: "We handle everything automotive so people don't have to. Join the movement.",
+            title: `${d.referrerName || "A friend"} sent you ONYX`,
+            text: d.shareText || "This handles everything automotive.",
             url: d.referralLink,
           });
         } else {
@@ -1347,13 +1347,106 @@ function ViralLoopPrompt() {
   );
 }
 
+function CompletionSharePrompt() {
+  const [visible, setVisible] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
+  const [sharing, setSharing] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setVisible(true), 600);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!visible || dismissed) return null;
+
+  const handleSend = async () => {
+    setSharing(true);
+    try {
+      const res = await authFetch(`${BASE}/api/referrals/generate-link`, { method: "POST" });
+      if (res.ok) {
+        const d = await res.json();
+        if (navigator.share) {
+          await navigator.share({
+            title: `${d.referrerName || "A friend"} sent you ONYX`,
+            text: d.shareText || "This handles everything automotive.",
+            url: d.referralLink,
+          });
+        } else if (d.referralLink) {
+          navigator.clipboard.writeText(d.referralLink).catch(() => {});
+        }
+      }
+    } catch {}
+    setSharing(false);
+    setDismissed(true);
+  };
+
+  return (
+    <div style={{
+      marginBottom: 20,
+      background: "linear-gradient(160deg, rgba(52,211,153,0.06), rgba(0,0,0,0))",
+      border: "1px solid rgba(52,211,153,0.12)",
+      borderRadius: 20, padding: "32px 24px", textAlign: "center",
+      animation: "fadeIn 0.8s ease",
+    }}>
+      <div style={{
+        width: 56, height: 56, borderRadius: 18,
+        background: "rgba(52,211,153,0.1)",
+        border: "1px solid rgba(52,211,153,0.2)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        margin: "0 auto 20px",
+      }}>
+        <CheckCircle2 size={28} style={{ color: "#34D399" }} />
+      </div>
+      <h3 style={{
+        fontFamily: "'Barlow Condensed', sans-serif",
+        fontSize: 24, fontWeight: 900, color: "#fff", margin: "0 0 8px",
+      }}>
+        Done. Everything is handled.
+      </h3>
+      <p style={{
+        fontSize: 14, color: "rgba(255,255,255,0.4)", margin: "0 0 24px",
+        lineHeight: 1.6,
+      }}>
+        Want me to send this to someone who needs help?
+      </p>
+      <button
+        onClick={handleSend}
+        disabled={sharing}
+        style={{
+          width: "100%", padding: "18px", borderRadius: 16,
+          background: "linear-gradient(135deg, #34D399, #10B981)",
+          border: "none", color: "#000", fontWeight: 800, fontSize: 15,
+          cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+          boxShadow: "0 4px 24px rgba(52,211,153,0.25)",
+          opacity: sharing ? 0.7 : 1,
+        }}
+      >
+        {sharing ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+        Send via ONYX
+      </button>
+      <button
+        onClick={() => setDismissed(true)}
+        style={{
+          marginTop: 12, background: "transparent", border: "none",
+          color: "rgba(255,255,255,0.2)", fontSize: 12, cursor: "pointer",
+          fontWeight: 600,
+        }}
+      >
+        Not now
+      </button>
+    </div>
+  );
+}
+
 export default function Home() {
   const { token } = useAuth();
+  const params = useParams<{ refCode?: string }>();
   const [showSplash, setShowSplash] = useState(false);
   const [showAskOnyx, setShowAskOnyx] = useState(false);
   const [askOnyxMessage, setAskOnyxMessage] = useState("");
   const [showCelebration, setShowCelebration] = useState(false);
   const [activeCategory, setActiveCategory] = useState<ServiceCategory | null>(null);
+  const [referrerName, setReferrerName] = useState<string | null>(null);
   const firstName = getFirstName(token);
   const greeting = getGreeting();
 
@@ -1370,13 +1463,22 @@ export default function Home() {
   };
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const ref = params.get("ref");
+    if (params.refCode) {
+      sessionStorage.setItem("onyx_ref", params.refCode);
+      const sig = new URLSearchParams(window.location.search).get("s") || "";
+      fetch(`${BASE}/api/referrals/resolve/${params.refCode}${sig ? `?s=${sig}` : ""}`)
+        .then((r) => r.json())
+        .then((d) => { if (d.valid) setReferrerName(d.referrerFirstName); })
+        .catch(() => {});
+      return;
+    }
+    const urlParams = new URLSearchParams(window.location.search);
+    const ref = urlParams.get("ref");
     if (ref) {
       sessionStorage.setItem("onyx_ref", ref);
       window.history.replaceState({}, "", window.location.pathname);
     }
-  }, []);
+  }, [params.refCode]);
 
   useEffect(() => {
     if (!token) return;
@@ -1461,6 +1563,21 @@ export default function Home() {
                 What do you need help with?
               </h2>
             </>
+          ) : referrerName ? (
+            <>
+              <p style={{
+                fontSize: 15, fontWeight: 400, color: "rgba(255,255,255,0.5)",
+                margin: "0 0 6px", lineHeight: 1.5,
+              }}>
+                Welcome. <span style={{ color: "#34D399", fontWeight: 600 }}>{referrerName}</span> said you might need a hand with your car.
+              </p>
+              <p style={{
+                fontSize: 18, fontWeight: 600, color: "rgba(255,255,255,0.8)",
+                margin: "8px 0 0",
+              }}>
+                What's going on?
+              </p>
+            </>
           ) : (
             <>
               <p style={{
@@ -1509,8 +1626,10 @@ export default function Home() {
             {token && <NetworkFeed />}
 
             {token && myDeals?.recentDeals?.some((d: any) => d.status === "Delivered" || d.status === "Funded") && (
-              <ViralLoopPrompt />
+              <CompletionSharePrompt />
             )}
+
+            {token && <ViralLoopPrompt />}
 
             {!token && (
               <div style={{

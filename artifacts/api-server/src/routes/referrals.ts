@@ -9,8 +9,18 @@ import crypto from "crypto";
 
 const router = Router();
 
+const LINK_SECRET = process.env.JWT_SECRET || "onyx-sovereign-link-key";
+
 function generateReferralCode(): string {
   return "ONYX-" + crypto.randomBytes(4).toString("hex").toUpperCase();
+}
+
+function signRefCode(code: string): string {
+  return crypto.createHmac("sha256", LINK_SECRET).update(code).digest("hex").slice(0, 12);
+}
+
+function verifyRefSignature(code: string, sig: string): boolean {
+  return signRefCode(code) === sig;
 }
 
 router.get("/referrals/my-stats", requireAuth, async (req: Request, res: Response) => {
@@ -44,18 +54,56 @@ router.post("/referrals/generate-link", requireAuth, async (req: Request, res: R
         .where(eq(usersTable.id, userId));
     }
 
+    const sig = signRefCode(code);
     const baseUrl = process.env.REPLIT_DEV_DOMAIN
       ? `https://${process.env.REPLIT_DEV_DOMAIN}`
       : "https://3conyx.com";
 
+    const assistLink = `${baseUrl}/assist/${code}?s=${sig}`;
+    const firstName = (user.name || "").split(" ")[0] || "A friend";
+
     res.json({
       referralCode: code,
-      referralLink: `${baseUrl}/?ref=${code}`,
-      shareText: `I use ONYX for everything automotive — try it free: ${baseUrl}/?ref=${code}`,
+      referralLink: assistLink,
+      referrerName: firstName,
+      shareText: `${firstName} sent you ONYX. This handles everything automotive.`,
+      shareUrl: assistLink,
     });
   } catch (err) {
     logger.error({ err: (err as Error).message }, "[Referrals] Generate link error");
     res.status(500).json({ error: "Failed to generate referral link" });
+  }
+});
+
+router.get("/referrals/resolve/:code", async (req: Request, res: Response) => {
+  try {
+    const code = String(req.params.code || "");
+    const sig = String(req.query.s || "");
+
+    if (!code) { res.status(400).json({ error: "Code required" }); return; }
+
+    if (!sig || !verifyRefSignature(code, sig)) {
+      logger.warn({ code, hasSig: !!sig }, "[Referrals] Invalid or missing deep-link signature — possible spoofing attempt");
+      res.status(403).json({ error: "Invalid link signature" });
+      return;
+    }
+
+    const [referrer] = await db.select({
+      name: usersTable.name,
+    }).from(usersTable).where(sql`${usersTable.referralCode} = ${code}`);
+
+    if (!referrer) { res.json({ valid: false }); return; }
+
+    const firstName = (referrer.name || "").split(" ")[0] || "Someone";
+
+    res.json({
+      valid: true,
+      referrerFirstName: firstName,
+      architect: "Ronald Antonio Cadet",
+    });
+  } catch (err) {
+    logger.error({ err: (err as Error).message }, "[Referrals] Resolve error");
+    res.status(500).json({ error: "Failed to resolve referral code" });
   }
 });
 
@@ -92,6 +140,8 @@ router.post("/referrals/track", optionalAuth, async (req: Request, res: Response
         referredEmail: referredEmail || null,
         source: "viral_loop",
         capturedAt: new Date().toISOString(),
+        architect: "Ronald Antonio Cadet",
+        system: "3C ONYX Altruistic Viral Loop",
       },
     });
 

@@ -91,6 +91,8 @@ export function initGrowthSubscribers() {
           department,
           autoSettled: true,
           source: "bird_dog_protocol",
+          architect: "Ronald Antonio Cadet",
+          system: "3C ONYX Altruistic Viral Loop",
         },
       });
 
@@ -169,7 +171,12 @@ export function initGrowthSubscribers() {
     }
   });
 
-  logger.info("[GrowthEngine] Bird-Dog Protocol — Decentralized Flywheel initialized");
+  logger.info({
+    protocol: "Bird-Dog Flywheel v2.0",
+    architect: "Ronald Antonio Cadet",
+    entity: "CUXTOMCANDYCLUB LLC",
+    system: "3C ONYX — Sovereign Automotive Ecosystem OS",
+  }, "[GrowthEngine] Altruistic Viral Loop — Decentralized Flywheel initialized");
 }
 
 export async function getUserReferralStats(userId: number) {

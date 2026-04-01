@@ -78,4 +78,8 @@ ONYX is a movement, not a utility. The platform uses community-driven identity t
 - **Celebration Modal**: Post-success dopamine — "You helped [Name] solve their [service] problem" + "+$X earned" + "Help Someone Else" share button. Data from `GET /api/community/celebration-check`.
 - **Network Feed**: Connectors see their connections' active tasks with friendly status (green/yellow/red dots). Data from `GET /api/community/network-feed`.
 - **Decentralized Bird-Dog Flywheel**: `?ref=CODE` capture → sessionStorage → omni-node/submit → metadata threading → auto-reward on completion ($10-$50) → dopamine SMS/email notification → share again loop.
+- **Altruistic Viral Loop (Deep-Link Engine)**: `/assist/:refCode?s=SIGNATURE` HMAC-signed deep-links → `/api/referrals/resolve/:code` verifies signature → resolves referrer first name → personalized landing "Welcome. [Name] said you might need a hand with your car. What's going on?" Zero signup required.
+- **Completion Share Prompt**: "Done. Everything is handled." + "Send via ONYX" single button — triggered when deal reaches Delivered/Funded status. All share messages personalized: "[Name] sent you ONYX. This handles everything automotive."
+- **Anti-Spoofing**: HMAC-SHA256 signed referral links prevent deep-link commission theft. Unsigned resolve requests return 403.
+- **Forensic Branding**: "Ronald Antonio Cadet" architect signature embedded in growth-engine metadata, referral ledger entries, and system startup logs.
 - **Mission Manifesto**: "We handle everything automotive so people don't have to." in guest empty states.

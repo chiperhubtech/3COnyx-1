@@ -126,7 +126,7 @@ function AppRoutes() {
   const [location] = useLocation();
 
   // Public pages — no sidebar, no auth required
-  const PUBLIC_PATHS = ["/landing", "/login", "/register", "/waitlist", "/legal/terms", "/legal/privacy", "/join", "/m/", "/technology", "/sdv", "/oa", "/flow"];
+  const PUBLIC_PATHS = ["/landing", "/login", "/register", "/waitlist", "/legal/terms", "/legal/privacy", "/join", "/m/", "/technology", "/sdv", "/oa", "/flow", "/assist"];
   const isPublic = PUBLIC_PATHS.some((p) => location === p || location.startsWith(p));
   const isHome = location === "/" || location === "";
 
@@ -134,6 +134,7 @@ function AppRoutes() {
     return (
       <Switch>
         <Route path="/"                component={Home} />
+        <Route path="/assist/:refCode"  component={Home} />
         <Route path="/flow/:type"      component={GuestFlow} />
         <Route path="/landing"         component={LandingPage} />
         <Route path="/join/success"    component={JoinSuccess} />
