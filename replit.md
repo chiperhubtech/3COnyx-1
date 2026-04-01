@@ -103,6 +103,19 @@ The frontend is reskinned from a "System Interface" to a "Consumer-First Assista
 - **Design Laws**: Zero Overchoice (max 3-4 visible options), One-Step Focus Rule, generous whitespace, rounded corners, mobile-first large touch targets, calm/fast/helpful/invisible vibe.
 - **Backend Untouched**: PostgreSQL, 7-Agent Mesh, Dependency-Aware DAG, external API integrations all remain intact.
 
+## Viral OS — Self-Scaling Network (Russell Brunson Pivot)
+
+Guest flow eradicates the login wall — users get instant value in 10 seconds with zero friction, then the platform turns them into distribution nodes via the built-in referral loop.
+
+- **Universal Entry (Zero Login)**: Root `/` is now public. No AccessGate, no auth required. Guest sees "What do you need help with?" + 5 service buttons immediately.
+- **1-Tap Execution Flows (`/flow/:type`)**: Each button (buy/fix/insurance/service/other) routes to a dedicated flow page. User describes their need + optional name/phone → taps "Get Help Now" → silently routed to backend Intake Agent via `POST /api/omni-node/submit` (optionalAuth — works for both guests and members).
+- **Uber-Style Progress Tracker**: After submission, animated vertical timeline shows steps completing in real-time (Request received → Finding options → Matching specialist → We'll reach out shortly). Tracking code displayed with copy button.
+- **Viral Referral Modal (Bird-Dog Integration)**: 2 seconds after flow completion, full-screen high-conversion modal: "Know someone who needs help like this?" with native share sheet + Name/Phone direct referral form. Submission routed to Bird-Dog Referral Ledger via omni-node/submit.
+- **Architect Signature**: "3C ONYX · CUXTOMCANDYCLUB LLC · Architect: Ronald Antonio Cadet" in all footers.
+- **Guest-to-Member Bridge**: "Already a member? Sign in" link in home footer for returning users.
+- **Backend Route**: `omni-node/submit` uses `optionalAuth` middleware — guests submit as "Customer" tier with IP-based trust scoring; authenticated members get `Authenticated` tier with user-linked trust profiles.
+- **Files**: `guest-flow.tsx` (new), `home.tsx` (updated routes), `App.tsx` (routing changes — `/` and `/flow` now public)
+
 ## Architectural Upgrades
 
 Recent upgrades include CarPlay/Android Auto integration, a tRPC Type-Safe API Layer, an Admin API, and a Beta Waitlist system.

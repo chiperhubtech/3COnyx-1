@@ -78,6 +78,7 @@ import CreatorOutreachHub from "@/pages/creator-outreach";
 import WisdomEngine from "@/pages/wisdom-engine";
 import AgentMesh from "@/pages/agent-mesh";
 import DealerFlowOS from "@/pages/dealerflow";
+import GuestFlow from "@/pages/guest-flow";
 
 // Auth + launch pages
 import LoginPage    from "@/pages/login";
@@ -125,12 +126,15 @@ function AppRoutes() {
   const [location] = useLocation();
 
   // Public pages — no sidebar, no auth required
-  const PUBLIC_PATHS = ["/landing", "/login", "/register", "/waitlist", "/legal/terms", "/legal/privacy", "/join", "/m/", "/technology", "/sdv", "/oa"];
+  const PUBLIC_PATHS = ["/landing", "/login", "/register", "/waitlist", "/legal/terms", "/legal/privacy", "/join", "/m/", "/technology", "/sdv", "/oa", "/flow"];
   const isPublic = PUBLIC_PATHS.some((p) => location === p || location.startsWith(p));
+  const isHome = location === "/" || location === "";
 
-  if (isPublic) {
+  if (isHome || isPublic) {
     return (
       <Switch>
+        <Route path="/"                component={Home} />
+        <Route path="/flow/:type"      component={GuestFlow} />
         <Route path="/landing"         component={LandingPage} />
         <Route path="/join/success"    component={JoinSuccess} />
         <Route path="/join"            component={JoinPage} />

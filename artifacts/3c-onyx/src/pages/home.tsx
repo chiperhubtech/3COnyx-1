@@ -2,9 +2,9 @@ import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import {
-  Car, Wrench, Shield, HeartPulse,
+  Car, Wrench, Shield, HeartPulse, HelpCircle,
   MessageCircle, ArrowRight, ChevronRight,
-  Send, X, Mic, Loader2, CheckCircle2,
+  Send, X, Loader2, CheckCircle2,
   Clock, MapPin, Sparkles,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
@@ -212,11 +212,11 @@ function AskOnyxModal({ open, onClose }: { open: boolean; onClose: () => void })
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          intakeType: "Walk_In",
+          title: "Ask ONYX — Member Request",
+          description: message.trim(),
           department: "Sales",
-          customerName: "Member Request",
-          notes: message.trim(),
-          source: "ask-onyx",
+          initiatorTier: "Customer",
+          initiatorName: "ONYX Member",
         }),
       });
       if (res.ok) {
@@ -425,6 +425,7 @@ export default function Home() {
     queryKey: ["my-deals-home"],
     queryFn: () => authFetch(`${BASE}/api/deals/dashboard/my-deals`).then((r) => r.json()),
     refetchInterval: 15_000,
+    enabled: !!token,
   });
 
   const activeDeal = myDeals?.recentDeals?.find(
@@ -463,30 +464,37 @@ export default function Home() {
           <ServiceButton
             icon={Car}
             label="Buy a car"
-            description="Browse inventory or tell us what you want"
-            href="/marketplace"
+            description="Tell us what you want — we'll find the perfect match"
+            href="/flow/buy"
             accent="#C9A227"
           />
           <ServiceButton
             icon={Wrench}
             label="Fix my car"
-            description="Repairs, maintenance, or roadside help"
-            href="/garage"
+            description="Repairs, roadside help, or maintenance"
+            href="/flow/fix"
             accent="#60A5FA"
           />
           <ServiceButton
             icon={Shield}
             label="Insurance"
             description="Get quotes or manage your policy"
-            href="/insurance"
+            href="/flow/insurance"
             accent="#34D399"
           />
           <ServiceButton
             icon={HeartPulse}
             label="Service"
             description="Schedule an appointment"
-            href="/logistics"
+            href="/flow/service"
             accent="#A78BFA"
+          />
+          <ServiceButton
+            icon={HelpCircle}
+            label="Something else"
+            description="Anything automotive — we'll handle it"
+            href="/flow/other"
+            accent="#F59E0B"
           />
         </div>
 
@@ -521,6 +529,22 @@ export default function Home() {
       </button>
 
       <AskOnyxModal open={showAskOnyx} onClose={() => setShowAskOnyx(false)} />
+
+      <div style={{
+        padding: "20px 24px 32px", textAlign: "center",
+        borderTop: "1px solid rgba(255,255,255,0.04)",
+      }}>
+        {!token && (
+          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.3)", marginBottom: 12 }}>
+            Already a member?{" "}
+            <a href="/login" style={{ color: "#C9A227", textDecoration: "none", fontWeight: 600 }}>Sign in</a>
+          </p>
+        )}
+        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.15)", margin: 0, lineHeight: 1.6 }}>
+          3C ONYX · CUXTOMCANDYCLUB LLC<br />
+          Architect: Ronald Antonio Cadet
+        </p>
+      </div>
     </div>
   );
 }
