@@ -1,7 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/context/AuthContext";
-import { Eye, EyeOff, Loader2, AlertCircle } from "lucide-react";
+import { Eye, EyeOff, Loader2, AlertCircle, Fingerprint, ScanFace } from "lucide-react";
+import {
+  startAuthentication,
+  browserSupportsWebAuthn,
+} from "@simplewebauthn/browser";
+
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 export default function LoginPage() {
   const { login, loading, error, clearError } = useAuth();
@@ -9,6 +15,13 @@ export default function LoginPage() {
   const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw]     = useState(false);
+  const [biometricSupported, setBiometricSupported] = useState(false);
+  const [biometricLoading, setBiometricLoading] = useState(false);
+  const [biometricError, setBiometricError] = useState("");
+
+  useEffect(() => {
+    setBiometricSupported(browserSupportsWebAuthn());
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,8 +30,56 @@ export default function LoginPage() {
       await login(email, password);
       navigate("/");
     } catch {
-      // error shown via context
     }
+  };
+
+  const handleBiometricLogin = async () => {
+    setBiometricError("");
+    setBiometricLoading(true);
+    try {
+      const optRes = await fetch(`${BASE}/api/webauthn/authenticate/options`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() || undefined }),
+      });
+
+      if (!optRes.ok) {
+        const data = await optRes.json();
+        setBiometricError(data.error || "No biometric credentials found");
+        setBiometricLoading(false);
+        return;
+      }
+
+      const options = await optRes.json();
+      const { sessionId, ...optionsJSON } = options;
+
+      const authResp = await startAuthentication({ optionsJSON });
+
+      const verifyRes = await fetch(`${BASE}/api/webauthn/authenticate/verify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ response: authResp, sessionId }),
+      });
+
+      if (!verifyRes.ok) {
+        const data = await verifyRes.json();
+        setBiometricError(data.error || "Biometric verification failed");
+        setBiometricLoading(false);
+        return;
+      }
+
+      const { token, user } = await verifyRes.json();
+      localStorage.setItem("onyxToken", token);
+      localStorage.setItem("3c_auth_token", token);
+      window.location.href = "/";
+    } catch (err: any) {
+      if (err.name === "NotAllowedError") {
+        setBiometricError("Authentication was cancelled");
+      } else {
+        setBiometricError(err.message || "Biometric authentication failed");
+      }
+    }
+    setBiometricLoading(false);
   };
 
   return (
@@ -56,10 +117,10 @@ export default function LoginPage() {
           display: "flex", flexDirection: "column", gap: 20,
         }}>
 
-          {error && (
+          {(error || biometricError) && (
             <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", borderRadius: 12, background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)" }}>
               <AlertCircle size={16} style={{ color: "#EF4444", flexShrink: 0 }} />
-              <p style={{ fontSize: 14, color: "#EF4444", margin: 0 }}>{error}</p>
+              <p style={{ fontSize: 14, color: "#EF4444", margin: 0 }}>{error || biometricError}</p>
             </div>
           )}
 
@@ -123,6 +184,39 @@ export default function LoginPage() {
             {loading ? <Loader2 size={18} className="animate-spin" /> : null}
             {loading ? "Signing in..." : "Sign In"}
           </button>
+
+          {biometricSupported && (
+            <>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "4px 0" }}>
+                <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.06)" }} />
+                <span style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.2)", letterSpacing: 1.5, textTransform: "uppercase" }}>or</span>
+                <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.06)" }} />
+              </div>
+
+              <button
+                type="button"
+                onClick={handleBiometricLogin}
+                disabled={biometricLoading}
+                style={{
+                  padding: "16px", borderRadius: 14,
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(201,162,39,0.2)",
+                  color: "#C9A227", fontWeight: 700, fontSize: 15,
+                  cursor: biometricLoading ? "default" : "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+                  opacity: biometricLoading ? 0.7 : 1,
+                  transition: "all 0.2s",
+                }}
+              >
+                {biometricLoading ? (
+                  <Loader2 size={18} className="animate-spin" />
+                ) : (
+                  <Fingerprint size={20} />
+                )}
+                {biometricLoading ? "Verifying..." : "Sign in with Face ID / Fingerprint"}
+              </button>
+            </>
+          )}
 
           <div style={{ textAlign: "center", paddingTop: 4 }}>
             <p style={{ fontSize: 14, color: "rgba(255,255,255,0.4)" }}>

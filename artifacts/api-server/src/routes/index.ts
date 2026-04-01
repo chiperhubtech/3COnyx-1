@@ -103,6 +103,7 @@ import trustEngineRouter from "./trust-engine";
 import referralsRouter from "./referrals";
 import commerceRouter from "./commerce";
 import communityRouter from "./community";
+import webauthnRouter from "./webauthn";
 
 const router: IRouter = Router();
 
@@ -144,6 +145,7 @@ router.use(blockchainRouter);
 router.use(rocksolidRouter);
 router.use(spinmediaRouter);
 router.use(authRouter);
+router.use(webauthnRouter);
 router.use("/admin", adminRouter);
 router.use(waitlistRouter);
 router.use(escalationRouter);

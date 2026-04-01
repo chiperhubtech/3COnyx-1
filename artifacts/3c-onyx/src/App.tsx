@@ -79,6 +79,7 @@ import WisdomEngine from "@/pages/wisdom-engine";
 import AgentMesh from "@/pages/agent-mesh";
 import DealerFlowOS from "@/pages/dealerflow";
 import GuestFlow from "@/pages/guest-flow";
+import BiometricSettings from "@/pages/biometric-settings";
 
 // Auth + launch pages
 import LoginPage    from "@/pages/login";
@@ -229,6 +230,7 @@ function AppRoutes() {
             <Route path="/pro"                  component={Pro} />
             <Route path="/custody"              component={Custody} />
             <Route path="/ar-viewer"            component={ARViewer} />
+            <Route path="/biometric-settings"   component={BiometricSettings} />
 
             {/* DealerFlow OS — Industry Professional */}
             <Route path="/dealerflow"           component={DealerFlowOS} />

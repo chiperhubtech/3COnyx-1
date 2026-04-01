@@ -27,7 +27,7 @@ The architecture prioritizes an AI-first approach with:
 - **WebSocket Real-Time Hub**: For real-time communication across distinct rooms.
 - **Agent Orchestration Engine**: A 12-agent UACL mesh with a state machine.
 - **Blockchain Chain-of-Custody**: Ensures tamper-proof ledgering with SHA-256 hash chains, HMAC-SHA-256 signing, PostgreSQL persistence, and optional Ethereum Sepolia anchoring.
-- **Authentication System**: JWT-based (HS256) with `jose` library, supporting full authentication flows, role-based access control, and bcrypt-hashed passwords.
+- **Authentication System**: JWT-based (HS256) with `jose` library, supporting full authentication flows, role-based access control, and bcrypt-hashed passwords. WebAuthn biometric authentication (Face ID / Fingerprint) via `@simplewebauthn/server` + `@simplewebauthn/browser` — session-based challenge flow with `webauthn_credentials` PostgreSQL table. Login page supports both password and biometric login. Biometric settings page at `/biometric-settings` for credential management.
 - **Security Middleware**: Helmet for security headers, `express-rate-limit` for API rate limiting, and secure Stripe webhook handling.
 - **Database Layer**: Drizzle ORM with PostgreSQL, including Drizzle Kit for migrations. All tables are SOC2 audit-trail compliant.
 - **API Specification and Code Generation**: `@workspace/api-spec` manages OpenAPI 3.1 specification and Orval configuration.
