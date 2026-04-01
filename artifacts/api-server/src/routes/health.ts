@@ -16,6 +16,7 @@ import * as wsHub from "../lib/wsHub";
 import { blockedIpCount } from "../middlewares/scannerDetector";
 import { allCircuitStatuses } from "../lib/circuitBreaker";
 import { apiCache } from "../lib/apiCache";
+import { getGovernorStatus } from "../lib/governor";
 import os from "os";
 
 const router: IRouter = Router();
@@ -105,6 +106,7 @@ router.get("/healthz", async (_req, res) => {
       open:   openCircuits.length,
       status: openCircuits.length === 0 ? "all_closed" : `${openCircuits.length}_open`,
     },
+    governor: getGovernorStatus(),
     performance: {
       connectionPool: poolStats,
       cache:          apiCache.stats(),

@@ -21,6 +21,8 @@ import { sql } from "drizzle-orm";
 import { writeAudit } from "../lib/auditService";
 import { logger } from "../lib/logger";
 import * as wsHub from "../lib/wsHub";
+import { requireAuth } from "../middlewares/requireAuth";
+import { requireRole } from "../middlewares/requireRole";
 
 const router = Router();
 
@@ -86,7 +88,7 @@ function determineTrigger(params: {
 }
 
 // ─── POST /api/escalation/create ─────────────────────────────────────────────
-router.post("/escalation/create", async (req: Request, res: Response) => {
+router.post("/escalation/create", requireAuth, async (req: Request, res: Response) => {
   const {
     requestSummary, confidence, estimatedValue, agentChain,
     userId, sessionId, originalToolCall, recommendation, manualFlag,
@@ -142,7 +144,7 @@ router.post("/escalation/create", async (req: Request, res: Response) => {
 });
 
 // ─── GET /api/escalation/queue ────────────────────────────────────────────────
-router.get("/escalation/queue", async (req: Request, res: Response) => {
+router.get("/escalation/queue", requireAuth, requireRole("Admin"), async (req: Request, res: Response) => {
   const status = (req.query.status as string) || "PENDING";
   const cases = Array.from(ESCALATION_STORE.values())
     .filter((e) => status === "ALL" ? true : e.status === status)
@@ -157,7 +159,7 @@ router.get("/escalation/queue", async (req: Request, res: Response) => {
 });
 
 // ─── GET /api/escalation/stats ────────────────────────────────────────────────
-router.get("/escalation/stats", async (_req: Request, res: Response) => {
+router.get("/escalation/stats", requireAuth, requireRole("Admin"), async (_req: Request, res: Response) => {
   const all   = Array.from(ESCALATION_STORE.values());
   const byStatus: Record<string, number> = {};
   const byTrigger: Record<string, number> = {};
@@ -178,14 +180,14 @@ router.get("/escalation/stats", async (_req: Request, res: Response) => {
 });
 
 // ─── GET /api/escalation/:id ──────────────────────────────────────────────────
-router.get("/escalation/:id", async (req: Request, res: Response) => {
+router.get("/escalation/:id", requireAuth, async (req: Request, res: Response) => {
   const esc = ESCALATION_STORE.get((req.params["id"] as string));
   if (!esc) { res.status(404).json({ error: "Escalation not found" }); return; }
   res.json({ escalation: esc });
 });
 
 // ─── PATCH /api/escalation/:id/resolve ───────────────────────────────────────
-router.patch("/escalation/:id/resolve", async (req: Request, res: Response) => {
+router.patch("/escalation/:id/resolve", requireAuth, requireRole("Admin"), async (req: Request, res: Response) => {
   const { action, supervisorNote, supervisorId } = req.body as {
     action?: "APPROVED" | "REJECTED" | "OVERRIDDEN";
     supervisorNote?: string;
@@ -227,7 +229,7 @@ router.patch("/escalation/:id/resolve", async (req: Request, res: Response) => {
 // Phase 1: Human specialist joins the case.
 // Auto-broadcasts a "reading your conversation" message to the member
 // — exactly like the Namecheap specialist protocol Ron showed.
-router.post("/escalation/:id/takeover", async (req: Request, res: Response) => {
+router.post("/escalation/:id/takeover", requireAuth, requireRole("Admin"), async (req: Request, res: Response) => {
   const esc = ESCALATION_STORE.get(String(req.params["id"] ?? ""));
   if (!esc) { res.status(404).json({ error: "Escalation not found" }); return; }
   if (esc.humanAgent) { res.status(409).json({ error: "A specialist has already joined this case" }); return; }
@@ -279,7 +281,7 @@ router.post("/escalation/:id/takeover", async (req: Request, res: Response) => {
 // ─── POST /api/escalation/:id/briefed ────────────────────────────────────────
 // Phase 2: Specialist confirms they have read the full context.
 // Member sees "Specialist is ready" — live conversation can now begin.
-router.post("/escalation/:id/briefed", async (req: Request, res: Response) => {
+router.post("/escalation/:id/briefed", requireAuth, requireRole("Admin"), async (req: Request, res: Response) => {
   const esc = ESCALATION_STORE.get(String(req.params["id"] ?? ""));
   if (!esc) { res.status(404).json({ error: "Escalation not found" }); return; }
   if (!esc.humanAgent) { res.status(400).json({ error: "No specialist has joined this case yet" }); return; }
@@ -307,7 +309,7 @@ router.post("/escalation/:id/briefed", async (req: Request, res: Response) => {
 // ─── POST /api/escalation/:id/message ────────────────────────────────────────
 // Phase 3 — Live: Specialist sends a direct message to the member.
 // Member replies here too. Full bidirectional conversation.
-router.post("/escalation/:id/message", async (req: Request, res: Response) => {
+router.post("/escalation/:id/message", requireAuth, async (req: Request, res: Response) => {
   const esc = ESCALATION_STORE.get(String(req.params["id"] ?? ""));
   if (!esc) { res.status(404).json({ error: "Escalation not found" }); return; }
   if (!esc.humanAgent) { res.status(400).json({ error: "No specialist on this case" }); return; }
@@ -346,7 +348,7 @@ router.post("/escalation/:id/message", async (req: Request, res: Response) => {
 
 // ─── GET /api/escalation/:id/thread ──────────────────────────────────────────
 // Get full human agent conversation thread for a case.
-router.get("/escalation/:id/thread", async (req: Request, res: Response) => {
+router.get("/escalation/:id/thread", requireAuth, async (req: Request, res: Response) => {
   const esc = ESCALATION_STORE.get(String(req.params["id"] ?? ""));
   if (!esc) { res.status(404).json({ error: "Escalation not found" }); return; }
   res.json({
