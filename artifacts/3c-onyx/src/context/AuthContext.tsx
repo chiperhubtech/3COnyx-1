@@ -18,6 +18,10 @@ export interface AuthUser {
   isVerified: boolean;
   stripeCustomerId?: string | null;
   birthday?: string | null;
+  referralCode?: string | null;
+  points?: number;
+  onboardingRole?: string | null;
+  communityRole?: string | null;
   createdAt: string;
 }
 
@@ -33,6 +37,7 @@ interface AuthContextValue extends AuthState {
   register: (data: RegisterData) => Promise<void>;
   logout:   () => void;
   clearError: () => void;
+  refreshProfile: () => Promise<void>;
 }
 
 export interface RegisterData {
@@ -119,8 +124,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const clearError = useCallback(() => setPartial({ error: null }), []);
 
+  const refreshProfile = useCallback(async () => {
+    try {
+      const d = await apiFetch("/users/profile");
+      setPartial({ user: d.user });
+    } catch {}
+  }, [apiFetch]);
+
   return (
-    <AuthContext.Provider value={{ ...state, login, register, logout, clearError }}>
+    <AuthContext.Provider value={{ ...state, login, register, logout, clearError, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );

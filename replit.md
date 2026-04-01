@@ -23,6 +23,7 @@ The platform features a cinematic "Apple × GTA" visual language with a multi-th
 
 - **Global Command Palette**: "Ask ONYX" (Cmd+K / Ctrl+K) — global search across all navigation, agents, quick actions, and platform features. Component: `AskOnyxPalette.tsx` with `AskOnyxTrigger` search bar in sidebar. Uses `cmdk` library.
 - **ONYX Notebook Intelligence Hub**: NotebookLM-inspired AI knowledge page at `/notebook`. Supports 5 research types (Deal Intelligence, Market Research, Vehicle Research, Business Strategy, Custom). Persists entries in localStorage. Uses Gemini AI via `/api/gemini`. XSS-safe markdown rendering.
+- **Member QR Badge**: Every member gets a branded QR code with avatar/initials overlay at center (Snapchat/LinkedIn style). Component: `MemberQRBadge.tsx`. Page: `/my-qr` — view, download as PNG, copy link, native share. QR links to `/m/:referralCode` public profile. Supports profile photo upload via PATCH `/api/users/profile` (avatarUrl as data URL). Role-based accent colors (Member=gold, Dealer=amber, Runner=purple, Specialist=blue, Admin=red). AuthContext has `refreshProfile()` for live updates after avatar change.
 
 ## Core Platform Features
 

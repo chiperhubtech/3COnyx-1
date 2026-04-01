@@ -142,6 +142,7 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
   const [showPlatform, setShowPlatform] = useState(false);
 
   const CUSTOMER_NAV = [
+    { label: "My QR Badge",               path: "/my-qr",          icon: QrCode,      description: "Your scannable club identity · Download · Share", accent: "#C9A227" },
     { label: "Intelligence Feed",         path: "/intelligence",   icon: Activity,    description: "AI savings · live opportunities",  accent: "#C9A227" },
     { label: "Race Hub",                  path: "/race-hub",       icon: Flag,        description: "F1 · NASCAR · NHRA · Live Motorsport", accent: "#EF4444" },
     { label: "Aftermarket Shop",          path: "/aftermarket",    icon: ShoppingBag, description: "Performance · Wheels · Brakes · Audio",  accent: "#8B5CF6" },
