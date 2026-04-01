@@ -70,6 +70,34 @@ function getDealProgress(status: string): number {
   return map[status] ?? 20;
 }
 
+function OnyxLogo({ size = 64 }: { size?: number }) {
+  return (
+    <div style={{
+      width: size, height: size, borderRadius: "50%",
+      background: "radial-gradient(circle at 35% 35%, #1a1a1a 0%, #0a0a0a 50%, #000 100%)",
+      border: "2px solid rgba(201,162,39,0.5)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      position: "relative",
+      boxShadow: "0 0 40px rgba(201,162,39,0.15), inset 0 0 20px rgba(201,162,39,0.05)",
+    }}>
+      <div style={{
+        position: "absolute", inset: 3, borderRadius: "50%",
+        border: "1px solid rgba(201,162,39,0.2)",
+      }} />
+      <span style={{
+        fontFamily: "'Barlow Condensed', sans-serif",
+        fontSize: size * 0.35, fontWeight: 900,
+        background: "linear-gradient(160deg, #D4AF37, #C9A227, #B8941F, #D4AF37)",
+        WebkitBackgroundClip: "text",
+        WebkitTextFillColor: "transparent",
+        letterSpacing: 1,
+      }}>
+        3C
+      </span>
+    </div>
+  );
+}
+
 function ActiveFlowCard({ deal }: { deal: any }) {
   const pct = getDealProgress(deal.status);
   const label = DEAL_STATUS_LABELS[deal.status] || "We're handling this for you";
@@ -77,8 +105,8 @@ function ActiveFlowCard({ deal }: { deal: any }) {
 
   return (
     <div style={{
-      background: "rgba(255,255,255,0.04)",
-      border: "1px solid rgba(255,255,255,0.08)",
+      background: "linear-gradient(135deg, rgba(201,162,39,0.06), rgba(201,162,39,0.02))",
+      border: "1px solid rgba(201,162,39,0.12)",
       borderRadius: 20, padding: "24px 24px 20px",
       marginBottom: 0,
     }}>
@@ -107,24 +135,24 @@ function ActiveFlowCard({ deal }: { deal: any }) {
 
       <div style={{ marginBottom: 16 }}>
         <div style={{
-          height: 6, borderRadius: 3,
+          height: 4, borderRadius: 2,
           background: "rgba(255,255,255,0.06)",
           overflow: "hidden",
         }}>
           <div style={{
-            height: "100%", borderRadius: 3,
+            height: "100%", borderRadius: 2,
             width: `${pct}%`,
             background: pct === 100
               ? "linear-gradient(90deg, #34D399, #10B981)"
-              : "linear-gradient(90deg, #C9A227, #F59E0B)",
+              : "linear-gradient(90deg, #D4AF37, #C9A227)",
             transition: "width 0.6s ease",
           }} />
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
           {DEAL_STEPS.map((step, i) => (
             <span key={step} style={{
-              fontSize: 10, fontWeight: 600,
-              color: i <= stepIndex ? "#C9A227" : "rgba(255,255,255,0.2)",
+              fontSize: 9, fontWeight: 700, letterSpacing: 0.5, textTransform: "uppercase",
+              color: i <= stepIndex ? "#C9A227" : "rgba(255,255,255,0.15)",
             }}>{step}</span>
           ))}
         </div>
@@ -133,11 +161,11 @@ function ActiveFlowCard({ deal }: { deal: any }) {
       <Link href="/dealerflow">
         <button style={{
           width: "100%", padding: "16px", borderRadius: 14,
-          background: "linear-gradient(135deg, #C9A227, #A68B1B)",
-          border: "none", color: "#000", fontWeight: 800, fontSize: 16,
-          cursor: "pointer",
+          background: "linear-gradient(135deg, #D4AF37, #C9A227, #A68B1B)",
+          border: "none", color: "#000", fontWeight: 800, fontSize: 15,
+          cursor: "pointer", letterSpacing: 0.5,
           display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-          boxShadow: "0 4px 20px rgba(201,162,39,0.25)",
+          boxShadow: "0 4px 24px rgba(201,162,39,0.3)",
         }}>
           Continue <ArrowRight size={18} />
         </button>
@@ -159,30 +187,30 @@ function ServiceButton({ icon: Icon, label, description, href, accent }: {
         onMouseLeave={() => setPressed(false)}
         style={{
           width: "100%",
-          padding: "24px 20px",
-          borderRadius: 20,
-          background: pressed ? `${accent}12` : "rgba(255,255,255,0.03)",
-          border: `1px solid ${pressed ? accent + "30" : "rgba(255,255,255,0.07)"}`,
+          padding: "20px 20px",
+          borderRadius: 16,
+          background: pressed ? "rgba(201,162,39,0.06)" : "rgba(255,255,255,0.02)",
+          border: `1px solid ${pressed ? "rgba(201,162,39,0.2)" : "rgba(255,255,255,0.06)"}`,
           cursor: "pointer",
-          transition: "all 0.15s",
+          transition: "all 0.2s ease",
           display: "flex", alignItems: "center", gap: 16,
           textAlign: "left",
           color: "#fff",
         }}
       >
         <div style={{
-          width: 52, height: 52, borderRadius: 16, flexShrink: 0,
-          background: `${accent}10`,
-          border: `1px solid ${accent}20`,
+          width: 48, height: 48, borderRadius: 14, flexShrink: 0,
+          background: `${accent}0D`,
+          border: `1px solid ${accent}1A`,
           display: "flex", alignItems: "center", justifyContent: "center",
         }}>
-          <Icon size={24} style={{ color: accent }} />
+          <Icon size={22} style={{ color: accent }} />
         </div>
         <div style={{ flex: 1 }}>
-          <p style={{ fontSize: 17, fontWeight: 700, margin: "0 0 3px", lineHeight: 1.2 }}>{label}</p>
-          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", margin: 0, lineHeight: 1.4 }}>{description}</p>
+          <p style={{ fontSize: 16, fontWeight: 700, margin: "0 0 2px", lineHeight: 1.2 }}>{label}</p>
+          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", margin: 0, lineHeight: 1.4 }}>{description}</p>
         </div>
-        <ChevronRight size={18} style={{ color: "rgba(255,255,255,0.15)", flexShrink: 0 }} />
+        <ChevronRight size={16} style={{ color: "rgba(255,255,255,0.12)", flexShrink: 0 }} />
       </button>
     </Link>
   );
@@ -243,34 +271,28 @@ function AskOnyxModal({ open, onClose }: { open: boolean; onClose: () => void })
         onClick={onClose}
         style={{
           position: "absolute", inset: 0,
-          background: "rgba(0,0,0,0.6)",
-          backdropFilter: "blur(8px)",
+          background: "rgba(0,0,0,0.7)",
+          backdropFilter: "blur(12px)",
         }}
       />
       <div style={{
         position: "relative", width: "100%", maxWidth: 480,
-        background: "#111114",
+        background: "linear-gradient(180deg, #111114, #0A0A0C)",
         borderRadius: "24px 24px 0 0",
-        border: "1px solid rgba(255,255,255,0.08)",
+        border: "1px solid rgba(201,162,39,0.1)",
         borderBottom: "none",
-        padding: "24px 24px 32px",
+        padding: "28px 24px 36px",
         animation: "slideUp 0.3s ease",
       }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div style={{
-              width: 36, height: 36, borderRadius: 12,
-              background: "linear-gradient(135deg, rgba(201,162,39,0.2), rgba(201,162,39,0.05))",
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}>
-              <Sparkles size={18} style={{ color: "#C9A227" }} />
-            </div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <OnyxLogo size={36} />
             <div>
               <p style={{ fontSize: 16, fontWeight: 700, color: "#fff", margin: 0 }}>Ask ONYX</p>
-              <p style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", margin: 0 }}>Your personal assistant</p>
+              <p style={{ fontSize: 11, color: "rgba(201,162,39,0.5)", margin: 0, letterSpacing: 1, textTransform: "uppercase", fontWeight: 600 }}>Command Center</p>
             </div>
           </div>
-          <button onClick={onClose} style={{ background: "rgba(255,255,255,0.06)", border: "none", borderRadius: 10, padding: 8, cursor: "pointer", color: "rgba(255,255,255,0.5)" }}>
+          <button onClick={onClose} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, padding: 8, cursor: "pointer", color: "rgba(255,255,255,0.4)" }}>
             <X size={18} />
           </button>
         </div>
@@ -278,14 +300,15 @@ function AskOnyxModal({ open, onClose }: { open: boolean; onClose: () => void })
         {sent ? (
           <div style={{ textAlign: "center", padding: "32px 0" }}>
             <CheckCircle2 size={48} style={{ color: "#34D399", marginBottom: 16 }} />
-            <p style={{ fontSize: 18, fontWeight: 700, color: "#fff", marginBottom: 8 }}>Got it!</p>
-            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.45)", lineHeight: 1.5, maxWidth: 300, margin: "0 auto 20px" }}>
+            <p style={{ fontSize: 18, fontWeight: 700, color: "#fff", marginBottom: 8 }}>Request received</p>
+            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.4)", lineHeight: 1.5, maxWidth: 300, margin: "0 auto 24px" }}>
               We'll take care of this for you. You'll hear from us shortly.
             </p>
             <button onClick={onClose} style={{
               padding: "14px 40px", borderRadius: 12,
-              background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
-              color: "#fff", fontWeight: 600, fontSize: 15, cursor: "pointer",
+              background: "rgba(201,162,39,0.1)", border: "1px solid rgba(201,162,39,0.2)",
+              color: "#C9A227", fontWeight: 700, fontSize: 14, cursor: "pointer",
+              letterSpacing: 0.5,
             }}>
               Done
             </button>
@@ -294,14 +317,14 @@ function AskOnyxModal({ open, onClose }: { open: boolean; onClose: () => void })
           <div style={{ textAlign: "center", padding: "32px 0" }}>
             <X size={48} style={{ color: "#EF4444", marginBottom: 16 }} />
             <p style={{ fontSize: 18, fontWeight: 700, color: "#fff", marginBottom: 8 }}>Something went wrong</p>
-            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.45)", lineHeight: 1.5, maxWidth: 300, margin: "0 auto 20px" }}>
+            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.4)", lineHeight: 1.5, maxWidth: 300, margin: "0 auto 24px" }}>
               We couldn't send your request. Please try again.
             </p>
             <button onClick={() => setSendError(false)} style={{
               padding: "14px 40px", borderRadius: 12,
-              background: "linear-gradient(135deg, #C9A227, #A68B1B)",
+              background: "linear-gradient(135deg, #D4AF37, #C9A227)",
               border: "none",
-              color: "#000", fontWeight: 700, fontSize: 15, cursor: "pointer",
+              color: "#000", fontWeight: 700, fontSize: 14, cursor: "pointer",
             }}>
               Try Again
             </button>
@@ -309,12 +332,12 @@ function AskOnyxModal({ open, onClose }: { open: boolean; onClose: () => void })
         ) : (
           <>
             <div style={{
-              background: "rgba(255,255,255,0.03)",
-              borderRadius: 16, padding: "16px",
-              border: "1px solid rgba(255,255,255,0.06)",
+              background: "rgba(201,162,39,0.04)",
+              borderRadius: 14, padding: "14px 16px",
+              border: "1px solid rgba(201,162,39,0.08)",
               marginBottom: 16,
             }}>
-              <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", lineHeight: 1.6, margin: 0 }}>
+              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", lineHeight: 1.6, margin: 0 }}>
                 Tell me what you need — buying a car, roadside help, insurance, service — anything automotive. I'll handle it.
               </p>
             </div>
@@ -327,9 +350,10 @@ function AskOnyxModal({ open, onClose }: { open: boolean; onClose: () => void })
                   style={{
                     padding: "8px 14px", borderRadius: 20,
                     background: "rgba(201,162,39,0.06)",
-                    border: "1px solid rgba(201,162,39,0.15)",
-                    color: "#C9A227", fontSize: 13, fontWeight: 500,
+                    border: "1px solid rgba(201,162,39,0.12)",
+                    color: "#C9A227", fontSize: 12, fontWeight: 600,
                     cursor: "pointer", transition: "all 0.15s",
+                    letterSpacing: 0.3,
                   }}
                 >
                   {q}
@@ -346,26 +370,26 @@ function AskOnyxModal({ open, onClose }: { open: boolean; onClose: () => void })
                 placeholder="Type your request..."
                 style={{
                   flex: 1, padding: "16px 18px", borderRadius: 14,
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  color: "#fff", fontSize: 16, outline: "none",
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  color: "#fff", fontSize: 15, outline: "none",
                   transition: "border-color 0.2s",
                 }}
-                onFocus={(e) => e.currentTarget.style.borderColor = "rgba(201,162,39,0.4)"}
-                onBlur={(e) => e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"}
+                onFocus={(e) => e.currentTarget.style.borderColor = "rgba(201,162,39,0.35)"}
+                onBlur={(e) => e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"}
               />
               <button
                 onClick={handleSend}
                 disabled={!message.trim() || sending}
                 style={{
                   width: 52, height: 52, borderRadius: 14, flexShrink: 0,
-                  background: message.trim() ? "linear-gradient(135deg, #C9A227, #A68B1B)" : "rgba(255,255,255,0.06)",
+                  background: message.trim() ? "linear-gradient(135deg, #D4AF37, #C9A227)" : "rgba(255,255,255,0.04)",
                   border: "none", cursor: message.trim() ? "pointer" : "default",
                   display: "flex", alignItems: "center", justifyContent: "center",
                   transition: "all 0.2s",
                 }}
               >
-                {sending ? <Loader2 size={20} className="animate-spin" style={{ color: "#000" }} /> : <Send size={20} style={{ color: message.trim() ? "#000" : "rgba(255,255,255,0.2)" }} />}
+                {sending ? <Loader2 size={20} className="animate-spin" style={{ color: "#000" }} /> : <Send size={20} style={{ color: message.trim() ? "#000" : "rgba(255,255,255,0.15)" }} />}
               </button>
             </div>
           </>
@@ -385,11 +409,11 @@ function AskOnyxModal({ open, onClose }: { open: boolean; onClose: () => void })
 function RecentActivity() {
   return (
     <div style={{
-      background: "rgba(255,255,255,0.025)",
-      border: "1px solid rgba(255,255,255,0.06)",
-      borderRadius: 20, padding: "20px 24px",
+      background: "rgba(255,255,255,0.02)",
+      border: "1px solid rgba(255,255,255,0.05)",
+      borderRadius: 16, padding: "18px 20px",
     }}>
-      <p style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.4)", marginBottom: 16 }}>Recent</p>
+      <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.3)", marginBottom: 14, letterSpacing: 1.5, textTransform: "uppercase" }}>Recent Activity</p>
       {[
         { icon: Clock, text: "Insurance quote saved", time: "2h ago", color: "#34D399" },
         { icon: MapPin, text: "Roadside assist completed", time: "Yesterday", color: "#60A5FA" },
@@ -397,19 +421,19 @@ function RecentActivity() {
       ].map((item, i) => (
         <div key={i} style={{
           display: "flex", alignItems: "center", gap: 12,
-          padding: "12px 0",
+          padding: "10px 0",
           borderTop: i > 0 ? "1px solid rgba(255,255,255,0.04)" : "none",
         }}>
           <div style={{
-            width: 36, height: 36, borderRadius: 10, flexShrink: 0,
-            background: `${item.color}08`,
+            width: 32, height: 32, borderRadius: 8, flexShrink: 0,
+            background: `${item.color}0A`,
             display: "flex", alignItems: "center", justifyContent: "center",
           }}>
-            <item.icon size={16} style={{ color: item.color }} />
+            <item.icon size={14} style={{ color: item.color }} />
           </div>
           <div style={{ flex: 1 }}>
-            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.7)", margin: 0 }}>{item.text}</p>
-            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.25)", margin: "2px 0 0" }}>{item.time}</p>
+            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", margin: 0 }}>{item.text}</p>
+            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.2)", margin: "2px 0 0" }}>{item.time}</p>
           </div>
         </div>
       ))}
@@ -467,86 +491,74 @@ function ImpactDashboard() {
   const tierColor = TIER_COLORS[data.impact?.networkTier] || TIER_COLORS.Starter;
 
   return (
-    <div style={{ marginBottom: 24 }}>
+    <div style={{ marginBottom: 20 }}>
       <div style={{
-        background: "linear-gradient(135deg, rgba(201,162,39,0.1), rgba(201,162,39,0.02))",
-        border: "1px solid rgba(201,162,39,0.15)",
+        background: "linear-gradient(160deg, rgba(201,162,39,0.08), rgba(201,162,39,0.02), rgba(0,0,0,0))",
+        border: "1px solid rgba(201,162,39,0.12)",
         borderRadius: 20, padding: "24px 20px",
+        position: "relative", overflow: "hidden",
       }}>
+        <div style={{
+          position: "absolute", top: -60, right: -60, width: 160, height: 160,
+          background: "radial-gradient(circle, rgba(201,162,39,0.06) 0%, transparent 70%)",
+          pointerEvents: "none",
+        }} />
+
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
           <div style={{
             width: 44, height: 44, borderRadius: 14,
-            background: `${badge.color}18`,
-            border: `1px solid ${badge.color}30`,
+            background: `${badge.color}15`,
+            border: `1px solid ${badge.color}25`,
             display: "flex", alignItems: "center", justifyContent: "center",
           }}>
-            <BadgeIcon size={22} style={{ color: badge.color }} />
+            <BadgeIcon size={20} style={{ color: badge.color }} />
           </div>
           <div style={{ flex: 1 }}>
-            <p style={{ fontSize: 16, fontWeight: 800, color: "#fff", margin: 0, letterSpacing: 0.3 }}>
+            <p style={{
+              fontSize: 11, fontWeight: 800, color: "rgba(255,255,255,0.3)",
+              margin: "0 0 4px", letterSpacing: 1.5, textTransform: "uppercase",
+            }}>
               Your Impact
             </p>
-            <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
-              <span style={{
-                fontSize: 10, fontWeight: 800, color: badge.color,
-                background: `${badge.color}15`, padding: "2px 8px", borderRadius: 6,
-                letterSpacing: 1, textTransform: "uppercase",
-              }}>
-                {badge.label}
-              </span>
-            </div>
+            <span style={{
+              fontSize: 10, fontWeight: 800, color: badge.color,
+              background: `${badge.color}12`, padding: "3px 8px", borderRadius: 6,
+              letterSpacing: 1, textTransform: "uppercase",
+            }}>
+              {badge.label}
+            </span>
           </div>
         </div>
 
-        <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
-          <div style={{
-            flex: 1, background: "rgba(255,255,255,0.04)", borderRadius: 14,
-            padding: "16px 12px", textAlign: "center",
-            border: "1px solid rgba(255,255,255,0.04)",
-          }}>
-            <Heart size={18} style={{ color: "#34D399", marginBottom: 6 }} />
-            <p style={{ fontSize: 28, fontWeight: 900, color: "#34D399", margin: 0, lineHeight: 1 }}>
-              {data.impact?.peopleHelped || 0}
-            </p>
-            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", margin: "6px 0 0", fontWeight: 600 }}>
-              People Helped
-            </p>
-          </div>
-          <div style={{
-            flex: 1, background: "rgba(255,255,255,0.04)", borderRadius: 14,
-            padding: "16px 12px", textAlign: "center",
-            border: "1px solid rgba(255,255,255,0.04)",
-          }}>
-            <DollarSign size={18} style={{ color: "#C9A227", marginBottom: 6 }} />
-            <p style={{ fontSize: 28, fontWeight: 900, color: "#C9A227", margin: 0, lineHeight: 1 }}>
-              ${(data.impact?.totalEarnings || 0).toFixed(0)}
-            </p>
-            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", margin: "6px 0 0", fontWeight: 600 }}>
-              Total Earnings
-            </p>
-          </div>
-          <div style={{
-            flex: 1, background: "rgba(255,255,255,0.04)", borderRadius: 14,
-            padding: "16px 12px", textAlign: "center",
-            border: "1px solid rgba(255,255,255,0.04)",
-          }}>
-            <TrendingUp size={18} style={{ color: tierColor, marginBottom: 6 }} />
-            <p style={{ fontSize: 28, fontWeight: 900, color: tierColor, margin: 0, lineHeight: 1 }}>
-              {data.impact?.connections || 0}
-            </p>
-            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", margin: "6px 0 0", fontWeight: 600 }}>
-              Connections
-            </p>
-          </div>
+        <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+          {[
+            { value: data.impact?.peopleHelped || 0, label: "People Helped", color: "#34D399", icon: Heart },
+            { value: `$${(data.impact?.totalEarnings || 0).toFixed(0)}`, label: "Total Earnings", color: "#C9A227", icon: DollarSign },
+            { value: data.impact?.connections || 0, label: "Connections", color: tierColor, icon: TrendingUp },
+          ].map((stat) => (
+            <div key={stat.label} style={{
+              flex: 1, background: "rgba(0,0,0,0.3)", borderRadius: 14,
+              padding: "14px 10px", textAlign: "center",
+              border: "1px solid rgba(255,255,255,0.04)",
+            }}>
+              <stat.icon size={16} style={{ color: stat.color, marginBottom: 6 }} />
+              <p style={{ fontSize: 24, fontWeight: 900, color: stat.color, margin: 0, lineHeight: 1 }}>
+                {stat.value}
+              </p>
+              <p style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", margin: "6px 0 0", fontWeight: 600, letterSpacing: 0.3 }}>
+                {stat.label}
+              </p>
+            </div>
+          ))}
         </div>
 
         {data.impact?.networkTier && data.impact.networkTier !== "Starter" && (
           <div style={{
             display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-            marginBottom: 16, padding: "8px 0",
+            marginBottom: 16, padding: "6px 0",
           }}>
-            <Award size={14} style={{ color: tierColor }} />
-            <span style={{ fontSize: 12, fontWeight: 800, color: tierColor, letterSpacing: 1.5, textTransform: "uppercase" }}>
+            <Award size={13} style={{ color: tierColor }} />
+            <span style={{ fontSize: 10, fontWeight: 800, color: tierColor, letterSpacing: 2, textTransform: "uppercase" }}>
               {data.impact.networkTier} Network
             </span>
           </div>
@@ -555,14 +567,15 @@ function ImpactDashboard() {
         <button
           onClick={handleHelpSomeone}
           style={{
-            width: "100%", padding: "16px", borderRadius: 14,
+            width: "100%", padding: "15px", borderRadius: 14,
             background: "linear-gradient(135deg, #34D399, #10B981)",
-            border: "none", color: "#000", fontWeight: 800, fontSize: 15,
+            border: "none", color: "#000", fontWeight: 800, fontSize: 14,
             cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-            boxShadow: "0 4px 20px rgba(52,211,153,0.25)",
+            boxShadow: "0 4px 20px rgba(52,211,153,0.2)",
+            letterSpacing: 0.3,
           }}
         >
-          {copied ? <><CheckCircle2 size={18} /> Link Copied!</> : <><Heart size={18} /> Help Someone</>}
+          {copied ? <><CheckCircle2 size={16} /> Link Copied!</> : <><Heart size={16} /> Help Someone</>}
         </button>
       </div>
     </div>
@@ -587,28 +600,28 @@ function NetworkFeed() {
 
   return (
     <div style={{
-      marginBottom: 24,
+      marginBottom: 20,
       background: "rgba(255,255,255,0.02)",
-      border: "1px solid rgba(255,255,255,0.06)",
-      borderRadius: 16, padding: "20px",
+      border: "1px solid rgba(255,255,255,0.05)",
+      borderRadius: 16, padding: "18px 20px",
     }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
-        <Network size={16} style={{ color: "#C9A227" }} />
-        <p style={{ fontSize: 14, fontWeight: 700, color: "#fff", margin: 0 }}>Your Network</p>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+        <Network size={14} style={{ color: "#C9A227" }} />
+        <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.3)", margin: 0, letterSpacing: 1.5, textTransform: "uppercase" }}>Your Network</p>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
         {data.feed.slice(0, 8).map((item: any, i: number) => (
           <div key={item.id} style={{
             display: "flex", alignItems: "center", gap: 10,
-            padding: "12px 0",
+            padding: "10px 0",
             borderTop: i > 0 ? "1px solid rgba(255,255,255,0.04)" : "none",
           }}>
             <div style={{
-              width: 8, height: 8, borderRadius: "50%", flexShrink: 0,
+              width: 7, height: 7, borderRadius: "50%", flexShrink: 0,
               background: statusDotColor[item.statusDot] || statusDotColor.blue,
-              boxShadow: `0 0 6px ${statusDotColor[item.statusDot] || statusDotColor.blue}60`,
+              boxShadow: `0 0 6px ${statusDotColor[item.statusDot] || statusDotColor.blue}50`,
             }} />
-            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.6)", margin: 0, lineHeight: 1.4 }}>
+            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", margin: 0, lineHeight: 1.4 }}>
               {item.message}
             </p>
           </div>
@@ -655,43 +668,40 @@ function CelebrationModal({ onClose }: { onClose: (celebrationId?: number) => vo
     }}>
       <div onClick={() => onClose(c.celebrationDbId)} style={{
         position: "absolute", inset: 0,
-        background: "rgba(0,0,0,0.75)",
-        backdropFilter: "blur(12px)",
+        background: "rgba(0,0,0,0.8)",
+        backdropFilter: "blur(16px)",
       }} />
       <div style={{
-        position: "relative", width: "90%", maxWidth: 400,
-        background: "linear-gradient(180deg, #111114, #0A0A0D)",
-        borderRadius: 28, padding: "40px 28px 32px",
-        border: "1px solid rgba(52,211,153,0.2)",
+        position: "relative", width: "90%", maxWidth: 380,
+        background: "linear-gradient(180deg, #0F0F12, #08080A)",
+        borderRadius: 24, padding: "40px 28px 32px",
+        border: "1px solid rgba(201,162,39,0.15)",
         textAlign: "center",
         animation: "fadeIn 0.4s ease",
-        boxShadow: "0 24px 80px rgba(0,0,0,0.6), 0 0 40px rgba(52,211,153,0.1)",
+        boxShadow: "0 24px 80px rgba(0,0,0,0.6), 0 0 60px rgba(201,162,39,0.06)",
       }}>
-        <div style={{
-          width: 72, height: 72, borderRadius: 22,
-          background: "linear-gradient(135deg, rgba(52,211,153,0.2), rgba(52,211,153,0.05))",
-          border: "1px solid rgba(52,211,153,0.3)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          margin: "0 auto 24px",
-        }}>
-          <Sparkles size={36} style={{ color: "#34D399" }} />
-        </div>
+        <OnyxLogo size={56} />
+        <div style={{ height: 24 }} />
 
         <h2 style={{
-          fontSize: 24, fontWeight: 900, color: "#fff", margin: "0 0 8px",
+          fontSize: 22, fontWeight: 900, color: "#fff", margin: "0 0 8px",
           fontFamily: "'Barlow Condensed', sans-serif",
+          letterSpacing: 0.5,
         }}>
           You made a difference
         </h2>
         <p style={{
-          fontSize: 16, color: "rgba(255,255,255,0.7)", margin: "0 0 8px", lineHeight: 1.5,
+          fontSize: 15, color: "rgba(255,255,255,0.6)", margin: "0 0 8px", lineHeight: 1.5,
         }}>
           You helped <span style={{ color: "#34D399", fontWeight: 700 }}>{c.personHelped}</span> solve their {c.serviceType} problem
         </p>
 
         {c.earned > 0 && (
           <p style={{
-            fontSize: 32, fontWeight: 900, color: "#C9A227", margin: "16px 0",
+            fontSize: 32, fontWeight: 900,
+            background: "linear-gradient(135deg, #D4AF37, #F5D76E, #C9A227)",
+            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+            margin: "20px 0",
             fontFamily: "'Barlow Condensed', sans-serif",
           }}>
             +${c.earned.toFixed(0)} earned
@@ -701,23 +711,24 @@ function CelebrationModal({ onClose }: { onClose: (celebrationId?: number) => vo
         <button
           onClick={handleHelpAnother}
           style={{
-            width: "100%", padding: "18px", borderRadius: 16,
+            width: "100%", padding: "16px", borderRadius: 14,
             background: "linear-gradient(135deg, #34D399, #10B981)",
-            border: "none", color: "#000", fontWeight: 800, fontSize: 16,
+            border: "none", color: "#000", fontWeight: 800, fontSize: 15,
             cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
-            boxShadow: "0 8px 32px rgba(52,211,153,0.3)",
-            marginBottom: 12,
+            boxShadow: "0 8px 32px rgba(52,211,153,0.25)",
+            marginBottom: 10,
+            letterSpacing: 0.3,
           }}
         >
-          <Heart size={20} /> Help Someone Else
+          <Heart size={18} /> Help Someone Else
         </button>
 
         <button
           onClick={() => onClose(c.celebrationDbId)}
           style={{
-            width: "100%", padding: "14px", borderRadius: 14,
-            background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
-            color: "rgba(255,255,255,0.4)", fontWeight: 600, fontSize: 14,
+            width: "100%", padding: "13px", borderRadius: 12,
+            background: "transparent", border: "1px solid rgba(255,255,255,0.06)",
+            color: "rgba(255,255,255,0.3)", fontWeight: 600, fontSize: 13,
             cursor: "pointer",
           }}
         >
@@ -760,25 +771,25 @@ function ViralLoopPrompt() {
 
   return (
     <div style={{
-      marginBottom: 24,
-      background: "linear-gradient(135deg, rgba(52,211,153,0.1), rgba(52,211,153,0.03))",
-      border: "1px solid rgba(52,211,153,0.2)",
+      marginBottom: 20,
+      background: "linear-gradient(135deg, rgba(52,211,153,0.08), rgba(52,211,153,0.02))",
+      border: "1px solid rgba(52,211,153,0.15)",
       borderRadius: 16, padding: "24px 20px",
       textAlign: "center",
       animation: "fadeIn 0.5s ease",
     }}>
       <div style={{
-        width: 48, height: 48, borderRadius: 14,
-        background: "rgba(52,211,153,0.15)",
+        width: 44, height: 44, borderRadius: 14,
+        background: "rgba(52,211,153,0.12)",
         display: "flex", alignItems: "center", justifyContent: "center",
         margin: "0 auto 16px",
       }}>
-        <Heart size={24} style={{ color: "#34D399" }} />
+        <Heart size={22} style={{ color: "#34D399" }} />
       </div>
-      <h3 style={{ fontSize: 18, fontWeight: 800, color: "#fff", margin: "0 0 6px" }}>
+      <h3 style={{ fontSize: 17, fontWeight: 800, color: "#fff", margin: "0 0 6px" }}>
         You can help someone right now
       </h3>
-      <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", margin: "0 0 20px", lineHeight: 1.5 }}>
+      <p style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", margin: "0 0 20px", lineHeight: 1.5 }}>
         Know someone struggling with anything automotive? Connect them to ONYX — you earn every time they're helped.
       </p>
       <div style={{ display: "flex", gap: 10 }}>
@@ -787,18 +798,18 @@ function ViralLoopPrompt() {
           style={{
             flex: 1, padding: "14px", borderRadius: 12,
             background: "#34D399", border: "none",
-            color: "#000", fontWeight: 700, fontSize: 14,
+            color: "#000", fontWeight: 700, fontSize: 13,
             cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
           }}
         >
-          <Heart size={16} /> Help Someone
+          <Heart size={14} /> Help Someone
         </button>
         <button
           onClick={() => setDismissed(true)}
           style={{
             padding: "14px 16px", borderRadius: 12,
-            background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)",
-            color: "rgba(255,255,255,0.4)", fontWeight: 600, fontSize: 14,
+            background: "transparent", border: "1px solid rgba(255,255,255,0.08)",
+            color: "rgba(255,255,255,0.3)", fontWeight: 600, fontSize: 13,
             cursor: "pointer",
           }}
         >
@@ -854,33 +865,121 @@ export default function Home() {
 
   return (
     <div style={{
-      background: "#050508", minHeight: "100vh",
+      background: "#000000", minHeight: "100vh",
       display: "flex", flexDirection: "column",
     }}>
       <div style={{
-        width: "100%", maxWidth: 520,
+        width: "100%", maxWidth: 480,
         margin: "0 auto",
-        padding: "48px 24px 120px",
+        padding: "0 20px",
         flex: 1,
+        display: "flex", flexDirection: "column",
       }}>
-
-        <div style={{ marginBottom: 40, textAlign: "center" }}>
-          <p style={{
-            fontSize: 15, color: "rgba(255,255,255,0.4)",
-            marginBottom: 6,
+        <div style={{
+          padding: "40px 0 0",
+          textAlign: "center",
+          marginBottom: 8,
+        }}>
+          <div style={{
+            display: "flex", justifyContent: "center", marginBottom: 20,
           }}>
-            {greeting}{firstName ? `, ${firstName}` : ""}
-          </p>
+            <OnyxLogo size={56} />
+          </div>
+
           <h1 style={{
             fontFamily: "'Barlow Condensed', sans-serif",
-            fontSize: 32, fontWeight: 800, color: "#fff",
-            margin: 0, lineHeight: 1.2,
+            fontSize: 28, fontWeight: 900, color: "#fff",
+            margin: "0 0 4px", letterSpacing: 3, textTransform: "uppercase",
           }}>
-            What do you need<br />help with?
+            3C ONYX
           </h1>
+          <p style={{
+            fontSize: 9, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase",
+            color: "rgba(201,162,39,0.45)", margin: "0 0 2px",
+          }}>
+            Powered by CUXTOMCANDYCLUB LLC
+          </p>
+          <p style={{
+            fontSize: 8, fontWeight: 600, letterSpacing: 2.5, textTransform: "uppercase",
+            color: "rgba(255,255,255,0.15)", margin: "0 0 0",
+          }}>
+            Unified Automotive Command Layer
+          </p>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 32 }}>
+        <div style={{
+          borderTop: "1px solid rgba(201,162,39,0.12)",
+          borderBottom: "1px solid rgba(201,162,39,0.12)",
+          margin: "16px 0 24px",
+          padding: "20px 0",
+          textAlign: "center",
+          position: "relative",
+        }}>
+          <div style={{
+            position: "absolute", left: 0, top: "50%", transform: "translateY(-50%)",
+            width: 6, height: 6, borderRadius: "50%",
+            background: "rgba(201,162,39,0.3)",
+          }} />
+          <div style={{
+            position: "absolute", right: 0, top: "50%", transform: "translateY(-50%)",
+            width: 6, height: 6, borderRadius: "50%",
+            background: "rgba(201,162,39,0.3)",
+          }} />
+
+          {token ? (
+            <>
+              <p style={{
+                fontSize: 13, color: "rgba(255,255,255,0.35)", margin: "0 0 4px",
+                fontWeight: 500,
+              }}>
+                {greeting}{firstName ? `, ${firstName}` : ""}
+              </p>
+              <h2 style={{
+                fontFamily: "'Barlow Condensed', sans-serif",
+                fontSize: 24, fontWeight: 800, color: "#fff",
+                margin: 0, lineHeight: 1.2,
+              }}>
+                What do you need help with?
+              </h2>
+            </>
+          ) : (
+            <>
+              <p style={{
+                fontSize: 18, fontWeight: 300, color: "rgba(255,255,255,0.7)",
+                margin: "0 0 4px", lineHeight: 1.4,
+                fontFamily: "'Inter', sans-serif",
+                fontStyle: "italic",
+              }}>
+                Everything automotive. One place.
+              </p>
+              <p style={{
+                fontSize: 12, color: "rgba(201,162,39,0.5)", margin: "8px 0 0",
+                fontWeight: 600, letterSpacing: 1.5, textTransform: "uppercase",
+              }}>
+                Authorized Platform Access
+              </p>
+            </>
+          )}
+        </div>
+
+        {!token && (
+          <div style={{ textAlign: "center", marginBottom: 24 }}>
+            <p style={{
+              fontSize: 13, color: "rgba(255,255,255,0.35)", margin: "0 0 4px",
+            }}>
+              {greeting}
+            </p>
+            <h2 style={{
+              fontFamily: "'Barlow Condensed', sans-serif",
+              fontSize: 24, fontWeight: 800, color: "#fff",
+              margin: 0, lineHeight: 1.2,
+            }}>
+              What do you need help with?
+            </h2>
+          </div>
+        )}
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 28 }}>
           <ServiceButton
             icon={Car}
             label="Buy a car"
@@ -919,8 +1018,8 @@ export default function Home() {
         </div>
 
         {activeDeal && (
-          <div style={{ marginBottom: 32 }}>
-            <p style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.35)", marginBottom: 12, paddingLeft: 4 }}>Your active deal</p>
+          <div style={{ marginBottom: 24 }}>
+            <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.25)", marginBottom: 10, paddingLeft: 4, letterSpacing: 1.5, textTransform: "uppercase" }}>Active Deal</p>
             <ActiveFlowCard deal={activeDeal} />
           </div>
         )}
@@ -935,17 +1034,19 @@ export default function Home() {
 
         {!token && (
           <div style={{
-            marginBottom: 24, padding: "20px", textAlign: "center",
-            background: "rgba(255,255,255,0.02)", borderRadius: 16,
-            border: "1px solid rgba(255,255,255,0.04)",
+            marginBottom: 20, padding: "18px", textAlign: "center",
+            background: "rgba(201,162,39,0.03)", borderRadius: 14,
+            border: "1px solid rgba(201,162,39,0.08)",
           }}>
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.3)", margin: 0, lineHeight: 1.6, fontStyle: "italic" }}>
+            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.25)", margin: 0, lineHeight: 1.6, fontStyle: "italic" }}>
               We handle everything automotive so people don't have to.
             </p>
           </div>
         )}
 
         <RecentActivity />
+
+        <div style={{ height: 100 }} />
       </div>
 
       <button
@@ -953,11 +1054,12 @@ export default function Home() {
         style={{
           position: "fixed",
           bottom: 24, right: 24,
-          width: 64, height: 64, borderRadius: 20,
-          background: "linear-gradient(135deg, #C9A227, #A68B1B)",
-          border: "none", cursor: "pointer",
+          width: 60, height: 60, borderRadius: 18,
+          background: "linear-gradient(135deg, #D4AF37, #C9A227, #A68B1B)",
+          border: "2px solid rgba(212,175,55,0.3)",
+          cursor: "pointer",
           display: "flex", alignItems: "center", justifyContent: "center",
-          boxShadow: "0 8px 32px rgba(201,162,39,0.4), 0 2px 8px rgba(0,0,0,0.3)",
+          boxShadow: "0 8px 32px rgba(201,162,39,0.35), 0 0 60px rgba(201,162,39,0.1)",
           zIndex: 1000,
           transition: "transform 0.15s",
         }}
@@ -965,7 +1067,7 @@ export default function Home() {
         onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
         onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
       >
-        <MessageCircle size={26} style={{ color: "#000" }} />
+        <MessageCircle size={24} style={{ color: "#000" }} />
       </button>
 
       <AskOnyxModal open={showAskOnyx} onClose={() => setShowAskOnyx(false)} />
@@ -973,20 +1075,37 @@ export default function Home() {
       {showCelebration && token && <CelebrationModal onClose={handleCloseCelebration} />}
 
       <div style={{
-        padding: "20px 24px 32px", textAlign: "center",
-        borderTop: "1px solid rgba(255,255,255,0.04)",
+        padding: "24px 24px 36px", textAlign: "center",
+        borderTop: "1px solid rgba(201,162,39,0.06)",
+        background: "linear-gradient(180deg, transparent, rgba(0,0,0,0.3))",
       }}>
         {!token && (
-          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.3)", marginBottom: 12 }}>
+          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.25)", marginBottom: 16 }}>
             Already a member?{" "}
-            <a href="/login" style={{ color: "#C9A227", textDecoration: "none", fontWeight: 600 }}>Sign in</a>
+            <a href="/login" style={{ color: "#C9A227", textDecoration: "none", fontWeight: 700 }}>Sign in</a>
           </p>
         )}
-        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.15)", margin: 0, lineHeight: 1.6 }}>
+        <p style={{
+          fontSize: 8, fontWeight: 600, color: "rgba(255,255,255,0.12)", margin: "0 0 6px",
+          letterSpacing: 2, textTransform: "uppercase",
+        }}>
+          Private Preview · Not for Public Distribution
+        </p>
+        <p style={{
+          fontSize: 10, color: "rgba(255,255,255,0.1)", margin: 0, lineHeight: 1.6,
+          letterSpacing: 0.5,
+        }}>
           3C ONYX · CUXTOMCANDYCLUB LLC<br />
           Architect: Ronald Antonio Cadet
         </p>
       </div>
+
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+        }
+      `}</style>
     </div>
   );
 }
