@@ -401,7 +401,7 @@ export default function GuestFlow() {
 
   return (
     <div style={{
-      background: "#050508", minHeight: "100vh",
+      background: "#000000", minHeight: "100vh",
       display: "flex", flexDirection: "column",
     }}>
       <div style={{

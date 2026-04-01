@@ -8,6 +8,8 @@ import {
   Clock, MapPin, Sparkles,
   Gift, Share2, Users, DollarSign, Copy,
   Zap, TrendingUp, Award, Network, Star, Heart,
+  AlertTriangle, Repeat, Mic, ChevronLeft,
+  Check, Phone, User,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
@@ -98,6 +100,687 @@ function OnyxLogo({ size = 64 }: { size?: number }) {
   );
 }
 
+function SplashScreen({ onComplete }: { onComplete: () => void }) {
+  const [phase, setPhase] = useState<"enter" | "hold" | "exit">("enter");
+
+  useEffect(() => {
+    const t1 = setTimeout(() => setPhase("hold"), 100);
+    const t2 = setTimeout(() => setPhase("exit"), 1800);
+    const t3 = setTimeout(onComplete, 2400);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+  }, [onComplete]);
+
+  return (
+    <div style={{
+      position: "fixed", inset: 0, zIndex: 99999,
+      background: "#000000",
+      display: "flex", flexDirection: "column",
+      alignItems: "center", justifyContent: "center",
+      opacity: phase === "exit" ? 0 : 1,
+      transition: "opacity 0.6s ease",
+    }}>
+      <div style={{
+        opacity: phase === "enter" ? 0 : 1,
+        transform: phase === "enter" ? "scale(0.8)" : "scale(1)",
+        transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1)",
+        textAlign: "center",
+      }}>
+        <OnyxLogo size={80} />
+        <h1 style={{
+          fontFamily: "'Barlow Condensed', sans-serif",
+          fontSize: 36, fontWeight: 900, color: "#fff",
+          margin: "24px 0 8px", letterSpacing: 4, textTransform: "uppercase",
+        }}>
+          3C ONYX
+        </h1>
+        <p style={{
+          fontSize: 16, fontWeight: 300, color: "rgba(255,255,255,0.5)",
+          margin: "0 0 6px", fontStyle: "italic",
+        }}>
+          We handle everything.
+        </p>
+        <p style={{
+          fontSize: 9, fontWeight: 600, letterSpacing: 3, textTransform: "uppercase",
+          color: "rgba(201,162,39,0.4)", margin: 0,
+        }}>
+          Powered by CUXTOMCANDYCLUB
+        </p>
+      </div>
+    </div>
+  );
+}
+
+type ServiceCategory = "buy" | "sell" | "service" | "insurance" | "emergency";
+
+const SERVICE_CONFIG: Record<ServiceCategory, {
+  icon: any; label: string; description: string; accent: string;
+  department: string; intakeTitle: string;
+  chips: string[];
+  processingSteps: string[];
+  resultMessage: string;
+}> = {
+  buy: {
+    icon: Car, label: "Buy a Car", description: "We'll find the perfect match",
+    accent: "#C9A227", department: "Sales", intakeTitle: "Vehicle Purchase Request",
+    chips: ["SUV", "Sedan", "Truck", "Luxury", "Under $30k", "Under $50k"],
+    processingSteps: [
+      "Analyzing your preferences...",
+      "Searching local inventory...",
+      "Comparing pricing across dealers...",
+      "Matching you with the best options...",
+    ],
+    resultMessage: "We've found options matching your criteria. A specialist is being assigned to get you the best deal.",
+  },
+  sell: {
+    icon: Repeat, label: "Sell / Trade", description: "Get top value instantly",
+    accent: "#34D399", department: "Sales", intakeTitle: "Vehicle Sell/Trade Request",
+    chips: ["Get Instant Offer", "Trade for Upgrade", "Sell Outright", "Free Appraisal"],
+    processingSteps: [
+      "Analyzing market conditions...",
+      "Pulling comparable sales data...",
+      "Calculating your vehicle's value...",
+      "Preparing your personalized offer...",
+    ],
+    resultMessage: "Your vehicle valuation is being prepared. A specialist will present your offer within minutes.",
+  },
+  service: {
+    icon: Wrench, label: "Service / Repair", description: "Repairs, maintenance, everything",
+    accent: "#60A5FA", department: "Service", intakeTitle: "Vehicle Service/Repair Request",
+    chips: ["Oil Change", "Brake Check", "Engine Issue", "Body Work", "Tire Service", "Diagnostic"],
+    processingSteps: [
+      "Understanding the issue...",
+      "Finding certified specialists nearby...",
+      "Checking availability...",
+      "Coordinating your service...",
+    ],
+    resultMessage: "A certified specialist is being assigned. We're coordinating everything — you don't need to do a thing.",
+  },
+  insurance: {
+    icon: Shield, label: "Insurance", description: "Best rates, zero hassle",
+    accent: "#A78BFA", department: "F_And_I", intakeTitle: "Insurance Request",
+    chips: ["New Quote", "Compare Rates", "Add Vehicle", "Lower My Premium", "Full Coverage"],
+    processingSteps: [
+      "Analyzing your profile...",
+      "Comparing rates from top providers...",
+      "Building your personalized quote...",
+      "Securing the best pricing...",
+    ],
+    resultMessage: "We're comparing rates from multiple providers. Your personalized options are being prepared now.",
+  },
+  emergency: {
+    icon: AlertTriangle, label: "Emergency", description: "Immediate help dispatched",
+    accent: "#EF4444", department: "Service", intakeTitle: "Emergency Roadside Request",
+    chips: ["Tow Truck", "Flat Tire", "Lockout", "Dead Battery", "Accident", "Fuel Delivery"],
+    processingSteps: [
+      "Emergency received — prioritizing...",
+      "Locating nearest available help...",
+      "Dispatching assistance...",
+      "Help is on the way...",
+    ],
+    resultMessage: "Help is being dispatched to your location. A specialist will contact you momentarily.",
+  },
+};
+
+type FlowPhase = "idle" | "chips" | "details" | "processing" | "result" | "error";
+
+function ConversationalFlow({
+  category,
+  onBack,
+}: {
+  category: ServiceCategory;
+  onBack: () => void;
+}) {
+  const config = SERVICE_CONFIG[category];
+  const Icon = config.icon;
+
+  const [phase, setPhase] = useState<FlowPhase>("chips");
+  const [selectedChips, setSelectedChips] = useState<string[]>([]);
+  const [freeText, setFreeText] = useState("");
+  const [contactName, setContactName] = useState("");
+  const [contactPhone, setContactPhone] = useState("");
+  const [processingStep, setProcessingStep] = useState(0);
+  const [trackingCode, setTrackingCode] = useState("");
+  const [showAuthCta, setShowAuthCta] = useState(false);
+  const submitOk = useRef(false);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  const toggleChip = (chip: string) => {
+    setSelectedChips((prev) =>
+      prev.includes(chip) ? prev.filter((c) => c !== chip) : [...prev, chip]
+    );
+  };
+
+  const handleProceedToDetails = () => {
+    setPhase("details");
+    setTimeout(() => inputRef.current?.focus(), 200);
+  };
+
+  const handleSubmit = async () => {
+    setPhase("processing");
+    setProcessingStep(0);
+    submitOk.current = false;
+
+    const description = [
+      `Service: ${config.label}`,
+      selectedChips.length ? `Preferences: ${selectedChips.join(", ")}` : "",
+      freeText.trim() ? `Details: ${freeText.trim()}` : "",
+    ].filter(Boolean).join("\n");
+
+    try {
+      const referrerCode = sessionStorage.getItem("onyx_ref") || undefined;
+      const res = await fetch(`${BASE}/api/omni-node/submit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: config.intakeTitle,
+          description,
+          department: config.department,
+          initiatorTier: "Customer",
+          initiatorName: contactName.trim() || "Guest",
+          contactName: contactName.trim() || undefined,
+          contactPhone: contactPhone.trim() || undefined,
+          referrerCode,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setTrackingCode(data.trackingCode || "");
+        submitOk.current = true;
+      } else {
+        setPhase("error");
+      }
+    } catch {
+      setPhase("error");
+    }
+  };
+
+  useEffect(() => {
+    if (phase !== "processing") return;
+    if (processingStep < config.processingSteps.length - 1) {
+      const delays = category === "emergency" ? [800, 1200, 1500, 1000] : [1200, 2000, 2500, 1500];
+      const delay = delays[processingStep] || 1500;
+      const t = setTimeout(() => setProcessingStep((s) => s + 1), delay);
+      return () => clearTimeout(t);
+    }
+    if (submitOk.current) {
+      const t = setTimeout(() => setPhase("result"), 1200);
+      return () => clearTimeout(t);
+    }
+    return;
+  }, [phase, processingStep, config.processingSteps.length, category]);
+
+  useEffect(() => {
+    if (phase !== "result") { setShowAuthCta(false); return; }
+    const t = setTimeout(() => setShowAuthCta(true), 2000);
+    return () => clearTimeout(t);
+  }, [phase]);
+
+  return (
+    <div style={{ animation: "fadeIn 0.3s ease" }}>
+      <button
+        onClick={onBack}
+        style={{
+          display: "flex", alignItems: "center", gap: 4,
+          background: "none", border: "none", color: "rgba(255,255,255,0.35)",
+          fontSize: 13, cursor: "pointer", padding: "4px 0", marginBottom: 20,
+          fontWeight: 500,
+        }}
+      >
+        <ChevronLeft size={16} /> Back
+      </button>
+
+      <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 28 }}>
+        <div style={{
+          width: 52, height: 52, borderRadius: 16, flexShrink: 0,
+          background: `${config.accent}15`,
+          border: `1px solid ${config.accent}25`,
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
+          <Icon size={24} style={{ color: config.accent }} />
+        </div>
+        <div>
+          <h2 style={{
+            fontFamily: "'Barlow Condensed', sans-serif",
+            fontSize: 22, fontWeight: 800, color: "#fff", margin: 0, lineHeight: 1.2,
+          }}>
+            {config.label}
+          </h2>
+          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.35)", margin: "2px 0 0" }}>
+            {config.description}
+          </p>
+        </div>
+      </div>
+
+      {phase === "chips" && (
+        <div style={{ animation: "fadeIn 0.3s ease" }}>
+          <p style={{
+            fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.3)",
+            margin: "0 0 14px", letterSpacing: 1.5, textTransform: "uppercase",
+          }}>
+            What are you looking for?
+          </p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 28 }}>
+            {config.chips.map((chip) => {
+              const selected = selectedChips.includes(chip);
+              return (
+                <button
+                  key={chip}
+                  onClick={() => toggleChip(chip)}
+                  style={{
+                    padding: "14px 22px", borderRadius: 14,
+                    background: selected ? `${config.accent}18` : "rgba(255,255,255,0.03)",
+                    border: `1px solid ${selected ? config.accent + "40" : "rgba(255,255,255,0.08)"}`,
+                    color: selected ? config.accent : "rgba(255,255,255,0.6)",
+                    fontSize: 15, fontWeight: 600, cursor: "pointer",
+                    transition: "all 0.15s",
+                  }}
+                >
+                  {chip}
+                </button>
+              );
+            })}
+          </div>
+
+          <button
+            onClick={handleProceedToDetails}
+            style={{
+              width: "100%", padding: "18px", borderRadius: 16,
+              background: selectedChips.length > 0
+                ? `linear-gradient(135deg, ${config.accent}, ${config.accent}CC)`
+                : "rgba(255,255,255,0.06)",
+              border: selectedChips.length > 0 ? "none" : "1px solid rgba(255,255,255,0.08)",
+              color: selectedChips.length > 0 ? "#000" : "rgba(255,255,255,0.5)",
+              fontWeight: 800, fontSize: 16, cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+              transition: "all 0.2s",
+            }}
+          >
+            {selectedChips.length > 0 ? "Continue" : "Skip — tell us in your own words"}
+            <ArrowRight size={18} />
+          </button>
+        </div>
+      )}
+
+      {phase === "details" && (
+        <div style={{ animation: "fadeIn 0.3s ease" }}>
+          {selectedChips.length > 0 && (
+            <div style={{
+              display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 16,
+            }}>
+              {selectedChips.map((chip) => (
+                <span key={chip} style={{
+                  padding: "6px 12px", borderRadius: 8,
+                  background: `${config.accent}12`,
+                  border: `1px solid ${config.accent}25`,
+                  color: config.accent, fontSize: 12, fontWeight: 600,
+                }}>
+                  {chip}
+                </span>
+              ))}
+            </div>
+          )}
+
+          <textarea
+            ref={inputRef}
+            value={freeText}
+            onChange={(e) => setFreeText(e.target.value)}
+            placeholder="Anything else we should know? (optional)"
+            rows={3}
+            style={{
+              width: "100%", padding: "16px", borderRadius: 14,
+              background: "rgba(255,255,255,0.03)",
+              border: "1px solid rgba(255,255,255,0.08)",
+              color: "#fff", fontSize: 15, outline: "none", resize: "none",
+              boxSizing: "border-box", lineHeight: 1.5,
+              fontFamily: "system-ui, sans-serif",
+              marginBottom: 16,
+            }}
+            onFocus={(e) => e.currentTarget.style.borderColor = `${config.accent}40`}
+            onBlur={(e) => e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"}
+          />
+
+          <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.25)", margin: "0 0 10px", letterSpacing: 1.5, textTransform: "uppercase" }}>
+            How can we reach you? (optional)
+          </p>
+          <div style={{ display: "flex", gap: 10, marginBottom: 24 }}>
+            <div style={{ flex: 1, position: "relative" }}>
+              <User size={14} style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "rgba(255,255,255,0.2)" }} />
+              <input
+                value={contactName}
+                onChange={(e) => setContactName(e.target.value)}
+                placeholder="Your name"
+                style={{
+                  width: "100%", padding: "14px 14px 14px 38px", borderRadius: 12,
+                  background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)",
+                  color: "#fff", fontSize: 14, outline: "none", boxSizing: "border-box",
+                }}
+              />
+            </div>
+            <div style={{ flex: 1, position: "relative" }}>
+              <Phone size={14} style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "rgba(255,255,255,0.2)" }} />
+              <input
+                value={contactPhone}
+                onChange={(e) => setContactPhone(e.target.value)}
+                placeholder="Phone"
+                type="tel"
+                style={{
+                  width: "100%", padding: "14px 14px 14px 38px", borderRadius: 12,
+                  background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)",
+                  color: "#fff", fontSize: 14, outline: "none", boxSizing: "border-box",
+                }}
+              />
+            </div>
+          </div>
+
+          <button
+            onClick={handleSubmit}
+            style={{
+              width: "100%", padding: "18px", borderRadius: 16,
+              background: `linear-gradient(135deg, ${config.accent}, ${config.accent}CC)`,
+              border: "none", color: "#000", fontWeight: 800, fontSize: 16,
+              cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+              boxShadow: `0 4px 24px ${config.accent}30`,
+            }}
+          >
+            {category === "emergency" ? "Get Help Now" : "Find My Options"} <ArrowRight size={18} />
+          </button>
+
+          <p style={{ textAlign: "center", marginTop: 12, fontSize: 11, color: "rgba(255,255,255,0.15)" }}>
+            No account needed — we handle everything
+          </p>
+        </div>
+      )}
+
+      {phase === "processing" && (
+        <div style={{ animation: "fadeIn 0.4s ease", padding: "20px 0" }}>
+          <div style={{
+            background: "rgba(255,255,255,0.02)",
+            border: "1px solid rgba(255,255,255,0.06)",
+            borderRadius: 20, padding: "28px 24px",
+          }}>
+            {config.processingSteps.map((step, i) => {
+              const done = i < processingStep;
+              const active = i === processingStep;
+              return (
+                <div key={i} style={{
+                  display: "flex", gap: 14, marginBottom: i < config.processingSteps.length - 1 ? 0 : 0,
+                }}>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                    <div style={{
+                      width: 28, height: 28, borderRadius: "50%",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      background: done ? "#34D399" : active ? `linear-gradient(135deg, ${config.accent}, ${config.accent}CC)` : "rgba(255,255,255,0.04)",
+                      transition: "all 0.5s",
+                      boxShadow: active ? `0 0 16px ${config.accent}40` : "none",
+                    }}>
+                      {done ? <Check size={14} style={{ color: "#fff" }} /> :
+                       active ? <Loader2 size={14} className="animate-spin" style={{ color: "#000" }} /> :
+                       <span style={{ width: 6, height: 6, borderRadius: "50%", background: "rgba(255,255,255,0.15)" }} />}
+                    </div>
+                    {i < config.processingSteps.length - 1 && (
+                      <div style={{
+                        width: 2, height: 24,
+                        background: done ? "#34D399" : "rgba(255,255,255,0.04)",
+                        transition: "background 0.5s",
+                      }} />
+                    )}
+                  </div>
+                  <div style={{ paddingTop: 4, paddingBottom: i < config.processingSteps.length - 1 ? 8 : 0 }}>
+                    <p style={{
+                      fontSize: 14, fontWeight: 600, margin: 0, lineHeight: 1.3,
+                      color: done ? "#34D399" : active ? "#fff" : "rgba(255,255,255,0.2)",
+                      transition: "color 0.5s",
+                    }}>{step}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {phase === "error" && (
+        <div style={{ animation: "fadeIn 0.5s ease", padding: "12px 0" }}>
+          <div style={{
+            background: "linear-gradient(160deg, rgba(239,68,68,0.07), rgba(239,68,68,0.02))",
+            border: "1px solid rgba(239,68,68,0.15)",
+            borderRadius: 20, padding: "32px 24px",
+            textAlign: "center",
+          }}>
+            <div style={{
+              width: 56, height: 56, borderRadius: 18,
+              background: "rgba(239,68,68,0.1)",
+              border: "1px solid rgba(239,68,68,0.2)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              margin: "0 auto 20px",
+            }}>
+              <AlertTriangle size={28} style={{ color: "#ef4444" }} />
+            </div>
+            <h3 style={{
+              fontFamily: "'Barlow Condensed', sans-serif",
+              fontSize: 22, fontWeight: 800, color: "#fff", margin: "0 0 10px",
+            }}>
+              Something went wrong
+            </h3>
+            <p style={{
+              fontSize: 14, color: "rgba(255,255,255,0.5)", lineHeight: 1.6,
+              margin: "0 0 20px",
+            }}>
+              We couldn't process your request right now. Please try again.
+            </p>
+            <button
+              onClick={() => { setPhase("details"); }}
+              style={{
+                background: "rgba(239,68,68,0.15)",
+                border: "1px solid rgba(239,68,68,0.3)",
+                color: "#ef4444", padding: "12px 28px", borderRadius: 14,
+                fontWeight: 700, fontSize: 14, cursor: "pointer",
+              }}
+            >
+              <Repeat size={14} style={{ marginRight: 8, verticalAlign: "middle" }} />
+              Try Again
+            </button>
+          </div>
+        </div>
+      )}
+
+      {phase === "result" && (
+        <div style={{ animation: "fadeIn 0.5s ease", padding: "12px 0" }}>
+          <div style={{
+            background: `linear-gradient(160deg, ${config.accent}12, ${config.accent}04)`,
+            border: `1px solid ${config.accent}20`,
+            borderRadius: 20, padding: "32px 24px",
+            textAlign: "center",
+          }}>
+            <div style={{
+              width: 56, height: 56, borderRadius: 18,
+              background: `${config.accent}18`,
+              border: `1px solid ${config.accent}30`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              margin: "0 auto 20px",
+            }}>
+              <CheckCircle2 size={28} style={{ color: config.accent }} />
+            </div>
+
+            <h3 style={{
+              fontFamily: "'Barlow Condensed', sans-serif",
+              fontSize: 22, fontWeight: 800, color: "#fff", margin: "0 0 10px",
+            }}>
+              {category === "emergency" ? "Help is on the way" : "We're on it"}
+            </h3>
+            <p style={{
+              fontSize: 14, color: "rgba(255,255,255,0.5)", lineHeight: 1.6,
+              margin: "0 0 20px", maxWidth: 320, marginLeft: "auto", marginRight: "auto",
+            }}>
+              {config.resultMessage}
+            </p>
+
+            {trackingCode && (
+              <div style={{
+                background: "rgba(0,0,0,0.3)",
+                borderRadius: 12, padding: "14px 18px",
+                display: "inline-flex", alignItems: "center", gap: 10,
+                marginBottom: 20,
+              }}>
+                <div>
+                  <p style={{ fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,0.25)", margin: "0 0 2px", letterSpacing: 1.5, textTransform: "uppercase" }}>Tracking Code</p>
+                  <p style={{ fontSize: 15, fontWeight: 700, color: config.accent, fontFamily: "monospace", margin: 0 }}>{trackingCode}</p>
+                </div>
+              </div>
+            )}
+
+            <div style={{
+              opacity: showAuthCta ? 1 : 0,
+              transform: showAuthCta ? "translateY(0)" : "translateY(12px)",
+              transition: "opacity 0.6s ease, transform 0.6s ease",
+              pointerEvents: showAuthCta ? "auto" : "none",
+            }}>
+              <button
+                onClick={() => {
+                  const loginUrl = `${window.location.origin}/login`;
+                  window.location.href = loginUrl;
+                }}
+                style={{
+                  width: "100%", padding: "18px", borderRadius: 16,
+                  background: `linear-gradient(135deg, ${config.accent}, ${config.accent}CC)`,
+                  border: "none", color: "#000", fontWeight: 800, fontSize: 15,
+                  cursor: "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                  boxShadow: `0 4px 24px ${config.accent}30`,
+                  marginBottom: 10,
+                }}
+              >
+                Create ONYX Profile to Track This
+              </button>
+            </div>
+
+            <button
+              onClick={onBack}
+              style={{
+                width: "100%", padding: "14px", borderRadius: 12,
+                background: "transparent", border: "1px solid rgba(255,255,255,0.06)",
+                color: "rgba(255,255,255,0.3)", fontWeight: 600, fontSize: 13,
+                cursor: "pointer",
+              }}
+            >
+              Done — we'll reach out
+            </button>
+          </div>
+
+          <p style={{
+            textAlign: "center", marginTop: 20, fontSize: 11,
+            color: "rgba(255,255,255,0.15)", lineHeight: 1.6,
+          }}>
+            No account required. We'll handle everything<br />and reach out to you directly.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function NeuralInput({ onSubmit }: { onSubmit: (message: string) => void }) {
+  const [message, setMessage] = useState("");
+  const [focused, setFocused] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleSend = () => {
+    if (!message.trim()) return;
+    onSubmit(message.trim());
+    setMessage("");
+  };
+
+  return (
+    <div style={{
+      position: "relative",
+      marginBottom: 28,
+    }}>
+      <div style={{
+        display: "flex", alignItems: "center", gap: 10,
+        padding: "6px 6px 6px 20px",
+        borderRadius: 18,
+        background: focused ? "rgba(201,162,39,0.04)" : "rgba(255,255,255,0.02)",
+        border: `1px solid ${focused ? "rgba(201,162,39,0.25)" : "rgba(255,255,255,0.06)"}`,
+        transition: "all 0.2s",
+        boxShadow: focused ? "0 0 30px rgba(201,162,39,0.06)" : "none",
+      }}>
+        <Sparkles size={16} style={{ color: focused ? "#C9A227" : "rgba(255,255,255,0.15)", flexShrink: 0, transition: "color 0.2s" }} />
+        <input
+          ref={inputRef}
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleSend()}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          placeholder="Or just ask ONYX..."
+          style={{
+            flex: 1, padding: "14px 0", borderRadius: 0,
+            background: "transparent",
+            border: "none",
+            color: "#fff", fontSize: 15, outline: "none",
+            fontFamily: "system-ui, sans-serif",
+          }}
+        />
+        <button
+          onClick={handleSend}
+          disabled={!message.trim()}
+          style={{
+            width: 44, height: 44, borderRadius: 14, flexShrink: 0,
+            background: message.trim() ? "linear-gradient(135deg, #D4AF37, #C9A227)" : "rgba(255,255,255,0.04)",
+            border: "none", cursor: message.trim() ? "pointer" : "default",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            transition: "all 0.2s",
+          }}
+        >
+          <Send size={18} style={{ color: message.trim() ? "#000" : "rgba(255,255,255,0.12)" }} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function ServiceCard({ icon: Icon, label, description, accent, onClick }: {
+  icon: any; label: string; description: string; accent: string; onClick: () => void;
+}) {
+  const [pressed, setPressed] = useState(false);
+
+  return (
+    <button
+      onClick={onClick}
+      onMouseDown={() => setPressed(true)}
+      onMouseUp={() => setPressed(false)}
+      onMouseLeave={() => setPressed(false)}
+      style={{
+        width: "100%",
+        padding: "20px 20px",
+        borderRadius: 16,
+        background: pressed ? "rgba(201,162,39,0.06)" : "rgba(255,255,255,0.02)",
+        border: `1px solid ${pressed ? "rgba(201,162,39,0.2)" : "rgba(255,255,255,0.06)"}`,
+        cursor: "pointer",
+        transition: "all 0.2s ease",
+        display: "flex", alignItems: "center", gap: 16,
+        textAlign: "left",
+        color: "#fff",
+      }}
+    >
+      <div style={{
+        width: 48, height: 48, borderRadius: 14, flexShrink: 0,
+        background: `${accent}0D`,
+        border: `1px solid ${accent}1A`,
+        display: "flex", alignItems: "center", justifyContent: "center",
+      }}>
+        <Icon size={22} style={{ color: accent }} />
+      </div>
+      <div style={{ flex: 1 }}>
+        <p style={{ fontSize: 16, fontWeight: 700, margin: "0 0 2px", lineHeight: 1.2 }}>{label}</p>
+        <p style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", margin: 0, lineHeight: 1.4 }}>{description}</p>
+      </div>
+      <ChevronRight size={16} style={{ color: "rgba(255,255,255,0.12)", flexShrink: 0 }} />
+    </button>
+  );
+}
+
 function ActiveFlowCard({ deal }: { deal: any }) {
   const pct = getDealProgress(deal.status);
   const label = DEAL_STATUS_LABELS[deal.status] || "We're handling this for you";
@@ -108,7 +791,6 @@ function ActiveFlowCard({ deal }: { deal: any }) {
       background: "linear-gradient(135deg, rgba(201,162,39,0.06), rgba(201,162,39,0.02))",
       border: "1px solid rgba(201,162,39,0.12)",
       borderRadius: 20, padding: "24px 24px 20px",
-      marginBottom: 0,
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
         <div style={{
@@ -174,64 +856,22 @@ function ActiveFlowCard({ deal }: { deal: any }) {
   );
 }
 
-function ServiceButton({ icon: Icon, label, description, href, accent }: {
-  icon: any; label: string; description: string; href: string; accent: string;
-}) {
-  const [pressed, setPressed] = useState(false);
-
-  return (
-    <Link href={href}>
-      <button
-        onMouseDown={() => setPressed(true)}
-        onMouseUp={() => setPressed(false)}
-        onMouseLeave={() => setPressed(false)}
-        style={{
-          width: "100%",
-          padding: "20px 20px",
-          borderRadius: 16,
-          background: pressed ? "rgba(201,162,39,0.06)" : "rgba(255,255,255,0.02)",
-          border: `1px solid ${pressed ? "rgba(201,162,39,0.2)" : "rgba(255,255,255,0.06)"}`,
-          cursor: "pointer",
-          transition: "all 0.2s ease",
-          display: "flex", alignItems: "center", gap: 16,
-          textAlign: "left",
-          color: "#fff",
-        }}
-      >
-        <div style={{
-          width: 48, height: 48, borderRadius: 14, flexShrink: 0,
-          background: `${accent}0D`,
-          border: `1px solid ${accent}1A`,
-          display: "flex", alignItems: "center", justifyContent: "center",
-        }}>
-          <Icon size={22} style={{ color: accent }} />
-        </div>
-        <div style={{ flex: 1 }}>
-          <p style={{ fontSize: 16, fontWeight: 700, margin: "0 0 2px", lineHeight: 1.2 }}>{label}</p>
-          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", margin: 0, lineHeight: 1.4 }}>{description}</p>
-        </div>
-        <ChevronRight size={16} style={{ color: "rgba(255,255,255,0.12)", flexShrink: 0 }} />
-      </button>
-    </Link>
-  );
-}
-
-function AskOnyxModal({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const [message, setMessage] = useState("");
+function AskOnyxSheet({ open, onClose, initialMessage }: { open: boolean; onClose: () => void; initialMessage?: string }) {
+  const [message, setMessage] = useState(initialMessage || "");
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const [sendError, setSendError] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (open) {
-      setMessage("");
+      setMessage(initialMessage || "");
       setSending(false);
       setSent(false);
+      setSendError(false);
       setTimeout(() => inputRef.current?.focus(), 200);
     }
-  }, [open]);
-
-  const [sendError, setSendError] = useState(false);
+  }, [open, initialMessage]);
 
   const handleSend = async () => {
     if (!message.trim() || sending) return;
@@ -249,14 +889,8 @@ function AskOnyxModal({ open, onClose }: { open: boolean; onClose: () => void })
           initiatorName: "ONYX Member",
         }),
       });
-      if (res.ok) {
-        setSent(true);
-      } else {
-        setSendError(true);
-      }
-    } catch {
-      setSendError(true);
-    }
+      if (res.ok) { setSent(true); } else { setSendError(true); }
+    } catch { setSendError(true); }
     setSending(false);
   };
 
@@ -267,14 +901,10 @@ function AskOnyxModal({ open, onClose }: { open: boolean; onClose: () => void })
       position: "fixed", inset: 0, zIndex: 9999,
       display: "flex", alignItems: "flex-end", justifyContent: "center",
     }}>
-      <div
-        onClick={onClose}
-        style={{
-          position: "absolute", inset: 0,
-          background: "rgba(0,0,0,0.7)",
-          backdropFilter: "blur(12px)",
-        }}
-      />
+      <div onClick={onClose} style={{
+        position: "absolute", inset: 0,
+        background: "rgba(0,0,0,0.7)", backdropFilter: "blur(12px)",
+      }} />
       <div style={{
         position: "relative", width: "100%", maxWidth: 480,
         background: "linear-gradient(180deg, #111114, #0A0A0C)",
@@ -308,7 +938,6 @@ function AskOnyxModal({ open, onClose }: { open: boolean; onClose: () => void })
               padding: "14px 40px", borderRadius: 12,
               background: "rgba(201,162,39,0.1)", border: "1px solid rgba(201,162,39,0.2)",
               color: "#C9A227", fontWeight: 700, fontSize: 14, cursor: "pointer",
-              letterSpacing: 0.5,
             }}>
               Done
             </button>
@@ -317,50 +946,28 @@ function AskOnyxModal({ open, onClose }: { open: boolean; onClose: () => void })
           <div style={{ textAlign: "center", padding: "32px 0" }}>
             <X size={48} style={{ color: "#EF4444", marginBottom: 16 }} />
             <p style={{ fontSize: 18, fontWeight: 700, color: "#fff", marginBottom: 8 }}>Something went wrong</p>
-            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.4)", lineHeight: 1.5, maxWidth: 300, margin: "0 auto 24px" }}>
-              We couldn't send your request. Please try again.
-            </p>
             <button onClick={() => setSendError(false)} style={{
               padding: "14px 40px", borderRadius: 12,
               background: "linear-gradient(135deg, #D4AF37, #C9A227)",
-              border: "none",
-              color: "#000", fontWeight: 700, fontSize: 14, cursor: "pointer",
+              border: "none", color: "#000", fontWeight: 700, fontSize: 14, cursor: "pointer",
             }}>
               Try Again
             </button>
           </div>
         ) : (
           <>
-            <div style={{
-              background: "rgba(201,162,39,0.04)",
-              borderRadius: 14, padding: "14px 16px",
-              border: "1px solid rgba(201,162,39,0.08)",
-              marginBottom: 16,
-            }}>
-              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", lineHeight: 1.6, margin: 0 }}>
-                Tell me what you need — buying a car, roadside help, insurance, service — anything automotive. I'll handle it.
-              </p>
-            </div>
-
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 20 }}>
               {["I want to buy a car", "I need roadside help", "Get me an insurance quote", "Schedule a service"].map((q) => (
-                <button
-                  key={q}
-                  onClick={() => setMessage(q)}
-                  style={{
-                    padding: "8px 14px", borderRadius: 20,
-                    background: "rgba(201,162,39,0.06)",
-                    border: "1px solid rgba(201,162,39,0.12)",
-                    color: "#C9A227", fontSize: 12, fontWeight: 600,
-                    cursor: "pointer", transition: "all 0.15s",
-                    letterSpacing: 0.3,
-                  }}
-                >
+                <button key={q} onClick={() => setMessage(q)} style={{
+                  padding: "8px 14px", borderRadius: 20,
+                  background: "rgba(201,162,39,0.06)",
+                  border: "1px solid rgba(201,162,39,0.12)",
+                  color: "#C9A227", fontSize: 12, fontWeight: 600, cursor: "pointer",
+                }}>
                   {q}
                 </button>
               ))}
             </div>
-
             <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
               <input
                 ref={inputRef}
@@ -373,10 +980,7 @@ function AskOnyxModal({ open, onClose }: { open: boolean; onClose: () => void })
                   background: "rgba(255,255,255,0.03)",
                   border: "1px solid rgba(255,255,255,0.08)",
                   color: "#fff", fontSize: 15, outline: "none",
-                  transition: "border-color 0.2s",
                 }}
-                onFocus={(e) => e.currentTarget.style.borderColor = "rgba(201,162,39,0.35)"}
-                onBlur={(e) => e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"}
               />
               <button
                 onClick={handleSend}
@@ -386,7 +990,6 @@ function AskOnyxModal({ open, onClose }: { open: boolean; onClose: () => void })
                   background: message.trim() ? "linear-gradient(135deg, #D4AF37, #C9A227)" : "rgba(255,255,255,0.04)",
                   border: "none", cursor: message.trim() ? "pointer" : "default",
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  transition: "all 0.2s",
                 }}
               >
                 {sending ? <Loader2 size={20} className="animate-spin" style={{ color: "#000" }} /> : <Send size={20} style={{ color: message.trim() ? "#000" : "rgba(255,255,255,0.15)" }} />}
@@ -395,48 +998,12 @@ function AskOnyxModal({ open, onClose }: { open: boolean; onClose: () => void })
           </>
         )}
       </div>
-
       <style>{`
         @keyframes slideUp {
           from { transform: translateY(100%); opacity: 0; }
           to { transform: translateY(0); opacity: 1; }
         }
       `}</style>
-    </div>
-  );
-}
-
-function RecentActivity() {
-  return (
-    <div style={{
-      background: "rgba(255,255,255,0.02)",
-      border: "1px solid rgba(255,255,255,0.05)",
-      borderRadius: 16, padding: "18px 20px",
-    }}>
-      <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.3)", marginBottom: 14, letterSpacing: 1.5, textTransform: "uppercase" }}>Recent Activity</p>
-      {[
-        { icon: Clock, text: "Insurance quote saved", time: "2h ago", color: "#34D399" },
-        { icon: MapPin, text: "Roadside assist completed", time: "Yesterday", color: "#60A5FA" },
-        { icon: CheckCircle2, text: "Service appointment confirmed", time: "3 days ago", color: "#C9A227" },
-      ].map((item, i) => (
-        <div key={i} style={{
-          display: "flex", alignItems: "center", gap: 12,
-          padding: "10px 0",
-          borderTop: i > 0 ? "1px solid rgba(255,255,255,0.04)" : "none",
-        }}>
-          <div style={{
-            width: 32, height: 32, borderRadius: 8, flexShrink: 0,
-            background: `${item.color}0A`,
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
-            <item.icon size={14} style={{ color: item.color }} />
-          </div>
-          <div style={{ flex: 1 }}>
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", margin: 0 }}>{item.text}</p>
-            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.2)", margin: "2px 0 0" }}>{item.time}</p>
-          </div>
-        </div>
-      ))}
     </div>
   );
 }
@@ -572,7 +1139,6 @@ function ImpactDashboard() {
             border: "none", color: "#000", fontWeight: 800, fontSize: 14,
             cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
             boxShadow: "0 4px 20px rgba(52,211,153,0.2)",
-            letterSpacing: 0.3,
           }}
         >
           {copied ? <><CheckCircle2 size={16} /> Link Copied!</> : <><Heart size={16} /> Help Someone</>}
@@ -592,10 +1158,7 @@ function NetworkFeed() {
   if (isLoading || !data?.feed?.length) return null;
 
   const statusDotColor: Record<string, string> = {
-    green: "#34D399",
-    yellow: "#F59E0B",
-    red: "#EF4444",
-    blue: "#60A5FA",
+    green: "#34D399", yellow: "#F59E0B", red: "#EF4444", blue: "#60A5FA",
   };
 
   return (
@@ -609,24 +1172,22 @@ function NetworkFeed() {
         <Network size={14} style={{ color: "#C9A227" }} />
         <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.3)", margin: 0, letterSpacing: 1.5, textTransform: "uppercase" }}>Your Network</p>
       </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-        {data.feed.slice(0, 8).map((item: any, i: number) => (
-          <div key={item.id} style={{
-            display: "flex", alignItems: "center", gap: 10,
-            padding: "10px 0",
-            borderTop: i > 0 ? "1px solid rgba(255,255,255,0.04)" : "none",
-          }}>
-            <div style={{
-              width: 7, height: 7, borderRadius: "50%", flexShrink: 0,
-              background: statusDotColor[item.statusDot] || statusDotColor.blue,
-              boxShadow: `0 0 6px ${statusDotColor[item.statusDot] || statusDotColor.blue}50`,
-            }} />
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", margin: 0, lineHeight: 1.4 }}>
-              {item.message}
-            </p>
-          </div>
-        ))}
-      </div>
+      {data.feed.slice(0, 8).map((item: any, i: number) => (
+        <div key={item.id} style={{
+          display: "flex", alignItems: "center", gap: 10,
+          padding: "10px 0",
+          borderTop: i > 0 ? "1px solid rgba(255,255,255,0.04)" : "none",
+        }}>
+          <div style={{
+            width: 7, height: 7, borderRadius: "50%", flexShrink: 0,
+            background: statusDotColor[item.statusDot] || statusDotColor.blue,
+            boxShadow: `0 0 6px ${statusDotColor[item.statusDot] || statusDotColor.blue}50`,
+          }} />
+          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", margin: 0, lineHeight: 1.4 }}>
+            {item.message}
+          </p>
+        </div>
+      ))}
     </div>
   );
 }
@@ -658,7 +1219,6 @@ function CelebrationModal({ onClose }: { onClose: (celebrationId?: number) => vo
   };
 
   if (!data?.hasCelebration) return null;
-
   const c = data.celebration;
 
   return (
@@ -668,8 +1228,7 @@ function CelebrationModal({ onClose }: { onClose: (celebrationId?: number) => vo
     }}>
       <div onClick={() => onClose(c.celebrationDbId)} style={{
         position: "absolute", inset: 0,
-        background: "rgba(0,0,0,0.8)",
-        backdropFilter: "blur(16px)",
+        background: "rgba(0,0,0,0.8)", backdropFilter: "blur(16px)",
       }} />
       <div style={{
         position: "relative", width: "90%", maxWidth: 380,
@@ -682,56 +1241,39 @@ function CelebrationModal({ onClose }: { onClose: (celebrationId?: number) => vo
       }}>
         <OnyxLogo size={56} />
         <div style={{ height: 24 }} />
-
         <h2 style={{
           fontSize: 22, fontWeight: 900, color: "#fff", margin: "0 0 8px",
           fontFamily: "'Barlow Condensed', sans-serif",
-          letterSpacing: 0.5,
         }}>
           You made a difference
         </h2>
-        <p style={{
-          fontSize: 15, color: "rgba(255,255,255,0.6)", margin: "0 0 8px", lineHeight: 1.5,
-        }}>
+        <p style={{ fontSize: 15, color: "rgba(255,255,255,0.6)", margin: "0 0 8px", lineHeight: 1.5 }}>
           You helped <span style={{ color: "#34D399", fontWeight: 700 }}>{c.personHelped}</span> solve their {c.serviceType} problem
         </p>
-
         {c.earned > 0 && (
           <p style={{
             fontSize: 32, fontWeight: 900,
             background: "linear-gradient(135deg, #D4AF37, #F5D76E, #C9A227)",
             WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-            margin: "20px 0",
-            fontFamily: "'Barlow Condensed', sans-serif",
+            margin: "20px 0", fontFamily: "'Barlow Condensed', sans-serif",
           }}>
             +${c.earned.toFixed(0)} earned
           </p>
         )}
-
-        <button
-          onClick={handleHelpAnother}
-          style={{
-            width: "100%", padding: "16px", borderRadius: 14,
-            background: "linear-gradient(135deg, #34D399, #10B981)",
-            border: "none", color: "#000", fontWeight: 800, fontSize: 15,
-            cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
-            boxShadow: "0 8px 32px rgba(52,211,153,0.25)",
-            marginBottom: 10,
-            letterSpacing: 0.3,
-          }}
-        >
+        <button onClick={handleHelpAnother} style={{
+          width: "100%", padding: "16px", borderRadius: 14,
+          background: "linear-gradient(135deg, #34D399, #10B981)",
+          border: "none", color: "#000", fontWeight: 800, fontSize: 15,
+          cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+          marginBottom: 10,
+        }}>
           <Heart size={18} /> Help Someone Else
         </button>
-
-        <button
-          onClick={() => onClose(c.celebrationDbId)}
-          style={{
-            width: "100%", padding: "13px", borderRadius: 12,
-            background: "transparent", border: "1px solid rgba(255,255,255,0.06)",
-            color: "rgba(255,255,255,0.3)", fontWeight: 600, fontSize: 13,
-            cursor: "pointer",
-          }}
-        >
+        <button onClick={() => onClose(c.celebrationDbId)} style={{
+          width: "100%", padding: "13px", borderRadius: 12,
+          background: "transparent", border: "1px solid rgba(255,255,255,0.06)",
+          color: "rgba(255,255,255,0.3)", fontWeight: 600, fontSize: 13, cursor: "pointer",
+        }}>
           Later
         </button>
       </div>
@@ -774,18 +1316,10 @@ function ViralLoopPrompt() {
       marginBottom: 20,
       background: "linear-gradient(135deg, rgba(52,211,153,0.08), rgba(52,211,153,0.02))",
       border: "1px solid rgba(52,211,153,0.15)",
-      borderRadius: 16, padding: "24px 20px",
-      textAlign: "center",
+      borderRadius: 16, padding: "24px 20px", textAlign: "center",
       animation: "fadeIn 0.5s ease",
     }}>
-      <div style={{
-        width: 44, height: 44, borderRadius: 14,
-        background: "rgba(52,211,153,0.12)",
-        display: "flex", alignItems: "center", justifyContent: "center",
-        margin: "0 auto 16px",
-      }}>
-        <Heart size={22} style={{ color: "#34D399" }} />
-      </div>
+      <Heart size={22} style={{ color: "#34D399", marginBottom: 12 }} />
       <h3 style={{ fontSize: 17, fontWeight: 800, color: "#fff", margin: "0 0 6px" }}>
         You can help someone right now
       </h3>
@@ -793,26 +1327,19 @@ function ViralLoopPrompt() {
         Know someone struggling with anything automotive? Connect them to ONYX — you earn every time they're helped.
       </p>
       <div style={{ display: "flex", gap: 10 }}>
-        <button
-          onClick={handleShare}
-          style={{
-            flex: 1, padding: "14px", borderRadius: 12,
-            background: "#34D399", border: "none",
-            color: "#000", fontWeight: 700, fontSize: 13,
-            cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-          }}
-        >
+        <button onClick={handleShare} style={{
+          flex: 1, padding: "14px", borderRadius: 12,
+          background: "#34D399", border: "none",
+          color: "#000", fontWeight: 700, fontSize: 13, cursor: "pointer",
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+        }}>
           <Heart size={14} /> Help Someone
         </button>
-        <button
-          onClick={() => setDismissed(true)}
-          style={{
-            padding: "14px 16px", borderRadius: 12,
-            background: "transparent", border: "1px solid rgba(255,255,255,0.08)",
-            color: "rgba(255,255,255,0.3)", fontWeight: 600, fontSize: 13,
-            cursor: "pointer",
-          }}
-        >
+        <button onClick={() => setDismissed(true)} style={{
+          padding: "14px 16px", borderRadius: 12,
+          background: "transparent", border: "1px solid rgba(255,255,255,0.08)",
+          color: "rgba(255,255,255,0.3)", fontWeight: 600, fontSize: 13, cursor: "pointer",
+        }}>
           Later
         </button>
       </div>
@@ -822,10 +1349,25 @@ function ViralLoopPrompt() {
 
 export default function Home() {
   const { token } = useAuth();
+  const [showSplash, setShowSplash] = useState(false);
   const [showAskOnyx, setShowAskOnyx] = useState(false);
+  const [askOnyxMessage, setAskOnyxMessage] = useState("");
   const [showCelebration, setShowCelebration] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<ServiceCategory | null>(null);
   const firstName = getFirstName(token);
   const greeting = getGreeting();
+
+  useEffect(() => {
+    const seen = sessionStorage.getItem("onyx_splash_shown");
+    if (!seen) {
+      setShowSplash(true);
+    }
+  }, []);
+
+  const handleSplashComplete = () => {
+    setShowSplash(false);
+    sessionStorage.setItem("onyx_splash_shown", "1");
+  };
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -852,6 +1394,11 @@ export default function Home() {
     sessionStorage.setItem("onyx_celebration_shown", "1");
   };
 
+  const handleNeuralSubmit = (msg: string) => {
+    setAskOnyxMessage(msg);
+    setShowAskOnyx(true);
+  };
+
   const { data: myDeals } = useQuery({
     queryKey: ["my-deals-home"],
     queryFn: () => authFetch(`${BASE}/api/deals/dashboard/my-deals`).then((r) => r.json()),
@@ -868,6 +1415,8 @@ export default function Home() {
       background: "#000000", minHeight: "100vh",
       display: "flex", flexDirection: "column",
     }}>
+      {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
+
       <div style={{
         width: "100%", maxWidth: 480,
         margin: "0 auto",
@@ -875,69 +1424,39 @@ export default function Home() {
         flex: 1,
         display: "flex", flexDirection: "column",
       }}>
-        <div style={{
-          padding: "40px 0 0",
-          textAlign: "center",
-          marginBottom: 8,
-        }}>
-          <div style={{
-            display: "flex", justifyContent: "center", marginBottom: 20,
-          }}>
-            <OnyxLogo size={56} />
+        <div style={{ padding: "36px 0 0", textAlign: "center", marginBottom: 6 }}>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
+            <OnyxLogo size={52} />
           </div>
-
           <h1 style={{
             fontFamily: "'Barlow Condensed', sans-serif",
-            fontSize: 28, fontWeight: 900, color: "#fff",
-            margin: "0 0 4px", letterSpacing: 3, textTransform: "uppercase",
+            fontSize: 26, fontWeight: 900, color: "#fff",
+            margin: "0 0 3px", letterSpacing: 3, textTransform: "uppercase",
           }}>
             3C ONYX
           </h1>
           <p style={{
-            fontSize: 9, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase",
-            color: "rgba(201,162,39,0.45)", margin: "0 0 2px",
+            fontSize: 8, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase",
+            color: "rgba(201,162,39,0.4)", margin: 0,
           }}>
             Powered by CUXTOMCANDYCLUB LLC
-          </p>
-          <p style={{
-            fontSize: 8, fontWeight: 600, letterSpacing: 2.5, textTransform: "uppercase",
-            color: "rgba(255,255,255,0.15)", margin: "0 0 0",
-          }}>
-            Unified Automotive Command Layer
           </p>
         </div>
 
         <div style={{
-          borderTop: "1px solid rgba(201,162,39,0.12)",
-          borderBottom: "1px solid rgba(201,162,39,0.12)",
-          margin: "16px 0 24px",
-          padding: "20px 0",
+          borderTop: "1px solid rgba(201,162,39,0.1)",
+          margin: "14px 0 22px",
+          padding: "18px 0",
           textAlign: "center",
-          position: "relative",
         }}>
-          <div style={{
-            position: "absolute", left: 0, top: "50%", transform: "translateY(-50%)",
-            width: 6, height: 6, borderRadius: "50%",
-            background: "rgba(201,162,39,0.3)",
-          }} />
-          <div style={{
-            position: "absolute", right: 0, top: "50%", transform: "translateY(-50%)",
-            width: 6, height: 6, borderRadius: "50%",
-            background: "rgba(201,162,39,0.3)",
-          }} />
-
           {token ? (
             <>
-              <p style={{
-                fontSize: 13, color: "rgba(255,255,255,0.35)", margin: "0 0 4px",
-                fontWeight: 500,
-              }}>
+              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.35)", margin: "0 0 4px" }}>
                 {greeting}{firstName ? `, ${firstName}` : ""}
               </p>
               <h2 style={{
                 fontFamily: "'Barlow Condensed', sans-serif",
-                fontSize: 24, fontWeight: 800, color: "#fff",
-                margin: 0, lineHeight: 1.2,
+                fontSize: 24, fontWeight: 800, color: "#fff", margin: 0, lineHeight: 1.2,
               }}>
                 What do you need help with?
               </h2>
@@ -945,132 +1464,99 @@ export default function Home() {
           ) : (
             <>
               <p style={{
-                fontSize: 18, fontWeight: 300, color: "rgba(255,255,255,0.7)",
-                margin: "0 0 4px", lineHeight: 1.4,
-                fontFamily: "'Inter', sans-serif",
-                fontStyle: "italic",
+                fontSize: 17, fontWeight: 300, color: "rgba(255,255,255,0.6)",
+                margin: "0 0 4px", fontStyle: "italic",
               }}>
                 Everything automotive. One place.
               </p>
-              <p style={{
-                fontSize: 12, color: "rgba(201,162,39,0.5)", margin: "8px 0 0",
-                fontWeight: 600, letterSpacing: 1.5, textTransform: "uppercase",
-              }}>
-                Authorized Platform Access
+              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.3)", margin: "8px 0 0" }}>
+                {greeting} — what do you need help with?
               </p>
             </>
           )}
         </div>
 
-        {!token && (
-          <div style={{ textAlign: "center", marginBottom: 24 }}>
-            <p style={{
-              fontSize: 13, color: "rgba(255,255,255,0.35)", margin: "0 0 4px",
-            }}>
-              {greeting}
-            </p>
-            <h2 style={{
-              fontFamily: "'Barlow Condensed', sans-serif",
-              fontSize: 24, fontWeight: 800, color: "#fff",
-              margin: 0, lineHeight: 1.2,
-            }}>
-              What do you need help with?
-            </h2>
-          </div>
+        {activeCategory ? (
+          <ConversationalFlow
+            category={activeCategory}
+            onBack={() => setActiveCategory(null)}
+          />
+        ) : (
+          <>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 12 }}>
+              {(Object.entries(SERVICE_CONFIG) as [ServiceCategory, typeof SERVICE_CONFIG[ServiceCategory]][]).map(([key, cfg]) => (
+                <ServiceCard
+                  key={key}
+                  icon={cfg.icon}
+                  label={cfg.label}
+                  description={cfg.description}
+                  accent={cfg.accent}
+                  onClick={() => setActiveCategory(key)}
+                />
+              ))}
+            </div>
+
+            <NeuralInput onSubmit={handleNeuralSubmit} />
+
+            {activeDeal && (
+              <div style={{ marginBottom: 20 }}>
+                <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.25)", marginBottom: 10, letterSpacing: 1.5, textTransform: "uppercase" }}>Active Deal</p>
+                <ActiveFlowCard deal={activeDeal} />
+              </div>
+            )}
+
+            {token && <ImpactDashboard />}
+            {token && <NetworkFeed />}
+
+            {token && myDeals?.recentDeals?.some((d: any) => d.status === "Delivered" || d.status === "Funded") && (
+              <ViralLoopPrompt />
+            )}
+
+            {!token && (
+              <div style={{
+                marginBottom: 20, padding: "16px", textAlign: "center",
+                background: "rgba(201,162,39,0.03)", borderRadius: 14,
+                border: "1px solid rgba(201,162,39,0.06)",
+              }}>
+                <p style={{ fontSize: 12, color: "rgba(255,255,255,0.2)", margin: 0, lineHeight: 1.6, fontStyle: "italic" }}>
+                  We handle everything automotive so people don't have to.
+                </p>
+              </div>
+            )}
+          </>
         )}
-
-        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 28 }}>
-          <ServiceButton
-            icon={Car}
-            label="Buy a car"
-            description="Tell us what you want — we'll find the perfect match"
-            href="/flow/buy"
-            accent="#C9A227"
-          />
-          <ServiceButton
-            icon={Wrench}
-            label="Fix my car"
-            description="Repairs, roadside help, or maintenance"
-            href="/flow/fix"
-            accent="#60A5FA"
-          />
-          <ServiceButton
-            icon={Shield}
-            label="Insurance"
-            description="Get quotes or manage your policy"
-            href="/flow/insurance"
-            accent="#34D399"
-          />
-          <ServiceButton
-            icon={HeartPulse}
-            label="Service"
-            description="Schedule an appointment"
-            href="/flow/service"
-            accent="#A78BFA"
-          />
-          <ServiceButton
-            icon={HelpCircle}
-            label="Something else"
-            description="Anything automotive — we'll handle it"
-            href="/flow/other"
-            accent="#F59E0B"
-          />
-        </div>
-
-        {activeDeal && (
-          <div style={{ marginBottom: 24 }}>
-            <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.25)", marginBottom: 10, paddingLeft: 4, letterSpacing: 1.5, textTransform: "uppercase" }}>Active Deal</p>
-            <ActiveFlowCard deal={activeDeal} />
-          </div>
-        )}
-
-        {token && <ImpactDashboard />}
-
-        {token && <NetworkFeed />}
-
-        {token && myDeals?.recentDeals?.some((d: any) => d.status === "Delivered" || d.status === "Funded") && (
-          <ViralLoopPrompt />
-        )}
-
-        {!token && (
-          <div style={{
-            marginBottom: 20, padding: "18px", textAlign: "center",
-            background: "rgba(201,162,39,0.03)", borderRadius: 14,
-            border: "1px solid rgba(201,162,39,0.08)",
-          }}>
-            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.25)", margin: 0, lineHeight: 1.6, fontStyle: "italic" }}>
-              We handle everything automotive so people don't have to.
-            </p>
-          </div>
-        )}
-
-        <RecentActivity />
 
         <div style={{ height: 100 }} />
       </div>
 
-      <button
-        onClick={() => setShowAskOnyx(true)}
-        style={{
-          position: "fixed",
-          bottom: 24, right: 24,
-          width: 60, height: 60, borderRadius: 18,
-          background: "linear-gradient(135deg, #D4AF37, #C9A227, #A68B1B)",
-          border: "2px solid rgba(212,175,55,0.3)",
-          cursor: "pointer",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          boxShadow: "0 8px 32px rgba(201,162,39,0.35), 0 0 60px rgba(201,162,39,0.1)",
-          zIndex: 1000,
-          transition: "transform 0.15s",
-        }}
-        onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.92)")}
-        onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
-        onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-      >
-        <MessageCircle size={24} style={{ color: "#000" }} />
-      </button>
+      {!activeCategory && (
+        <button
+          onClick={() => { setAskOnyxMessage(""); setShowAskOnyx(true); }}
+          style={{
+            position: "fixed",
+            bottom: 24, right: 24,
+            width: 60, height: 60, borderRadius: 18,
+            background: "linear-gradient(135deg, #D4AF37, #C9A227, #A68B1B)",
+            border: "2px solid rgba(212,175,55,0.3)",
+            cursor: "pointer",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            boxShadow: "0 8px 32px rgba(201,162,39,0.35), 0 0 60px rgba(201,162,39,0.1)",
+            zIndex: 1000,
+            transition: "transform 0.15s",
+          }}
+          onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.92)")}
+          onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
+          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+        >
+          <MessageCircle size={24} style={{ color: "#000" }} />
+        </button>
+      )}
 
-      <AskOnyxModal open={showAskOnyx} onClose={() => setShowAskOnyx(false)} />
+      <AskOnyxSheet
+        open={showAskOnyx}
+        onClose={() => { setShowAskOnyx(false); setAskOnyxMessage(""); }}
+        initialMessage={askOnyxMessage}
+      />
 
       {showCelebration && token && <CelebrationModal onClose={handleCloseCelebration} />}
 
@@ -1086,24 +1572,22 @@ export default function Home() {
           </p>
         )}
         <p style={{
-          fontSize: 8, fontWeight: 600, color: "rgba(255,255,255,0.12)", margin: "0 0 6px",
+          fontSize: 8, fontWeight: 600, color: "rgba(255,255,255,0.1)", margin: "0 0 6px",
           letterSpacing: 2, textTransform: "uppercase",
         }}>
           Private Preview · Not for Public Distribution
         </p>
         <p style={{
-          fontSize: 10, color: "rgba(255,255,255,0.1)", margin: 0, lineHeight: 1.6,
-          letterSpacing: 0.5,
+          fontSize: 10, color: "rgba(255,255,255,0.08)", margin: 0, lineHeight: 1.6, letterSpacing: 0.5,
         }}>
-          3C ONYX · CUXTOMCANDYCLUB LLC<br />
-          Architect: Ronald Antonio Cadet
+          3C ONYX · CUXTOMCANDYCLUB LLC · Architect: Ronald Antonio Cadet
         </p>
       </div>
 
       <style>{`
         @keyframes fadeIn {
-          from { opacity: 0; transform: scale(0.95); }
-          to { opacity: 1; transform: scale(1); }
+          from { opacity: 0; transform: translateY(8px); }
+          to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </div>
