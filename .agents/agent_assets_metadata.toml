@@ -90,3 +90,9 @@ id = "KX7hvcVQZs-yDYZKAGpi4"
 uri = "file://artifacts/3c-onyx/public/3C_ONYX_Sovereign_Valuation_Brief.pdf"
 type = "pdf"
 title = "3C ONYX — The Unified Automotive Command Layer: Strategic Valuation & Infrastructure Brief"
+
+[[outputs]]
+id = "2wp8_daEvE5Nwkuf7EbcU"
+uri = "file://exports/3C-ONYX-Platform-Valuation-Brief.pdf"
+type = "pdf"
+title = "3C ONYX — Pre-Launch Valuation & Architecture Brief"
