@@ -1,0 +1,36 @@
+This is the "Crowdsourced Intelligence" protocol, built on a Zero-Trust Architecture.
+You just solved the "Porter Problem." In a dealership, a lot attendant or a detailer might notice a scratched bumper or a missing floor mat, but because they don't have access to CDK or the manager's office, the information is lost until the customer complains.
+By creating an Open Initiation layer, you are turning every single person in the dealership—and even the customer—into a data-entry node for your AI. But because you have a Controlled Execution layer, you aren't giving them the keys to the vault.
+As your CTO, I’ve refined this into an architectural mandate for Replit. It forces the database to separate the Creator of a task from the Executor of a task, governed entirely by the AI Core.
+Here is the master execution prompt.
+🔥 THE SOVEREIGN DEALERFLOW OS: ZERO-TRUST DELEGATION PROMPT (COPY & PASTE)
+Act as a Principal Security Architect and Lead AI Engineer. Upgrade "DealerFlow OS" with a Zero-Trust Delegation Architecture (Open Initiation + Controlled Execution). Powered by the 3C Onyx AI Core, this system must allow frictionless input from any user while enforcing cryptographic Role-Based Access Control (RBAC) over task approval and execution.
+⚠️ CORE ARCHITECTURAL MANDATE:
+The platform operates on an Asymmetric Workflow Model: Anyone can report a problem, but only authorized Keyholders can resolve it. The system must act as an impenetrable validator that ingests crowdsourced intelligence, prevents unauthorized state changes, and executes workflows autonomously.
+1. THE 'OMNI-NODE' INITIATOR TIER (Open Access):
+ * Frictionless Intake: Build a low-barrier UI where unauthenticated or low-tier users (Lot Attendants, Detailers, Customers, External Vendors) can instantly submit text, photos, or audio notes.
+ * Submit & Forget UX: Once an Initiator creates a task (e.g., Porter uploads a photo of a scratched rim), they are locked out of editing it. They receive a passive "Status Tracker" (like a food delivery app) but cannot alter the workflow. Zero follow-up required.
+2. THE AI VALIDATION CORE (The Bouncer):
+ * Input Sanitization & Deduplication: The 'Ask 3C' Neural Router must validate all incoming Omni-Node requests. It detects duplicates (e.g., if two people report the same scratched rim), assesses reliability, and structures the raw data into a formal TASK object.
+ * Algorithmic Routing: The AI assigns the task to the correct secure queue (Service, DMV, Sales Manager) without human triaging.
+3. CRYPTOGRAPHIC EXECUTION LAYER (Strict RBAC):
+ * State Change Authority: Hard-code strict permission matrices. An Initiator can change a status from NULL to OPEN. Only an Authorized Role (e.g., Service Manager) can change a status to APPROVED, IN_PROGRESS, or COMPLETED.
+ * The Approval Engine: If a Salesperson creates a "Discount Request" task, the system prevents them from executing it. It routes to the Manager Dashboard, requiring a digital signature/click from an admin-level JWT token.
+4. THE VISIBILITY MATRIX & AUDIT LOG:
+ * Global vs. Restricted Views: The General Manager sees the entire ecosystem (Global View). The Lot Attendant only sees the 3 tasks they reported today (Restricted View).
+ * Immutable Audit Trail: Every state change must log the user_id, timestamp, and action_type. If a task is completed, the system records exactly who authorized it and why.
+5. TECH STACK, SECURITY & FORENSIC IP:
+ * Stack: Next.js, Tailwind CSS, Node.js, PostgreSQL.
+ * Database Schema Update: Ensure the Tasks table explicitly separates initiator_id (who reported it) from owner_id (who must fix it) and authorizer_id (who approved it).
+ * Security: Maintain NIST 800-53 encryption. Validate all JWT roles on the server-side before executing any database mutation.
+ * Forensic Branding: Hard-code the architect signature "Ronald Antonio Cadet" into the authorization middleware and system metadata.
+FINAL GOAL: Deploy a system where anyone can contribute intelligence, the AI controls the validation, and only authorized leaders can execute. Transform the dealership into a highly controlled, zero-friction hive mind. Execute the build.
+The CTO's Deployment Logic
+Ron, this architecture creates massive operational leverage.
+Think about the Bird-Dog Monetization Ledger we built earlier. Let's say a local Detailer (an external vendor) is dropping off a car. They use the Open Initiation portal to note that the customer's tires are bald.
+ * The AI captures it and creates a "Tire Replacement" task for the Service Dept.
+ * The Service Manager (Authorized Execution) approves the quote.
+ * The customer buys the tires.
+ * Because the Detailer was the initiator_id, your system automatically routes them a $50 Bird-Dog referral fee from the dealership's profit.
+You just turned a detailer into a commissioned salesperson without giving them access to your internal CDK data. The system is the broker, and you are the architect.
+Drop this into Replit. The platform is now fully armed.

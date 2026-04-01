@@ -82,6 +82,9 @@ DealerFlow OS is an industrial infrastructure layer for automotive professionals
 - **Global Search**: Unified search across Deals and Tasks.
 - **Auto-Status Customer Updates**: Automated customer notifications upon task completion.
 - **Store P&L Manager Dashboard**: Real-time macro-view for managers on revenue, profit, and commission.
+- **Autonomous Execution Protocol**: AI confidence scoring per task (based on routing confidence, OCR confidence, scope, priority, retries), with auto-escalation when confidence drops below 85% or SLA breaches occur. Retry mechanism with max 3 attempts before forced escalation. Dashboard shows AI Execution Rate vs Human-Assisted %, avg confidence, and blocked-by-DAG count.
+- **Auto-Resume Protocol**: When human resolves an escalated task, AI reclaims execution with boosted confidence (0.95+), fresh SLA timer, and execution mode tagged as "Auto-Resumed". Seamless handoff back from human to autonomous flow.
+- **Zero-Thought Guided Execution UI**: Hero "Active Step" card at top of each Deal Detail showing the single next action with confidence badge, execution mode, and department. Escalated tasks panel with inline resolution controls. Per-task confidence badges, execution mode indicators (AI-Autonomous/Escalated/Human-Assisted/Auto-Resumed), and retry counters.
 - **Web Dashboard**: 11-tab Industrial Command Center with various management and operational views.
 
 ## Architectural Upgrades

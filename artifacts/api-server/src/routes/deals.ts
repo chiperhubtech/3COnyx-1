@@ -1,8 +1,27 @@
 import { Router, type Request, type Response } from "express";
 import { db, dealsTable, dealerflowTasksTable, commissionLedgerTable } from "@workspace/db";
 import { eq, desc, and, sql, count, asc, ne, inArray } from "drizzle-orm";
-import { smartRoute } from "../lib/smart-router";
+import { smartRoute, checkSlaBreached } from "../lib/smart-router";
 import { requireAuth } from "../middlewares/requireAuth";
+
+function calculateTaskAiConfidence(task: any): number {
+  const routingConf = parseFloat(task.routingConfidence) || 0;
+  const meta = (task.metadata || {}) as Record<string, any>;
+  let score = routingConf > 0 ? Math.min(routingConf, 1) : 0.9;
+  if (task.taskScope === "External") score *= 0.85;
+  if (task.priority === "Critical") score *= 0.95;
+  if (meta.ocrConfidence) score = (score + parseFloat(meta.ocrConfidence)) / 2;
+  if (meta.retryCount && meta.retryCount > 0) score *= Math.pow(0.9, meta.retryCount);
+  if (meta.humanResolved) score = Math.max(score, 0.95);
+  return Math.round(score * 100) / 100;
+}
+
+function deriveExecutionMode(meta: Record<string, any>): string {
+  if (meta.executionMode === "Auto-Resumed") return "Auto-Resumed";
+  if (meta.humanResolved) return "Human-Assisted";
+  if (meta.escalatedAt) return "Escalated";
+  return "AI-Autonomous";
+}
 
 const router = Router();
 
@@ -180,10 +199,17 @@ router.get("/deals/:id", requireAuth, async (req: Request, res: Response) => {
     const taskMap = new Map(tasks.map((t) => [t.id, t]));
     const enrichedTasks = tasks.map((t) => {
       const predecessor = t.dependsOnTaskId ? taskMap.get(t.dependsOnTaskId) : null;
+      const meta = (t.metadata || {}) as Record<string, any>;
+      const aiConfidence = calculateTaskAiConfidence(t);
+      const executionMode = deriveExecutionMode(meta);
+      const retryCount = meta.retryCount || 0;
       return {
         ...t,
         predecessorTitle: predecessor ? predecessor.title.replace(/\[.*?\]\s*/, "") : null,
         predecessorStatus: predecessor ? predecessor.status : null,
+        aiConfidence,
+        executionMode,
+        retryCount,
       };
     });
 

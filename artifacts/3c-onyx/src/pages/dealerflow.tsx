@@ -1,9 +1,9 @@
 import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  Activity, AlertTriangle, ArrowRight, BarChart3, Camera, Check, CheckCircle2, Clock, DollarSign, FileText,
-  Filter, Gauge, Inbox, Layers, Lock, MessageSquare, Plus, RefreshCw,
-  Route, ScanLine, Send, Shield, Target, ThumbsUp, TrendingUp, Users, X, Zap,
+  Activity, AlertTriangle, ArrowRight, BarChart3, Brain, Camera, Check, CheckCircle2, Clock, DollarSign, FileText,
+  Filter, Gauge, Inbox, Layers, Lock, MessageSquare, Play, Plus, RefreshCw, RotateCcw,
+  Route, ScanLine, Send, Shield, ShieldAlert, Target, ThumbsUp, TrendingUp, Users, X, Zap,
   Search, Car, Wallet, Store, Hash,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -419,6 +419,49 @@ function CommandCenter({ onNavigate, onSelectDept }: { onNavigate: (t: Tab) => v
                 {d.overdue > 0 && <p className="text-[10px] text-red-400 mt-0.5">{d.overdue} overdue</p>}
               </button>
             ))}
+          </div>
+        </div>
+      )}
+
+      {(stats as any)?.autonomy && (
+        <div className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-5">
+          <h3 className="text-sm font-semibold text-zinc-300 mb-4 flex items-center gap-2">
+            <Brain className="w-4 h-4 text-amber-400" /> Autonomous Execution Protocol
+          </h3>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="rounded-xl border bg-emerald-500/10 border-emerald-500/20 p-3.5">
+              <div className="flex items-center gap-2 mb-1.5">
+                <Brain className="w-5 h-5 text-emerald-400" />
+              </div>
+              <p className="text-xl font-bold text-white">{(stats as any).autonomy.aiExecutionRate}%</p>
+              <p className="text-[10px] text-zinc-400 mt-0.5">AI Execution Rate</p>
+              <div className="mt-2 bg-zinc-800 rounded-full h-1.5 overflow-hidden">
+                <div className="bg-gradient-to-r from-emerald-500 to-emerald-400 h-full transition-all" style={{ width: `${(stats as any).autonomy.aiExecutionRate}%` }} />
+              </div>
+              <p className="text-[9px] text-zinc-500 mt-1">Target: {(stats as any).autonomy.target}%</p>
+            </div>
+            <div className="rounded-xl border bg-blue-500/10 border-blue-500/20 p-3.5">
+              <div className="flex items-center gap-2 mb-1.5">
+                <Gauge className="w-5 h-5 text-blue-400" />
+              </div>
+              <p className="text-xl font-bold text-white">{(stats as any).autonomy.avgConfidence}%</p>
+              <p className="text-[10px] text-zinc-400 mt-0.5">Avg Confidence</p>
+            </div>
+            <div className="rounded-xl border bg-amber-500/10 border-amber-500/20 p-3.5">
+              <div className="flex items-center gap-2 mb-1.5">
+                <CheckCircle2 className="w-5 h-5 text-amber-400" />
+              </div>
+              <p className="text-xl font-bold text-white">{(stats as any).autonomy.aiCompleted}</p>
+              <p className="text-[10px] text-zinc-400 mt-0.5">AI Completed</p>
+              <p className="text-[9px] text-zinc-500 mt-1">{(stats as any).autonomy.humanAssisted} human-assisted</p>
+            </div>
+            <div className="rounded-xl border bg-violet-500/10 border-violet-500/20 p-3.5">
+              <div className="flex items-center gap-2 mb-1.5">
+                <Lock className="w-5 h-5 text-violet-400" />
+              </div>
+              <p className="text-xl font-bold text-white">{(stats as any).autonomy.blockedByDependency}</p>
+              <p className="text-[10px] text-zinc-400 mt-0.5">Blocked by DAG</p>
+            </div>
           </div>
         </div>
       )}
@@ -2044,19 +2087,97 @@ function DealBoard() {
   );
 }
 
+function ConfidenceBadge({ confidence }: { confidence: number }) {
+  const pct = Math.round(confidence * 100);
+  const color = pct >= 90 ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/20" :
+    pct >= 75 ? "text-amber-400 bg-amber-500/10 border-amber-500/20" :
+    "text-red-400 bg-red-500/10 border-red-500/20";
+  return <span className={cn("text-[10px] px-1.5 py-0.5 rounded border font-mono", color)}>{pct}%</span>;
+}
+
+function ExecutionModeBadge({ mode }: { mode: string }) {
+  const styles: Record<string, string> = {
+    "AI-Autonomous": "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+    "Escalated": "bg-red-500/10 text-red-400 border-red-500/20",
+    "Human-Assisted": "bg-blue-500/10 text-blue-400 border-blue-500/20",
+    "Auto-Resumed": "bg-violet-500/10 text-violet-400 border-violet-500/20",
+  };
+  const icons: Record<string, React.ReactNode> = {
+    "AI-Autonomous": <Brain className="w-3 h-3" />,
+    "Escalated": <ShieldAlert className="w-3 h-3" />,
+    "Human-Assisted": <Users className="w-3 h-3" />,
+    "Auto-Resumed": <RotateCcw className="w-3 h-3" />,
+  };
+  return (
+    <span className={cn("text-[10px] px-1.5 py-0.5 rounded border flex items-center gap-1", styles[mode] || "bg-zinc-700 text-zinc-400 border-zinc-600")}>
+      {icons[mode] || <Brain className="w-3 h-3" />} {mode}
+    </span>
+  );
+}
+
 function DealDetail({ dealId }: { dealId: number }) {
+  const [resolveTaskId, setResolveTaskId] = useState<number | null>(null);
+  const [resolution, setResolution] = useState("");
+  const qc = useQueryClient();
+
   const { data, isLoading } = useQuery<{ deal: any; tasks: any[]; progress: any }>({
     queryKey: ["deal-detail", dealId],
     queryFn: () => authFetch(`${BASE}/api/deals/${dealId}`).then((r) => r.json()),
+  });
+
+  const resolveEscalation = useMutation({
+    mutationFn: ({ taskId, resolution }: { taskId: number; resolution: string }) =>
+      authFetch(`${BASE}/api/dealerflow/tasks/${taskId}/resolve-escalation`, {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ resolution }),
+      }).then((r) => r.json()),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["deal-detail", dealId] });
+      qc.invalidateQueries({ queryKey: ["dealerflow-tasks"] });
+      setResolveTaskId(null);
+      setResolution("");
+    },
+  });
+
+  const retryTask = useMutation({
+    mutationFn: (taskId: number) =>
+      authFetch(`${BASE}/api/dealerflow/tasks/${taskId}/retry`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) }).then((r) => r.json()),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["deal-detail", dealId] });
+      qc.invalidateQueries({ queryKey: ["dealerflow-tasks"] });
+    },
   });
 
   if (isLoading) return <div className="mt-3 flex justify-center"><RefreshCw className="w-4 h-4 text-amber-400 animate-spin" /></div>;
   if (!data) return null;
 
   const { tasks, progress } = data;
+  const nextTask = tasks.find((t: any) => t.id === progress.nextActionTaskId);
+  const escalatedTasks = tasks.filter((t: any) => t.status === "Escalated");
 
   return (
     <div className="mt-4 pt-4 border-t border-zinc-800 space-y-3">
+      {nextTask && (
+        <div className="bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/30 rounded-xl p-4 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full -mr-8 -mt-8" />
+          <div className="flex items-start gap-3">
+            <div className="bg-amber-500/20 rounded-lg p-2 shrink-0">
+              <Play className="w-5 h-5 text-amber-400" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] text-amber-400/80 uppercase font-bold tracking-wider mb-1">Active Step — Zero-Thought Execution</p>
+              <h4 className="text-sm font-bold text-white mb-1">{nextTask.title.replace(/\[.*?\]\s*/, "")}</h4>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className={cn("text-[10px] px-1.5 py-0.5 rounded", deptColor(nextTask.department))}>{nextTask.department}</span>
+                {nextTask.aiConfidence !== undefined && <ConfidenceBadge confidence={nextTask.aiConfidence} />}
+                {nextTask.executionMode && <ExecutionModeBadge mode={nextTask.executionMode} />}
+                {nextTask.taskScope === "External" && <span className="text-[10px] bg-amber-600/20 text-amber-300 px-1.5 py-0.5 rounded">External</span>}
+              </div>
+              {nextTask.description && <p className="text-[10px] text-zinc-400 mt-1.5 line-clamp-2">{nextTask.description}</p>}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center gap-3">
         <div className="flex-1 bg-zinc-800 rounded-full h-2 overflow-hidden">
           <div className="bg-gradient-to-r from-amber-500 to-emerald-500 h-full transition-all" style={{ width: `${progress.percentage}%` }} />
@@ -2064,6 +2185,43 @@ function DealDetail({ dealId }: { dealId: number }) {
         <span className="text-xs font-semibold text-amber-300">{progress.percentage}%</span>
         <span className="text-[10px] text-zinc-500">{progress.completed}/{progress.total} tasks</span>
       </div>
+
+      {escalatedTasks.length > 0 && (
+        <div className="bg-red-500/5 border border-red-500/20 rounded-xl px-3 py-3 space-y-2">
+          <p className="text-[10px] text-red-400 font-bold uppercase flex items-center gap-1.5">
+            <ShieldAlert className="w-3.5 h-3.5" /> Escalated — Human Expert Required ({escalatedTasks.length})
+          </p>
+          {escalatedTasks.map((et: any) => {
+            const meta = (et.metadata || {}) as Record<string, any>;
+            return (
+              <div key={et.id} className="bg-red-500/5 rounded-lg p-2.5 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <ShieldAlert className="w-3.5 h-3.5 text-red-400" />
+                    <span className="text-xs text-white font-medium">{et.title.replace(/\[.*?\]\s*/, "")}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    {et.aiConfidence !== undefined && <ConfidenceBadge confidence={et.aiConfidence} />}
+                    <button onClick={() => setResolveTaskId(resolveTaskId === et.id ? null : et.id)} className="text-[10px] bg-blue-500/20 text-blue-300 px-2 py-1 rounded hover:bg-blue-500/30 transition flex items-center gap-1">
+                      <Shield className="w-3 h-3" /> Resolve
+                    </button>
+                  </div>
+                </div>
+                {meta.escalationReason && <p className="text-[10px] text-red-300/70">{meta.escalationReason}</p>}
+                {resolveTaskId === et.id && (
+                  <div className="flex gap-2 mt-1">
+                    <input value={resolution} onChange={(e) => setResolution(e.target.value)} placeholder="Describe resolution..." className="flex-1 bg-zinc-800 text-white text-xs rounded-lg px-3 py-1.5 border border-zinc-700 outline-none focus:border-blue-500/50" />
+                    <button onClick={() => resolution.trim() && resolveEscalation.mutate({ taskId: et.id, resolution })} disabled={!resolution.trim() || resolveEscalation.isPending} className="text-[10px] bg-emerald-500/20 text-emerald-300 px-3 py-1.5 rounded-lg hover:bg-emerald-500/30 disabled:opacity-50">
+                      {resolveEscalation.isPending ? "..." : "Resume AI"}
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
       {progress.blockers.length > 0 && (
         <div className="bg-red-500/5 border border-red-500/20 rounded-lg px-3 py-2">
           <p className="text-[10px] text-red-400 font-semibold uppercase mb-1">Blockers ({progress.blockers.length})</p>
@@ -2081,10 +2239,11 @@ function DealDetail({ dealId }: { dealId: number }) {
         {tasks.map((t: any) => {
           const isNextAction = progress.nextActionTaskId === t.id;
           const isBlocked = t.status === "Blocked";
+          const isEscalated = t.status === "Escalated";
           return (
             <div key={t.id} className={cn(
               "flex items-center justify-between py-1.5 px-2 rounded-lg",
-              isNextAction ? "bg-amber-500/10 border border-amber-500/30" : "bg-zinc-800/50",
+              isNextAction ? "bg-amber-500/10 border border-amber-500/30" : isEscalated ? "bg-red-500/5 border border-red-500/20" : "bg-zinc-800/50",
               isBlocked ? "opacity-60" : ""
             )}>
               <div className="flex items-center gap-2">
@@ -2093,11 +2252,14 @@ function DealDetail({ dealId }: { dealId: number }) {
                     <ArrowRight className="w-3 h-3" />
                   </span>
                 )}
-                {t.status === "Completed" ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> : isBlocked ? <Lock className="w-3.5 h-3.5 text-red-400" /> : isNextAction ? <Zap className="w-3.5 h-3.5 text-amber-400" /> : <Clock className="w-3.5 h-3.5 text-zinc-500" />}
+                {t.status === "Completed" ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> : isEscalated ? <ShieldAlert className="w-3.5 h-3.5 text-red-400" /> : isBlocked ? <Lock className="w-3.5 h-3.5 text-red-400" /> : isNextAction ? <Zap className="w-3.5 h-3.5 text-amber-400" /> : <Clock className="w-3.5 h-3.5 text-zinc-500" />}
                 <span className="text-xs text-white">{t.title.replace(/\[.*?\]\s*/, "")}</span>
                 {isNextAction && <span className="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded font-semibold">NEXT ACTION</span>}
               </div>
               <div className="flex items-center gap-2">
+                {t.aiConfidence !== undefined && <ConfidenceBadge confidence={t.aiConfidence} />}
+                {t.executionMode && t.executionMode !== "AI-Autonomous" && <ExecutionModeBadge mode={t.executionMode} />}
+                {t.retryCount > 0 && <span className="text-[10px] bg-orange-500/10 text-orange-400 px-1.5 py-0.5 rounded border border-orange-500/20 flex items-center gap-1"><RotateCcw className="w-3 h-3" /> {t.retryCount}</span>}
                 {t.predecessorTitle && isBlocked && (
                   <span className="text-[10px] bg-red-600/10 text-red-300 px-1.5 py-0.5 rounded border border-red-600/20 flex items-center gap-1">
                     <Lock className="w-3 h-3" /> Waiting on: {t.predecessorTitle}
@@ -2111,6 +2273,11 @@ function DealDetail({ dealId }: { dealId: number }) {
                 <span className={cn("text-[10px] px-1.5 py-0.5 rounded", deptColor(t.department))}>{t.department}</span>
                 <span className={cn("text-[10px] px-1.5 py-0.5 rounded border", statusBadge(t.status))}>{t.status.replace("_", " ")}</span>
                 {t.taskScope === "External" && <span className="text-[10px] bg-amber-600/20 text-amber-300 px-1.5 py-0.5 rounded">EXT</span>}
+                {(isEscalated || t.status === "In_Progress" || t.status === "Open") && t.status !== "Completed" && t.status !== "Cancelled" && t.status !== "Blocked" && (t.retryCount > 0 || isEscalated) && (
+                  <button onClick={(e) => { e.stopPropagation(); retryTask.mutate(t.id); }} disabled={retryTask.isPending} className="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded hover:bg-amber-500/30 flex items-center gap-1 disabled:opacity-50">
+                    <RotateCcw className="w-3 h-3" /> Retry
+                  </button>
+                )}
               </div>
             </div>
           );

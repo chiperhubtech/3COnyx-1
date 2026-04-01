@@ -5,6 +5,42 @@ import { smartRoute, extractVinFromText, extractPartNumbers, extractCustomerName
 import { analyzeImage } from "../lib/ai-router";
 import { requireAuth } from "../middlewares/requireAuth";
 
+const AI_CONFIDENCE_THRESHOLD = 0.85;
+const MAX_RETRIES = 3;
+const ESCALATION_SLA_MULTIPLIER = 1.5;
+
+function calculateAiConfidence(task: any): number {
+  const routingConf = parseFloat(task.routingConfidence) || 0;
+  const meta = (task.metadata || {}) as Record<string, any>;
+
+  let score = routingConf > 0 ? Math.min(routingConf, 1) : 0.9;
+
+  if (task.taskScope === "External") score *= 0.85;
+  if (task.priority === "Critical") score *= 0.95;
+  if (meta.ocrConfidence) score = (score + parseFloat(meta.ocrConfidence)) / 2;
+  if (meta.retryCount && meta.retryCount > 0) score *= Math.pow(0.9, meta.retryCount);
+  if (meta.humanResolved) score = Math.max(score, 0.95);
+
+  return Math.round(score * 100) / 100;
+}
+
+function shouldEscalate(task: any, slaBreached: boolean): { escalate: boolean; reason: string | null } {
+  const meta = (task.metadata || {}) as Record<string, any>;
+  const confidence = calculateAiConfidence(task);
+  const retries = meta.retryCount || 0;
+
+  if (confidence < AI_CONFIDENCE_THRESHOLD) {
+    return { escalate: true, reason: `AI confidence below threshold (${Math.round(confidence * 100)}% < ${Math.round(AI_CONFIDENCE_THRESHOLD * 100)}%)` };
+  }
+  if (retries >= MAX_RETRIES) {
+    return { escalate: true, reason: `Maximum retry limit reached (${retries}/${MAX_RETRIES})` };
+  }
+  if (slaBreached && task.status !== "Pending_External" && task.status !== "Blocked") {
+    return { escalate: true, reason: `SLA timer exceeded — human expert required` };
+  }
+  return { escalate: false, reason: null };
+}
+
 const AUTO_STATUS_MESSAGES: Record<string, string> = {
   DMV: "Your registration and title processing is complete. You'll receive your plates shortly.",
   Parts: "The parts for your vehicle have arrived and been installed.",
@@ -196,11 +232,17 @@ router.get("/dealerflow/tasks", requireAuth, async (req: Request, res: Response)
 
     const enriched = tasks.map((t) => {
       const blockerName = t.status === "Blocked" && t.dependsOnTaskId ? predecessorMap.get(t.dependsOnTaskId) || null : null;
+      const aiConfidence = calculateAiConfidence(t);
+      const meta = (t.metadata || {}) as Record<string, any>;
+      const executionMode = meta.executionMode === "Auto-Resumed" ? "Auto-Resumed" : meta.humanResolved ? "Human-Assisted" : meta.escalatedAt ? "Escalated" : "AI-Autonomous";
+      const retryCount = meta.retryCount || 0;
+
       if (SLA_PAUSED_STATUSES.includes(t.status)) {
-        return { ...t, slaBreached: false, minutesOverdue: 0, blockerName };
+        return { ...t, slaBreached: false, minutesOverdue: 0, blockerName, aiConfidence, executionMode, retryCount };
       }
       const sla = checkSlaBreached(t.slaDueAt);
-      return { ...t, slaBreached: sla.breached, minutesOverdue: sla.minutesOverdue, blockerName };
+      const escalation = shouldEscalate(t, sla.breached);
+      return { ...t, slaBreached: sla.breached, minutesOverdue: sla.minutesOverdue, blockerName, aiConfidence, executionMode, retryCount, escalationNeeded: escalation.escalate, escalationReason: escalation.reason };
     });
 
     res.json({ tasks: enriched, count: enriched.length });
@@ -812,16 +854,52 @@ router.get("/dealerflow/dashboard", requireAuth, async (req: Request, res: Respo
       overdue: Number(d.overdue),
     }));
 
+    const allTasks = await db.select().from(dealerflowTasksTable)
+      .where(eq(dealerflowTasksTable.dealershipId, userId));
+
+    let aiCompletedCount = 0;
+    let humanAssistedCount = 0;
+    let totalConfidence = 0;
+    let confidenceCount = 0;
+    let blockedCount = 0;
+
+    for (const t of allTasks) {
+      const meta = (t.metadata || {}) as Record<string, any>;
+      if (t.status === "Completed") {
+        if (meta.humanResolved || meta.escalatedAt) {
+          humanAssistedCount++;
+        } else {
+          aiCompletedCount++;
+        }
+      }
+      if (t.status === "Blocked") blockedCount++;
+      const conf = calculateAiConfidence(t);
+      totalConfidence += conf;
+      confidenceCount++;
+    }
+
+    const totalCompleted = aiCompletedCount + humanAssistedCount;
+    const aiExecutionRate = totalCompleted > 0 ? Math.round((aiCompletedCount / totalCompleted) * 100) : 100;
+    const avgConfidence = confidenceCount > 0 ? Math.round((totalConfidence / confidenceCount) * 100) : 0;
+
     res.json({
       tasks: taskStats,
       tickets: ticketStats,
       scans: scanStats,
       departments: departmentBreakdown,
       departmentPulses,
+      autonomy: {
+        aiExecutionRate,
+        aiCompleted: aiCompletedCount,
+        humanAssisted: humanAssistedCount,
+        avgConfidence,
+        blockedByDependency: blockedCount,
+        target: 95,
+      },
       generatedAt: now.toISOString(),
       platform: "3C ONYX — DealerFlow OS",
       architect: "Ronald Antonio Cadet",
-      version: "2.0",
+      version: "3.0",
     });
   } catch {
     res.status(500).json({ error: sanitizeError() });
@@ -885,26 +963,44 @@ router.post("/dealerflow/escalate", requireAuth, async (req: Request, res: Respo
 
     const now = new Date();
 
-    const overdueTasks = await db
+    const activeTasks = await db
       .select()
       .from(dealerflowTasksTable)
       .where(
         and(
           eq(dealerflowTasksTable.dealershipId, userId),
-          sql`${dealerflowTasksTable.status} not in ('Completed', 'Cancelled', 'Escalated', 'Pending_Approval', 'Pending_External', 'Blocked')`,
-          lt(dealerflowTasksTable.slaDueAt, now)
+          sql`${dealerflowTasksTable.status} not in ('Completed', 'Cancelled', 'Escalated', 'Pending_Approval', 'Pending_External', 'Blocked')`
         )
       );
 
+    const overdueTasks = activeTasks.filter((t) => {
+      const sla = checkSlaBreached(t.slaDueAt);
+      if (sla.breached) return true;
+      const confidence = calculateAiConfidence(t);
+      if (confidence < AI_CONFIDENCE_THRESHOLD) return true;
+      const meta = (t.metadata || {}) as Record<string, any>;
+      if ((meta.retryCount || 0) >= MAX_RETRIES) return true;
+      return false;
+    });
+
     if (overdueTasks.length === 0) {
-      res.json({ escalated: 0, message: "No overdue tasks found" });
+      res.json({ escalated: 0, message: "No tasks requiring escalation found" });
       return;
     }
 
     const ids = overdueTasks.map((t) => t.id);
-    await db.update(dealerflowTasksTable)
-      .set({ status: "Escalated", updatedAt: now })
-      .where(and(eq(dealerflowTasksTable.dealershipId, userId), inArray(dealerflowTasksTable.id, ids)));
+    for (const t of overdueTasks) {
+      const meta = (t.metadata || {}) as Record<string, any>;
+      const confidence = calculateAiConfidence(t);
+      const escalationCheck = shouldEscalate(t, true);
+      meta.escalatedAt = now.toISOString();
+      meta.escalationReason = escalationCheck.reason || "SLA breach";
+      meta.aiConfidenceAtEscalation = confidence;
+      meta.executionMode = "Escalated";
+      await db.update(dealerflowTasksTable)
+        .set({ status: "Escalated", updatedAt: now, metadata: meta })
+        .where(eq(dealerflowTasksTable.id, t.id));
+    }
 
     const escalatedByDept: Record<string, number> = {};
     for (const t of overdueTasks) {
@@ -914,8 +1010,154 @@ router.post("/dealerflow/escalate", requireAuth, async (req: Request, res: Respo
     res.json({
       escalated: overdueTasks.length,
       byDepartment: escalatedByDept,
-      message: `${overdueTasks.length} task(s) escalated for SLA breach`,
+      message: `${overdueTasks.length} task(s) escalated — human expert required`,
       taskIds: ids,
+      protocol: "Automation First, Human Last",
+    });
+  } catch {
+    res.status(500).json({ error: sanitizeError() });
+  }
+});
+
+router.post("/dealerflow/tasks/:id/resolve-escalation", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const userId = requireUserId(req, res);
+    if (!userId) return;
+
+    const taskId = safeParseInt(req.params.id, 0);
+    if (!taskId) {
+      res.status(400).json({ error: "Invalid task ID" });
+      return;
+    }
+
+    const [task] = await db.select().from(dealerflowTasksTable)
+      .where(and(eq(dealerflowTasksTable.id, taskId), eq(dealerflowTasksTable.dealershipId, userId)));
+
+    if (!task) {
+      res.status(404).json({ error: "Task not found" });
+      return;
+    }
+
+    if (task.status !== "Escalated") {
+      res.status(400).json({ error: "Task is not in Escalated status" });
+      return;
+    }
+
+    const { resolution, notes } = req.body;
+    if (!resolution || typeof resolution !== "string") {
+      res.status(400).json({ error: "Resolution description required" });
+      return;
+    }
+
+    const now = new Date();
+    const meta = (task.metadata || {}) as Record<string, any>;
+    meta.humanResolved = true;
+    meta.humanResolution = resolution.trim().substring(0, 2000);
+    meta.humanResolvedAt = now.toISOString();
+    meta.executionMode = "Auto-Resumed";
+    if (notes) meta.humanNotes = String(notes).substring(0, 2000);
+
+    const newSlaDue = new Date(now.getTime() + 60 * 60 * 1000);
+
+    const [updated] = await db.update(dealerflowTasksTable)
+      .set({
+        status: "In_Progress",
+        updatedAt: now,
+        slaDueAt: newSlaDue,
+        metadata: meta,
+      })
+      .where(eq(dealerflowTasksTable.id, taskId))
+      .returning();
+
+    const aiConfidence = calculateAiConfidence(updated);
+
+    res.json({
+      task: updated,
+      aiConfidence,
+      protocol: "Auto-Resume activated — AI reclaiming execution",
+      message: `Task #${taskId} resolved by human, AI autonomy restored with ${Math.round(aiConfidence * 100)}% confidence`,
+    });
+  } catch {
+    res.status(500).json({ error: sanitizeError() });
+  }
+});
+
+router.post("/dealerflow/tasks/:id/retry", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const userId = requireUserId(req, res);
+    if (!userId) return;
+
+    const taskId = safeParseInt(req.params.id, 0);
+    if (!taskId) {
+      res.status(400).json({ error: "Invalid task ID" });
+      return;
+    }
+
+    const [task] = await db.select().from(dealerflowTasksTable)
+      .where(and(eq(dealerflowTasksTable.id, taskId), eq(dealerflowTasksTable.dealershipId, userId)));
+
+    if (!task) {
+      res.status(404).json({ error: "Task not found" });
+      return;
+    }
+
+    const RETRYABLE_STATUSES = ["Escalated", "In_Progress", "Open"];
+    if (!RETRYABLE_STATUSES.includes(task.status)) {
+      res.status(400).json({ error: `Cannot retry task in ${task.status} status. Only Escalated, In_Progress, or Open tasks can be retried.` });
+      return;
+    }
+
+    const meta = (task.metadata || {}) as Record<string, any>;
+    const retries = (meta.retryCount || 0) + 1;
+
+    if (retries > MAX_RETRIES) {
+      res.status(400).json({
+        error: `Maximum retries exceeded (${MAX_RETRIES}). Task must be resolved by human expert.`,
+        shouldEscalate: true,
+      });
+      return;
+    }
+
+    const now = new Date();
+    meta.retryCount = retries;
+    meta.lastRetryAt = now.toISOString();
+
+    const newSlaDue = new Date(now.getTime() + 30 * 60 * 1000);
+
+    const [updated] = await db.update(dealerflowTasksTable)
+      .set({
+        status: "In_Progress",
+        updatedAt: now,
+        slaDueAt: newSlaDue,
+        metadata: meta,
+      })
+      .where(eq(dealerflowTasksTable.id, taskId))
+      .returning();
+
+    const aiConfidence = calculateAiConfidence(updated);
+    const escalation = shouldEscalate(updated, false);
+
+    if (escalation.escalate) {
+      await db.update(dealerflowTasksTable)
+        .set({ status: "Escalated", metadata: { ...meta, escalatedAt: now.toISOString(), escalationReason: escalation.reason } })
+        .where(eq(dealerflowTasksTable.id, taskId));
+
+      res.json({
+        task: { ...updated, status: "Escalated" },
+        aiConfidence,
+        autoEscalated: true,
+        escalationReason: escalation.reason,
+        message: `Retry #${retries} triggered auto-escalation: ${escalation.reason}`,
+      });
+      return;
+    }
+
+    res.json({
+      task: updated,
+      aiConfidence,
+      retryCount: retries,
+      maxRetries: MAX_RETRIES,
+      message: `Retry #${retries}/${MAX_RETRIES} — AI re-attempting with ${Math.round(aiConfidence * 100)}% confidence`,
     });
   } catch {
     res.status(500).json({ error: sanitizeError() });
