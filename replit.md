@@ -90,6 +90,19 @@ DealerFlow OS is an industrial infrastructure layer for automotive professionals
 - **Global Trust Score Engine**: Algorithmic reputation system tracking every node (user or anonymous fingerprint) in the network. Schema: `trust_scores` (score 0-100, tier, verification, counters) + `trust_event_log` (immutable event history). Engine: weighted scoring (Accepted +2.5, Rejected -3.0, Spam -8.0, DealSourced +5.0, DealClosed +12.0, Streak per 5 +1.5, Verification +10.0), tier computation (Unverified 0-29, Contributor 30-59, Verified_Node 60-79 requires KYC, Trusted_Node 80-94, Keyholder 95-100), spam firewall (`assessSpamRisk` with pattern/length/trust checks), bypass policy (only Trusted_Node/Keyholder tiers bypass filtering). API: `GET /trust/profile`, `POST /trust/verify` (KYC-lite), `GET /trust/leaderboard`, `GET /trust/score-check`. Integrated into Omni-Node submit (spam firewall + trust event recording) and PATCH/approval handlers (acceptance/rejection trust updates). Frontend: Trust Dashboard in Open Intake with profile view, verification form, and network leaderboard. Files: `lib/db/src/schema/trust-scores.ts`, `artifacts/api-server/src/lib/trust-engine.ts`, `artifacts/api-server/src/routes/trust-engine.ts`.
 - **Zero-Thought Assistant-First UI**: Mobile-first 4-view bottom navigation (Feed/Deals/Scan/More) replacing the 12-tab dashboard. Floating Action Button (FAB) with bottom sheet for quick actions (Scan Document, Start Deal, Add Task). Status indicators: green=On Track, yellow=Waiting, red=Blocked. Feed view shows priority-sorted timeline with inline approvals. Deals view has commission tracker, progress bars, and single-action deal cards. Scan view has camera-first OCR with confirm card flow and Omni-Node submit. More view organizes power features (Tasks, Queues, Vault, Performance, Store P&L, GM Velocity, Tickets, Trust Network, Global Search).
 
+## Consumer-First OS ("Google Search Bar" Pivot)
+
+The frontend is reskinned from a "System Interface" to a "Consumer-First Assistant Experience." The $100M military-grade engine is wrapped in a velvet glove — users think they're texting a concierge while the 7-Agent Mesh runs behind the scenes.
+
+- **Access Gate**: "Welcome to 3C ONYX" / "Your automotive concierge" / "Enter access code" / "Continue" — no more "SOVEREIGN ACCESS KEY" or "AUTHORIZED PLATFORM ACCESS"
+- **Login Page**: "Welcome back" / "Enter your email" / "Sign In" / "Get started" — warm, friendly, zero jargon
+- **Consumer Hub (Home)**: Clean greeting ("Good afternoon, Ronald") → "What do you need help with?" → 4 large service buttons (Buy a car, Fix my car, Insurance, Service) → Active Flow Card with progress bar and one "Continue" CTA → Recent Activity timeline
+- **Ask ONYX FAB**: Persistent floating action button anchored bottom-right. Opens conversational modal with quick-pick suggestions ("I want to buy a car", "I need roadside help", etc.) and freeform text input. Silently routes to the backend Intake Agent via `/api/omni-node/submit`.
+- **Active Flow Card**: If user has an active deal, displays vehicle info, friendly status label ("We're finalizing your financing"), visual progress bar with step markers (Started → Financing → Insurance → Plates → Prep → Ready), and single massive "Continue" button.
+- **De-Jargoned Status Labels**: "F&I_Pending" → "We're finalizing your financing", "DMV_Processing" → "We're getting your plates ready", "Vehicle_Prep" → "We're preparing your vehicle"
+- **Design Laws**: Zero Overchoice (max 3-4 visible options), One-Step Focus Rule, generous whitespace, rounded corners, mobile-first large touch targets, calm/fast/helpful/invisible vibe.
+- **Backend Untouched**: PostgreSQL, 7-Agent Mesh, Dependency-Aware DAG, external API integrations all remain intact.
+
 ## Architectural Upgrades
 
 Recent upgrades include CarPlay/Android Auto integration, a tRPC Type-Safe API Layer, an Admin API, and a Beta Waitlist system.

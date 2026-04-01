@@ -1,13 +1,3 @@
-/**
- * 3C ONYX — Platform Access Gate
- * ─────────────────────────────────────────────────────────────────────────────
- * Locks the entire platform behind a passphrase.
- * Set VITE_PREVIEW_KEY in Replit Secrets to change the passphrase.
- * Defaults to "ONYX3C" if no env variable is set.
- *
- * Remove this component (or set VITE_PREVIEW_KEY="") when ready to open access.
- */
-
 import { useState, useRef, useEffect, useCallback } from "react";
 import { OnyxLogo } from "./OnyxLogo";
 
@@ -65,105 +55,58 @@ export function AccessGate({ children }: { children: React.ReactNode }) {
   return (
     <div style={{
       position: "fixed", inset: 0,
-      background: "#050505",
+      background: "#050508",
       display: "flex", flexDirection: "column",
       alignItems: "center", justifyContent: "center",
       zIndex: 99999,
       fontFamily: "'Barlow Condensed', system-ui, sans-serif",
     }}>
-      {/* Subtle background grid */}
       <div style={{
         position: "absolute", inset: 0, pointerEvents: "none",
-        backgroundImage: `
-          linear-gradient(rgba(201,162,39,0.03) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(201,162,39,0.03) 1px, transparent 1px)
-        `,
-        backgroundSize: "40px 40px",
+        background: "radial-gradient(ellipse at center, rgba(201,162,39,0.04) 0%, transparent 70%)",
       }} />
 
-      {/* Radial gold ambient glow behind card */}
-      <div style={{
-        position: "absolute",
-        width: 600, height: 600,
-        borderRadius: "50%",
-        background: "radial-gradient(circle, rgba(201,162,39,0.07) 0%, rgba(201,162,39,0.02) 40%, transparent 70%)",
-        pointerEvents: "none",
-        filter: "blur(40px)",
-      }} />
-
-      {/* Card */}
       <div style={{
         position: "relative",
         display: "flex", flexDirection: "column", alignItems: "center",
-        gap: 0,
-        padding: "48px 44px 40px",
-        borderRadius: 24,
+        padding: "52px 44px 44px",
+        borderRadius: 28,
         background: "rgba(255,255,255,0.025)",
-        border: "1px solid rgba(201,162,39,0.35)",
-        boxShadow:
-          "0 0 120px rgba(201,162,39,0.08), " +
-          "0 0 60px rgba(201,162,39,0.05), " +
-          "inset 0 1px 0 rgba(201,162,39,0.1), " +
-          "0 24px 80px rgba(0,0,0,0.7)",
-        width: 360,
+        border: "1px solid rgba(255,255,255,0.08)",
+        boxShadow: "0 24px 80px rgba(0,0,0,0.5)",
+        width: 380,
         maxWidth: "90vw",
-        animation: "gate-breathe 4s ease-in-out infinite",
       }}>
-        {/* Logo */}
-        <OnyxLogo size={90} variant="app-icon" />
+        <OnyxLogo size={80} variant="app-icon" />
 
-        {/* Brand */}
-        <div style={{ marginTop: 20, marginBottom: 0, textAlign: "center" }}>
-          <div style={{
-            fontSize: 28, fontWeight: 900, letterSpacing: "0.15em",
-            color: "#fff", lineHeight: 1,
-          }}>3C ONYX</div>
-          <div style={{
-            fontSize: 9, fontWeight: 700, letterSpacing: "0.3em",
-            color: "rgba(201,162,39,0.55)", marginTop: 6,
-          }}>POWERED BY CUXTOMCANDYCLUB LLC</div>
+        <div style={{ marginTop: 24, textAlign: "center" }}>
+          <h1 style={{
+            fontSize: 32, fontWeight: 900, color: "#fff",
+            margin: 0, lineHeight: 1.1,
+          }}>Welcome to 3C ONYX</h1>
+          <p style={{
+            fontSize: 14, color: "rgba(255,255,255,0.4)",
+            marginTop: 8, lineHeight: 1.5,
+          }}>Your automotive concierge</p>
         </div>
 
-        {/* Platform identity tagline */}
-        <div style={{
-          marginTop: 14,
-          fontSize: 8, fontWeight: 800, letterSpacing: "0.35em",
-          color: "rgba(201,162,39,0.40)",
-          textAlign: "center",
-        }}>AUTOMOTIVE ECOSYSTEM OS</div>
-
-        {/* Genesis pulse indicator */}
         {pulse && (
           <div style={{
-            marginTop: 8,
-            display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
-            fontSize: 7, fontWeight: 700, letterSpacing: "0.2em",
-            color: "rgba(201,162,39,0.30)",
+            marginTop: 12,
+            display: "flex", alignItems: "center", gap: 6,
+            fontSize: 12, color: "rgba(255,255,255,0.3)",
           }}>
-            <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              <span style={{
-                width: 5, height: 5, borderRadius: "50%",
-                background: "#22c55e",
-                boxShadow: "0 0 6px rgba(34,197,94,0.6)",
-                animation: "gate-breathe 2s ease-in-out infinite",
-              }} />
-              GENESIS ACTIVE
-            </span>
-            <span>{pulse.agents} AGENTS</span>
-            <span>UP {pulse.uptime}</span>
+            <span style={{
+              width: 6, height: 6, borderRadius: "50%",
+              background: "#22c55e",
+              boxShadow: "0 0 6px rgba(34,197,94,0.6)",
+            }} />
+            <span>Online and ready</span>
           </div>
         )}
 
-        {/* Divider */}
-        <div style={{ width: 48, height: 1, background: "rgba(201,162,39,0.3)", margin: "18px 0" }} />
+        <div style={{ width: 48, height: 1, background: "rgba(255,255,255,0.06)", margin: "24px 0" }} />
 
-        {/* Lock label */}
-        <div style={{
-          fontSize: 10, fontWeight: 800, letterSpacing: "0.3em",
-          color: "rgba(255,255,255,0.45)", marginBottom: 20,
-        }}>AUTHORIZED PLATFORM ACCESS</div>
-
-        {/* Input */}
         <div style={{
           animation: shake ? "gate-shake 0.55s ease" : "none",
           width: "100%",
@@ -171,38 +114,36 @@ export function AccessGate({ children }: { children: React.ReactNode }) {
           <input
             ref={inputRef}
             type="password"
-            placeholder="SOVEREIGN ACCESS KEY"
+            placeholder="Enter access code"
             value={input}
             onChange={e => { setInput(e.target.value); setError(false); }}
             onKeyDown={e => e.key === "Enter" && attempt()}
             autoComplete="off"
             style={{
               width: "100%",
-              padding: "14px 18px",
-              fontSize: 14,
-              fontFamily: "'Barlow Condensed', system-ui, sans-serif",
-              fontWeight: 600,
-              letterSpacing: "0.1em",
+              padding: "16px 20px",
+              fontSize: 16,
+              fontWeight: 500,
               background: "rgba(255,255,255,0.04)",
-              border: `1px solid ${error ? "rgba(239,68,68,0.6)" : "rgba(201,162,39,0.25)"}`,
-              borderRadius: 12,
+              border: `1px solid ${error ? "rgba(239,68,68,0.5)" : "rgba(255,255,255,0.1)"}`,
+              borderRadius: 14,
               color: error ? "#EF4444" : "#fff",
               outline: "none",
               boxSizing: "border-box",
               textAlign: "center",
-              transition: "border-color 0.3s, box-shadow 0.3s",
+              transition: "border-color 0.2s",
+              fontFamily: "system-ui, sans-serif",
             }}
           />
           {error && (
-            <div style={{
-              textAlign: "center", marginTop: 8,
-              fontSize: 10, fontWeight: 800, letterSpacing: "0.2em",
+            <p style={{
+              textAlign: "center", marginTop: 10,
+              fontSize: 13, fontWeight: 600,
               color: "#EF4444",
-            }}>INCORRECT ACCESS KEY</div>
+            }}>That code didn't work. Try again.</p>
           )}
         </div>
 
-        {/* Submit */}
         <button
           onClick={attempt}
           onMouseEnter={() => setHover(true)}
@@ -210,46 +151,35 @@ export function AccessGate({ children }: { children: React.ReactNode }) {
           onMouseDown={() => setPressed(true)}
           onMouseUp={() => setPressed(false)}
           style={{
-            marginTop: 14,
+            marginTop: 16,
             width: "100%",
-            padding: "15px",
-            fontSize: 12,
-            fontFamily: "'Barlow Condensed', system-ui, sans-serif",
-            fontWeight: 900,
-            letterSpacing: "0.25em",
-            background: "linear-gradient(135deg, #C9A227 0%, #9B7B1A 100%)",
+            padding: "16px",
+            fontSize: 16,
+            fontWeight: 800,
+            background: "linear-gradient(135deg, #C9A227, #A68B1B)",
             border: "none",
-            borderRadius: 12,
+            borderRadius: 14,
             color: "#050505",
             cursor: "pointer",
-            textTransform: "uppercase",
             boxShadow: hover
-              ? "0 6px 24px rgba(201,162,39,0.35), 0 2px 8px rgba(201,162,39,0.2), inset 0 1px 0 rgba(255,255,255,0.2)"
-              : "0 4px 16px rgba(201,162,39,0.15), inset 0 1px 0 rgba(255,255,255,0.15)",
-            transform: pressed
-              ? "scale(0.98)"
-              : hover
-                ? "translateY(-1px)"
-                : "none",
-            transition: "box-shadow 0.2s, transform 0.15s",
+              ? "0 6px 24px rgba(201,162,39,0.35)"
+              : "0 4px 16px rgba(201,162,39,0.15)",
+            transform: pressed ? "scale(0.98)" : hover ? "translateY(-1px)" : "none",
+            transition: "all 0.15s",
           }}
         >
-          ACCESS PLATFORM
+          Continue
         </button>
 
-        {/* Footer */}
-        <div style={{
-          marginTop: 22,
-          fontSize: 8, fontWeight: 700, letterSpacing: "0.15em",
-          color: "rgba(255,255,255,0.28)", textAlign: "center",
-          lineHeight: 1.8,
+        <p style={{
+          marginTop: 28,
+          fontSize: 12, color: "rgba(255,255,255,0.2)",
+          textAlign: "center",
         }}>
-          3C ONYX · GENESIS v1.0 · CUXTOMCANDYCLUB LLC<br/>
-          SOVEREIGN PLATFORM · NOT FOR PUBLIC DISTRIBUTION
-        </div>
+          3C ONYX · CUXTOMCANDYCLUB LLC
+        </p>
       </div>
 
-      {/* Keyframe animations */}
       <style>{`
         @keyframes gate-shake {
           0%, 100% { transform: translateX(0); }
@@ -260,18 +190,13 @@ export function AccessGate({ children }: { children: React.ReactNode }) {
           75%       { transform: translateX(-3px); }
           90%       { transform: translateX(3px); }
         }
-        @keyframes gate-breathe {
-          0%, 100% { border-color: rgba(201,162,39,0.35); }
-          50%      { border-color: rgba(201,162,39,0.20); }
-        }
         input::placeholder {
-          color: rgba(255,255,255,0.2);
-          font-weight: 700;
-          letter-spacing: 0.2em;
-          font-size: 11px;
+          color: rgba(255,255,255,0.25);
+          font-weight: 400;
+          font-size: 15px;
         }
         input:focus {
-          border-color: rgba(201,162,39,0.5) !important;
+          border-color: rgba(201,162,39,0.4) !important;
           box-shadow: 0 0 20px rgba(201,162,39,0.08);
         }
       `}</style>

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/context/AuthContext";
-import { Eye, EyeOff, Shield, Loader2, AlertCircle } from "lucide-react";
+import { Eye, EyeOff, Loader2, AlertCircle } from "lucide-react";
 
 export default function LoginPage() {
   const { login, loading, error, clearError } = useAuth();
@@ -22,57 +22,86 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="public-page" style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+    <div className="public-page" style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: 24, minHeight: "100vh" }}>
       <div style={{ width: "100%", maxWidth: 400 }}>
 
-        {/* Logo */}
-        <div style={{ textAlign: "center", marginBottom: 40 }}>
-          <div style={{ width: 52, height: 52, borderRadius: 14, background: "rgba(201,162,39,0.1)", border: "1px solid rgba(201,162,39,0.3)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
-            <Shield size={24} style={{ color: "#C9A227" }} />
+        <div style={{ textAlign: "center", marginBottom: 48 }}>
+          <div style={{
+            width: 64, height: 64, borderRadius: 20,
+            background: "linear-gradient(135deg, rgba(201,162,39,0.15), rgba(201,162,39,0.05))",
+            border: "1px solid rgba(201,162,39,0.25)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            margin: "0 auto 20px",
+            boxShadow: "0 8px 32px rgba(201,162,39,0.1)",
+          }}>
+            <span style={{ fontSize: 28, fontWeight: 900, color: "#C9A227", fontFamily: "'Barlow Condensed', sans-serif" }}>3C</span>
           </div>
-          <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 28, fontWeight: 900, color: "#fff", textTransform: "uppercase", letterSpacing: "0.06em", margin: 0 }}>
-            3C ONYX
+          <h1 style={{
+            fontFamily: "'Barlow Condensed', sans-serif",
+            fontSize: 32, fontWeight: 900, color: "#fff",
+            margin: "0 0 8px",
+          }}>
+            Welcome back
           </h1>
-          <p style={{ color: "rgba(255,255,255,0.35)", fontSize: 13, marginTop: 6 }}>
-            Sign in to your account
+          <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 15, lineHeight: 1.5 }}>
+            Sign in to continue
           </p>
         </div>
 
-        {/* Card */}
-        <form onSubmit={handleSubmit} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 18, padding: 32, display: "flex", flexDirection: "column", gap: 20 }}>
+        <form onSubmit={handleSubmit} style={{
+          background: "rgba(255,255,255,0.03)",
+          border: "1px solid rgba(255,255,255,0.08)",
+          borderRadius: 20,
+          padding: 32,
+          display: "flex", flexDirection: "column", gap: 20,
+        }}>
 
           {error && (
-            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 10, background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", borderRadius: 12, background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)" }}>
               <AlertCircle size={16} style={{ color: "#EF4444", flexShrink: 0 }} />
-              <p style={{ fontSize: 13, color: "#EF4444", margin: 0 }}>{error}</p>
+              <p style={{ fontSize: 14, color: "#EF4444", margin: 0 }}>{error}</p>
             </div>
           )}
 
           <div>
-            <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.5)", letterSpacing: "0.1em", marginBottom: 8 }}>EMAIL</label>
+            <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="you@example.com"
-              style={{ width: "100%", padding: "12px 14px", borderRadius: 10, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", fontSize: 14, outline: "none", boxSizing: "border-box" }}
+              placeholder="Enter your email"
+              style={{
+                width: "100%", padding: "14px 16px", borderRadius: 12,
+                background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)",
+                color: "#fff", fontSize: 15, outline: "none", boxSizing: "border-box",
+                transition: "border-color 0.2s",
+              }}
+              onFocus={(e) => e.currentTarget.style.borderColor = "rgba(201,162,39,0.4)"}
+              onBlur={(e) => e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"}
             />
           </div>
 
           <div>
-            <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.5)", letterSpacing: "0.1em", marginBottom: 8 }}>PASSWORD</label>
+            <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>Password</label>
             <div style={{ position: "relative" }}>
               <input
                 type={showPw ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                placeholder="••••••••"
-                style={{ width: "100%", padding: "12px 44px 12px 14px", borderRadius: 10, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", fontSize: 14, outline: "none", boxSizing: "border-box" }}
+                placeholder="Enter your password"
+                style={{
+                  width: "100%", padding: "14px 48px 14px 16px", borderRadius: 12,
+                  background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)",
+                  color: "#fff", fontSize: 15, outline: "none", boxSizing: "border-box",
+                  transition: "border-color 0.2s",
+                }}
+                onFocus={(e) => e.currentTarget.style.borderColor = "rgba(201,162,39,0.4)"}
+                onBlur={(e) => e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"}
               />
-              <button type="button" onClick={() => setShowPw((s) => !s)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "rgba(255,255,255,0.4)", cursor: "pointer" }}>
-                {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+              <button type="button" onClick={() => setShowPw((s) => !s)} style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "rgba(255,255,255,0.4)", cursor: "pointer", padding: 4 }}>
+                {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
           </div>
@@ -80,25 +109,33 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            style={{ padding: "13px", borderRadius: 12, background: "linear-gradient(135deg, rgba(201,162,39,0.9), rgba(180,140,20,0.9))", border: "none", color: "#000", fontWeight: 800, fontSize: 13, letterSpacing: "0.08em", cursor: loading ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, opacity: loading ? 0.7 : 1 }}
+            style={{
+              padding: "16px", borderRadius: 14, marginTop: 4,
+              background: "linear-gradient(135deg, #C9A227, #A68B1B)",
+              border: "none", color: "#000", fontWeight: 800, fontSize: 16,
+              cursor: loading ? "default" : "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+              opacity: loading ? 0.7 : 1,
+              boxShadow: "0 4px 20px rgba(201,162,39,0.3)",
+              transition: "opacity 0.2s",
+            }}
           >
-            {loading ? <Loader2 size={16} className="animate-spin" /> : null}
-            {loading ? "SIGNING IN..." : "SIGN IN"}
+            {loading ? <Loader2 size={18} className="animate-spin" /> : null}
+            {loading ? "Signing in..." : "Sign In"}
           </button>
 
-          <div style={{ textAlign: "center" }}>
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.35)" }}>
-              No account?{" "}
+          <div style={{ textAlign: "center", paddingTop: 4 }}>
+            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.4)" }}>
+              Don't have an account?{" "}
               <a href="/register" style={{ color: "#C9A227", textDecoration: "none", fontWeight: 600 }}>
-                Create one
+                Get started
               </a>
             </p>
           </div>
         </form>
 
-        <p style={{ textAlign: "center", marginTop: 20, fontSize: 11, color: "rgba(255,255,255,0.2)" }}>
-          Not a member yet?{" "}
-          <a href="/waitlist" style={{ color: "rgba(201,162,39,0.5)", textDecoration: "none" }}>Join the launch list →</a>
+        <p style={{ textAlign: "center", marginTop: 24, fontSize: 12, color: "rgba(255,255,255,0.2)" }}>
+          <a href="/landing" style={{ color: "rgba(255,255,255,0.3)", textDecoration: "none" }}>Learn more about 3C ONYX →</a>
         </p>
       </div>
     </div>
