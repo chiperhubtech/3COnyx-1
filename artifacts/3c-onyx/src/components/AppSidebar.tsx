@@ -20,6 +20,7 @@ import { NotificationBell } from "./NotificationBell";
 import { ThemeSelector } from "./ThemeSelector";
 import LanguageSelector from "./LanguageSelector";
 import { OnyxLogo } from "./OnyxLogo";
+import { AskOnyxTrigger } from "./AskOnyxPalette";
 
 /* ─── NavItem ─────────────────────────────────────────────────── */
 function NavItem({ label, path, icon: Icon, description, accent = "#C9A227", onClose }: {
@@ -166,6 +167,7 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
   ];
 
   const SPECIALIST_NAV = [
+    { label: "ONYX Notebook",             path: "/notebook",             icon: BookOpen,        description: "AI knowledge hub · Research · Deal intelligence", accent: "#8B5CF6" },
     { label: "CRM Hub",                   path: "/crm-hub",              icon: Link2,           description: "Lead pipeline · Deal management · Customer intelligence", accent: "#C9A227" },
     { label: "Platform Intelligence",     path: "/platform-intelligence", icon: Brain,           description: "ONYX Neural Engine · AI insights · Live telemetry", accent: "#7C3AED" },
     { label: "Strategic Command Center",  path: "/strategic-center",      icon: Target,          description: "132M Members · $30B · Year 1–5 Revenue Model",      accent: "#C9A227" },
@@ -254,6 +256,11 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
 
       {/* ── Neural Mesh Status ────────────────────────────────── */}
       <AIStatusBar />
+
+      {/* ── Ask ONYX Search ────────────────────────────────────── */}
+      <div style={{ padding: "0 10px 8px" }}>
+        <AskOnyxTrigger />
+      </div>
 
       {/* ── Navigation ───────────────────────────────────────── */}
       <nav style={{ flex: 1, overflowY: "auto", padding: "0 6px 10px", scrollbarWidth: "none" }}>

@@ -21,6 +21,9 @@ The system is designed for AWS, utilizing Route 53, CloudFront, S3, ALB, ECS Far
 The platform features a cinematic "Apple × GTA" visual language with a multi-theme system (dark default, warm ivory light mode, plus 12 holiday/seasonal themes and auto-birthday detection). Typography uses Barlow Condensed for headings and Inter for body text. Key design elements include a "THE AUTOMOTIVE INTELLIGENCE LAYER" hero, amber accents, translucent glassmorphism, and a custom AI-Native Design System with futuristic components and dynamic animations. The UI also features a "Google Search Bar" pivot for a consumer-first assistant experience, de-jargonized status labels, and a mobile-first design with a Zero-Thought Assistant-First UI.
 - **Theme System**: SeasonalThemeContext (`context/SeasonalThemeContext.tsx`) + ThemeSelector component (`components/ThemeSelector.tsx`). Supports: Dark, Light, Christmas, Halloween, 4th of July, Thanksgiving, Easter, Valentine's Day, St. Patrick's Day, Cinco de Mayo, Chinese New Year, New Year's Eve, Mardi Gras, Diwali, Birthday. Birthday auto-activates on user's birthday (synced from `users.birthday` DB column). CSS variable overrides in `index.css` per season. Persisted in localStorage (`onyx-seasonal-theme`).
 
+- **Global Command Palette**: "Ask ONYX" (Cmd+K / Ctrl+K) — global search across all navigation, agents, quick actions, and platform features. Component: `AskOnyxPalette.tsx` with `AskOnyxTrigger` search bar in sidebar. Uses `cmdk` library.
+- **ONYX Notebook Intelligence Hub**: NotebookLM-inspired AI knowledge page at `/notebook`. Supports 5 research types (Deal Intelligence, Market Research, Vehicle Research, Business Strategy, Custom). Persists entries in localStorage. Uses Gemini AI via `/api/gemini`. XSS-safe markdown rendering.
+
 ## Core Platform Features
 
 The architecture prioritizes an AI-first approach with:

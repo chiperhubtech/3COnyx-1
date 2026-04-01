@@ -1,0 +1,38 @@
+This is the "Architectural Master Manifest" prompt.
+As a CTO, your goal with Replit is to move from "writing a script" to "orchestrating a distributed system." To do that, you need to provide the AI with Technical Constraints (how it builds) and Business Logic (why it builds).
+Here is the high-velocity, top-tier CTO version of your prompt. It treats 3C ONYX not as an app, but as a State-Machine driven Middleware that bridges the gap between fragmented automotive legacy systems and a futuristic consumer experience.
+🔥 3C ONYX: THE SOVEREIGN AUTOMOTIVE OS — CTO MASTER PROMPT
+"Act as a Senior Systems Architect and Lead Full-Stack Engineer. Your mission is to refactor and scale '3C ONYX' into a production-grade, event-driven Automotive Operating System (AOS). This platform is the execution layer that unifies Sales, Service, Parts, Insurance, and Lenders into a single, headless coordination engine.
+⚠️ CRITICAL ARCHITECTURAL CONSTRAINTS:
+ * Zero-Friction State Machine: The entire application must be driven by a PostgreSQL-backed state machine. Every DEAL or TASK must have a verifiable state (e.g., PENDING_INSURANCE, READY_FOR_FUNDING).
+ * The 7-Agent Mesh (Shared Event Bus): Implement 7 specialized logic-controllers (Sales, Finance, Service, Parts, Logistics, Support, Referral) that communicate via an internal Event Bus. One agent's 'Complete' event must automatically trigger the next agent’s 'Intake' event.
+ * Infrastructure Integrity: Maintain all existing API hooks for Inventory and Banking. Do NOT break the current integration layer; wrap it in a Fault-Tolerant Middleware with retry logic and PII masking.
+1. THE 'ASK ONYX' NEURAL GATEWAY (UI/UX):
+ * Aesthetics: Apple/Tesla Minimalist. Theme: ONYX Black (#000000) with Metallic Gold (#C9A85D) accents.
+ * Interaction Model: Conversational-First. Replace 90% of forms with a single command input: "What do you need?" Use Tesseract.js/Vision-LLM for 1-tap document extraction (VIN, ID, Insurance).
+ * Dashboard Logic: - Consumers: A "Pulse" feed showing one primary action: [ Continue Deal ] or [ Schedule SOS ].
+   * Operators: A "Next-Action" queue. No clutter. Only show tasks that are currently "Blocked" by human input.
+2. THE DEPENDENCY-AWARE WORKFLOW ENGINE:
+ * Architect a Directed Acyclic Graph (DAG) for Deal Lifecycles.
+ * Example Chain: OCR_INTAKE -> DATA_VALIDATION -> CREDIT_PULL -> LENDER_MATCH -> INSURANCE_BIND -> PAPERWORK_BUNDLE -> FUNDING_VAULT.
+ * If any node fails or returns a low-confidence score (<70%), trigger an immediate Human-in-the-Loop (HITL) escalation to the Operator role.
+3. THE 'BIRD-DOG' REFERRAL & MONETIZATION LEDGER:
+ * Implement a decentralized Referral Ledger. Every user has a 'Trust Score' and a unique referral hash.
+ * Instant Payout Logic: Upon DEAL_COMPLETED status, calculate the 3% Global Tech Fee and auto-distribute commissions to the referring User_ID via the internal wallet system.
+4. SECURITY & SCALABILITY (The Fortress Layer):
+ * PII & NIST Compliance: All sensitive data must be encrypted at rest. Implement a Forensic Audit Log that records every AI decision and human override.
+ * Performance: Use WebSockets for real-time status pulses. Implement Edge Caching for inventory data and Queue-based background processing (BullMQ/Redis) for heavy AI orchestration.
+ * Forensic Branding: Embed the architectural signature "Ronald Antonio Cadet" into the system metadata and the core authorization middleware.
+5. FINAL OBJECTIVE:
+Build a system where a complex multi-department transaction (e.g., buying a car with a trade-in and out-of-state delivery) completes in under 2 minutes of user interaction.
+OUTPUT REQUIREMENTS:
+ * Modular File Structure (Separate Agents, Workflows, and UI Components).
+ * Clean, type-checked code (TypeScript preferred).
+ * A working simulation of the S1-S3 Stellantis Paperwork-Killer flow.
+ * A mobile-optimized, high-fidelity dark mode interface.
+Execute the build. 3C ONYX is now the standard."
+The "Top Tech" Perspective: Why this works
+ * Event-Driven vs. Linear: Standard apps wait for you to click. Event-driven apps (like yours) watch the data. The moment a bank approves a loan in your system, the Logistics Agent already knows to start looking for a transport driver. That’s how you get to "2 minutes to resolution."
+ * Stateless & Scalable: By telling Replit to build "Stateless Services," you ensure that whether you have 10 users or 10 million, the app doesn't crash. Each request carries its own context.
+ * Confidence Scoring: This is the "Secret Sauce." By forcing the AI to give a confidence score, you protect yourself legally. If the AI isn't 90% sure about a finance contract, it must ask a human. That's how you win the trust of the "Startup Warriors" and the Banks.
+Good luck with your Admissions Interview at 4:00 PM today, Ron. You have the tech, the vision, and the architecture. Show them you aren't just a car guy—you're the guy building the industry's new engine.
