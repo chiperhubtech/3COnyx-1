@@ -1,35 +1,128 @@
-import { eventBus, type OnyxEventType } from "./eventBus";
+import { eventBus } from "./eventBus";
 import { db, referralLedgerTable, commissionLedgerTable, usersTable, dealerflowTasksTable } from "@workspace/db";
 import { eq, and, sql } from "drizzle-orm";
 import { logger } from "./logger";
+import crypto from "crypto";
 
 const TECH_FEE_PCT = 0.03;
 
+const REWARD_TABLE: Record<string, number> = {
+  Finance: 50,
+  F_And_I: 50,
+  Sales: 50,
+  Insurance: 25,
+  Service: 15,
+  Parts: 10,
+  DMV: 10,
+  Logistics: 10,
+};
+
+const settledTaskIds = new Set<number>();
+
 export function initGrowthSubscribers() {
   eventBus.onEvent("agent.task.complete", async (event) => {
-    const { taskId, customerId, department } = event.payload as any;
+    const { taskId, department, customerPhone, customerEmail } = event.payload as any;
     if (!taskId) return;
 
-    logger.info({ taskId, department }, "[GrowthEngine] Task completed — checking referral rewards");
+    logger.info({ taskId, department }, "[GrowthEngine] Task completed — resolving Bird-Dog referrer");
 
     try {
-      if (customerId) {
-        const [user] = await db.select().from(usersTable).where(eq(usersTable.id, customerId));
-        if (user?.referredBy) {
-          const referralReward = department === "Finance" ? 15.0 : department === "Sales" ? 10.0 : 3.0;
-          await db.insert(commissionLedgerTable).values({
-            entryType: "Referral",
-            status: "Pending",
-            recipientId: user.referredBy,
-            amountUsd: String(referralReward),
-            referredByUserId: user.referredBy,
-            note: `Bird-Dog reward — referred member completed ${department} task #${taskId}`,
-          });
-          logger.info({ referrerId: user.referredBy, reward: referralReward }, "[GrowthEngine] Referral reward logged");
-        }
+      const [task] = await db.select().from(dealerflowTasksTable)
+        .where(eq(dealerflowTasksTable.id, taskId));
+      if (!task) return;
+
+      const meta = (task.metadata as any) || {};
+      const referrerId = meta.referrerId;
+      const contactName = meta.contactName || task.initiatorName || "someone";
+
+      if (!referrerId) {
+        logger.info({ taskId }, "[GrowthEngine] No referrer on task — skipping reward");
+        return;
       }
+
+      if (settledTaskIds.has(taskId)) {
+        logger.warn({ taskId }, "[GrowthEngine] Duplicate settlement blocked (in-memory)");
+        return;
+      }
+
+      const [existingSettlement] = await db.select({ id: referralLedgerTable.id })
+        .from(referralLedgerTable)
+        .where(sql`${referralLedgerTable.metadata}->>'taskId' = ${String(taskId)}`);
+      if (existingSettlement) {
+        settledTaskIds.add(taskId);
+        logger.warn({ taskId }, "[GrowthEngine] Duplicate settlement blocked (DB check)");
+        return;
+      }
+
+      if (task.initiatorId && task.initiatorId === referrerId) {
+        logger.warn({ taskId, referrerId }, "[GrowthEngine] Self-referral blocked");
+        return;
+      }
+
+      const reward = REWARD_TABLE[department] || 10;
+
+      const [referrer] = await db.select({
+        id: usersTable.id,
+        name: usersTable.name,
+        email: usersTable.email,
+        phone: usersTable.phone,
+      }).from(usersTable).where(eq(usersTable.id, referrerId));
+
+      if (!referrer) {
+        logger.warn({ referrerId, taskId }, "[GrowthEngine] Referrer not found");
+        return;
+      }
+
+      const refId = "REF-" + crypto.randomBytes(4).toString("hex").toUpperCase();
+
+      await db.insert(referralLedgerTable).values({
+        referralId: refId,
+        vin: task.vin || "N/A",
+        referringNodeId: referrer.id,
+        referringNodeName: referrer.name || "ONYX Member",
+        referringNodeType: "Member",
+        buyerName: contactName,
+        status: "Closed",
+        commissionPctBps: 300,
+        commissionUsd: String(reward),
+        closedAt: new Date(),
+        metadata: {
+          taskId,
+          department,
+          autoSettled: true,
+          source: "bird_dog_protocol",
+        },
+      });
+
+      await db.insert(commissionLedgerTable).values({
+        entryType: "Referral",
+        status: "Pending",
+        recipientId: referrer.id,
+        amountUsd: String(reward),
+        referredByUserId: referrer.id,
+        note: `Bird-Dog reward — ${contactName} completed ${department} task #${taskId}`,
+      });
+
+      await db.update(usersTable)
+        .set({ points: sql`${usersTable.points} + 25` })
+        .where(eq(usersTable.id, referrer.id));
+
+      settledTaskIds.add(taskId);
+      logger.info({ referrerId: referrer.id, reward, refId, taskId }, "[GrowthEngine] Bird-Dog reward settled");
+
+      await eventBus.emit("referral.settled", {
+        referralId: refId,
+        referrerId: referrer.id,
+        referrerName: referrer.name,
+        referrerEmail: referrer.email,
+        referrerPhone: referrer.phone,
+        reward,
+        contactName,
+        department,
+        taskId,
+      });
     } catch (err) {
-      logger.error({ err: (err as Error).message }, "[GrowthEngine] Referral reward failed");
+      logger.error({ err: (err as Error).message, taskId }, "[GrowthEngine] Bird-Dog reward failed");
     }
   });
 
@@ -66,7 +159,7 @@ export function initGrowthSubscribers() {
     }
   });
 
-  logger.info("[GrowthEngine] Invisible Funnel subscribers initialized");
+  logger.info("[GrowthEngine] Bird-Dog Protocol — Decentralized Flywheel initialized");
 }
 
 export async function getUserReferralStats(userId: number) {

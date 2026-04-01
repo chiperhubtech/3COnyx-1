@@ -1,9 +1,10 @@
 import { Router, type Request, type Response } from "express";
-import { db, dealerflowTasksTable, dealerflowAuditLogTable } from "@workspace/db";
+import { db, dealerflowTasksTable, dealerflowAuditLogTable, usersTable } from "@workspace/db";
 import { eq, and, sql, desc, gte } from "drizzle-orm";
 import { smartRoute, extractVinFromText, extractCustomerName, extractPhoneNumber } from "../lib/smart-router";
 import { assessSpamRisk, shouldBypassFiltering, onSubmissionCreated, onSpamFlagged, getOrCreateTrustProfile } from "../lib/trust-engine";
 import { optionalAuth } from "../middlewares/requireAuth";
+import { eventBus } from "../lib/eventBus";
 import { randomBytes } from "crypto";
 
 const router = Router();
@@ -62,7 +63,7 @@ function assessReliability(initiatorTier: string, hasPhoto: boolean, description
 
 router.post("/omni-node/submit", optionalAuth, async (req: Request, res: Response) => {
   try {
-    const { title, description, initiatorName, initiatorTier, vin, dealershipCode, photoUrl, location, department: reqDepartment, urgency, contactName, contactPhone, contactEmail } = req.body;
+    const { title, description, initiatorName, initiatorTier, vin, dealershipCode, photoUrl, location, department: reqDepartment, urgency, contactName, contactPhone, contactEmail, referrerCode } = req.body;
 
     if (!title || typeof title !== "string" || title.trim().length < 3) {
       res.status(400).json({ error: "Title is required (min 3 characters)" });
@@ -121,6 +122,20 @@ router.post("/omni-node/submit", optionalAuth, async (req: Request, res: Respons
     const now = new Date();
     const slaDue = new Date(now.getTime() + routing.slaMinutes * 60 * 1000);
 
+    let referrerId: number | null = null;
+    let referrerName: string | null = null;
+    if (referrerCode && typeof referrerCode === "string") {
+      try {
+        const [referrer] = await db.select({ id: usersTable.id, name: usersTable.name })
+          .from(usersTable)
+          .where(eq(usersTable.referralCode, referrerCode.trim()));
+        if (referrer) {
+          referrerId = referrer.id;
+          referrerName = referrer.name;
+        }
+      } catch {}
+    }
+
     const [task] = await db.insert(dealerflowTasksTable).values({
       title: `[Omni-Node] ${title.trim().substring(0, 500)}`,
       description: description ? String(description).substring(0, 2000) : null,
@@ -149,10 +164,14 @@ router.post("/omni-node/submit", optionalAuth, async (req: Request, res: Respons
         location: location || null,
         phone: extractedPhone || null,
         contactEmail: contactEmail || null,
+        contactPhone: extractedPhone || null,
         submittedAt: now.toISOString(),
         taskScope: routing.taskScope,
         externalParty: routing.externalParty,
         externalReason: routing.externalReason,
+        referrerId,
+        referrerCode: referrerCode || null,
+        referrerName,
         architect: "Ronald Antonio Cadet",
       },
     }).returning();

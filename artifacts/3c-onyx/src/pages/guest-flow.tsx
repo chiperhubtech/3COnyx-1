@@ -337,6 +337,7 @@ export default function GuestFlow() {
     if (!message.trim() && !contactPhone.trim()) return;
     setStage("submitting");
     try {
+      const referrerCode = sessionStorage.getItem("onyx_ref") || undefined;
       const res = await fetch(`${BASE}/api/omni-node/submit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -348,6 +349,7 @@ export default function GuestFlow() {
           initiatorName: contactName.trim() || "Guest",
           contactName: contactName.trim() || undefined,
           contactPhone: contactPhone.trim() || undefined,
+          referrerCode,
         }),
       });
       if (!res.ok) {

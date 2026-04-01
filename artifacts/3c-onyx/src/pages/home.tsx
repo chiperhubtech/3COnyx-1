@@ -589,6 +589,15 @@ export default function Home() {
   const firstName = getFirstName(token);
   const greeting = getGreeting();
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref");
+    if (ref) {
+      sessionStorage.setItem("onyx_ref", ref);
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, []);
+
   const { data: myDeals } = useQuery({
     queryKey: ["my-deals-home"],
     queryFn: () => authFetch(`${BASE}/api/deals/dashboard/my-deals`).then((r) => r.json()),

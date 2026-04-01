@@ -135,6 +135,19 @@ export function initCommunicationOrchestrator() {
     );
   });
 
+  eventBus.onEvent("referral.settled", async (event) => {
+    const { referrerEmail, referrerPhone, referrerName, reward, contactName, department, referralId } = event.payload as any;
+    const dopamineMsg = `${referrerName || "ONYX Member"} — you just earned $${reward}! ${contactName || "Someone"} completed a ${department || "service"} request through your referral. Your reward is pending payout. Ref: ${referralId || "N/A"}. Who else can you connect? Share your link now.`;
+
+    if (referrerPhone) {
+      await sendSms(referrerPhone, dopamineMsg);
+    }
+    if (referrerEmail) {
+      await sendEmail(referrerEmail, `You earned $${reward} — Bird-Dog Reward`, dopamineMsg);
+    }
+    logger.info({ referrerName, reward, referralId }, "[CommOrch] Dopamine notification fired");
+  });
+
   eventBus.onEvent("payment.escrow.created", async (event) => {
     const { buyerEmail, buyerName, amount } = event.payload as any;
     if (!buyerEmail) return;
