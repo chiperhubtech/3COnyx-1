@@ -129,7 +129,7 @@ export default function LoginPage() {
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => { setEmail(e.target.value); setBiometricError(""); clearError(); }}
               required
               placeholder="Enter your email"
               style={{
@@ -149,7 +149,7 @@ export default function LoginPage() {
               <input
                 type={showPw ? "text" : "password"}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => { setPassword(e.target.value); setBiometricError(""); clearError(); }}
                 required
                 placeholder="Enter your password"
                 style={{
