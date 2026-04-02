@@ -107,3 +107,9 @@ id = "2wp8_daEvE5Nwkuf7EbcU"
 uri = "file://exports/3C-ONYX-Platform-Valuation-Brief.pdf"
 type = "pdf"
 title = "3C ONYX — Complete Platform Architecture & Pre-Launch Valuation Brief (15 Sections)"
+
+[[outputs]]
+id = "1EvL9rzYSdc0RNdWcq5O-"
+uri = "file://3C_ONYX_Business_Checklist.pdf"
+type = "pdf"
+title = "3C ONYX — Launch Checklist & Net 30 Vendor Guide"
