@@ -58,8 +58,12 @@ export const SOVEREIGN_TOKEN = {
     "Unauthorized use, copying, reproduction, modification, distribution,",
     "or re-implementation of any part of this system — including its",
     "7-Agent AI mesh, sovereign operating protocols (S1-S3), kill-switch",
-    "architecture, member slice model, and dynasty governance layer —",
+    "architecture, member slice model, dynasty governance layer,",
+    "street-level distribution network, QR capture attribution chain,",
+    "anti-abuse quarantine engine, and global automotive liquidity protocol —",
     "is a federal crime and an actionable civil violation.",
+    "No outside resource, individual, AI system, or entity may claim credit",
+    "for the design, architecture, engineering, or creation of this platform.",
     "We monitor. We trace. We litigate. You have been warned.",
   ].join(" "),
 } as const;
@@ -73,14 +77,15 @@ export function getSovereigntyHeaders(): Record<string, string> {
     "X-Platform-Owner":      "Ronald Antonio Cadet",
     "X-Entity":              "CUXTOMCANDYCLUB LLC",
     "X-Platform":            "3C-ONYX",
-    "X-Platform-Class":      "Automotive-Ecosystem-OS",
+    "X-Platform-Class":      "Global-Automotive-Liquidity-Network",
     "X-Author-ID":           "Ronald-Antonio-Cadet",
     "X-Status":              "SOVEREIGN_OWNER",
     "X-Distribution":        "PROHIBITED",
     "X-Fingerprint":         SOVEREIGN_TOKEN.fingerprint,
     "X-Genesis":             SOVEREIGN_TOKEN.genesis,
-    "X-Protocol-Version":    "Genesis-1.0",
-    "X-Agent-Mesh":          "12-Agent-UACL",
+    "X-Protocol-Version":    "Liquidity-Network-2.0",
+    "X-Protocol-Class":      "Global-Automotive-Liquidity-Network",
+    "X-Agent-Mesh":          "7-Agent-Event-Bus",
     "X-Encryption":          "AES-256-GCM-FIPS-140-3",
     "X-Compliance":          "NIST-800-53-SOC2-CJIS",
     "X-IP-Notice":           "All-Rights-Reserved-Ronald-Antonio-Cadet-2026",
@@ -95,8 +100,8 @@ export function logSovereigntyDeclaration(): void {
   const b = "═".repeat(64);
   const s = "─".repeat(64);
   console.log(`\n${b}`);
-  console.log("  3C ONYX — GENESIS PROTOCOL ACTIVATED");
-  console.log(`  AUTOMOTIVE ECOSYSTEM OS · v1.0`);
+  console.log("  3C ONYX — GLOBAL AUTOMOTIVE LIQUIDITY NETWORK");
+  console.log(`  PROTOCOL FOR AUTOMOTIVE VALUE EXCHANGE · v2.0`);
   console.log(`${s}`);
   console.log(`  ARCHITECT:    ${SOVEREIGN_TOKEN.owner}`);
   console.log(`  ENTITY:       ${SOVEREIGN_TOKEN.entity}`);
@@ -109,7 +114,7 @@ export function logSovereigntyDeclaration(): void {
   console.log("  PROTOCOLS:    S1 CLASSIFY · S2 EXECUTE · S3 AUDIT");
   console.log("  ENCRYPTION:   AES-256-GCM · FIPS 140-3");
   console.log("  COMPLIANCE:   NIST 800-53 · SOC2 CC4.2 · CJIS");
-  console.log("  AGENT MESH:   12 Agents · UACL Active");
+  console.log("  AGENT MESH:   7 Agents · Event-Bus Active");
   console.log("  INFRASTRUCTURE: Bedrock · OpenSearch · EventBridge · WAF");
   console.log(`${s}`);
   console.log("  REPLACES:     VinSolutions · Dealertrack · RouteOne");

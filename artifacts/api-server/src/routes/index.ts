@@ -115,6 +115,7 @@ import integrationsRouter from "./integrations";
 import vehicleProofRouter from "./vehicleProof";
 import autonomousEngineRouter from "./autonomousEngine";
 import attributionRouter from "./attribution";
+import streetNetworkRouter from "./streetNetwork";
 
 const router: IRouter = Router();
 
@@ -252,5 +253,6 @@ router.use(integrationsRouter);
 router.use(vehicleProofRouter);
 router.use(autonomousEngineRouter);
 router.use(attributionRouter);
+router.use(streetNetworkRouter);
 
 export default router;

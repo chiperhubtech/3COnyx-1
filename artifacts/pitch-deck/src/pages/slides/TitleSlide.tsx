@@ -61,16 +61,19 @@ export default function TitleSlide() {
           </div>
         </div>
       </div>
-      <div className="absolute" style={{ left: "6vw", bottom: "18vh", maxWidth: "60vw" }}>
-        <p className="font-display font-black tracking-tighter text-text" style={{ fontSize: "5.5vw", lineHeight: 1.05 }}>
-          Sovereign Automotive
+      <div className="absolute" style={{ left: "6vw", bottom: "16vh", maxWidth: "65vw" }}>
+        <p className="font-display font-black tracking-tighter text-text" style={{ fontSize: "5vw", lineHeight: 1.05 }}>
+          Global Automotive
         </p>
-        <p className="font-display font-black tracking-tighter text-primary" style={{ fontSize: "5.5vw", lineHeight: 1.05 }}>
-          Ecosystem OS
+        <p className="font-display font-black tracking-tighter text-primary" style={{ fontSize: "5vw", lineHeight: 1.05 }}>
+          Liquidity Network
         </p>
-        <div style={{ width: "8vw", height: "0.4vh", marginTop: "3vh" }} className="bg-primary" />
-        <p className="font-body font-light text-text" style={{ fontSize: "1.8vw", marginTop: "2.5vh", opacity: 0.85 }}>
-          The entire automotive industry reduced to one confirmation tap.
+        <div style={{ width: "8vw", height: "0.4vh", marginTop: "2.5vh" }} className="bg-primary" />
+        <p className="font-body font-light text-text" style={{ fontSize: "1.6vw", marginTop: "2vh", opacity: 0.85, maxWidth: "55vw" }}>
+          The Protocol for Automotive Value Exchange — every gas station, mechanic bay, and smartphone becomes a high-conversion point-of-sale.
+        </p>
+        <p className="font-body text-primary" style={{ fontSize: "1.2vw", marginTop: "1.5vh", letterSpacing: "0.15em", opacity: 0.8 }}>
+          One tap. Money moves. Instantly.
         </p>
       </div>
       <div className="absolute" style={{ right: "6vw", bottom: "6vh" }}>
