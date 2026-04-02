@@ -17,7 +17,7 @@ const log = logger.child({ module: "attribution-api" });
 
 router.get("/node/:id/earnings", requireAuth, async (req: Request, res: Response) => {
   try {
-    const nodeId = parseInt(req.params.id, 10);
+    const nodeId = parseInt(req.params.id as string, 10);
     if (isNaN(nodeId) || nodeId <= 0) {
       res.status(400).json({ error: "Invalid node ID" });
       return;

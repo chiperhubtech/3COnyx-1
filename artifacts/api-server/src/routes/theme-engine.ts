@@ -638,7 +638,7 @@ router.get("/theme/:themeId/css", (req: Request, res: Response) => {
 
 router.get("/user/:userId", async (req: Request, res: Response) => {
   try {
-    const userId = parseInt(req.params.userId);
+    const userId = parseInt(String(req.params.userId));
     const [pref] = await db.select().from(userThemePrefsTable)
       .where(eq(userThemePrefsTable.userId, userId)).limit(1);
 
@@ -659,7 +659,7 @@ router.get("/user/:userId", async (req: Request, res: Response) => {
 
 router.post("/user/:userId/set", async (req: Request, res: Response) => {
   try {
-    const userId = parseInt(req.params.userId);
+    const userId = parseInt(String(req.params.userId));
     const { themeId, darkMode } = req.body;
 
     if (themeId && !ONYX_THEMES.find(t => t.id === themeId)) {

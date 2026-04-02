@@ -55,15 +55,15 @@ router.post("/iot/ingest", async (req: Request, res: Response) => {
 });
 
 router.get("/iot/data/:streamId", requireAuth, async (req: Request, res: Response) => {
-  const { streamId } = req.params;
+  const streamId = req.params.streamId as string;
   const limit = parseInt((req.query.limit as string) ?? "100");
-  const points = await db.select().from(telemetryDataPointsTable).where(eq(telemetryDataPointsTable.streamId, streamId ?? "")).orderBy(desc(telemetryDataPointsTable.recordedAt)).limit(limit);
+  const points = await db.select().from(telemetryDataPointsTable).where(eq(telemetryDataPointsTable.streamId, streamId)).orderBy(desc(telemetryDataPointsTable.recordedAt)).limit(limit);
   res.json({ points, total: points.length });
 });
 
 router.get("/iot/maintenance/:vin", requireAuth, async (req: Request, res: Response) => {
-  const { vin } = req.params;
-  const predictions = await db.select().from(predictiveMaintenanceTable).where(eq(predictiveMaintenanceTable.vin, vin ?? "")).orderBy(desc(predictiveMaintenanceTable.createdAt));
+  const vin = req.params.vin as string;
+  const predictions = await db.select().from(predictiveMaintenanceTable).where(eq(predictiveMaintenanceTable.vin, vin)).orderBy(desc(predictiveMaintenanceTable.createdAt));
 
   if (predictions.length === 0) {
     const defaults = [

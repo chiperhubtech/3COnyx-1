@@ -140,7 +140,7 @@ router.post("/node/register", async (req: Request, res: Response) => {
 
 router.get("/node/:userId", async (req: Request, res: Response) => {
   try {
-    const userId = parseInt(req.params.userId);
+    const userId = parseInt(String(req.params.userId));
     const [node] = await db.select().from(nodeProfilesTable).where(eq(nodeProfilesTable.userId, userId)).limit(1);
     if (!node) {
       res.status(404).json({ error: "Node not found" });
@@ -212,7 +212,7 @@ router.post("/node/availability", async (req: Request, res: Response) => {
 
 router.get("/node/nearby/:geoHash", async (req: Request, res: Response) => {
   try {
-    const prefix = req.params.geoHash.substring(0, 4);
+    const prefix = String(req.params.geoHash).substring(0, 4);
     const role = req.query.role as string;
 
     let query = db.select().from(nodeProfilesTable)
@@ -237,7 +237,7 @@ router.get("/node/nearby/:geoHash", async (req: Request, res: Response) => {
 
 router.get("/tree/:userId", async (req: Request, res: Response) => {
   try {
-    const userId = parseInt(req.params.userId);
+    const userId = parseInt(String(req.params.userId));
 
     const [rootNode] = await db.select().from(nodeProfilesTable).where(eq(nodeProfilesTable.userId, userId)).limit(1);
     if (!rootNode) {

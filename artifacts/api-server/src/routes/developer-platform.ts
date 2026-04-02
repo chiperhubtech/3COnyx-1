@@ -51,7 +51,7 @@ router.get("/developer/apps", requireAuth, async (req: Request, res: Response) =
 });
 
 router.get("/developer/apps/:id", requireAuth, async (req: Request, res: Response) => {
-  const appId = parseInt(req.params.id ?? "0");
+  const appId = parseInt(req.params.id as string);
   const [app] = await db.select().from(developerAppsTable).where(eq(developerAppsTable.id, appId));
   if (!app) { res.status(404).json({ error: "App not found" }); return; }
   const keys = await db.select().from(apiKeysTable).where(eq(apiKeysTable.appId, appId));
@@ -60,7 +60,7 @@ router.get("/developer/apps/:id", requireAuth, async (req: Request, res: Respons
 });
 
 router.post("/developer/apps/:id/keys", requireAuth, async (req: Request, res: Response) => {
-  const appId = parseInt(req.params.id ?? "0");
+  const appId = parseInt(req.params.id as string);
   const { label, permissions } = req.body;
   const [app] = await db.select().from(developerAppsTable).where(eq(developerAppsTable.id, appId));
   if (!app) { res.status(404).json({ error: "App not found" }); return; }
@@ -77,13 +77,13 @@ router.post("/developer/apps/:id/keys", requireAuth, async (req: Request, res: R
 });
 
 router.delete("/developer/keys/:id", requireAuth, async (req: Request, res: Response) => {
-  const keyId = parseInt(req.params.id ?? "0");
+  const keyId = parseInt(req.params.id as string);
   await db.update(apiKeysTable).set({ status: "Revoked" }).where(eq(apiKeysTable.id, keyId));
   res.json({ success: true, revoked: keyId });
 });
 
 router.post("/developer/apps/:id/webhooks", requireAuth, async (req: Request, res: Response) => {
-  const appId = parseInt(req.params.id ?? "0");
+  const appId = parseInt(req.params.id as string);
   const { url, events } = req.body;
   if (!url || !events?.length) { res.status(400).json({ error: "url and events[] required" }); return; }
   const secret = randomBytes(32).toString("hex");
@@ -96,7 +96,7 @@ router.post("/developer/apps/:id/webhooks", requireAuth, async (req: Request, re
 });
 
 router.get("/developer/webhooks/:id/deliveries", requireAuth, async (req: Request, res: Response) => {
-  const endpointId = parseInt(req.params.id ?? "0");
+  const endpointId = parseInt(req.params.id as string);
   const deliveries = await db.select().from(webhookDeliveriesTable).where(eq(webhookDeliveriesTable.endpointId, endpointId)).orderBy(desc(webhookDeliveriesTable.createdAt)).limit(50);
   res.json({ deliveries });
 });

@@ -77,7 +77,7 @@ router.post("/initiate", async (req: Request, res: Response) => {
       vin,
       lenderName: lender?.name || lenderName,
       lenderPhone: lender?.phone || null,
-      accountNumberMasked: accountNumberLast4 ? `****${accountNumberLast4}` : null,
+      accountNumber: accountNumberLast4 ? `****${accountNumberLast4}` : null,
       fundingSource: fundingSource || "ONYX Settlement Engine",
       status: "Initiated",
       automationLog: automationSteps,
@@ -105,7 +105,7 @@ router.post("/initiate", async (req: Request, res: Response) => {
 
 router.post("/advance/:payoffRef", async (req: Request, res: Response) => {
   try {
-    const { payoffRef } = req.params;
+    const payoffRef = req.params.payoffRef as string;
     const { currentPayoffAmount, goodThroughDate, perDiemRate, newStatus, detail } = req.body;
 
     const [payoff] = await db.select().from(bankPayoffsTable)
@@ -164,7 +164,7 @@ router.post("/advance/:payoffRef", async (req: Request, res: Response) => {
 router.get("/payoff/:payoffRef", async (req: Request, res: Response) => {
   try {
     const [payoff] = await db.select().from(bankPayoffsTable)
-      .where(eq(bankPayoffsTable.payoffRef, req.params.payoffRef)).limit(1);
+      .where(eq(bankPayoffsTable.payoffRef, String(req.params.payoffRef))).limit(1);
     if (!payoff) {
       res.status(404).json({ error: "Payoff not found" });
       return;
@@ -177,7 +177,7 @@ router.get("/payoff/:payoffRef", async (req: Request, res: Response) => {
 
 router.get("/my-payoffs/:userId", async (req: Request, res: Response) => {
   try {
-    const userId = parseInt(req.params.userId);
+    const userId = parseInt(String(req.params.userId));
     const payoffs = await db.select().from(bankPayoffsTable)
       .where(eq(bankPayoffsTable.requestedByUserId, userId))
       .orderBy(desc(bankPayoffsTable.initiatedAt))

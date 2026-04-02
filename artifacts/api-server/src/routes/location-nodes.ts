@@ -73,7 +73,7 @@ router.post("/register", async (req: Request, res: Response) => {
 router.get("/location/:locationRef", async (req: Request, res: Response) => {
   try {
     const [location] = await db.select().from(locationNodesTable)
-      .where(eq(locationNodesTable.locationRef, req.params.locationRef)).limit(1);
+      .where(eq(locationNodesTable.locationRef, String(req.params.locationRef))).limit(1);
     if (!location) { res.status(404).json({ error: "Location not found" }); return; }
     res.json({ location });
   } catch (error) {
@@ -83,7 +83,7 @@ router.get("/location/:locationRef", async (req: Request, res: Response) => {
 
 router.post("/scan/:locationRef", async (req: Request, res: Response) => {
   try {
-    const { locationRef: ref } = req.params;
+    const ref = req.params.locationRef as string;
     const [location] = await db.select().from(locationNodesTable)
       .where(eq(locationNodesTable.locationRef, ref)).limit(1);
     if (!location) { res.status(404).json({ error: "Location not found" }); return; }
@@ -105,7 +105,7 @@ router.post("/scan/:locationRef", async (req: Request, res: Response) => {
 
 router.post("/signup/:locationRef", async (req: Request, res: Response) => {
   try {
-    const { locationRef: ref } = req.params;
+    const ref = req.params.locationRef as string;
     const [location] = await db.select().from(locationNodesTable)
       .where(eq(locationNodesTable.locationRef, ref)).limit(1);
     if (!location) { res.status(404).json({ error: "Location not found" }); return; }
@@ -127,7 +127,7 @@ router.post("/signup/:locationRef", async (req: Request, res: Response) => {
 
 router.post("/revenue/:locationRef", async (req: Request, res: Response) => {
   try {
-    const { locationRef: ref } = req.params;
+    const ref = req.params.locationRef as string;
     const { amountUsd } = req.body;
 
     const [location] = await db.select().from(locationNodesTable)
@@ -153,7 +153,7 @@ router.post("/revenue/:locationRef", async (req: Request, res: Response) => {
 
 router.get("/my-locations/:userId", async (req: Request, res: Response) => {
   try {
-    const userId = parseInt(req.params.userId);
+    const userId = parseInt(String(req.params.userId));
     const locations = await db.select().from(locationNodesTable)
       .where(eq(locationNodesTable.userId, userId))
       .orderBy(desc(locationNodesTable.revenueGeneratedUsd));
@@ -176,7 +176,7 @@ router.get("/my-locations/:userId", async (req: Request, res: Response) => {
 
 router.get("/nearby/:geoHash", async (req: Request, res: Response) => {
   try {
-    const prefix = req.params.geoHash.substring(0, 4);
+    const prefix = String(req.params.geoHash).substring(0, 4);
     const locations = await db.select().from(locationNodesTable)
       .where(and(
         eq(locationNodesTable.isActive, true),

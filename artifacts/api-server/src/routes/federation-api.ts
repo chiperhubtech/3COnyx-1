@@ -52,7 +52,7 @@ router.post("/federation/nodes", requireAuth, async (req: Request, res: Response
 });
 
 router.post("/federation/nodes/:nodeId/heartbeat", async (req: Request, res: Response) => {
-  const { nodeId } = req.params;
+  const nodeId = req.params.nodeId as string;
   const { loadPct, transactionsProcessed } = req.body;
   const [updated] = await db.update(federationNodesTable)
     .set({
@@ -62,7 +62,7 @@ router.post("/federation/nodes/:nodeId/heartbeat", async (req: Request, res: Res
       status: "Active",
       updatedAt: new Date(),
     })
-    .where(eq(federationNodesTable.nodeId, nodeId ?? ""))
+    .where(eq(federationNodesTable.nodeId, nodeId))
     .returning();
   if (!updated) { res.status(404).json({ error: "Node not found" }); return; }
   res.json({ ack: true, nodeId, ts: new Date().toISOString() });

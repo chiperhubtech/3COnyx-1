@@ -66,7 +66,7 @@ function resolveRole(referralCount: number): { role: string; title: string; desc
  */
 router.get("/referral/:username", async (req: Request, res: Response) => {
   try {
-    const { username } = req.params;
+    const username = req.params.username as string;
     if (!username || username.length < 2 || username.length > 50) {
       res.status(400).json({ error: "Invalid referral username" });
       return;
@@ -145,7 +145,7 @@ router.get("/referral/:username", async (req: Request, res: Response) => {
  */
 router.get("/node/:id/qr", requireAuth, async (req: Request, res: Response) => {
   try {
-    const nodeId = parseInt(req.params.id, 10);
+    const nodeId = parseInt(req.params.id as string, 10);
     if (isNaN(nodeId)) {
       res.status(400).json({ error: "Invalid node ID" });
       return;
@@ -311,7 +311,7 @@ router.get("/activity/feed", async (_req: Request, res: Response) => {
  */
 router.get("/node/:id/role", requireAuth, async (req: Request, res: Response) => {
   try {
-    const nodeId = parseInt(req.params.id, 10);
+    const nodeId = parseInt(req.params.id as string, 10);
     if (isNaN(nodeId)) {
       res.status(400).json({ error: "Invalid node ID" });
       return;

@@ -110,7 +110,7 @@ router.post("/calculate", async (req: Request, res: Response) => {
 
 router.post("/verify/:splitRef", async (req: Request, res: Response) => {
   try {
-    const { splitRef } = req.params;
+    const splitRef = req.params.splitRef as string;
     const { proofOfCompletion, proofType } = req.body;
 
     const [split] = await db.select().from(splitPaymentsTable)
@@ -155,7 +155,7 @@ router.post("/verify/:splitRef", async (req: Request, res: Response) => {
 
 router.post("/distribute/:splitRef", async (req: Request, res: Response) => {
   try {
-    const { splitRef } = req.params;
+    const splitRef = req.params.splitRef as string;
 
     const [split] = await db.select().from(splitPaymentsTable)
       .where(eq(splitPaymentsTable.splitRef, splitRef)).limit(1);
@@ -226,7 +226,7 @@ router.post("/distribute/:splitRef", async (req: Request, res: Response) => {
 router.get("/split/:splitRef", async (req: Request, res: Response) => {
   try {
     const [split] = await db.select().from(splitPaymentsTable)
-      .where(eq(splitPaymentsTable.splitRef, req.params.splitRef)).limit(1);
+      .where(eq(splitPaymentsTable.splitRef, String(req.params.splitRef))).limit(1);
 
     if (!split) {
       res.status(404).json({ error: "Split not found" });
@@ -244,7 +244,7 @@ router.get("/split/:splitRef", async (req: Request, res: Response) => {
 
 router.get("/history/:userId", async (req: Request, res: Response) => {
   try {
-    const userId = parseInt(req.params.userId);
+    const userId = parseInt(String(req.params.userId));
     const recipientRecords = await db.select().from(splitRecipientsTable)
       .where(eq(splitRecipientsTable.userId, userId))
       .orderBy(desc(splitRecipientsTable.createdAt))

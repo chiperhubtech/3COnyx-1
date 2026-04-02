@@ -124,7 +124,7 @@ router.post("/send", async (req: Request, res: Response) => {
 router.post("/complete/:transferRef", async (req: Request, res: Response) => {
   try {
     const [transfer] = await db.select().from(remittanceTransfersTable)
-      .where(eq(remittanceTransfersTable.transferRef, req.params.transferRef)).limit(1);
+      .where(eq(remittanceTransfersTable.transferRef, String(req.params.transferRef))).limit(1);
     if (!transfer) { res.status(404).json({ error: "Transfer not found" }); return; }
 
     const [updated] = await db.update(remittanceTransfersTable).set({
@@ -141,7 +141,7 @@ router.post("/complete/:transferRef", async (req: Request, res: Response) => {
 router.get("/transfer/:transferRef", async (req: Request, res: Response) => {
   try {
     const [transfer] = await db.select().from(remittanceTransfersTable)
-      .where(eq(remittanceTransfersTable.transferRef, req.params.transferRef)).limit(1);
+      .where(eq(remittanceTransfersTable.transferRef, String(req.params.transferRef))).limit(1);
     if (!transfer) { res.status(404).json({ error: "Transfer not found" }); return; }
     res.json({ transfer });
   } catch (error) {
@@ -151,7 +151,7 @@ router.get("/transfer/:transferRef", async (req: Request, res: Response) => {
 
 router.get("/my-transfers/:userId", async (req: Request, res: Response) => {
   try {
-    const userId = parseInt(req.params.userId);
+    const userId = parseInt(String(req.params.userId));
     const sent = await db.select().from(remittanceTransfersTable)
       .where(eq(remittanceTransfersTable.senderUserId, userId))
       .orderBy(desc(remittanceTransfersTable.createdAt)).limit(50);

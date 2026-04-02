@@ -53,7 +53,7 @@ router.post("/create", async (req: Request, res: Response) => {
 
 router.get("/:userId", async (req: Request, res: Response) => {
   try {
-    const userId = parseInt(req.params.userId);
+    const userId = parseInt(String(req.params.userId));
     const [wallet] = await db.select().from(onyxWalletsTable).where(eq(onyxWalletsTable.userId, userId)).limit(1);
     if (!wallet) { res.status(404).json({ error: "No wallet found — create one first" }); return; }
 
@@ -182,7 +182,7 @@ router.post("/withdraw", async (req: Request, res: Response) => {
 
 router.get("/history/:userId", async (req: Request, res: Response) => {
   try {
-    const userId = parseInt(req.params.userId);
+    const userId = parseInt(String(req.params.userId));
     const limit = parseInt(req.query.limit as string) || 50;
     const txs = await db.select().from(walletTransactionsTable)
       .where(eq(walletTransactionsTable.userId, userId))

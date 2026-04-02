@@ -56,7 +56,7 @@ router.post("/plugins", requireAuth, async (req: Request, res: Response) => {
 });
 
 router.post("/plugins/:id/install", requireAuth, async (req: Request, res: Response) => {
-  const pluginId = parseInt(req.params.id ?? "0");
+  const pluginId = parseInt(req.params.id as string);
   const userId = (req as any).user?.id;
   const { config } = req.body;
   const [install] = await db.insert(pluginInstallsTable).values({
@@ -72,7 +72,7 @@ router.post("/plugins/:id/install", requireAuth, async (req: Request, res: Respo
 });
 
 router.delete("/plugins/installs/:id", requireAuth, async (req: Request, res: Response) => {
-  const installId = parseInt(req.params.id ?? "0");
+  const installId = parseInt(req.params.id as string);
   await db.update(pluginInstallsTable).set({ isActive: false }).where(eq(pluginInstallsTable.id, installId));
   res.json({ success: true, uninstalled: installId });
 });

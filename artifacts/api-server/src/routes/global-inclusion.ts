@@ -148,7 +148,7 @@ router.get("/status", (_req: Request, res: Response) => {
 });
 
 router.get("/translations/:lang", (req: Request, res: Response) => {
-  const lang = req.params.lang.toLowerCase();
+  const lang = String(req.params.lang).toLowerCase();
   const translations = TRANSLATIONS[lang];
   if (!translations) {
     res.status(404).json({ error: `Language not supported: ${lang}`, available: Object.keys(TRANSLATIONS) });
@@ -168,7 +168,7 @@ router.get("/translations", (_req: Request, res: Response) => {
 });
 
 router.get("/currency/:code", (req: Request, res: Response) => {
-  const code = req.params.code.toUpperCase();
+  const code = String(req.params.code).toUpperCase();
   const symbol = CURRENCY_SYMBOLS[code];
   if (!symbol) {
     res.status(404).json({ error: `Currency not found: ${code}`, available: Object.keys(CURRENCY_SYMBOLS) });
@@ -207,7 +207,7 @@ router.post("/offline/queue", async (req: Request, res: Response) => {
 
 router.post("/offline/sync/:userId", async (req: Request, res: Response) => {
   try {
-    const userId = parseInt(req.params.userId);
+    const userId = parseInt(String(req.params.userId));
     const pending = await db.select().from(offlineSyncQueueTable)
       .where(and(eq(offlineSyncQueueTable.userId, userId), eq(offlineSyncQueueTable.synced, false)))
       .orderBy(offlineSyncQueueTable.clientTimestamp);

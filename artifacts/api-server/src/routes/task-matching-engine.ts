@@ -86,7 +86,7 @@ router.post("/create", async (req: Request, res: Response) => {
 
 router.post("/match/:taskRef", async (req: Request, res: Response) => {
   try {
-    const { taskRef } = req.params;
+    const taskRef = req.params.taskRef as string;
     const [task] = await db.select().from(taskMatchingTable).where(eq(taskMatchingTable.taskRef, taskRef)).limit(1);
 
     if (!task) {
@@ -162,7 +162,7 @@ router.post("/match/:taskRef", async (req: Request, res: Response) => {
 
 router.post("/transition/:taskRef", async (req: Request, res: Response) => {
   try {
-    const { taskRef } = req.params;
+    const taskRef = req.params.taskRef as string;
     const { newState, proofData, cancelReason, actualPayoutUsd } = req.body;
 
     const [task] = await db.select().from(taskMatchingTable).where(eq(taskMatchingTable.taskRef, taskRef)).limit(1);
@@ -221,7 +221,7 @@ router.post("/transition/:taskRef", async (req: Request, res: Response) => {
 
 router.get("/task/:taskRef", async (req: Request, res: Response) => {
   try {
-    const [task] = await db.select().from(taskMatchingTable).where(eq(taskMatchingTable.taskRef, req.params.taskRef)).limit(1);
+    const [task] = await db.select().from(taskMatchingTable).where(eq(taskMatchingTable.taskRef, String(req.params.taskRef))).limit(1);
     if (!task) {
       res.status(404).json({ error: "Task not found" });
       return;
@@ -248,7 +248,7 @@ router.get("/queue", async (req: Request, res: Response) => {
 
 router.get("/my-tasks/:userId", async (req: Request, res: Response) => {
   try {
-    const userId = parseInt(req.params.userId);
+    const userId = parseInt(String(req.params.userId));
     const role = req.query.role as string;
 
     const requested = await db.select().from(taskMatchingTable)

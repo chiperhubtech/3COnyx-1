@@ -473,7 +473,7 @@ router.get("/manufacturers", (_req: Request, res: Response) => {
 });
 
 router.get("/programs/:manufacturer", (req: Request, res: Response) => {
-  const make = req.params.manufacturer;
+  const make = String(req.params.manufacturer);
   const normalizedMake = Object.keys(MANUFACTURER_PROGRAMS).find(k => k.toLowerCase() === make.toLowerCase());
   if (!normalizedMake) {
     res.status(404).json({ error: `Manufacturer "${make}" not found`, available: Object.keys(MANUFACTURER_PROGRAMS) });

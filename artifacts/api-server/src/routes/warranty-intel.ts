@@ -168,7 +168,7 @@ router.post("/check", async (req: Request, res: Response) => {
 router.get("/vin/:vin", async (req: Request, res: Response) => {
   try {
     const [warranty] = await db.select().from(warrantyIntelTable)
-      .where(eq(warrantyIntelTable.vin, req.params.vin)).limit(1);
+      .where(eq(warrantyIntelTable.vin, String(req.params.vin))).limit(1);
 
     if (!warranty) {
       res.status(404).json({ error: "No warranty data found — run POST /api/warranty/check first" });

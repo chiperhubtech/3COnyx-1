@@ -59,7 +59,7 @@ router.get("/feed", async (req: Request, res: Response) => {
 
 router.get("/my-stats/:userId", async (req: Request, res: Response) => {
   try {
-    const userId = parseInt(req.params.userId);
+    const userId = parseInt(String(req.params.userId));
 
     const [wallet] = await db.select().from(onyxWalletsTable)
       .where(eq(onyxWalletsTable.userId, userId)).limit(1);
@@ -139,7 +139,7 @@ router.get("/nearby-activity", async (req: Request, res: Response) => {
 
 router.get("/milestones/:userId", async (req: Request, res: Response) => {
   try {
-    const userId = parseInt(req.params.userId);
+    const userId = parseInt(String(req.params.userId));
 
     const [wallet] = await db.select().from(onyxWalletsTable)
       .where(eq(onyxWalletsTable.userId, userId)).limit(1);
