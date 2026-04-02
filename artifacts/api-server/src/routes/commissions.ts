@@ -131,7 +131,8 @@ router.get("/commissions/summary/:userId", requireAuth, async (req: Request, res
   try {
     const callerRole = req.user?.role;
     const callerId = parseInt(req.user?.sub || "0", 10);
-    const targetId = parseInt(req.params.userId || "0", 10);
+    const rawUserId = req.params.userId;
+    const targetId = parseInt(typeof rawUserId === "string" ? rawUserId : "0", 10);
 
     if (callerRole !== "Admin" && callerId !== targetId) {
       res.status(403).json({ error: "Access denied" });
