@@ -43,6 +43,7 @@ The architecture prioritizes an AI-first approach with:
 - **Autonomous Execution Protocol**: AI confidence scoring per task with auto-escalation and a retry mechanism.
 - **Omni-Node Open Intake**: A public submission portal with AI-powered smart routing, duplicate detection, and a Global Trust Score Engine.
 - **Invisible Funnel Protocol**: A headless API orchestration layer for growth, communication, and commerce, including a Growth Event Bus, Communication Orchestrator, Referral Engine API, and Commerce API. It also implements a Decentralized Bird-Dog Flywheel for viral growth.
+- **Universal Commission Engine** (`artifacts/api-server/src/lib/commissionEngine.ts`): Automatic referral commission on every platform transaction — vehicle purchases (3%), parts (5%), accessories (5%), oil changes (10%), tire rotations (10%), brake service (8%), body work (6%), diagnostics (8%), detailing (10%), insurance (4%), transport (5%), aftermarket (6%), membership (20%), custom (5%). Tracks who referred the buyer, calculates commission, records to `commission_ledger` and `transactions` tables, awards ONYX Points. API routes: `POST /api/commissions/process`, `GET /api/commissions/my-earnings`, `GET /api/commissions/rates`, `GET /api/commissions/summary/:userId`.
 - **Architectural Upgrades**: Includes CarPlay/Android Auto integration, a tRPC Type-Safe API Layer, an Admin API, and a Beta Waitlist system.
 
 # External Dependencies

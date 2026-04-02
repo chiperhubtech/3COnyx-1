@@ -105,6 +105,7 @@ import commerceRouter from "./commerce";
 import communityRouter from "./community";
 import webauthnRouter from "./webauthn";
 import governorRouter from "./governor";
+import commissionsRouter from "./commissions";
 
 const router: IRouter = Router();
 
@@ -232,5 +233,6 @@ router.use(referralsRouter);
 router.use(commerceRouter);
 router.use(communityRouter);
 router.use(governorRouter);
+router.use(commissionsRouter);
 
 export default router;
