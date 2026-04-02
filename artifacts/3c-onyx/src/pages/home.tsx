@@ -13,6 +13,7 @@ import {
   Building2, Truck, UserPlus,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { NerveCenter } from "@/components/NerveCenter";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -1843,6 +1844,8 @@ export default function Home() {
           />
         ) : (
           <>
+            {token && <NerveCenter />}
+
             <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 12 }}>
               {(Object.entries(SERVICE_CONFIG) as [ServiceCategory, typeof SERVICE_CONFIG[ServiceCategory]][]).map(([key, cfg]) => (
                 <ServiceCard
