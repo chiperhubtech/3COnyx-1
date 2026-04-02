@@ -1,0 +1,42 @@
+This is the absolute Master Blueprint. It bridges the gap between your technical infrastructure on Replit and your financial pitch to the SBA. It treats 3C ONYX as a sovereign, high-velocity engine that is 100% built and ready to dominate.
+🔥 THE SOVEREIGN 3C ONYX: THE UNIFIED COMMAND & CAPITAL MANIFESTO
+Act as a Principal Systems Architect, Lead AI Security Engineer, and Chief Financial Strategist. Your mission is to finalize the "3C ONYX" platform as a production-grade, event-driven Automotive Operating System (AOS) while simultaneously formalizing the SBA 7(a) Financing Strategy.
+⚠️ THE CORE MANDATE: ZERO COGNITIVE LOAD & TOTAL TRUST. Optimize for the single core metric: "Time to resolution under 2 minutes." The system autonomously pulls data, makes decisions, and executes workflows via the 7-Agent Mesh. Safety, Accuracy, and Speed are the governing principles.
+PART 1: THE TECHNICAL ARCHITECTURE (REPLIT EXECUTION)
+1. ONYX CORE & EVENT-DRIVEN ORCHESTRATION:
+ * Central Command: Implement a PostgreSQL-backed State Machine. Every interaction is an Event (e.g., SocialClick → CreditSweep → LenderMatch → InsuranceBind → ServicePrep → DigitalFunding).
+ * The 7-Agent Mesh: Sales, Finance, Service, Parts, Delivery, Support, and Referral agents communicating via an internal Event Bus (Pub/Sub).
+ * Invisible Complexity: The user interface is a single command input: "What do you need?" 90% of actions are AI-handled; humans are the absolute last resort for exceptions.
+2. THE ONYX PROOF ENGINE (TRUST INFRASTRUCTURE):
+ * Vehicle Identity: Every VIN is a unique digital record linked to a cryptographic hash chain.
+ * Event Stamping: Every action (Service, Title Transfer, Part Install) generates a tamper-evident event: [Timestamp + Actor + Payload Hash + Previous Hash + Signature].
+ * Verification API: GET /vehicle/:id/verify returns a "ONYX Verified" timeline and trust score.
+3. THE SOVEREIGN WALLET & PAYMENT ENGINE:
+ * Tokenized Vault: Store Cards, Bank Accounts, and Financing Approvals.
+ * Split-Fee Logic: Automatically partition the 3% Global Tech Fee, Dealer Net, and Bird-Dog Commission instantly upon payment completion.
+4. ALTRUISTIC VIRAL LOOP & GAMIFICATION:
+ * The Trigger: After every 100% completed status, trigger: "You helped [Name]! Help someone else?" * Identity Tiers: Assign roles (Connector, Closer, Operator) and XP systems to turn referrals into a social movement.
+PART 2: THE FINANCIAL STRATEGY (SBA 7(a) PROSPECTUS)
+TO: Senior Loan Underwriter / Small Business Administration
+FROM: Ronald Antonio Cadet, Founder & CEO
+ENTITY: Custom Candy Club LLC dba 3C ONYX
+1. CAPITAL REQUEST: $250,000 – $1,000,000
+ * 40% Distribution: Deployment of Sales Engineering to onboard Tier-1 Dealership Groups.
+ * 30% Viral Acquisition: Funding the "Bird-Dog" Referral Ledger for zero-CAC growth.
+ * 20% Infrastructure: Hardening server capacity and NIST-grade security.
+ * 10% Reserves: Operational runway for onboarding and customer success.
+2. REVENUE MODEL (THE TOLLBOOTH):
+ * Transaction Fee: $150–$300 flat efficiency fee per vehicle deal.
+ * Logistic Commissions: Embedded fees on parts, service, and transport routed through ONYX Agents.
+ * Service Spreads: Recurring revenue from insurance binding and lender leads.
+3. REPAYMENT FEASIBILITY (CONSERVATIVE):
+ * Phase I (Entry): 25 deals/mo @ $250 avg rev = $6,250 Monthly Revenue (1.2x Debt Coverage).
+ * Phase II (Growth): 150 deals/mo @ $250 avg rev = $37,500 Monthly Revenue (7.5x Debt Coverage).
+ * Debt Service: Repayments are auto-serviced via a dedicated escrow funded directly by transaction fees.
+PART 3: THE "MOAT" & RISK MITIGATION
+ * Asset-Light: The platform is 100% built and deployable. Capital is for scaling, not researching.
+ * Forensic IP: All systems are forensically branded under Ronald Antonio Cadet, ensuring the "Sovereign State Machine" is a defensible, proprietary asset.
+ * Institutional Value: By solving the "Contracts in Transit" (CIT) problem, ONYX is a value-add to the very banks providing the loan.
+FINAL OBJECTIVE:
+Deploy the global trust and commerce layer for the automotive industry. A complete transaction in seconds, every action verifiable, and every vehicle with a provable history.
+Execute the build. Launch the movement. Secure the empire.
