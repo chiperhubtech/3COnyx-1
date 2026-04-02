@@ -1,0 +1,31 @@
+kind = "video"
+previewPath = "/onyx-explainer/"
+title = "3C ONYX Explainer"
+version = "1.0.0"
+id = "artifacts/onyx-explainer"
+router = "path"
+
+[[integratedSkills]]
+name = "video-js"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/onyx-explainer/" ]
+localPort = 24006
+
+[services.development]
+run = "pnpm --filter @workspace/onyx-explainer run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/onyx-explainer", "run", "build" ]
+publicDir = "artifacts/onyx-explainer/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24006"
+BASE_PATH = "/onyx-explainer/"
