@@ -32,8 +32,32 @@
     "speakerNotes": ""
   },
   {
-    "id": "a1b2c3d4-5555-4aaa-bbbb-000000000005",
+    "id": "a1b2c3d4-6666-4aaa-bbbb-000000000006",
     "position": 5,
+    "filepath": "src/pages/slides/RevenueSlide.tsx",
+    "title": "The Tollbooth -- Revenue Model",
+    "description": "Three revenue streams: per-deal fees, logistic commissions, and recurring service spreads",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-7777-4aaa-bbbb-000000000007",
+    "position": 6,
+    "filepath": "src/pages/slides/CapitalSlide.tsx",
+    "title": "SBA 7(a) Capital Strategy",
+    "description": "Capital request, allocation breakdown, Phase I/II growth projections, debt coverage ratios",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-8888-4aaa-bbbb-000000000008",
+    "position": 7,
+    "filepath": "src/pages/slides/MoatSlide.tsx",
+    "title": "The Moat -- Defensibility",
+    "description": "Asset-light deployment, forensic IP, and institutional value through CIT problem-solving",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-5555-4aaa-bbbb-000000000005",
+    "position": 8,
     "filepath": "src/pages/slides/CloseSlide.tsx",
     "title": "The Close",
     "description": "Contact information, brand lockup, and closing statement",

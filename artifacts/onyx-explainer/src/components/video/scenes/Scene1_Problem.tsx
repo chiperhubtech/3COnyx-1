@@ -1,65 +1,60 @@
 import { motion } from 'framer-motion';
-import { sceneTransitions } from '@/lib/video/animations';
+import { useEffect } from 'react';
+import { speak } from '@/lib/voiceover';
 
 export function Scene1_Problem() {
-  const painPoints = [
-    "14 days to close a deal. 5 vendors per sale.",
-    "4.2 hours wasted per buyer.",
-    "Zero cryptographic proof of anything."
-  ];
+  useEffect(() => {
+    speak("The automotive industry is broken. It takes 14 days to close a single deal. 5 different vendors. 4.2 hours wasted per buyer. And zero cryptographic proof of anything.");
+    return () => window.speechSynthesis.cancel();
+  }, []);
+
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 1.5, delayChildren: 1.5 }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, x: -20 },
+    show: { opacity: 1, x: 0, transition: { duration: 0.8, ease: "easeOut" } }
+  };
 
   return (
     <motion.div
-      className="absolute inset-0 flex flex-col items-center justify-center z-10"
-      {...sceneTransitions.fadeBlur}
-      transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+      className="absolute inset-0 flex flex-col items-center justify-center z-10 px-[10vw]"
+      initial={{ opacity: 0, scale: 1.05 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, x: '-5vw', filter: 'blur(5px)' }}
+      transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
     >
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {Array.from({ length: 40 }).map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute bg-[var(--color-error)] opacity-10"
-            style={{
-              height: '1px',
-              width: Math.random() * 40 + 10 + 'vw',
-              left: Math.random() * 100 + 'vw',
-              top: Math.random() * 100 + 'vh',
-            }}
-            initial={{ x: -100, rotate: (Math.random() - 0.5) * 20 }}
-            animate={{ x: [null, (Math.random() > 0.5 ? 1 : -1) * 800] }}
-            transition={{ duration: Math.random() * 2 + 1, repeat: Infinity, ease: "linear" }}
-          />
-        ))}
-      </div>
-
-      <motion.div
-        className="flex flex-col items-center w-full max-w-[80vw]"
+      <motion.h2
+        className="font-display text-[4vw] font-bold text-white mb-[6vh] text-center"
+        initial={{ opacity: 0, y: '-4vh' }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1.2, delay: 0.5 }}
       >
-        <motion.h2
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          className="text-[4vw] font-display text-[var(--color-text-primary)] text-center leading-tight mb-[8vh] tracking-wide"
-        >
-          The Automotive Industry Is <span className="text-[var(--color-error)] italic">Broken</span>
-        </motion.h2>
+        The Automotive Industry <span className="text-[#EF4444]">Is Broken</span>
+      </motion.h2>
 
-        <div className="flex flex-col gap-[4vh] w-full items-center">
-          {painPoints.map((point, i) => (
-            <motion.div
-              key={i}
-              className="flex items-center gap-[2vw] bg-black/40 border border-white/5 backdrop-blur-md p-[2vw] rounded-[1vw] w-[60vw]"
-              initial={{ opacity: 0, x: -50, filter: 'blur(10px)' }}
-              animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
-              transition={{ delay: 2.0 + i * 2.0, duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <div className="w-[0.5vw] h-[0.5vw] rounded-full bg-[var(--color-error)] shadow-[0_0_10px_var(--color-error)] shrink-0" />
-              <span className="text-[1.8vw] font-body text-[var(--color-text-secondary)] tracking-wide">
-                {point}
-              </span>
-            </motion.div>
-          ))}
-        </div>
+      <motion.div 
+        className="grid grid-cols-2 gap-x-[8vw] gap-y-[6vh] w-full"
+        variants={container}
+        initial="hidden"
+        animate="show"
+      >
+        {[
+          { text: "14 days", sub: "to close a deal" },
+          { text: "5 vendors", sub: "per sale" },
+          { text: "4.2 hours", sub: "wasted per buyer" },
+          { text: "Zero", sub: "cryptographic proof" }
+        ].map((point, i) => (
+          <motion.div key={i} variants={item} className="flex flex-col items-start border-l-[0.2vw] border-[#EF4444]/30 pl-[2vw]">
+            <div className="font-display text-[3vw] text-[#EF4444] font-bold mb-[1vh] leading-none">{point.text}</div>
+            <div className="text-[1.5vw] text-[#8B8680] uppercase tracking-wider leading-none">{point.sub}</div>
+          </motion.div>
+        ))}
       </motion.div>
     </motion.div>
   );

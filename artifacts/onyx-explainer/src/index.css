@@ -1,10 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
 @import "tailwindcss";
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
   --color-primary: #C9A227;
-  --color-secondary: #0A0A0A;
-  --color-accent: #E8B830;
+  --color-secondary: #E8B830;
+  --color-accent: #C9A227;
 
   --color-bg-light: #0A0A0A;
   --color-bg-dark: #0A0A0A;
@@ -12,7 +13,7 @@
 
   --color-text-primary: #F5F0E1;
   --color-text-secondary: #8B8680;
-  --color-text-muted: #666666;
+  --color-text-muted: #6B6560;
   --color-text-inverse: #0A0A0A;
 
   --color-success: #10B981;
@@ -47,4 +48,18 @@ body {
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-primary);
+  overflow: hidden;
+}
+
+h1, h2, h3, h4, h5, h6, .font-display {
+  font-family: var(--font-display);
+}
+
+.text-gradient-gold {
+  background: linear-gradient(135deg, #F5F0E1 0%, #C9A227 50%, #E8B830 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
