@@ -87,15 +87,17 @@ function computeTier(points: number): GamificationData {
 }
 
 export function NerveCenter() {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const [wallet, setWallet] = useState<WalletData | null>(null);
   const [vehicles, setVehicles] = useState<VehicleData[]>([]);
   const [network, setNetwork] = useState<NetworkData>({ referrals: 0, networkSize: 0 });
   const [gamification, setGamification] = useState<GamificationData | null>(null);
   const [alerts, setAlerts] = useState<string[]>([]);
 
+  const isLoggedIn = !!(user || token || localStorage.getItem("3c_auth_token") || localStorage.getItem("onyxToken"));
+
   useEffect(() => {
-    if (!user) return;
+    if (!isLoggedIn) return;
 
     authFetch(`${BASE}/api/commissions/my-earnings?limit=1`)
       .then(r => r.json())
@@ -131,11 +133,11 @@ export function NerveCenter() {
       })
       .catch(() => {});
 
-    const pts = user.points ?? 0;
+    const pts = user?.points ?? 0;
     setGamification(computeTier(pts));
-  }, [user]);
+  }, [isLoggedIn, user]);
 
-  if (!user) return null;
+  if (!isLoggedIn) return null;
 
   const totalEarnings = wallet
     ? (parseFloat(wallet.approved) + parseFloat(wallet.pending) + parseFloat(wallet.paid)).toFixed(2)

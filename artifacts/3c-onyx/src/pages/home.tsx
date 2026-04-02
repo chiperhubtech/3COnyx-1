@@ -1844,7 +1844,7 @@ export default function Home() {
           />
         ) : (
           <>
-            {token && <NerveCenter />}
+            <NerveCenter />
 
             <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 12 }}>
               {(Object.entries(SERVICE_CONFIG) as [ServiceCategory, typeof SERVICE_CONFIG[ServiceCategory]][]).map(([key, cfg]) => (
