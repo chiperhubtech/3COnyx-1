@@ -1,0 +1,365 @@
+Act as a Principal Systems Architect, Senior Full-Stack Engineer, and Global CTO.
+
+Your mission is to build “3C ONYX” under CUXTOMCANDYCLUB — a real-time, invite-only Automotive Operating System that operates as a global automotive money network.
+
+The platform must feel as simple as sending a text message, while executing complex multi-party automotive transactions in real time.
+
+-----------------------------------
+
+🔥 CORE MANDATE
+
+ZERO FRICTION + REAL-TIME EXECUTION
+
+A user should be able to:
+
+- Send a message (lead / request)
+- Trigger a transaction
+- Have multiple people participate
+- Everyone gets paid automatically
+
+Target:
+Time to resolution < 2 minutes
+
+-----------------------------------
+
+🧠 CORE CONCEPT: NODE ECONOMY
+
+Every user = NODE
+
+No rigid roles.
+
+A Node can:
+- Refer (send leads like a text)
+- Perform services (mechanic, DMV, detailing)
+- Assist logistics (runner, transport)
+- Host a location (gas station, dealership)
+- Facilitate deals
+
+RULE:
+“If you touch the deal, you get paid.”
+
+-----------------------------------
+
+🔐 INVITE-ONLY NETWORK
+
+- Platform is private
+- Users must join via invite code or request access
+
+Each user gets:
+- Limited invites (default: 5)
+- Personal QR code
+- Referral link
+
+Track:
+- Invite usage
+- Earnings per invite
+- Network growth
+
+-----------------------------------
+
+📲 TEXT-TO-DEAL ENGINE (FORREST GUMP SIMPLICITY)
+
+Users interact like texting:
+
+Example input:
+“Client wants Jeep Cherokee under 25k”
+
+System must:
+
+1. Parse message
+2. Create structured deal object
+3. Assign participants
+4. Trigger matching + execution
+
+No forms. No complexity.
+
+-----------------------------------
+
+⚡ REAL-TIME CORE (UBER-LIKE)
+
+Architecture:
+
+- WebSockets (persistent connections)
+- Redis (pub/sub event system)
+- API-first backend
+
+Events:
+
+- DealCreated
+- ParticipantAdded
+- TaskStarted
+- TaskCompleted
+- PaymentCompleted
+
+All users receive live updates.
+
+-----------------------------------
+
+💰 UNIVERSAL PARTICIPATION ENGINE
+
+Each transaction includes:
+
+participants = [
+  { user_id, type: "referral" },
+  { user_id, type: "service" },
+  { user_id, type: "logistics" },
+  { user_id, type: "location" },
+  { user_id, type: "deal" }
+]
+
+System auto-detects participation based on actions.
+
+-----------------------------------
+
+💳 ONYX WALLET (AUTO MONEY FLOW)
+
+Each user has:
+
+- Wallet balance
+- Pending earnings
+- Transaction history
+
+On PaymentCompleted:
+
+Auto-split:
+
+- Platform fee
+- Referral payouts
+- Service payouts
+- Logistics payouts
+- Location payouts
+
+Instant updates.
+
+-----------------------------------
+
+🚗 AUTOMOTIVE ACTION SYSTEM
+
+Users can:
+
+- Buy vehicles
+- Book services
+- Refer leads
+- Request help
+
+Flow:
+
+Message → Match → Execute → Paid
+
+-----------------------------------
+
+🧠 OEM INCENTIVES + DEAL INTELLIGENCE ENGINE
+
+Build a VIN + user-aware incentive system:
+
+Input:
+- VIN
+- zip code
+- purchase type
+- customer profile
+
+System must:
+
+- Fetch OEM incentives (rebates, programs, affiliate rewards)
+- Determine eligibility per user
+- Rank best offers
+- Attach to deal automatically
+
+Output:
+
+- Total savings
+- Eligible programs
+- Expiration timing
+- Verification status
+
+-----------------------------------
+
+🔐 ONYX PROOF ENGINE (TRUST LAYER)
+
+Each vehicle:
+
+- VIN-based identity
+- Immutable event chain
+
+Event:
+
+{
+  payload,
+  timestamp,
+  previous_hash,
+  hash
+}
+
+API:
+
+GET /vehicle/:id/verify
+
+Returns:
+
+- Full lifecycle
+- Trust score
+- ONYX Verified badge
+
+-----------------------------------
+
+🏪 LOCATION + STREET ECONOMY
+
+Any Node can:
+
+- Register a location
+- Place QR code
+
+Track:
+
+- Signups
+- Transactions
+- Revenue
+
+-----------------------------------
+
+🌍 GLOBAL INCLUSION LAYER
+
+Optimize for:
+
+- Low-end smartphones
+- High latency networks
+- Emerging markets
+
+Features:
+
+- Phone-based signup
+- Offline-first sync
+- Multi-language (EN, ES, PT)
+- Currency conversion
+
+-----------------------------------
+
+💸 GLOBAL MICRO-ECONOMY
+
+Every user globally:
+
+- Gets QR code
+- Can earn instantly
+- Can participate without training
+
+-----------------------------------
+
+🌐 REMITTANCE SYSTEM
+
+Allow:
+
+- Cross-border payments
+- Direct-to-provider payments
+- Family support use cases
+
+-----------------------------------
+
+⚡ “ASK ONYX” COMMAND SYSTEM
+
+Single input:
+
+- “Find car”
+- “Fix car”
+- “Make money”
+
+System routes instantly.
+
+-----------------------------------
+
+🤖 FUTURE MODULES (DO NOT BLOCK MVP)
+
+Design modular hooks for:
+
+- AI Agent Mesh:
+  - Sales Agent
+  - Finance Agent
+  - Service Agent
+  - Logistics Agent
+  - Referral Agent
+  - Support Agent
+  - Proof Agent
+
+- AR Layer (vehicle inspection / pickup guidance)
+- Robotics (future fulfillment centers)
+
+These must be pluggable, not required for MVP.
+
+-----------------------------------
+
+🏗️ TECH STACK
+
+Frontend:
+- Next.js
+- Tailwind (Black #000000 + Gold #C9A85D)
+
+Backend:
+- Node.js (API-first)
+
+Database:
+- PostgreSQL
+
+Real-time:
+- WebSockets + Redis
+
+Payments:
+- Stripe (MVP)
+
+-----------------------------------
+
+🏢 COMPANY METADATA
+
+Company: 3C ONYX Inc  
+Parent Brand: CUXTOMCANDYCLUB  
+Founder: Ronald Antonio Cadet  
+
+Embed in system metadata and schema.
+
+-----------------------------------
+
+🌍 INDUSTRY POSITION
+
+Operate within:
+
+- $400B+ U.S. aftermarket
+- $2T+ global aftermarket
+
+Goal:
+
+Monetize every touchpoint:
+
+Discover → Buy → Service → Maintain → Refer → Repeat
+
+-----------------------------------
+
+🎯 MVP SUCCESS CRITERIA
+
+A user must:
+
+1. Send a lead like a text
+2. Another user acts on it
+3. A transaction happens
+4. ALL participants get paid instantly
+
+-----------------------------------
+
+🚀 FINAL GOAL
+
+Build a system where:
+
+- A service advisor sends a lead
+- A broker closes the deal
+- A mechanic services the car
+- A runner handles logistics
+- A location hosted the QR
+
+AND:
+
+Every person gets paid automatically
+
+-----------------------------------
+
+This is not a marketplace.
+
+This is a real-time global automotive money network.
+
+Execute the build.
