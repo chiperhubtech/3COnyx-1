@@ -1,0 +1,353 @@
+Act as a Principal Systems Architect, Senior Full-Stack Engineer, and Global CTO.
+
+Your mission is to build “3C ONYX” under the parent brand CUXTOMCANDYCLUB — a real-time, invite-only Automotive Operating System that functions as a global automotive money network.
+
+This platform must feel as simple as Uber, while enabling anyone in the world to earn from automotive activity.
+
+-----------------------------------
+
+🔥 CORE MISSION
+
+Build a ZERO-FRICTION system where:
+
+- Users join via invite-only access
+- Users share a QR code or link
+- Automotive activity happens (buy, fix, service, refer)
+- EVERY participant gets paid instantly
+
+Target:
+Time to action < 2 minutes
+
+-----------------------------------
+
+🧠 CORE CONCEPT: NODE ECONOMY
+
+Every user = NODE
+
+No roles.
+
+A Node can:
+- Refer users
+- Perform services (mechanic, DMV, detailing, etc.)
+- Assist logistics (runner, transport)
+- Host a location (gas station, shop, dealership)
+- Facilitate transactions
+
+RULE:
+“If you touch the deal, you get paid.”
+
+-----------------------------------
+
+🔐 INVITE-ONLY NETWORK
+
+- Platform is private
+- Users must have invite code OR request access
+
+Each user gets:
+- Limited invites (default: 5)
+- Unique invite codes
+- Personal QR
+
+Track:
+- Invite usage
+- Earnings per invite
+- Conversion rate
+
+-----------------------------------
+
+💰 UNIVERSAL PARTICIPATION ENGINE
+
+Each transaction includes:
+
+participants = [
+  { user_id, type: "referral" },
+  { user_id, type: "service" },
+  { user_id, type: "logistics" },
+  { user_id, type: "location" },
+  { user_id, type: "deal" }
+]
+
+System auto-detects participation.
+
+-----------------------------------
+
+💳 ONYX WALLET SYSTEM
+
+Each user has:
+
+- Wallet balance
+- Pending earnings
+- Transaction history
+
+Auto-split revenue:
+
+- Platform fee
+- Referral payouts
+- Service payouts
+- Logistics payouts
+- Location payouts
+
+All earnings update instantly.
+
+-----------------------------------
+
+⚡ REAL-TIME ENGINE (UBER EXPERIENCE)
+
+Implement:
+
+- WebSockets for real-time updates
+- Redis (pub/sub)
+
+Events:
+
+- “Match found”
+- “Task started”
+- “Deal completed”
+- “You earned $X”
+
+-----------------------------------
+
+🚗 AUTOMOTIVE ACTION SYSTEM
+
+Users can:
+
+- Buy vehicles
+- Book services (mechanic, detailing, DMV, etc.)
+- Connect with brokers
+- Request help (flat tire, registration, etc.)
+
+Flow:
+
+Tap → Match → Confirm → Complete
+
+-----------------------------------
+
+🔐 ONYX PROOF ENGINE (GLOBAL TRUST LAYER)
+
+Each vehicle:
+
+- VIN-based identity
+- Immutable event chain
+
+Event structure:
+
+{
+  payload,
+  timestamp,
+  previous_hash,
+  hash
+}
+
+API:
+
+GET /vehicle/:id/verify
+
+Returns:
+
+- Full history
+- Trust score
+- “ONYX Verified” badge
+
+-----------------------------------
+
+🏪 LOCATION SYSTEM (STREET + GLOBAL)
+
+Any Node can:
+
+- Register a location (gas station, shop, dealership)
+- Attach QR code
+
+Track:
+
+- Signups
+- Transactions
+- Revenue generated
+
+-----------------------------------
+
+📊 USER DASHBOARD (SIMPLE + ADDICTIVE)
+
+Display:
+
+- Live earnings
+- Referrals
+- Transactions
+- Activity feed
+- Leaderboard
+
+Feels like:
+
+Uber Driver + Cash App + Affiliate Dashboard
+
+-----------------------------------
+
+🔥 SOCIAL PROOF ENGINE
+
+Show:
+
+- “You earned $12”
+- “3 people joined from your link”
+- “$2,300 generated near you”
+
+-----------------------------------
+
+⚡ “ASK ONYX” COMMAND BAR
+
+Single input:
+
+- “I need a car”
+- “Fix my car”
+- “How do I make money?”
+
+System routes instantly.
+
+-----------------------------------
+
+🌍 GLOBAL INCLUSION LAYER (CRITICAL)
+
+Optimize platform for:
+
+- Low-end smartphones
+- High-latency networks
+- Emerging markets (LATAM, Africa, SE Asia)
+
+-----------------------------------
+
+📱 ULTRA-LIGHT ONBOARDING
+
+- Phone number login
+- WhatsApp / SMS integration (future hook)
+- < 60 second signup
+
+-----------------------------------
+
+💸 GLOBAL MICRO-ECONOMY SYSTEM
+
+Every user globally gets:
+
+- Earning QR code
+- Referral link
+- Instant earning ability
+
+-----------------------------------
+
+🔄 OFFLINE-FIRST SUPPORT
+
+- Cache actions locally
+- Sync when connection returns
+
+-----------------------------------
+
+🌎 LOCALIZATION
+
+- Multi-language:
+  - English
+  - Spanish
+  - Portuguese
+
+- Currency conversion in wallet
+
+-----------------------------------
+
+🔧 GLOBAL TRUST (IMPORTANT)
+
+Mechanics can:
+
+- Upload service via photo
+- Create ONYX Verified record
+- Increase vehicle value
+
+-----------------------------------
+
+🌐 REMITTANCE SYSTEM
+
+Enable:
+
+- Users abroad to pay for:
+  - Repairs
+  - Services
+  - Parts
+
+Directly to provider via ONYX
+
+-----------------------------------
+
+🏗️ TECH STACK
+
+Frontend:
+- Next.js (mobile-first)
+- Tailwind (Black #000000 + Gold #C9A85D)
+
+Backend:
+- Node.js
+
+Database:
+- PostgreSQL
+
+Real-time:
+- WebSockets + Redis
+
+Payments:
+- Stripe (MVP) → Expand to global wallets
+
+-----------------------------------
+
+🏢 COMPANY STRUCTURE
+
+Company: 3C ONYX Inc  
+Parent Brand: CUXTOMCANDYCLUB  
+Founder Signature: Ronald Antonio Cadet  
+
+Embed metadata in system.
+
+-----------------------------------
+
+🌍 INDUSTRY CONTEXT
+
+Operate within:
+
+- $400B+ U.S. aftermarket
+- $2T+ global automotive aftermarket
+
+Goal:
+
+Monetize EVERY touchpoint:
+
+Discover → Buy → Service → Maintain → Refer → Repeat
+
+-----------------------------------
+
+🎯 MVP SUCCESS CRITERIA
+
+User must be able to:
+
+1. Join via invite
+2. Get QR + link
+3. Share it
+4. Another user joins
+5. A transaction happens
+6. ALL participants get paid instantly
+
+-----------------------------------
+
+🚀 FINAL GOAL
+
+Create a system where:
+
+- A broker sells a car
+- A mechanic repairs it
+- A runner handles logistics
+- A clerk referred the user
+- A shop hosted the QR
+
+AND:
+
+Every single person gets paid automatically
+
+-----------------------------------
+
+This is not an app.
+
+This is a GLOBAL AUTOMOTIVE ECONOMIC NETWORK.
+
+Execute the build.

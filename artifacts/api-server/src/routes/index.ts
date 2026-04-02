@@ -129,6 +129,11 @@ import askOnyxRouter from "./ask-onyx";
 import splitPaymentsRouter from "./split-payments";
 import bankPayoffRouter from "./bank-payoff";
 import warrantyIntelRouter from "./warranty-intel";
+import onyxWalletRouter from "./onyx-wallet";
+import locationNodesRouter from "./location-nodes";
+import socialProofRouter from "./social-proof";
+import remittanceRouter from "./remittance";
+import globalInclusionRouter from "./global-inclusion";
 
 const router: IRouter = Router();
 
@@ -280,5 +285,10 @@ router.use("/ask-onyx", askOnyxRouter);
 router.use("/splits", splitPaymentsRouter);
 router.use("/bank-payoff", bankPayoffRouter);
 router.use("/warranty", warrantyIntelRouter);
+router.use("/onyx-wallet", onyxWalletRouter);
+router.use("/locations", locationNodesRouter);
+router.use("/social-proof", socialProofRouter);
+router.use("/remittance", remittanceRouter);
+router.use("/global", globalInclusionRouter);
 
 export default router;

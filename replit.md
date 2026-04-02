@@ -86,6 +86,23 @@ Six systems that fuse gig-economy logistics, industrial-grade warranty managemen
 ### Sovereign Nexus Database Tables
 `invite_tree`, `node_profiles`, `task_matching`, `split_payments`, `split_recipients`, `bank_payoffs`, `warranty_intel`
 
+## Global Automotive Economic Network — The Living Money Network
+
+Five systems that complete the zero-friction global economy where every participant earns from automotive activity:
+
+1. **ONYX Wallet System** (`/api/onyx-wallet/*`): Cash App meets automotive. Real-time balance, pending earnings, lifetime tracking, instant credit/debit, withdrawal support. 14 transaction categories. Auto-split integration with split-payment engine. Wallet leaderboard. Stripe Connect ready. Every credit and debit gets a SHA-256 proof hash.
+
+2. **Location Node Network** (`/api/locations/*`): Every gas station, mechanic bay, and shop becomes a high-conversion point-of-sale. 15 location types (Gas_Station, Mechanic_Shop, Dealership, Auto_Parts, Car_Wash, Tire_Shop, Body_Shop, etc.). QR code generation per location. Track scans, signups, transactions, and revenue per location. Geo-hash discovery for nearby locations. Location leaderboard.
+
+3. **Social Proof Engine** (`/api/social-proof/*`): Real-time dopamine loop. Live earnings feed ("A Node just earned $X from a service job"). Personal stats dashboard (lifetime earnings, people referred, tasks completed, 24h earnings). Nearby activity ("$2,300 generated near you"). Milestone system (First Dollar → Hundred K Sovereign). Earnings badges (Rising Node → Power Earner). Global network stats.
+
+4. **Global Remittance System** (`/api/remittance/*`): A user in Haiti pays for a repair in Florida, instantly. 28 supported currencies. 1.5% fee. 14 corridors (US↔Haiti, US↔Jamaica, US↔DR, US↔Mexico, US↔Brazil, US↔Colombia, US↔Nigeria, etc.). Real-time FX conversion. 10 purposes (Vehicle_Repair, Parts_Order, Service_Payment, etc.). Blockchain proof stamps.
+
+5. **Global Inclusion & Localization Engine** (`/api/global/*`): Optimized for every human, every device, every network. 4 languages (English, Spanish, Portuguese, Haitian Creole). 19 currencies with symbols. Offline-first sync queue (cache actions locally, sync when connection returns). Device-adaptive config (2G/3G/satellite network optimization, low-RAM mode, aggressive caching). Emerging market ready (Android 8+, 1GB RAM devices).
+
+### Global Network Database Tables
+`onyx_wallets`, `wallet_transactions`, `location_nodes`, `remittance_transfers`, `offline_sync_queue`
+
 # External Dependencies
 
 -   **Monorepo Tool**: pnpm workspaces
