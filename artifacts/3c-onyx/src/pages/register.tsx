@@ -10,12 +10,22 @@ const ROLES = [
   { id: "Dealer",     label: "Dealer",     icon: Building2, desc: "List inventory and access wholesale network", color: "#A78BFA" },
 ];
 
+function getInitialRole(): { role: string; skipToStep2: boolean } {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const r = params.get("role");
+    if (r && ROLES.some((x) => x.id === r)) return { role: r, skipToStep2: true };
+  } catch {}
+  return { role: "Member", skipToStep2: false };
+}
+
 export default function RegisterPage() {
   const { register, loading, error, clearError } = useAuth();
   const [, navigate] = useLocation();
 
-  const [step, setStep]         = useState<1 | 2 | 3>(1);
-  const [role, setRole]         = useState("Member");
+  const initial = getInitialRole();
+  const [step, setStep]         = useState<1 | 2 | 3>(initial.skipToStep2 ? 2 : 1);
+  const [role, setRole]         = useState(initial.role);
   const [name, setName]         = useState("");
   const [email, setEmail]       = useState("");
   const [phone, setPhone]       = useState("");

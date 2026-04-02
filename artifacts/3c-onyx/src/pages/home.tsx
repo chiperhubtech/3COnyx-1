@@ -10,6 +10,7 @@ import {
   Zap, TrendingUp, Award, Network, Star, Heart,
   AlertTriangle, Repeat, Mic, ChevronLeft,
   Check, Phone, User, Camera, ScanLine, Timer,
+  Building2, Truck, UserPlus,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
@@ -874,6 +875,110 @@ function NeuralInput({ onSubmit }: { onSubmit: (message: string) => void }) {
           <Send size={18} style={{ color: message.trim() ? "#000" : "rgba(255,255,255,0.12)" }} />
         </button>
       </div>
+    </div>
+  );
+}
+
+const JOIN_ROLES = [
+  {
+    id: "Member",
+    icon: Shield,
+    label: "Join as Member",
+    description: "Access the full automotive ecosystem — buy, sell, trade, insure, and earn",
+    accent: "#C9A227",
+    perks: ["Bird-Dog referral commissions", "AI-powered vehicle matching", "Full concierge service"],
+  },
+  {
+    id: "Runner",
+    icon: Truck,
+    label: "Become a Runner",
+    description: "Transport and deliver vehicles — earn per trip with flexible scheduling",
+    accent: "#34D399",
+    perks: ["Earn per delivery", "Flexible schedule", "Tier-based pay increases"],
+  },
+  {
+    id: "Dealer",
+    icon: Building2,
+    label: "Dealer Partner",
+    description: "List inventory, access wholesale, and tap into our buyer network",
+    accent: "#A78BFA",
+    perks: ["DealerFlow OS access", "Wholesale network", "AI lead routing"],
+  },
+  {
+    id: "Specialist",
+    icon: Wrench,
+    label: "Certified Specialist",
+    description: "Inspections, service, and repair — get matched with jobs near you",
+    accent: "#60A5FA",
+    perks: ["Job matching", "Inspection assignments", "Professional dashboard"],
+  },
+];
+
+function JoinPlatformSection() {
+  const [pressed, setPressed] = useState<string | null>(null);
+
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14, paddingLeft: 4 }}>
+        <UserPlus size={14} style={{ color: "#C9A227" }} />
+        <p style={{
+          fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.3)",
+          letterSpacing: "0.12em", margin: 0, textTransform: "uppercase",
+        }}>
+          Join the Platform
+        </p>
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {JOIN_ROLES.map((role) => {
+          const Icon = role.icon;
+          const isPressed = pressed === role.id;
+
+          return (
+            <a
+              key={role.id}
+              href={`/register?role=${role.id}`}
+              onMouseDown={() => setPressed(role.id)}
+              onMouseUp={() => setPressed(null)}
+              onMouseLeave={() => setPressed(null)}
+              style={{
+                width: "100%",
+                padding: "18px 18px",
+                borderRadius: 16,
+                background: isPressed ? `${role.accent}0A` : "rgba(255,255,255,0.02)",
+                border: `1px solid ${isPressed ? `${role.accent}30` : "rgba(255,255,255,0.06)"}`,
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+                display: "flex", alignItems: "center", gap: 14,
+                textDecoration: "none",
+                color: "#fff",
+              }}
+            >
+              <div style={{
+                width: 44, height: 44, borderRadius: 12, flexShrink: 0,
+                background: `${role.accent}0D`,
+                border: `1px solid ${role.accent}1A`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>
+                <Icon size={20} style={{ color: role.accent }} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontSize: 15, fontWeight: 700, margin: "0 0 2px", lineHeight: 1.2 }}>{role.label}</p>
+                <p style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", margin: 0, lineHeight: 1.4 }}>{role.description}</p>
+              </div>
+              <ChevronRight size={16} style={{ color: "rgba(255,255,255,0.12)", flexShrink: 0 }} />
+            </a>
+          );
+        })}
+      </div>
+
+      <p style={{
+        textAlign: "center", marginTop: 12, fontSize: 11,
+        color: "rgba(255,255,255,0.2)",
+      }}>
+        Already a member?{" "}
+        <a href="/login" style={{ color: "#C9A227", textDecoration: "none", fontWeight: 600 }}>Sign in</a>
+      </p>
     </div>
   );
 }
@@ -1750,6 +1855,8 @@ export default function Home() {
                 />
               ))}
             </div>
+
+            {!token && <JoinPlatformSection />}
 
             <NeuralInput onSubmit={handleNeuralSubmit} />
 
