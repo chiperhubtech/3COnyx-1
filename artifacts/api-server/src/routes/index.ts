@@ -114,6 +114,7 @@ import loopitRouter from "./loopit";
 import integrationsRouter from "./integrations";
 import vehicleProofRouter from "./vehicleProof";
 import autonomousEngineRouter from "./autonomousEngine";
+import attributionRouter from "./attribution";
 
 const router: IRouter = Router();
 
@@ -250,5 +251,6 @@ router.use(loopitRouter);
 router.use(integrationsRouter);
 router.use(vehicleProofRouter);
 router.use(autonomousEngineRouter);
+router.use(attributionRouter);
 
 export default router;

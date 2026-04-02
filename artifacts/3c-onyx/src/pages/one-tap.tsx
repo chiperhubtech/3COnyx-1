@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { AltruisticShare, useAltruisticShare } from "@/components/AltruisticShare";
 import {
   Zap, Car, Wrench, DollarSign, Shield, CheckCircle2,
   Loader2, AlertTriangle, ArrowRight, Fingerprint, Hash,
@@ -117,6 +118,7 @@ export default function OneTapPage() {
   const [error, setError] = useState<string | null>(null);
   const [elapsedMs, setElapsedMs] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const share = useAltruisticShare();
 
   const startTimer = useCallback(() => {
     const start = Date.now();
@@ -481,12 +483,16 @@ export default function OneTapPage() {
               </button>
             </div>
 
-            <div className="text-center text-xs text-zinc-600">
+            <button
+              onClick={() => share.trigger("one-tap completion")}
+              className="w-full py-3 rounded-xl border border-amber-500/20 bg-amber-500/5 text-amber-400 text-sm font-medium hover:bg-amber-500/10 transition-colors flex items-center justify-center gap-2"
+            >
+              <span className="text-base">&#10024;</span>
               {user?.name
-                ? `You helped someone today, ${user.name.split(" ")[0]}. Help someone else?`
-                : "You helped someone today. Help someone else?"
+                ? `You helped someone, ${user.name.split(" ")[0]}! Earn by helping another.`
+                : "You helped someone! Earn by helping another."
               }
-            </div>
+            </button>
           </div>
         )}
 
@@ -507,6 +513,8 @@ export default function OneTapPage() {
           </p>
         </div>
       </div>
+
+      <AltruisticShare visible={share.visible} onDismiss={share.dismiss} context={share.context} />
     </div>
   );
 }
