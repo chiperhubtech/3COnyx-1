@@ -9,29 +9,33 @@ export function Scene6_RevenueModel() {
   }, []);
 
   const streams = [
-    { title: "$150-$300", desc: "per vehicle deal" },
-    { title: "Commissions", desc: "Parts, Service, Transport" },
+    { title: "$150–$300", desc: "Per Vehicle Deal" },
+    { title: "3–20%", desc: "Logistic Commissions" },
     { title: "Recurring", desc: "Insurance & Lender Spreads" }
   ];
 
   return (
     <motion.div
-      className="absolute inset-0 flex flex-col items-center justify-center z-10 px-24"
+      className="absolute inset-0 flex flex-col items-center justify-center z-10"
+      style={{ padding: '0 8vw' }}
       initial={{ opacity: 0, scale: 1.1 }}
       animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, x: -50, filter: 'blur(5px)' }}
+      exit={{ opacity: 0, filter: 'blur(5px)' }}
       transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
     >
       <motion.div
-        className="text-[#C9A227] tracking-[0.2em] text-lg uppercase font-semibold mb-4"
+        className="text-[#C9A227] uppercase font-semibold"
+        style={{ fontSize: '1.2vw', letterSpacing: '0.2em', marginBottom: '1.5vh' }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, delay: 0.5 }}
       >
         THE REVENUE MODEL
       </motion.div>
+
       <motion.h2
-        className="font-display text-6xl font-bold text-white mb-16 text-center"
+        className="font-display font-bold text-white text-center"
+        style={{ fontSize: '4vw', marginBottom: '6vh' }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, delay: 0.8 }}
@@ -39,17 +43,18 @@ export function Scene6_RevenueModel() {
         The Tollbooth
       </motion.h2>
 
-      <div className="grid grid-cols-3 gap-8 w-full max-w-6xl">
+      <div className="grid grid-cols-3 w-full" style={{ gap: '3vw' }}>
         {streams.map((stream, i) => (
           <motion.div
             key={i}
-            className="flex flex-col items-center text-center p-10 border border-[#333] rounded-xl bg-gradient-to-b from-[#111] to-[#0A0A0A]"
+            className="flex flex-col items-center text-center bg-gradient-to-b from-[#111] to-[#0A0A0A]"
+            style={{ padding: '4vh 2vw', border: '1px solid #333', borderRadius: '1vw' }}
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 1.5 + (i * 0.3), type: "spring" }}
           >
-            <div className="font-display text-4xl font-bold text-[#E8B830] mb-4">{stream.title}</div>
-            <div className="text-xl text-[#F5F0E1]">{stream.desc}</div>
+            <div className="font-display font-bold text-[#E8B830]" style={{ fontSize: '2.8vw', marginBottom: '1.5vh' }}>{stream.title}</div>
+            <div className="text-[#F5F0E1]" style={{ fontSize: '1.3vw' }}>{stream.desc}</div>
           </motion.div>
         ))}
       </div>

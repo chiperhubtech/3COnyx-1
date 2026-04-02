@@ -10,47 +10,51 @@ export function Scene7_Growth() {
 
   return (
     <motion.div
-      className="absolute inset-0 flex flex-col items-center justify-center z-10 px-24"
+      className="absolute inset-0 flex flex-col items-center justify-center z-10"
+      style={{ padding: '0 10vw' }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, scale: 0.95, filter: 'blur(10px)' }}
       transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
     >
-      <div className="w-full max-w-5xl flex flex-col gap-12">
+      <div className="w-full flex flex-col" style={{ gap: '5vh' }}>
         <motion.div
-          className="flex justify-between items-end border-b-2 border-[#333] pb-8"
-          initial={{ opacity: 0, x: -50 }}
+          className="flex justify-between items-end"
+          style={{ borderBottom: '2px solid #333', paddingBottom: '3vh' }}
+          initial={{ opacity: 0, x: '-5vw' }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 1, delay: 0.5 }}
         >
           <div>
-            <div className="text-[#8B8680] text-xl tracking-widest uppercase mb-2">Phase I</div>
-            <div className="text-3xl text-white font-medium">25 deals/month</div>
+            <div className="text-[#8B8680] uppercase tracking-widest" style={{ fontSize: '1.2vw', marginBottom: '0.5vh' }}>Phase I</div>
+            <div className="text-white font-medium" style={{ fontSize: '2vw' }}>25 deals/month</div>
           </div>
           <div className="text-right">
-            <div className="font-display text-5xl font-bold text-[#C9A227]">$6,250</div>
-            <div className="text-[#8B8680] text-lg">Monthly Revenue</div>
+            <div className="font-display font-bold text-[#C9A227]" style={{ fontSize: '3.5vw' }}>$6,250</div>
+            <div className="text-[#8B8680]" style={{ fontSize: '1.1vw' }}>Monthly Revenue</div>
           </div>
         </motion.div>
 
         <motion.div
-          className="flex justify-between items-end border-b-2 border-[#C9A227]/50 pb-8"
-          initial={{ opacity: 0, x: -50 }}
+          className="flex justify-between items-end"
+          style={{ borderBottom: '2px solid rgba(201,162,39,0.5)', paddingBottom: '3vh' }}
+          initial={{ opacity: 0, x: '-5vw' }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 1, delay: 2 }}
         >
           <div>
-            <div className="text-[#8B8680] text-xl tracking-widest uppercase mb-2">Phase II</div>
-            <div className="text-4xl text-white font-bold">150 deals/month</div>
+            <div className="text-[#8B8680] uppercase tracking-widest" style={{ fontSize: '1.2vw', marginBottom: '0.5vh' }}>Phase II</div>
+            <div className="text-white font-bold" style={{ fontSize: '2.5vw' }}>150 deals/month</div>
           </div>
           <div className="text-right">
-            <div className="font-display text-6xl font-bold text-gradient-gold">$37,500</div>
-            <div className="text-[#8B8680] text-lg">Monthly Revenue</div>
+            <div className="font-display font-bold text-gradient-gold" style={{ fontSize: '4vw' }}>$37,500</div>
+            <div className="text-[#8B8680]" style={{ fontSize: '1.1vw' }}>Monthly Revenue</div>
           </div>
         </motion.div>
 
         <motion.div
-          className="self-center mt-8 px-8 py-4 bg-[#C9A227]/10 border border-[#C9A227] rounded-full text-[#E8B830] text-2xl font-bold tracking-wide"
+          className="self-center text-[#E8B830] font-bold tracking-wide"
+          style={{ fontSize: '1.6vw', marginTop: '2vh', padding: '1.5vh 3vw', background: 'rgba(201,162,39,0.1)', border: '1px solid #C9A227', borderRadius: '5vw' }}
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1, delay: 3.5, type: "spring" }}

@@ -11,7 +11,8 @@ export function Scene10_Close() {
 
   return (
     <motion.div
-      className="absolute inset-0 flex flex-col items-center justify-center z-10 px-24 text-center"
+      className="absolute inset-0 flex flex-col items-center justify-center z-10 text-center"
+      style={{ padding: '0 8vw' }}
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0 }}
@@ -21,13 +22,14 @@ export function Scene10_Close() {
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 2, delay: 0.5 }}
-        className="mb-12"
+        style={{ marginBottom: '4vh' }}
       >
-        <OnyxLogo className="w-32 h-32 text-[#C9A227]" />
+        <OnyxLogo className="text-[#C9A227]" style={{ width: '8vw', height: '8vw' }} />
       </motion.div>
 
       <motion.h2
-        className="font-display text-4xl md:text-5xl font-bold text-white mb-16 max-w-4xl leading-tight"
+        className="font-display font-bold text-white leading-tight"
+        style={{ fontSize: '2.8vw', marginBottom: '5vh', maxWidth: '60vw' }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1.5, delay: 1.5 }}
@@ -41,9 +43,9 @@ export function Scene10_Close() {
         animate={{ opacity: 1 }}
         transition={{ duration: 1.5, delay: 3 }}
       >
-        <div className="text-[#C9A227] text-xl font-medium tracking-wide mb-2">Ronald Antonio Cadet</div>
-        <div className="text-[#8B8680] text-lg uppercase tracking-widest mb-4">CVO / Founder</div>
-        <div className="text-white/60 font-mono text-sm border border-white/10 px-4 py-2 rounded">ron@cuxtomcandyclub.com</div>
+        <div className="text-[#C9A227] font-medium tracking-wide" style={{ fontSize: '1.4vw', marginBottom: '0.5vh' }}>Ronald Antonio Cadet</div>
+        <div className="text-[#8B8680] uppercase tracking-widest" style={{ fontSize: '1vw', marginBottom: '1.5vh' }}>CVO / Founder</div>
+        <div className="text-white/60 font-mono" style={{ fontSize: '0.9vw', border: '1px solid rgba(255,255,255,0.1)', padding: '0.8vh 1.5vw', borderRadius: '0.3vw' }}>ron@cuxtomcandyclub.com</div>
       </motion.div>
     </motion.div>
   );

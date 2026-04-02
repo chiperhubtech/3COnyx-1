@@ -43,18 +43,34 @@ interface ProofEvent {
 
 interface VehicleProof {
   vin: string;
+  vehicleLabel: string | null;
   platform: string;
   architect: string;
   documentType: string;
   issuedAt: string;
+  singularity: string;
   trustScore: TrustScore;
   verification: {
     chainIntegrity: string;
     totalEntries: number;
+    verifiedEvents: number;
+    totalLifecycleEvents: number;
     hashAlgorithm: string;
     signatureAlgorithm: string;
     ethereumAnchoring: boolean;
     network: string;
+  };
+  commerce: {
+    warranties: number;
+    deals: number;
+    referrals: number;
+    totalFunded: string;
+    commissionsPaid: string;
+  };
+  cascadeEngine: {
+    status: string;
+    totalCascadeSteps: number;
+    philosophy: string;
   };
   timeline: ProofEvent[];
   proofStatement: {
@@ -76,6 +92,13 @@ const EVENT_ICONS: Record<string, typeof Shield> = {
   bol_issued: FileCheck,
   sdv_registration: Cpu,
   ota_update: Zap,
+  warranty: Shield,
+  warranty_verified: CheckCircle,
+  deal_created: FileCheck,
+  deal_sealed: Lock,
+  deal_funded: Zap,
+  commission_settled: Award,
+  referral_active: UserCheck,
 };
 
 const EVENT_COLORS: Record<string, string> = {
@@ -89,6 +112,13 @@ const EVENT_COLORS: Record<string, string> = {
   bol_issued: "#818CF8",
   sdv_registration: "#3B82F6",
   ota_update: "#06B6D4",
+  warranty: "#8B5CF6",
+  warranty_verified: "#34D399",
+  deal_created: "#F59E0B",
+  deal_sealed: "#A78BFA",
+  deal_funded: "#10B981",
+  commission_settled: "#C9A227",
+  referral_active: "#60A5FA",
 };
 
 function TrustScoreGauge({ score }: { score: TrustScore }) {
@@ -290,10 +320,20 @@ export default function ProofPage() {
 
               <TrustScoreGauge score={proof.trustScore} />
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px", marginTop: "24px" }}>
+              {proof.vehicleLabel && (
+                <div style={{ fontSize: "14px", color: "rgba(255,255,255,0.5)", marginBottom: "8px" }}>
+                  {proof.vehicleLabel}
+                </div>
+              )}
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "12px", marginTop: "24px" }}>
                 <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: "8px", padding: "12px" }}>
-                  <div style={{ fontSize: "20px", fontWeight: 700, color: "#FFFFFF" }}>{proof.verification.totalEntries}</div>
-                  <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.4)", letterSpacing: "1px" }}>VERIFIED EVENTS</div>
+                  <div style={{ fontSize: "20px", fontWeight: 700, color: "#FFFFFF" }}>{proof.verification.verifiedEvents}</div>
+                  <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.4)", letterSpacing: "1px" }}>VERIFIED</div>
+                </div>
+                <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: "8px", padding: "12px" }}>
+                  <div style={{ fontSize: "20px", fontWeight: 700, color: "rgba(255,255,255,0.7)" }}>{proof.verification.totalLifecycleEvents}</div>
+                  <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.4)", letterSpacing: "1px" }}>TOTAL EVENTS</div>
                 </div>
                 <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: "8px", padding: "12px" }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "4px" }}>
@@ -310,6 +350,43 @@ export default function ProofPage() {
                   </div>
                   <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.4)", letterSpacing: "1px" }}>NETWORK</div>
                 </div>
+              </div>
+
+              {(proof.commerce.warranties > 0 || proof.commerce.deals > 0 || proof.commerce.referrals > 0) && (
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px", marginTop: "16px" }}>
+                  <div style={{ background: "rgba(139,92,246,0.08)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: "8px", padding: "10px", textAlign: "center" }}>
+                    <div style={{ fontSize: "18px", fontWeight: 700, color: "#8B5CF6" }}>{proof.commerce.warranties}</div>
+                    <div style={{ fontSize: "9px", color: "rgba(255,255,255,0.4)", letterSpacing: "1px" }}>WARRANTIES</div>
+                  </div>
+                  <div style={{ background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: "8px", padding: "10px", textAlign: "center" }}>
+                    <div style={{ fontSize: "18px", fontWeight: 700, color: "#10B981" }}>{proof.commerce.deals}</div>
+                    <div style={{ fontSize: "9px", color: "rgba(255,255,255,0.4)", letterSpacing: "1px" }}>DEALS</div>
+                  </div>
+                  <div style={{ background: "rgba(201,162,39,0.08)", border: "1px solid rgba(201,162,39,0.2)", borderRadius: "8px", padding: "10px", textAlign: "center" }}>
+                    <div style={{ fontSize: "18px", fontWeight: 700, color: "#C9A227" }}>{proof.commerce.referrals}</div>
+                    <div style={{ fontSize: "9px", color: "rgba(255,255,255,0.4)", letterSpacing: "1px" }}>REFERRALS</div>
+                  </div>
+                </div>
+              )}
+
+              <div style={{
+                marginTop: "16px",
+                padding: "10px 16px",
+                background: "rgba(201,162,39,0.06)",
+                border: "1px solid rgba(201,162,39,0.15)",
+                borderRadius: "8px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+              }}>
+                <Cpu size={12} style={{ color: "#C9A227" }} />
+                <span style={{ fontSize: "10px", color: "#C9A227", letterSpacing: "1.5px", fontWeight: 600 }}>
+                  CASCADE ENGINE: {proof.cascadeEngine.status}
+                </span>
+                <span style={{ fontSize: "10px", color: "rgba(255,255,255,0.3)" }}>
+                  — {proof.cascadeEngine.totalCascadeSteps} automation steps
+                </span>
               </div>
             </div>
 

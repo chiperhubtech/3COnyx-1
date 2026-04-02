@@ -9,41 +9,47 @@ export function Scene9_Moat() {
   }, []);
 
   const pillars = [
-    "100% Built & Deployable",
-    "Forensically Branded IP",
-    "Solves Contracts in Transit"
+    "100% Built &\nDeployable",
+    "Forensically\nBranded IP",
+    "Solves Contracts\nin Transit"
   ];
 
   return (
     <motion.div
-      className="absolute inset-0 flex flex-col items-center justify-center z-10 px-24"
+      className="absolute inset-0 flex flex-col items-center justify-center z-10"
+      style={{ padding: '0 8vw' }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, filter: 'blur(10px)', scale: 1.1 }}
       transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
     >
       <motion.h2
-        className="font-display text-6xl font-bold text-white mb-20 tracking-wide uppercase"
-        initial={{ opacity: 0, y: -30 }}
+        className="font-display font-bold text-white uppercase tracking-wide"
+        style={{ fontSize: '4vw', marginBottom: '8vh' }}
+        initial={{ opacity: 0, y: '-3vh' }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1.5, delay: 0.5 }}
       >
         The <span className="text-[#C9A227]">Moat</span>
       </motion.h2>
 
-      <div className="flex gap-12 w-full max-w-6xl">
+      <div className="flex w-full" style={{ gap: '3vw' }}>
         {pillars.map((pillar, i) => (
           <motion.div
             key={i}
-            className="flex-1 flex flex-col items-center justify-center text-center p-12 border-t-4 border-[#C9A227] bg-gradient-to-b from-[#C9A227]/10 to-transparent"
+            className="flex-1 flex flex-col items-center justify-center text-center bg-gradient-to-b from-[#C9A227]/10 to-transparent"
+            style={{ padding: '4vh 2vw', borderTop: '3px solid #C9A227' }}
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.2, delay: 1.5 + (i * 0.4), type: "spring", bounce: 0.2 }}
           >
-            <div className="w-16 h-16 rounded-full bg-[#0A0A0A] border border-[#C9A227]/30 flex items-center justify-center text-2xl font-display text-[#C9A227] mb-8">
+            <div
+              className="rounded-full bg-[#0A0A0A] flex items-center justify-center font-display text-[#C9A227]"
+              style={{ width: '3.5vw', height: '3.5vw', border: '1px solid rgba(201,162,39,0.3)', fontSize: '1.5vw', marginBottom: '2vh' }}
+            >
               {i + 1}
             </div>
-            <h3 className="text-2xl text-white font-medium leading-snug">{pillar}</h3>
+            <h3 className="text-white font-medium leading-snug whitespace-pre-line" style={{ fontSize: '1.5vw' }}>{pillar}</h3>
           </motion.div>
         ))}
       </div>

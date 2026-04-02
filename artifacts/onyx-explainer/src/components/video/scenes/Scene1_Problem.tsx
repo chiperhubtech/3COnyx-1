@@ -23,23 +23,26 @@ export function Scene1_Problem() {
 
   return (
     <motion.div
-      className="absolute inset-0 flex flex-col items-center justify-center z-10 px-[10vw]"
+      className="absolute inset-0 flex flex-col items-center justify-center z-10"
+      style={{ padding: '0 10vw' }}
       initial={{ opacity: 0, scale: 1.05 }}
       animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, x: '-5vw', filter: 'blur(5px)' }}
+      exit={{ opacity: 0, filter: 'blur(5px)' }}
       transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
     >
       <motion.h2
-        className="font-display text-[4vw] font-bold text-white mb-[6vh] text-center"
-        initial={{ opacity: 0, y: '-4vh' }}
+        className="font-display font-bold text-white text-center"
+        style={{ fontSize: '3.5vw', marginBottom: '5vh' }}
+        initial={{ opacity: 0, y: '-3vh' }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1.2, delay: 0.5 }}
       >
         The Automotive Industry <span className="text-[#EF4444]">Is Broken</span>
       </motion.h2>
 
-      <motion.div 
-        className="grid grid-cols-2 gap-x-[8vw] gap-y-[6vh] w-full"
+      <motion.div
+        className="grid grid-cols-2 w-full"
+        style={{ gap: '4vh 6vw' }}
         variants={container}
         initial="hidden"
         animate="show"
@@ -50,9 +53,9 @@ export function Scene1_Problem() {
           { text: "4.2 hours", sub: "wasted per buyer" },
           { text: "Zero", sub: "cryptographic proof" }
         ].map((point, i) => (
-          <motion.div key={i} variants={item} className="flex flex-col items-start border-l-[0.2vw] border-[#EF4444]/30 pl-[2vw]">
-            <div className="font-display text-[3vw] text-[#EF4444] font-bold mb-[1vh] leading-none">{point.text}</div>
-            <div className="text-[1.5vw] text-[#8B8680] uppercase tracking-wider leading-none">{point.sub}</div>
+          <motion.div key={i} variants={item} className="flex flex-col items-start" style={{ borderLeft: '0.2vw solid rgba(239,68,68,0.3)', paddingLeft: '2vw' }}>
+            <div className="font-display text-[#EF4444] font-bold leading-none" style={{ fontSize: '2.5vw', marginBottom: '0.8vh' }}>{point.text}</div>
+            <div className="text-[#8B8680] uppercase tracking-wider leading-none" style={{ fontSize: '1.2vw' }}>{point.sub}</div>
           </motion.div>
         ))}
       </motion.div>
