@@ -113,6 +113,7 @@ import spinwheelRouter from "./spinwheel";
 import loopitRouter from "./loopit";
 import integrationsRouter from "./integrations";
 import vehicleProofRouter from "./vehicleProof";
+import autonomousEngineRouter from "./autonomousEngine";
 
 const router: IRouter = Router();
 
@@ -248,5 +249,6 @@ router.use(spinwheelRouter);
 router.use(loopitRouter);
 router.use(integrationsRouter);
 router.use(vehicleProofRouter);
+router.use(autonomousEngineRouter);
 
 export default router;

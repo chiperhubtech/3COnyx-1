@@ -40,6 +40,7 @@ The architecture is AI-first, featuring:
 - **Universal Commission Engine**: Automates referral commissions on platform transactions, tracking earnings, awarding ONYX Points, and integrating with `commission_ledger` and `transactions` tables.
 - **Shareable AR Badge**: A themed 3C branded badge generator at `/ar-badge` that allows members to create, download, and share personalized badges linking back to their profiles for viral growth.
 - **ONYX Nerve Center**: The "daily habit" dashboard for logged-in members, displaying real-time tiles for total earnings, Driver Tier progress, Garage vehicle summary with service alerts, and People Helped.
+- **Autonomous Execution Engine**: "Scan → Diagnose → Execute" one-tap workflow. `POST /api/input/process` normalizes vehicle input, `POST /api/ai/diagnose` runs AI-powered vehicle analysis (Gemini w/ rule-based fallback), `POST /api/decision/execute` autonomously triggers cascading workflows (deal creation, service scheduling, parts ordering, inspections) with blockchain proof stamping. 90% AI confidence guardrails with human escalation. All routes auth-gated + rate-limited. Server-side diagnosis store prevents client-side action injection. UI at `/one-tap`.
 - **Architectural Upgrades**: Includes CarPlay/Android Auto integration, a tRPC Type-Safe API Layer, an Admin API, and a Beta Waitlist system.
 
 # External Dependencies

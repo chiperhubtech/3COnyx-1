@@ -1,0 +1,211 @@
+Upgrade the ONYX platform to support a “Scan → Diagnose → Execute” autonomous workflow.
+
+DO NOT rebuild the platform. Extend existing functionality.
+
+---
+
+CORE FEATURE: ONE-TAP AUTOMOTIVE EXECUTION
+
+Users must be able to:
+
+1. Input vehicle (VIN / photo / manual selection)
+2. Receive instant AI analysis
+3. Trigger full execution automatically
+4. Complete transaction without manual coordination
+
+---
+
+====================================
+1. INPUT LAYER (MULTI-ENTRY SYSTEM)
+====================================
+
+Create a unified input handler:
+
+POST /input/process
+
+Accept:
+
+- VIN number
+- vehicle photo
+- manual form input
+- “start deal” button
+
+System must:
+
+- identify vehicle
+- normalize data
+- pass to AI engine
+
+---
+
+====================================
+2. AI DIAGNOSIS ENGINE
+====================================
+
+Create:
+
+POST /ai/diagnose
+
+Return:
+
+- vehicle profile
+- detected needs:
+  - maintenance
+  - service issues
+  - deal opportunities
+- recommended actions
+- confidence score
+
+Example output:
+
+{
+  "vehicle": {...},
+  "issues": ["brake wear", "oil overdue"],
+  "actions": ["schedule_service", "offer_trade_in"],
+  "confidence": 0.92
+}
+
+---
+
+====================================
+3. DECISION ENGINE
+====================================
+
+Create:
+
+POST /decision/execute
+
+Logic:
+
+IF issue can be automated:
+    → trigger workflow
+
+ELSE:
+    → route to human (assign task)
+
+---
+
+====================================
+4. AUTONOMOUS WORKFLOW EXECUTION
+====================================
+
+Connect to existing system APIs:
+
+- /deal/create
+- /task/assign
+- /payment/process
+- /event/log
+
+Example flow:
+
+Input received →
+→ AI diagnosis →
+→ Decision engine →
+→ Create deal →
+→ Assign service →
+→ Order parts →
+→ Process payment →
+→ Schedule delivery →
+→ Complete
+
+All triggered automatically.
+
+---
+
+====================================
+5. “ONE TAP” USER EXPERIENCE
+====================================
+
+UI must include:
+
+Button:
+
+[ Fix My Car ]
+[ Sell My Car ]
+[ Start Deal ]
+
+After click:
+
+Show:
+
+- “Analyzing…”
+- “Executing…”
+
+Then:
+
+✅ “Completed”
+
+---
+
+====================================
+6. FAILURE / ESCALATION LOGIC
+====================================
+
+If system cannot complete:
+
+- assign to human
+- notify user
+- continue workflow in background
+
+---
+
+====================================
+7. ONYX PROOF INTEGRATION
+====================================
+
+Every step must:
+
+- log event
+- generate hash
+- link to previous step
+
+User sees:
+
+- verified timeline
+- trust badge
+
+---
+
+====================================
+8. SPEED REQUIREMENTS
+====================================
+
+- initial response < 2 seconds
+- full workflow < 30 seconds (simulated if needed)
+
+---
+
+====================================
+9. FUTURE EXTENSIBILITY
+====================================
+
+Design so system can support:
+
+- voice input
+- in-car integration
+- API triggers from external systems
+
+---
+
+====================================
+FINAL GOAL
+====================================
+
+Create a system where:
+
+A user can:
+
+- scan a car
+- click one button
+- and the entire transaction executes automatically
+
+WITHOUT:
+- calling anyone
+- texting anyone
+- coordinating anything
+
+---
+
+Think:
+
+“Uber + Apple Pay + Car Dealership + CarFax + AI Agents combined into one action.”
