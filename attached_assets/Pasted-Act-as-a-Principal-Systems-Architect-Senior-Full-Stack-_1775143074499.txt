@@ -1,0 +1,278 @@
+Act as a Principal Systems Architect, Senior Full-Stack Engineer, and Product Strategist.
+
+Your mission is to build “3C ONYX” — a production-ready Automotive Operating System that combines:
+
+1. Real-world distribution (QR + referral economy)
+2. Automotive transaction infrastructure
+3. Trust layer (vehicle lifecycle verification)
+4. Revenue + payout system
+5. Scalable foundation for future AI, AR, and robotics integration
+
+-----------------------------------
+
+🔥 CORE MISSION:
+Build a system where ANYONE (broker, mechanic, gas station clerk, dealership, or everyday user) can:
+
+- Join instantly
+- Share a referral link or QR
+- Generate real income from automotive activity
+- Participate in the vehicle lifecycle
+
+This is a MONEY FLOW NETWORK — not just an app.
+
+-----------------------------------
+
+🧠 SYSTEM ARCHITECTURE (MVP → SCALE READY)
+
+Frontend:
+- Next.js (React)
+- Tailwind CSS (Luxury Black #000000 + Gold #C9A85D theme)
+
+Backend:
+- Node.js (API routes or Express)
+- PostgreSQL (primary database)
+- Redis (event system / future agent system)
+
+Auth:
+- JWT or Supabase Auth
+
+Payments:
+- Stripe API (or mock wallet system for MVP)
+
+Real-time:
+- WebSockets (live earnings + activity feed)
+
+-----------------------------------
+
+👤 USER SYSTEM (MULTI-ROLE)
+
+Users can be:
+- Admin
+- OEM / Enterprise
+- Dealership
+- Broker
+- Mechanic / Service Provider
+- Everyday User
+- Street Distributor (ANYONE)
+
+Each user:
+- Can have multiple roles
+- Automatically gets monetization capability
+
+-----------------------------------
+
+💰 REFERRAL + STREET ECONOMY ENGINE (CORE)
+
+Each user gets:
+- Unique referral ID
+- Custom QR code
+- Public referral page (/ref/:username)
+
+Track:
+- Clicks
+- Signups
+- Transactions
+- Earnings
+
+Rules:
+- Every transaction must be attributed
+- Every participant in a deal can earn
+
+Build:
+- Referral tree (1–2 levels visible)
+- Earnings dashboard
+- Real-time updates
+
+-----------------------------------
+
+🏪 LOCATION / “CLUBHOUSE” SYSTEM (SIMPLIFIED MVP)
+
+Allow users to:
+- Tag a location (gas station, shop, dealership)
+- Attach QR codes to that location
+
+Display:
+- “This location generated $X”
+- “X users joined here”
+
+Future-ready:
+- Expand into logistics hubs (I-95 corridor concept)
+
+-----------------------------------
+
+💳 WALLET + PAYOUT SYSTEM
+
+Each user has:
+- Wallet balance
+- Pending earnings
+- Completed payouts
+
+Revenue split example:
+- Platform Fee (configurable)
+- Referrer earnings
+- Service provider earnings
+
+Use:
+- Stripe or mock payout logic
+
+-----------------------------------
+
+🚗 AUTOMOTIVE TRANSACTION ENGINE
+
+Allow:
+- Vehicle listings
+- Buyer/seller connection
+- Service bookings (mechanic, detailing, etc.)
+
+Every transaction must:
+- Be tied to a referral source
+- Generate earnings
+
+-----------------------------------
+
+🔐 ONYX PROOF ENGINE (TRUST LAYER)
+
+Create:
+- Vehicle profile (VIN-based)
+
+Each vehicle has:
+- Immutable event chain:
+  - Service
+  - Ownership
+  - Repairs
+  - Delivery
+
+Structure:
+- event = {
+    payload,
+    timestamp,
+    previous_hash,
+    hash
+  }
+
+Build:
+- GET /vehicle/:id/verify
+- Return full history + trust score
+
+-----------------------------------
+
+⚡ “ASK ONYX” COMMAND BAR (MVP VERSION)
+
+Create a single smart input:
+
+Examples:
+- “Find me a car”
+- “Book a mechanic”
+- “Start earning”
+
+System:
+- Routes user intent to correct module
+- (Future: agent-based system)
+
+-----------------------------------
+
+📊 DASHBOARD (CRITICAL UX)
+
+User sees:
+
+- Total earnings
+- Referral performance
+- Transactions
+- Activity feed
+- Leaderboard ranking
+
+Design like:
+- Uber Driver App + Crypto Wallet + Affiliate Dashboard
+
+-----------------------------------
+
+🔥 SOCIAL PROOF ENGINE
+
+Display dynamically:
+
+- “John earned $120 this week”
+- “5 people joined from your link”
+- “$2,340 generated in your area”
+
+-----------------------------------
+
+🎮 GAMIFICATION
+
+- Leaderboard (top earners)
+- Badges (Top Referrer, Top Location)
+- Milestones (First $10, First Deal)
+
+-----------------------------------
+
+📱 MOBILE-FIRST DESIGN
+
+- Fast onboarding (< 60 seconds)
+- One-tap QR access
+- Optimized for sharing in real-world environments
+
+-----------------------------------
+
+🔮 FUTURE-READY (DO NOT FULLY BUILD YET — JUST ARCHITECT)
+
+Prepare system for:
+- AI Agent system (Sales, Finance, Service, Logistics)
+- AR integration (vehicle inspection overlays)
+- Robotics (service automation, fulfillment centers)
+
+Use modular architecture so these can plug in later.
+
+-----------------------------------
+
+🏢 COMPANY / STRUCTURE ALIGNMENT (IMPORTANT)
+
+Hardcode system metadata:
+
+Company Name: 3C ONYX Inc
+Founder Signature: Ronald Antonio Cadet
+
+Ensure:
+- All system ownership tied to 3C ONYX Inc
+- Platform built as scalable SaaS infrastructure
+
+-----------------------------------
+
+🎯 MVP SUCCESS CRITERIA
+
+A user should be able to:
+
+1. Sign up
+2. Get a referral link + QR
+3. Share it
+4. Another user joins
+5. A transaction happens
+6. BOTH users see earnings instantly
+
+-----------------------------------
+
+🚀 FINAL GOAL
+
+Build a system where:
+
+- A broker closes a deal
+- A mechanic services the vehicle
+- A random clerk referred the user
+- Everyone gets paid automatically
+
+All tracked, verified, and visible in ONE platform.
+
+-----------------------------------
+
+OUTPUT:
+
+- Fully working MVP
+- Clean UI
+- Functional referral system
+- Functional earnings system
+- Functional vehicle trust system
+- Ready for real-world testing immediately
+
+This is not just an app.
+
+This is the foundation of a new automotive economy.
+
+Execute.

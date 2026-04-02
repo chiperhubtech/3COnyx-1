@@ -4,15 +4,14 @@ import { speak } from '@/lib/voiceover';
 
 export function Scene3_Solution() {
   useEffect(() => {
-    speak("We are decentralizing the dealership. Every gas station clerk, every mechanic, every smartphone — a high-conversion point of sale. ONYX acts. Member confirms. Money moves. Instantly.");
+    speak("One input. The system handles everything. Scan a VIN — ONYX decodes it. Diagnose the need — AI routes the service. Execute the transaction — payment splits automatically. The member taps once. ONYX coordinates seven agents simultaneously. Under two minutes. Every time.");
     return () => window.speechSynthesis.cancel();
   }, []);
 
-  const nodes = [
-    { label: "Gas Station", icon: "⛽", delay: 2.0 },
-    { label: "Mechanic Bay", icon: "🔧", delay: 2.3 },
-    { label: "Smartphone", icon: "📱", delay: 2.6 },
-    { label: "Body Shop", icon: "🏗️", delay: 2.9 },
+  const steps = [
+    { phase: "SCAN", label: "VIN Decoded", detail: "NHTSA + AI Summary", color: "#C9A227" },
+    { phase: "DIAGNOSE", label: "AI Routes", detail: "7 Agents Coordinate", color: "#E8B830" },
+    { phase: "EXECUTE", label: "Deal Closed", detail: "Payment Auto-Split", color: "#10B981" },
   ];
 
   return (
@@ -23,82 +22,100 @@ export function Scene3_Solution() {
       exit={{ opacity: 0, y: -50, filter: 'blur(10px)' }}
       transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
     >
-      <div className="relative flex items-center justify-center" style={{ width: '12vw', height: '12vw', marginBottom: '3vh' }}>
-        <motion.div
-          className="absolute rounded-full"
-          style={{ width: '100%', height: '100%', border: '2px solid rgba(201,162,39,0.2)' }}
-          animate={{ scale: [1, 2], opacity: [1, 0] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
-        />
-        <motion.div
-          className="absolute rounded-full"
-          style={{ width: '100%', height: '100%', border: '2px solid rgba(201,162,39,0.4)' }}
-          animate={{ scale: [1, 1.5], opacity: [1, 0] }}
-          transition={{ duration: 2, delay: 0.5, repeat: Infinity, ease: "easeOut" }}
-        />
-        <motion.div
-          className="rounded-full bg-gradient-to-tr from-[#C9A227] to-[#E8B830] shadow-[0_0_50px_rgba(201,162,39,0.5)] z-10 flex items-center justify-center"
-          style={{ width: '6vw', height: '6vw' }}
-          initial={{ scale: 0, rotate: -90 }}
-          animate={{ scale: 1, rotate: 0 }}
-          transition={{ duration: 1.5, type: "spring", bounce: 0.4 }}
-        >
-          <span className="font-display font-bold text-black" style={{ fontSize: '1.3vw' }}>ONYX</span>
-        </motion.div>
-      </div>
+      <motion.p
+        className="font-body text-[#C9A227] uppercase tracking-widest font-semibold"
+        style={{ fontSize: '1.2vw', letterSpacing: '0.3em', marginBottom: '1vh' }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1, delay: 0.3 }}
+      >
+        THE PROTOCOL
+      </motion.p>
 
       <motion.h2
         className="font-display font-bold text-white text-center leading-tight"
-        style={{ fontSize: '3vw', maxWidth: '70vw', marginBottom: '1vh' }}
+        style={{ fontSize: '3.5vw', maxWidth: '70vw', marginBottom: '1vh' }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1, delay: 1 }}
+        transition={{ duration: 1, delay: 0.5 }}
       >
-        Decentralizing the Dealership
+        Scan. Diagnose. Execute.
       </motion.h2>
 
       <motion.p
-        className="text-[#C9A227] font-body text-center"
-        style={{ fontSize: '1.6vw', maxWidth: '55vw', marginBottom: '3vh' }}
+        className="text-[#8B8680] font-body text-center"
+        style={{ fontSize: '1.4vw', maxWidth: '45vw', marginBottom: '5vh' }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 1, delay: 1.5 }}
+        transition={{ duration: 1, delay: 1 }}
       >
-        Every location becomes a point-of-sale
+        One input from the member. Seven agents coordinate autonomously.
       </motion.p>
 
-      <div className="flex items-center justify-center" style={{ gap: '2.5vw', marginBottom: '3vh' }}>
-        {nodes.map((node) => (
-          <motion.div
-            key={node.label}
-            className="flex flex-col items-center"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: node.delay, type: "spring" }}
-          >
-            <div
-              className="rounded-full bg-[#0A0A0A] flex items-center justify-center"
-              style={{ width: '4vw', height: '4vw', border: '1px solid rgba(201,162,39,0.4)', fontSize: '1.8vw' }}
-            >
-              {node.icon}
+      <div className="flex items-center justify-center" style={{ gap: '2vw', width: '75vw' }}>
+        {steps.map((step, i) => (
+          <motion.div key={step.phase} className="flex items-center" style={{ flex: 1 }}>
+            <div className="flex flex-col items-center text-center" style={{ flex: 1 }}>
+              <motion.div
+                className="rounded-full bg-[#0A0A0A] flex items-center justify-center"
+                style={{
+                  width: '6vw', height: '6vw',
+                  border: `3px solid ${step.color}`,
+                  boxShadow: `0 0 30px ${step.color}33`,
+                }}
+                initial={{ scale: 0, rotate: -180 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ duration: 1, delay: 1.5 + i * 0.5, type: "spring" }}
+              >
+                <span className="font-display font-bold text-white" style={{ fontSize: '1vw' }}>{step.phase}</span>
+              </motion.div>
+              <motion.span
+                className="text-white font-semibold"
+                style={{ fontSize: '1.2vw', marginTop: '1.5vh' }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 2 + i * 0.5 }}
+              >
+                {step.label}
+              </motion.span>
+              <motion.span
+                className="text-[#8B8680]"
+                style={{ fontSize: '0.9vw', marginTop: '0.3vh' }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 2.2 + i * 0.5 }}
+              >
+                {step.detail}
+              </motion.span>
             </div>
-            <span className="text-[#8B8680] font-semibold uppercase" style={{ fontSize: '0.7vw', marginTop: '0.8vh', letterSpacing: '0.1em' }}>{node.label}</span>
+            {i < steps.length - 1 && (
+              <motion.div
+                className="flex items-center"
+                style={{ width: '4vw', marginBottom: '4vh' }}
+                initial={{ opacity: 0, scaleX: 0 }}
+                animate={{ opacity: 1, scaleX: 1 }}
+                transition={{ delay: 2 + i * 0.5, duration: 0.5 }}
+              >
+                <div style={{ flex: 1, height: '2px', background: `linear-gradient(90deg, ${step.color}, ${steps[i + 1].color})` }} />
+                <span style={{ color: steps[i + 1].color, fontSize: '1.5vw', marginLeft: '0.3vw' }}>→</span>
+              </motion.div>
+            )}
           </motion.div>
         ))}
       </div>
 
       <motion.div
         className="flex items-center text-[#8B8680] uppercase font-semibold"
-        style={{ gap: '2vw', fontSize: '1.2vw', letterSpacing: '0.15em' }}
+        style={{ gap: '2vw', fontSize: '1.2vw', letterSpacing: '0.15em', marginTop: '5vh' }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 1, delay: 3.5 }}
+        transition={{ duration: 1, delay: 4 }}
       >
-        <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 3.5 }}>ONYX ACTS</motion.span>
+        <span>MEMBER TAPS ONCE</span>
         <span className="text-[#C9A227]">•</span>
-        <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 4.0 }}>MEMBER CONFIRMS</motion.span>
+        <span>ONYX HANDLES EVERYTHING</span>
         <span className="text-[#C9A227]">•</span>
-        <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 4.5 }} className="text-[#C9A227]">MONEY MOVES</motion.span>
+        <span className="text-[#10B981]">UNDER 2 MINUTES</span>
       </motion.div>
     </motion.div>
   );

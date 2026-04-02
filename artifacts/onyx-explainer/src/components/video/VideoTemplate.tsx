@@ -13,17 +13,17 @@ import { Scene9_Moat } from './scenes/Scene9_Moat';
 import { Scene10_Close } from './scenes/Scene10_Close';
 
 const SCENE_DURATIONS = {
-  scene0: 8000,
-  scene1: 10000,
-  scene2: 8000,
-  scene3: 10000,
-  scene4: 12000,
-  scene5: 10000,
-  scene6: 10000,
-  scene7: 10000,
-  scene8: 8000,
-  scene9: 10000,
-  scene10: 8000,
+  scene0: 16000,
+  scene1: 24000,
+  scene2: 22000,
+  scene3: 20000,
+  scene4: 24000,
+  scene5: 22000,
+  scene6: 20000,
+  scene7: 26000,
+  scene8: 28000,
+  scene9: 32000,
+  scene10: 30000,
 };
 
 export default function VideoTemplate() {
@@ -36,7 +36,6 @@ export default function VideoTemplate() {
       className="w-full h-screen overflow-hidden relative"
       style={{ backgroundColor: 'var(--color-bg-dark)' }}
     >
-      {/* Persistent Background layer */}
       <div className="absolute inset-0 z-0">
         <motion.div 
           className="absolute inset-0 opacity-20"
@@ -51,7 +50,6 @@ export default function VideoTemplate() {
           transition={{ duration: 4, ease: [0.16, 1, 0.3, 1] }}
         />
         
-        {/* Subtle noise texture */}
         <div 
           className="absolute inset-0 opacity-[0.04] mix-blend-overlay pointer-events-none"
           style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E")' }}

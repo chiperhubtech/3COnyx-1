@@ -84,3 +84,11 @@ The architecture is AI-first, featuring:
 -   **Identity Verification**: Stripe Identity
 -   **Data Intelligence**: Fullpath
 -   **Push Notifications**: Expo
+
+## Explainer Video (Onyx Explainer)
+
+Located at `artifacts/onyx-explainer`. 11-scene cinematic explainer video with browser-based voiceover (Web Speech API). Scenes auto-advance with configurable durations in `VideoTemplate.tsx`. Scene arc: Reveal ($2.7T) → Problem → What We Built → Protocol (Scan→Diagnose→Execute) → Agent Mesh (7 agents) → Proof Engine → Revenue (Tollbooth) → Street Economy (K>1 QR viral) → Blitzscaling (10M→100M) → Moat (Five Walls) → Close. Total runtime ~4.5 minutes. Architecture communicates full execution platform vision: AI agents today, AR inspection next, humanoid robotics integration, full autonomous protocol as endgame.
+
+## Pitch Deck
+
+Located at `artifacts/pitch-deck`. 10 slides, routed via `/slide1` through `/slide10`. Auto-discovered via `import.meta.glob` + `slides-manifest.json`. Slide order: Title → Problem ($2.7T) → What We Built (10 LIVE systems) → Protocol (8 pillars) → Street Economy → Revenue (Tollbooth) → Scale (10M→100M, AI→AR→Robotics→Full Autonomy) → Moat (Five Walls) → Capital (SBA 7(a)) → Close. Pre-existing build-time issue: vite.config.ts references PORT env var that isn't set during `pnpm build`; dev server works fine.

@@ -49,10 +49,10 @@ export default function TitleSlide() {
         src={`${base}hero-car.png`}
         crossOrigin="anonymous"
         alt="Luxury automotive"
-        className="absolute inset-0 w-full h-full object-cover opacity-40"
+        className="absolute inset-0 w-full h-full object-cover opacity-35"
       />
-      <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(10,10,10,0.92) 0%, rgba(10,10,10,0.6) 50%, rgba(10,10,10,0.85) 100%)" }} />
-      <div className="absolute" style={{ left: "6vw", top: "6vh" }}>
+      <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(10,10,10,0.95) 0%, rgba(10,10,10,0.6) 50%, rgba(10,10,10,0.9) 100%)" }} />
+      <div className="absolute" style={{ left: "6vw", top: "5vh" }}>
         <div className="flex items-center" style={{ gap: "1.5vw" }}>
           <OnyxLogo size={80} />
           <div>
@@ -61,22 +61,34 @@ export default function TitleSlide() {
           </div>
         </div>
       </div>
-      <div className="absolute" style={{ left: "6vw", bottom: "16vh", maxWidth: "65vw" }}>
+      <div className="absolute" style={{ right: "6vw", top: "5vh" }}>
+        <div style={{ textAlign: "right", padding: "1.5vh 2vw", border: "1px solid rgba(201,162,39,0.3)", borderRadius: "0.5vw", background: "rgba(10,10,10,0.6)" }}>
+          <p className="font-display font-bold text-primary" style={{ fontSize: "2.5vw", lineHeight: 1 }}>$2.7T</p>
+          <p className="font-body text-muted" style={{ fontSize: "0.9vw", marginTop: "0.3vh" }}>Global Automotive Market</p>
+        </div>
+      </div>
+      <div className="absolute" style={{ left: "6vw", bottom: "14vh", maxWidth: "65vw" }}>
         <p className="font-display font-black tracking-tighter text-text" style={{ fontSize: "5vw", lineHeight: 1.05 }}>
           Global Automotive
         </p>
         <p className="font-display font-black tracking-tighter text-primary" style={{ fontSize: "5vw", lineHeight: 1.05 }}>
           Liquidity Network
         </p>
-        <div style={{ width: "8vw", height: "0.4vh", marginTop: "2.5vh" }} className="bg-primary" />
-        <p className="font-body font-light text-text" style={{ fontSize: "1.6vw", marginTop: "2vh", opacity: 0.85, maxWidth: "55vw" }}>
-          The Protocol for Automotive Value Exchange — every gas station, mechanic bay, and smartphone becomes a high-conversion point-of-sale.
+        <div style={{ width: "8vw", height: "0.4vh", marginTop: "2vh" }} className="bg-primary" />
+        <p className="font-body font-light text-text" style={{ fontSize: "1.5vw", marginTop: "1.5vh", opacity: 0.85, maxWidth: "55vw" }}>
+          The Protocol for Automotive Value Exchange — every gas station, mechanic bay, and smartphone becomes a high-conversion point-of-sale. The entire industry reduced to one confirmation tap.
         </p>
-        <p className="font-body text-primary" style={{ fontSize: "1.2vw", marginTop: "1.5vh", letterSpacing: "0.15em", opacity: 0.8 }}>
-          One tap. Money moves. Instantly.
-        </p>
+        <div style={{ display: "flex", gap: "3vw", marginTop: "2vh", alignItems: "center" }}>
+          <p className="font-body text-primary" style={{ fontSize: "1.2vw", letterSpacing: "0.15em", opacity: 0.9 }}>
+            One tap. Money moves. Instantly.
+          </p>
+          <div style={{ width: "1px", height: "2vh" }} className="bg-primary opacity-30" />
+          <p className="font-body text-muted" style={{ fontSize: "1vw" }}>
+            Lean Startup discipline. Blitzscaling velocity.
+          </p>
+        </div>
       </div>
-      <div className="absolute" style={{ right: "6vw", bottom: "6vh" }}>
+      <div className="absolute" style={{ right: "6vw", bottom: "5vh" }}>
         <p className="font-body text-muted" style={{ fontSize: "1.2vw" }}>Ronald Antonio Cadet, CVO / Founder</p>
         <p className="font-body text-muted" style={{ fontSize: "1vw", marginTop: "0.5vh", opacity: 0.6 }}>ron@cuxtomcandyclub.com</p>
       </div>

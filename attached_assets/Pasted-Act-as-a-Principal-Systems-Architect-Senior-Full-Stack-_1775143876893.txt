@@ -1,0 +1,299 @@
+Act as a Principal Systems Architect, Senior Full-Stack Engineer, and CTO of a venture-scale startup.
+
+Your mission is to build “3C ONYX” — a real-time Automotive Operating System that feels as simple and fast as Uber, but powers the entire automotive economy.
+
+This platform must combine:
+
+- Uber-like real-time experience (instant action, live updates)
+- Street-level distribution (QR + referrals + anyone can earn)
+- Automotive transaction infrastructure (buy, sell, service)
+- Trust layer (vehicle verification + history)
+- Instant payout system (everyone gets paid)
+
+-----------------------------------
+
+🔥 CORE PRINCIPLE:
+
+ZERO FRICTION.
+
+A user should be able to:
+→ Open app
+→ Tap ONE button
+→ Get matched instantly
+→ Complete a transaction
+→ Everyone involved gets paid automatically
+
+Target resolution time: < 2 minutes
+
+-----------------------------------
+
+🧠 CORE USER EXPERIENCE (UBER SIMPLICITY)
+
+The interface must feel identical for:
+
+- President-level executive
+- Dealership owner
+- Broker
+- Mechanic
+- Gas station clerk
+- Everyday driver
+
+Same flow:
+
+1. Open app
+2. Choose intent:
+   - Buy a car
+   - Fix a car
+   - Make money
+   - Verify vehicle
+3. Tap → system handles everything
+
+-----------------------------------
+
+⚡ REAL-TIME SYSTEM (CRITICAL)
+
+Implement:
+
+- WebSocket-based real-time engine
+- Every user has persistent connection
+- Live updates:
+  - “Match found”
+  - “Service on the way”
+  - “Deal completed”
+  - “You earned $X”
+
+Use:
+- Redis (pub/sub) OR lightweight message broker
+
+-----------------------------------
+
+👤 UNIVERSAL USER SYSTEM
+
+All users are equal in power.
+
+Roles:
+- User (default)
+- Broker
+- Mechanic
+- Dealer
+- Enterprise
+
+BUT:
+
+Every user automatically gets:
+- Referral link
+- QR code
+- Wallet
+- Ability to earn
+
+-----------------------------------
+
+💰 STREET ECONOMY ENGINE (CORE)
+
+Every user gets:
+
+- Unique referral link
+- Personal QR code
+- Public earning page
+
+Flow:
+
+1. User shares QR
+2. Someone signs up
+3. A transaction happens
+4. Earnings automatically distributed
+
+NO complexity — must feel instant.
+
+-----------------------------------
+
+💳 ONYX WALLET SYSTEM
+
+Each user has:
+
+- Balance
+- Pending earnings
+- Transaction history
+
+Revenue split (auto):
+
+- Platform fee
+- Referrer(s)
+- Service provider
+
+Display earnings instantly after transaction.
+
+-----------------------------------
+
+🚗 AUTOMOTIVE ACTION ENGINE
+
+Users can:
+
+- Buy vehicles
+- Book services (mechanic, tow, detailing)
+- Connect with brokers
+
+Flow must be:
+
+Tap → Match → Confirm → Done
+
+-----------------------------------
+
+🔐 ONYX PROOF ENGINE (TRUST LAYER)
+
+Each vehicle:
+
+- Has VIN-based profile
+- Stores immutable history
+
+Each event:
+
+- timestamp
+- previous hash
+- new hash
+- event data
+
+API:
+
+GET /vehicle/:id/verify
+
+Returns:
+- Full timeline
+- Trust score
+- “ONYX Verified” badge
+
+-----------------------------------
+
+📊 DASHBOARD (MUST FEEL ADDICTIVE)
+
+User sees:
+
+- Earnings (live)
+- Activity feed
+- Referrals
+- Deals
+- Leaderboard
+
+Make it feel like:
+
+Uber Driver App + Cash App + Crypto Wallet
+
+-----------------------------------
+
+🔥 SOCIAL PROOF (CRITICAL FOR VIRALITY)
+
+Show:
+
+- “You just earned $12”
+- “3 people joined from your link”
+- “$1,240 generated near you”
+
+-----------------------------------
+
+🏪 LOCATION SYSTEM (CLUBHOUSE LIGHT VERSION)
+
+Allow users to:
+
+- Tag location (gas station, shop, dealership)
+- Attach QR to location
+
+Show:
+
+- Earnings from that location
+- Activity from that location
+
+-----------------------------------
+
+⚡ “ASK ONYX” SMART COMMAND
+
+Single input:
+
+User types or taps:
+
+- “I need a car”
+- “Flat tire”
+- “How do I make money?”
+
+System routes instantly.
+
+-----------------------------------
+
+📱 MOBILE-FIRST DESIGN
+
+- Fast onboarding (< 60 seconds)
+- One-tap actions
+- Optimized for real-world use
+
+-----------------------------------
+
+🏗️ TECH STACK
+
+Frontend:
+- Next.js
+- Tailwind CSS (Black + Gold luxury theme)
+
+Backend:
+- Node.js (API routes)
+
+Database:
+- PostgreSQL
+
+Real-time:
+- WebSockets + Redis
+
+Payments:
+- Stripe (or mock system)
+
+-----------------------------------
+
+🔮 FUTURE-READY (DO NOT BUILD FULLY YET)
+
+Structure system so it can later support:
+
+- AI agents (sales, finance, service)
+- AR overlays (vehicle diagnostics)
+- Robotics (fulfillment centers)
+
+-----------------------------------
+
+🏢 COMPANY INTEGRATION
+
+Hardcode metadata:
+
+Company: 3C ONYX Inc
+Parent Brand: CUXTOMCANDYCLUB
+Founder Signature: Ronald Antonio Cadet
+
+-----------------------------------
+
+🎯 MVP SUCCESS REQUIREMENT
+
+User flow must work:
+
+1. User signs up
+2. Gets QR + referral link
+3. Shares it
+4. Another user joins
+5. A transaction happens
+6. BOTH users see earnings instantly
+
+-----------------------------------
+
+🚀 FINAL GOAL
+
+Build a system where:
+
+- A broker closes a deal
+- A mechanic services it
+- A random person referred it
+- Everyone gets paid instantly
+
+All in ONE platform.
+
+-----------------------------------
+
+This is not a marketplace.
+
+This is the OPERATING SYSTEM for automotive money flow.
+
+Execute the build

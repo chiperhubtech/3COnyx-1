@@ -3,64 +3,80 @@
     "id": "a1b2c3d4-1111-4aaa-bbbb-000000000001",
     "position": 1,
     "filepath": "src/pages/slides/TitleSlide.tsx",
-    "title": "3C ONYX -- Sovereign Automotive Ecosystem OS",
-    "description": "Title slide with brand logo, tagline, and hero imagery",
+    "title": "3C ONYX — Global Automotive Liquidity Network",
+    "description": "Title slide with $2.7T market, brand logo, tagline, Lean Startup + Blitzscaling",
     "speakerNotes": ""
   },
   {
     "id": "a1b2c3d4-2222-4aaa-bbbb-000000000002",
     "position": 2,
     "filepath": "src/pages/slides/ProblemSlide.tsx",
-    "title": "Legacy Auto Is Broken",
-    "description": "The problem: disconnected systems, wasted time, zero trust",
+    "title": "$2.7T Problem — A 1950s Model in a Smartphone World",
+    "description": "The problem: 14-day deals, 4.2hr buyer waste, zero cryptographic proof, 5 vendors per sale",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-9999-4aaa-bbbb-000000000009",
+    "position": 3,
+    "filepath": "src/pages/slides/TodaySlide.tsx",
+    "title": "Not a Pitch. A Platform.",
+    "description": "10 live systems inventory — all built, tested, and operational. Future-ready for AI, AR, robotics.",
     "speakerNotes": ""
   },
   {
     "id": "a1b2c3d4-3333-4aaa-bbbb-000000000003",
-    "position": 3,
+    "position": 4,
     "filepath": "src/pages/slides/PlatformSlide.tsx",
-    "title": "One OS. Every Transaction.",
-    "description": "The 6-pillar platform architecture overview",
+    "title": "The Protocol — One OS. Every Transaction.",
+    "description": "8-pillar architecture: Agent Mesh, Proof Engine, Street Network, Wallet, Anti-Abuse, Attribution, SDV, Robotics-Ready",
     "speakerNotes": ""
   },
   {
     "id": "a1b2c3d4-4444-4aaa-bbbb-000000000004",
-    "position": 4,
+    "position": 5,
     "filepath": "src/pages/slides/GrowthSlide.tsx",
-    "title": "K-Factor and Growth",
-    "description": "Viral coefficient, commission structure, and altruistic loop",
+    "title": "The Street Economy — K>1 Viral Growth",
+    "description": "QR viral distribution, K>1 coefficient, commission structure, zero CAC",
     "speakerNotes": ""
   },
   {
     "id": "a1b2c3d4-6666-4aaa-bbbb-000000000006",
-    "position": 5,
+    "position": 6,
     "filepath": "src/pages/slides/RevenueSlide.tsx",
-    "title": "The Tollbooth -- Revenue Model",
-    "description": "Three revenue streams: per-deal fees, logistic commissions, and recurring service spreads",
+    "title": "The Tollbooth — Revenue Model",
+    "description": "Three revenue streams: per-deal fees, logistic commissions, recurring service spreads",
     "speakerNotes": ""
   },
   {
-    "id": "a1b2c3d4-7777-4aaa-bbbb-000000000007",
-    "position": 6,
-    "filepath": "src/pages/slides/CapitalSlide.tsx",
-    "title": "SBA 7(a) Capital Strategy",
-    "description": "Capital request, allocation breakdown, Phase I/II growth projections, debt coverage ratios",
+    "id": "a1b2c3d4-aaaa-4aaa-bbbb-00000000000a",
+    "position": 7,
+    "filepath": "src/pages/slides/ScaleSlide.tsx",
+    "title": "Lean Startup → Blitzscaling — 10M → 100M Users",
+    "description": "Three-phase trajectory: Bootstrap → 10M users → 100M users. AI agents → AR → Robotics → Full autonomy.",
     "speakerNotes": ""
   },
   {
     "id": "a1b2c3d4-8888-4aaa-bbbb-000000000008",
-    "position": 7,
+    "position": 8,
     "filepath": "src/pages/slides/MoatSlide.tsx",
-    "title": "The Moat -- Defensibility",
-    "description": "Asset-light deployment, forensic IP, and institutional value through CIT problem-solving",
+    "title": "The Moat — Five Walls Deep",
+    "description": "Asset-light, forensic IP, distribution moat, institutional value, network effects + future stack",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-7777-4aaa-bbbb-000000000007",
+    "position": 9,
+    "filepath": "src/pages/slides/CapitalSlide.tsx",
+    "title": "SBA 7(a) Capital Strategy",
+    "description": "Capital request $250K–$1M, allocation breakdown, Phase I/II growth projections, debt coverage ratios",
     "speakerNotes": ""
   },
   {
     "id": "a1b2c3d4-5555-4aaa-bbbb-000000000005",
-    "position": 8,
+    "position": 10,
     "filepath": "src/pages/slides/CloseSlide.tsx",
-    "title": "The Close",
-    "description": "Contact information, brand lockup, and closing statement",
+    "title": "The Close — The Standard Is Set",
+    "description": "Contact info, brand lockup, today → next → endgame trajectory, closing statement",
     "speakerNotes": ""
   }
 ]

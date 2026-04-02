@@ -41,17 +41,35 @@ export default function CloseSlide() {
     <div className="relative w-screen h-screen overflow-hidden bg-bg" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
       <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 50%, rgba(201,162,39,0.08) 0%, transparent 60%)" }} />
       <div className="relative" style={{ zIndex: 1, textAlign: "center" }}>
-        <OnyxLogo size={140} />
-        <p className="font-display font-black tracking-tighter text-text" style={{ fontSize: "4.5vw", lineHeight: 1.05, marginTop: "3vh" }}>3C ONYX</p>
-        <p className="font-body font-semibold tracking-widest text-primary" style={{ fontSize: "1.3vw", letterSpacing: "0.3em", marginTop: "1.5vh" }}>GLOBAL AUTOMOTIVE LIQUIDITY NETWORK</p>
-        <div style={{ width: "6vw", height: "0.3vh", margin: "2.5vh auto" }} className="bg-primary" />
-        <p className="font-body text-text" style={{ fontSize: "1.6vw", opacity: 0.85, maxWidth: "45vw", margin: "0 auto" }}>
-          "The money network for the automotive industry. Not a car app — a Protocol for Automotive Value Exchange."
+        <OnyxLogo size={130} />
+        <p className="font-display font-black tracking-tighter text-text" style={{ fontSize: "4.5vw", lineHeight: 1.05, marginTop: "2.5vh" }}>3C ONYX</p>
+        <p className="font-body font-semibold tracking-widest text-primary" style={{ fontSize: "1.2vw", letterSpacing: "0.3em", marginTop: "1vh" }}>GLOBAL AUTOMOTIVE LIQUIDITY NETWORK</p>
+        <div style={{ width: "6vw", height: "0.3vh", margin: "2vh auto" }} className="bg-primary" />
+        <p className="font-body text-text" style={{ fontSize: "1.5vw", opacity: 0.85, maxWidth: "50vw", margin: "0 auto" }}>
+          "The money network for the entire automotive industry. A broker closes a deal. A mechanic services the vehicle. A random clerk referred the user. Everyone gets paid automatically."
         </p>
-        <p className="font-body text-primary" style={{ fontSize: "1.2vw", marginTop: "2vh", letterSpacing: "0.15em" }}>
+        <p className="font-body text-primary" style={{ fontSize: "1.2vw", marginTop: "1.5vh", letterSpacing: "0.15em" }}>
           Designed, built, and owned exclusively by Ronald Antonio Cadet.
         </p>
-        <div style={{ marginTop: "4vh", display: "flex", gap: "4vw", justifyContent: "center" }}>
+
+        <div style={{ marginTop: "2.5vh", display: "flex", gap: "3vw", justifyContent: "center", alignItems: "center" }}>
+          <div style={{ textAlign: "center" }}>
+            <p className="font-body text-muted" style={{ fontSize: "0.9vw", letterSpacing: "0.15em" }}>TODAY</p>
+            <p className="font-body font-semibold text-text" style={{ fontSize: "1.1vw" }}>7 AI Agents + Street Network</p>
+          </div>
+          <p className="font-body text-primary" style={{ fontSize: "1.5vw" }}>→</p>
+          <div style={{ textAlign: "center" }}>
+            <p className="font-body text-muted" style={{ fontSize: "0.9vw", letterSpacing: "0.15em" }}>NEXT</p>
+            <p className="font-body font-semibold text-text" style={{ fontSize: "1.1vw" }}>AR Inspection + Robotics</p>
+          </div>
+          <p className="font-body text-primary" style={{ fontSize: "1.5vw" }}>→</p>
+          <div style={{ textAlign: "center" }}>
+            <p className="font-body text-muted" style={{ fontSize: "0.9vw", letterSpacing: "0.15em" }}>ENDGAME</p>
+            <p className="font-body font-semibold text-text" style={{ fontSize: "1.1vw" }}>Full Autonomous Protocol</p>
+          </div>
+        </div>
+
+        <div style={{ marginTop: "3vh", display: "flex", gap: "4vw", justifyContent: "center" }}>
           <div style={{ textAlign: "center" }}>
             <p className="font-body font-semibold text-primary" style={{ fontSize: "1.4vw" }}>Ronald Antonio Cadet</p>
             <p className="font-body text-muted" style={{ fontSize: "1vw", marginTop: "0.5vh" }}>CVO / Founder — Sole Architect</p>
@@ -63,7 +81,7 @@ export default function CloseSlide() {
           </div>
         </div>
       </div>
-      <div className="absolute" style={{ bottom: "4vh", left: "6vw", right: "6vw", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div className="absolute" style={{ bottom: "3vh", left: "6vw", right: "6vw", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <p className="font-body text-muted" style={{ fontSize: "0.9vw", opacity: 0.5 }}>Confidential — For Authorized Review Only</p>
         <p className="font-body text-muted" style={{ fontSize: "0.9vw", opacity: 0.5 }}>All IP exclusively owned by Ronald Antonio Cadet — CUXTOMCANDYCLUB LLC — 2026</p>
       </div>
