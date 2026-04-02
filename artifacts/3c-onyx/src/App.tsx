@@ -69,6 +69,7 @@ import ONYXBrain from "@/pages/onyx-brain";
 import Impact from "@/pages/impact";
 import Pro from "@/pages/pro";
 import Custody from "@/pages/custody";
+import ProofPage from "@/pages/proof";
 import ARViewer from "@/pages/ar-viewer";
 import NotFound from "@/pages/not-found";
 import RunnerTasks from "@/pages/runner-tasks";
@@ -243,6 +244,7 @@ function AppRoutes() {
             <Route path="/impact"               component={Impact} />
             <Route path="/pro"                  component={Pro} />
             <Route path="/custody"              component={Custody} />
+            <Route path="/proof"                component={ProofPage} />
             <Route path="/ar-viewer"            component={ARViewer} />
             <Route path="/biometric-settings"   component={BiometricSettings} />
             <Route path="/notebook"              component={NotebookPage} />

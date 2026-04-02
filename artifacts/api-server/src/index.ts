@@ -57,6 +57,11 @@ async function startServer() {
       .map(([, v]) => v.agent);
     logger.info({ agentCount, agents: agentNames }, "[genesis] Agent Mesh activated");
     logger.info("[genesis] Protocols S1·S2·S3 — ACTIVE");
+
+    const { initPaperworkKiller } = require("./lib/paperworkKiller") as typeof import("./lib/paperworkKiller");
+    initPaperworkKiller();
+    logger.info("[genesis] S1-S3 Paperwork-Killer cascade — ARMED");
+
     logger.info("[genesis] Automotive Ecosystem OS — ONLINE");
   });
 }

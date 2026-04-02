@@ -112,6 +112,7 @@ import prediiRouter from "./predii";
 import spinwheelRouter from "./spinwheel";
 import loopitRouter from "./loopit";
 import integrationsRouter from "./integrations";
+import vehicleProofRouter from "./vehicleProof";
 
 const router: IRouter = Router();
 
@@ -246,5 +247,6 @@ router.use(prediiRouter);
 router.use(spinwheelRouter);
 router.use(loopitRouter);
 router.use(integrationsRouter);
+router.use(vehicleProofRouter);
 
 export default router;

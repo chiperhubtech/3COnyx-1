@@ -1,6 +1,6 @@
 # Overview
 
-3C Onyx is a luxury dark-mode Automotive Ecosystem OS, the Unified Automotive Command Layer (UACL), designed to replace fragmented legacy systems with an intelligent, monetized operating system. The Genesis Protocol (v1.0) represents its production-hardened final state. Its key capabilities span dropshipping integration, professional dashboards, member value intelligence, QR payments, VIN Digital Passports, and a comprehensive AI-enriched marketplace. The project aims to establish a comprehensive automotive intelligence layer, offering advanced personalization and a robust platform for both consumers and professionals with significant market potential for monetized services.
+3C Onyx is a luxury dark-mode Automotive Ecosystem OS, known as the Unified Automotive Command Layer (UACL). It aims to replace fragmented legacy systems with an intelligent, monetized operating system. The Genesis Protocol (v1.0) is the production-hardened final state of the project. Key capabilities include dropshipping integration, professional dashboards, member value intelligence, QR payments, VIN Digital Passports, and a comprehensive AI-enriched marketplace. The project's vision is to establish a comprehensive automotive intelligence layer, offering advanced personalization and a robust platform for consumers and professionals, with significant market potential for monetized services.
 
 # User Preferences
 
@@ -10,42 +10,36 @@ I prefer detailed explanations and iterative development. Ask before making majo
 
 ## Monorepo Structure and Tooling
 
-The project uses a pnpm workspace monorepo with Node.js 24, TypeScript 5, Express 5 API, PostgreSQL, Drizzle ORM, and Zod for validation. API codegen leverages Orval from an OpenAPI spec. `esbuild` is used for CJS bundling.
+The project uses a pnpm workspace monorepo with Node.js 24, TypeScript 5, Express 5 API, PostgreSQL, Drizzle ORM, and Zod for validation. API codegen uses Orval from an OpenAPI spec, and `esbuild` is used for CJS bundling.
 
 ## AWS Deployment Architecture
 
-The system is designed for AWS, utilizing Route 53, CloudFront, S3, ALB, ECS Fargate for API containers, and RDS PostgreSQL 16, with lightweight container images and zero-downtime deployments.
+The system is designed for AWS, leveraging Route 53, CloudFront, S3, ALB, ECS Fargate for API containers, and RDS PostgreSQL 16, ensuring lightweight container images and zero-downtime deployments.
 
 ## UI/UX Design (3C Onyx Visual Language)
 
-The platform features a cinematic "Apple × GTA" visual language with a multi-theme system (dark default, warm ivory light mode, plus 12 holiday/seasonal themes and auto-birthday detection). Typography uses Barlow Condensed for headings and Inter for body text. Key design elements include a "THE AUTOMOTIVE INTELLIGENCE LAYER" hero, amber accents, translucent glassmorphism, and a custom AI-Native Design System with futuristic components and dynamic animations. The UI also features a "Google Search Bar" pivot for a consumer-first assistant experience, de-jargonized status labels, and a mobile-first design with a Zero-Thought Assistant-First UI.
-- **Theme System**: SeasonalThemeContext (`context/SeasonalThemeContext.tsx`) + ThemeSelector component (`components/ThemeSelector.tsx`). Supports: Dark, Light, Christmas, Halloween, 4th of July, Thanksgiving, Easter, Valentine's Day, St. Patrick's Day, Cinco de Mayo, Chinese New Year, New Year's Eve, Mardi Gras, Diwali, Birthday. Birthday auto-activates on user's birthday (synced from `users.birthday` DB column). CSS variable overrides in `index.css` per season. Persisted in localStorage (`onyx-seasonal-theme`).
-
-- **Global Command Palette**: "Ask ONYX" (Cmd+K / Ctrl+K) — global search across all navigation, agents, quick actions, and platform features. Component: `AskOnyxPalette.tsx` with `AskOnyxTrigger` search bar in sidebar. Uses `cmdk` library.
-- **ONYX Notebook Intelligence Hub**: NotebookLM-inspired AI knowledge page at `/notebook`. Supports 5 research types (Deal Intelligence, Market Research, Vehicle Research, Business Strategy, Custom). Persists entries in localStorage. Uses Gemini AI via `/api/gemini`. XSS-safe markdown rendering.
-- **Member QR Badge**: Every member gets a branded QR code with avatar/initials overlay at center (Snapchat/LinkedIn style). Component: `MemberQRBadge.tsx`. Page: `/my-qr` — view, download as PNG, copy link, native share. QR links to `/m/:referralCode` public profile. Supports profile photo upload via PATCH `/api/users/profile` (avatarUrl as data URL). Role-based accent colors (Member=gold, Dealer=amber, Runner=purple, Specialist=blue, Admin=red). AuthContext has `refreshProfile()` for live updates after avatar change.
+The platform features a cinematic "Apple × GTA" visual language with a multi-theme system (dark default, warm ivory light mode, plus 12 holiday/seasonal themes and auto-birthday detection). Typography uses Barlow Condensed for headings and Inter for body text. Design elements include an "THE AUTOMOTIVE INTELLIGENCE LAYER" hero, amber accents, translucent glassmorphism, and a custom AI-Native Design System with futuristic components and dynamic animations. The UI also incorporates a "Google Search Bar" pivot for a consumer-first assistant experience, de-jargonized status labels, and a mobile-first, Zero-Thought Assistant-First UI.
 
 ## Core Platform Features
 
-The architecture prioritizes an AI-first approach with:
+The architecture is AI-first, featuring:
 - **Enterprise AI Stack v4.0**: An AI router using OpenAI as primary, with Gemini/Bedrock/Anthropic fallbacks, supporting various task types including vision and a Critique & Review loop.
-- **WebSocket Real-Time Hub**: For real-time communication across distinct rooms.
+- **WebSocket Real-Time Hub**: Provides real-time communication across distinct rooms.
 - **Agent Orchestration Engine**: A 12-agent UACL mesh with a state machine.
 - **Blockchain Chain-of-Custody**: Ensures tamper-proof ledgering with SHA-256 hash chains, HMAC-SHA-256 signing, PostgreSQL persistence, and optional Ethereum Sepolia anchoring.
-- **Authentication System**: JWT-based (HS256) with `jose` library, supporting full authentication flows, role-based access control, and bcrypt-hashed passwords. WebAuthn biometric authentication (Face ID / Fingerprint) via `@simplewebauthn/server` + `@simplewebauthn/browser` — session-based challenge flow with `webauthn_credentials` PostgreSQL table. Login page supports both password and biometric login. Biometric settings page at `/biometric-settings` for credential management.
-- **Fortress Governor (AI Safety & Control Layer)**: Three-tier confidence classification system — AUTO_EXECUTE (>90% → single [Confirm] tap), SUGGEST (70–90% → require approval + Explainability Layer), HALT (<70% or critical flags → instant HITL escalation). Wraps Decision Engine + Fraud Detection + Escalation into unified API. Explainability Layer translates technical AI reasoning into plain B2C language (24 flag translations). High-risk domains (financing, insurance, payment, document signing) use tighter thresholds. Routes: `/api/governor/evaluate`, `/api/governor/evaluate-vehicle`, `/api/governor/evaluate-shop`, `/api/governor/simulate`, `/api/governor/status`. Lib: `artifacts/api-server/src/lib/governor.ts`.
-- **Security Middleware**: Helmet for security headers, `express-rate-limit` for API rate limiting, and secure Stripe webhook handling.
-- **Database Layer**: Drizzle ORM with PostgreSQL (optimized connection pool: max 20, min 2, 5s connect timeout, 30s idle timeout, 7500 max-uses per connection), including Drizzle Kit for migrations. All tables are SOC2 audit-trail compliant.
-- **API Performance Stack (ByteByteGo 5)**: (1) Standardized pagination (`parsePagination`/`paginatedResponse` helpers — page/limit/offset with total+hasNext+hasPrev) on deals, dealerflow tasks, community feed, referrals ledger; (2) Async logging (fire-and-forget via `res.on("finish")`); (3) TTL in-memory cache (`apiCache` — 500-entry max, stale-while-revalidate pattern, background refresh) on genesis/pulse and extensible; (4) gzip/brotli compression (level 6, 1KB threshold); (5) Tuned connection pool (20 max, 2 min, idle/connect timeouts). Health endpoint at `/api/healthz` exposes all performance metrics.
-- **API Specification and Code Generation**: `@workspace/api-spec` manages OpenAPI 3.1 specification and Orval configuration.
-- **Sovereign Infrastructure Layer (UACL)**: Ensures every request passes through classification, authentication, execution, verification, logging, and auditing stages. Includes a 12-Intent Neural Classifier and the Genesis Protocol for sovereign system declaration.
-- **DealerFlow OS v2.0**: An industrial infrastructure layer for automotive professionals, featuring a Smart Routing Engine, SLA Auto-Escalation, Bank-Ready Vault, AI Vision OCR Intake, Dependency-Aware DAG Execution for deal lifecycles, and a Zero-Trust Delegation Architecture.
+- **Authentication System**: JWT-based (HS256) with `jose`, supporting full authentication flows, role-based access control, bcrypt-hashed passwords, and WebAuthn biometric authentication (Face ID / Fingerprint) via `@simplewebauthn`.
+- **Fortress Governor (AI Safety & Control Layer)**: A three-tier confidence classification system for AI decisions, including AUTO_EXECUTE, SUGGEST, and HALT, with an Explainability Layer for user understanding.
+- **Security Middleware**: Uses Helmet for security headers, `express-rate-limit` for API rate limiting, and secure Stripe webhook handling.
+- **Database Layer**: Drizzle ORM with PostgreSQL (optimized connection pool), ensuring all tables are SOC2 audit-trail compliant.
+- **API Performance Stack (ByteByteGo 5)**: Implements standardized pagination, async logging, TTL in-memory caching, gzip/brotli compression, and tuned connection pools.
+- **Sovereign Infrastructure Layer (UACL)**: Ensures every request passes through classification, authentication, execution, verification, logging, and auditing stages, including a 12-Intent Neural Classifier and the Genesis Protocol.
+- **DealerFlow OS v2.0**: An industrial infrastructure layer for automotive professionals, featuring a Smart Routing Engine, SLA Auto-Escalation, Bank-Ready Vault, AI Vision OCR Intake, Dependency-Aware DAG Execution, and Zero-Trust Delegation Architecture.
 - **Autonomous Execution Protocol**: AI confidence scoring per task with auto-escalation and a retry mechanism.
 - **Omni-Node Open Intake**: A public submission portal with AI-powered smart routing, duplicate detection, and a Global Trust Score Engine.
-- **Invisible Funnel Protocol**: A headless API orchestration layer for growth, communication, and commerce, including a Growth Event Bus, Communication Orchestrator, Referral Engine API, and Commerce API. It also implements a Decentralized Bird-Dog Flywheel for viral growth.
-- **Universal Commission Engine** (`artifacts/api-server/src/lib/commissionEngine.ts`): Automatic referral commission on every platform transaction — vehicle purchases (3%), parts (5%), accessories (5%), oil changes (10%), tire rotations (10%), brake service (8%), body work (6%), diagnostics (8%), detailing (10%), insurance (4%), transport (5%), aftermarket (6%), membership (20%), custom (5%). Tracks who referred the buyer, calculates commission, records to `commission_ledger` and `transactions` tables, awards ONYX Points. API routes: `POST /api/commissions/process` (Admin-only), `GET /api/commissions/my-earnings`, `GET /api/commissions/rates`, `GET /api/commissions/summary/:userId`. Uses DB transactions for atomicity, self-referral guard, strict input validation.
-- **Shareable AR Badge** (`artifacts/3c-onyx/src/pages/ar-badge.tsx`): Themed 3C branded badge generator at `/ar-badge`. Members pick from 14 seasonal/holiday themes (Easter, Christmas, Halloween, 4th of July, Valentine's, Thanksgiving, St. Patrick's, Cinco de Mayo, Chinese New Year, New Year's Eve, Mardi Gras, Diwali, Birthday, Classic Gold) + custom emoji accents. Each badge renders the 3C peace-sign logo, member avatar, name, role, referral code, and seasonal decorations. Download as PNG, share via Web Share API with the badge image attached, or copy link. Every shared badge links back to the member's profile at `/m/:referralCode` (viral loop). Canvas rendering properly awaits image load for avatars.
-- **ONYX Nerve Center** (`artifacts/3c-onyx/src/components/NerveCenter.tsx`): The "daily habit" dashboard displayed on the home page for logged-in members. Shows 4 real-time tiles: Total Earnings (from commission ledger), Driver Tier + XP progress bar (Rookie → APEX), Garage vehicle summary (with service alerts when mileage thresholds are crossed), and People Helped (referral network size). Includes a "Share & Earn" CTA linking to QR badge. Each tile links to its detailed page (wallet, gamification, garage, impact). All data fetched in parallel on mount.
+- **Invisible Funnel Protocol**: A headless API orchestration layer for growth, communication, and commerce, including a Growth Event Bus, Communication Orchestrator, Referral Engine API, Commerce API, and a Decentralized Bird-Dog Flywheel.
+- **Universal Commission Engine**: Automates referral commissions on platform transactions, tracking earnings, awarding ONYX Points, and integrating with `commission_ledger` and `transactions` tables.
+- **Shareable AR Badge**: A themed 3C branded badge generator at `/ar-badge` that allows members to create, download, and share personalized badges linking back to their profiles for viral growth.
+- **ONYX Nerve Center**: The "daily habit" dashboard for logged-in members, displaying real-time tiles for total earnings, Driver Tier progress, Garage vehicle summary with service alerts, and People Helped.
 - **Architectural Upgrades**: Includes CarPlay/Android Auto integration, a tRPC Type-Safe API Layer, an Admin API, and a Beta Waitlist system.
 
 # External Dependencies
@@ -59,21 +53,21 @@ The architecture prioritizes an AI-first approach with:
 -   **Build Tool**: esbuild
 -   **Cloud/Deployment**: AWS
 -   **Fonts**: Google Fonts
--   **Financial Linking**: Plaid (F&I Agent — bank verification, income verification)
--   **Liability Verification**: Spinwheel Connect (F&I Agent — auto loan payoffs, trade-in equity)
--   **Insurance Quotes**: InsureMO (F&I Agent + Insurance Agent — multi-carrier quoting)
--   **Vehicle History**: MOTOR (Service Agent — OEM repair data, labor guides)
--   **Automotive AI**: Predii (Service Agent + Parts Agent — diagnostics, parts lookup, labor estimates)
--   **Telematics**: Smartcar (Service Agent — OBD-free vehicle data)
--   **Vehicle Market Data**: MarketCheck (Deal Agent — valuations, VIN decode, price trends)
--   **Vehicle Subscriptions**: Loopit (Deal Agent — fleet subscription management)
--   **E-Signatures**: DocuSign (Trust Agent + Runner Agent — contracts, title transfers, delivery receipts)
--   **Maps & Navigation**: Mapbox (Roadside Agent + Runner Agent + Partner Agent — geocoding, routing, nearby POI)
--   **Roadside Assistance**: HONK (Roadside Agent — tow dispatch, roadside coordination)
--   **AR Safety & HUD**: Basemark Rocksolid AR (Roadside Agent — ADAS visualization, AR navigation, safety scoring)
--   **Rental Aggregation**: CarTrawler (Runner Agent — multi-provider rental marketplace)
--   **eCommerce Bridge**: API2Cart (Parts Agent — 40+ platform inventory sync)
--   **Payments/Payouts**: Stripe Connect (Payout Agent + Growth Agent — Apple Pay, commissions, marketplace payouts)
+-   **Financial Linking**: Plaid
+-   **Liability Verification**: Spinwheel Connect
+-   **Insurance Quotes**: InsureMO
+-   **Vehicle History**: MOTOR
+-   **Automotive AI**: Predii
+-   **Telematics**: Smartcar
+-   **Vehicle Market Data**: MarketCheck
+-   **Vehicle Subscriptions**: Loopit
+-   **E-Signatures**: DocuSign
+-   **Maps & Navigation**: Mapbox
+-   **Roadside Assistance**: HONK
+-   **AR Safety & HUD**: Basemark Rocksolid AR
+-   **Rental Aggregation**: CarTrawler
+-   **eCommerce Bridge**: API2Cart
+-   **Payments/Payouts**: Stripe Connect
 -   **Remote Browser Automation**: Browserbase
 -   **AI Workflow Engine**: Gumloop
 -   **Logistics Tracking**: HyperTrack
@@ -86,23 +80,3 @@ The architecture prioritizes an AI-first approach with:
 -   **Identity Verification**: Stripe Identity
 -   **Data Intelligence**: Fullpath
 -   **Push Notifications**: Expo
-
-## 15-API Integration Registry (Agent Mesh Ownership)
-
-All 15 API integrations are registered in `GET /api/integrations/status`. Each integration maps to an owner agent with explicit `memberBenefit` (plain-English user value) and `industryBenefit` (professional/B2B value). Every agent in the 12-agent mesh carries an `integrations[]` array with `memberUse` and `proUse` descriptions so agents understand exactly which APIs to call and how they serve both sides. Registry file: `artifacts/api-server/src/routes/integrations.ts`. Mesh definition: `artifacts/api-server/src/lib/agentMesh12.ts`.
-
-# Community & Identity Engine (Viral OS)
-
-ONYX is a movement, not a utility. The platform uses community-driven identity to create network effects.
-
-- **Global Nomenclature**: "User" → "ONYX Network Member", "Referral" → "Connection", "Invite" → "Help Someone", "Commission" → "Earnings"
-- **Role-Based Identity**: `communityRole` on users table — Member (base), Connector (after first settlement), Operator (dealership keyholder). Auto-promotion in growth-engine.ts.
-- **Impact Dashboard**: Replaces referral card with People Helped, Total Earnings, Connections metrics + role badge + network tier + "Help Someone" CTA. Data from `GET /api/community/profile`.
-- **Celebration Modal**: Post-success dopamine — "You helped [Name] solve their [service] problem" + "+$X earned" + "Help Someone Else" share button. Data from `GET /api/community/celebration-check`.
-- **Network Feed**: Connectors see their connections' active tasks with friendly status (green/yellow/red dots). Data from `GET /api/community/network-feed`.
-- **Decentralized Bird-Dog Flywheel**: `?ref=CODE` capture → sessionStorage → omni-node/submit → metadata threading → auto-reward on completion ($10-$50) → dopamine SMS/email notification → share again loop.
-- **Altruistic Viral Loop (Deep-Link Engine)**: `/assist/:refCode?s=SIGNATURE` HMAC-signed deep-links → `/api/referrals/resolve/:code` verifies signature → resolves referrer first name → personalized landing "Welcome. [Name] said you might need a hand with your car. What's going on?" Zero signup required.
-- **Completion Share Prompt**: "Done. Everything is handled." + "Send via ONYX" single button — triggered when deal reaches Delivered/Funded status. All share messages personalized: "[Name] sent you ONYX. This handles everything automotive."
-- **Anti-Spoofing**: HMAC-SHA256 signed referral links prevent deep-link commission theft. Unsigned resolve requests return 403.
-- **Forensic Branding**: "Ronald Antonio Cadet" architect signature embedded in growth-engine metadata, referral ledger entries, and system startup logs.
-- **Mission Manifesto**: "We handle everything automotive so people don't have to." in guest empty states.
