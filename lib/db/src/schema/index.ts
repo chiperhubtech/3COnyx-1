@@ -56,3 +56,4 @@ export * from "./onyx-wallet";
 export * from "./location-nodes";
 export * from "./remittance";
 export * from "./offline-sync";
+export * from "./themes";

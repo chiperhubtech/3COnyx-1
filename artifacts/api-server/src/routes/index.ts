@@ -134,6 +134,7 @@ import locationNodesRouter from "./location-nodes";
 import socialProofRouter from "./social-proof";
 import remittanceRouter from "./remittance";
 import globalInclusionRouter from "./global-inclusion";
+import themeEngineRouter from "./theme-engine";
 
 const router: IRouter = Router();
 
@@ -290,5 +291,6 @@ router.use("/locations", locationNodesRouter);
 router.use("/social-proof", socialProofRouter);
 router.use("/remittance", remittanceRouter);
 router.use("/global", globalInclusionRouter);
+router.use("/themes", themeEngineRouter);
 
 export default router;

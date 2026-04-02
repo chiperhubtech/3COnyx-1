@@ -103,6 +103,27 @@ Five systems that complete the zero-friction global economy where every particip
 ### Global Network Database Tables
 `onyx_wallets`, `wallet_transactions`, `location_nodes`, `remittance_transfers`, `offline_sync_queue`
 
+## ONYX Theme Engine — Culture-Driven Visual Identity
+
+20 culture-driven themes organized into 10 categories (`/api/themes/*`). Each theme includes full color palette, dark mode overrides, typography, and visual effect flags. Per-user persistence in DB. CSS variable export endpoint for instant theme application.
+
+**Categories & Themes:**
+- **Signature**: ONYX Black & Gold (default)
+- **Motorsport**: Midnight Motorsport, Monster Truck Rally, Rodeo Circuit, Formula 1, Drag Strip, Baja Off-Road
+- **Street Racing**: Neon Drift, Speed Demon
+- **GTA**: GTA Vice City, GTA San Andreas
+- **Military**: Navy SEAL Ops, Army Ranger
+- **Car Culture**: DUB Show, Lowrider Candy Paint
+- **Emergency**: NYPD Pursuit, FDNY Inferno
+- **Urban**: NYCHA Projects
+- **Luxury**: Platinum VIP (premium)
+- **EV**: Electric Future
+
+Visual effects per theme: glassmorphism, neonGlow, particlesBg, scanlines, grain, chrome, flames.
+
+### Theme Database Table
+`user_theme_prefs`
+
 # External Dependencies
 
 -   **Monorepo Tool**: pnpm workspaces
