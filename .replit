@@ -84,3 +84,5 @@ channel = "stable-25_05"
 [userenv.shared]
 NAMECHEAP_API_USER = "Ron3c"
 NAMECHEAP_CLIENT_IP = "34.23.128.152"
+JWT_SECRET = "9cakBdMmsuF5zc_Zz2GXGHwfKMZZriAqfesrT50OljBhWYnchXoyGbnP8BrQM953"
+ENCRYPTION_KEY = "b7f915e4433fd62f8f2c2cc184fd2cf0f759f2945c34ad84406fa08a1e9c1fb4"
