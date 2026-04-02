@@ -5,7 +5,7 @@ import { OnyxLogo } from '../OnyxLogo';
 
 export function Scene0_Reveal() {
   useEffect(() => {
-    speak("Two point seven trillion dollars. That's the global automotive industry. And it still runs on fax machines. 3C ONYX. The Global Automotive Liquidity Network. The entire industry — reduced to one confirmation tap.");
+    speak("Two point seven trillion dollars. That's the global automotive industry. And it still runs on fax machines. 3C ONYX. The Global Automotive Liquidity Network. Making the life of the ordinary become extraordinary. The entire industry — reduced to one confirmation tap.");
     return () => window.speechSynthesis.cancel();
   }, []);
 
@@ -59,12 +59,12 @@ export function Scene0_Reveal() {
 
         <motion.p
           initial={{ y: 10, opacity: 0 }}
-          animate={{ y: 0, opacity: 0.7 }}
+          animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 1.2, delay: 3.2, ease: [0.16, 1, 0.3, 1] }}
-          className="font-body text-[#8B8680] italic"
-          style={{ fontSize: '1.4vw', marginBottom: '2vh' }}
+          className="font-display text-[#F5F0E1] italic font-semibold"
+          style={{ fontSize: '1.6vw', marginBottom: '2vh' }}
         >
-          The entire industry — reduced to one confirmation tap.
+          "Making the life of the ordinary become <span className="text-[#C9A227]">extraordinary.</span>"
         </motion.p>
 
         <motion.div

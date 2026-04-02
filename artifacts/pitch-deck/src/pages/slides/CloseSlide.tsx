@@ -48,7 +48,10 @@ export default function CloseSlide() {
         <p className="font-body text-text" style={{ fontSize: "1.5vw", opacity: 0.85, maxWidth: "50vw", margin: "0 auto" }}>
           "The money network for the entire automotive industry. A broker closes a deal. A mechanic services the vehicle. A random clerk referred the user. Everyone gets paid automatically."
         </p>
-        <p className="font-body text-primary" style={{ fontSize: "1.2vw", marginTop: "1.5vh", letterSpacing: "0.15em" }}>
+        <p className="font-display font-semibold text-text" style={{ fontSize: "1.8vw", marginTop: "2vh", fontStyle: "italic" }}>
+          "Making the life of the ordinary become <span className="text-primary">extraordinary.</span>"
+        </p>
+        <p className="font-body text-primary" style={{ fontSize: "1.1vw", marginTop: "1.5vh", letterSpacing: "0.15em" }}>
           Designed, built, and owned exclusively by Ronald Antonio Cadet.
         </p>
 

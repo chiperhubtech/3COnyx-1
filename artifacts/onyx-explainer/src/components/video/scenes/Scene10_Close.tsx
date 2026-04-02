@@ -5,7 +5,7 @@ import { OnyxLogo } from '../OnyxLogo';
 
 export function Scene10_Close() {
   useEffect(() => {
-    speak("This is not a car app. This is the money network for the entire automotive industry. The protocol that every gas station, every mechanic, every dealership, and every smartphone runs on. A broker closes a deal. A mechanic services the vehicle. A random clerk referred the user. Everyone gets paid automatically. All tracked, verified, and visible in one platform. Designed, architected, and owned exclusively by Ronald Antonio Cadet. CUXTOMCANDYCLUB LLC. 3C ONYX. The standard is set.");
+    speak("This is not a car app. This is the money network for the entire automotive industry. The protocol that every gas station, every mechanic, every dealership, and every smartphone runs on. A broker closes a deal. A mechanic services the vehicle. A random clerk referred the user. Everyone gets paid automatically. All tracked, verified, and visible in one platform. Making the life of the ordinary become extraordinary. Designed, architected, and owned exclusively by Ronald Antonio Cadet. CUXTOMCANDYCLUB LLC. 3C ONYX. The standard is set.");
     return () => window.speechSynthesis.cancel();
   }, []);
 
@@ -48,11 +48,21 @@ export function Scene10_Close() {
       </motion.p>
 
       <motion.p
-        className="text-[#C9A227] font-body uppercase tracking-widest font-semibold"
-        style={{ fontSize: '1.2vw', letterSpacing: '0.25em', marginBottom: '3vh' }}
+        className="font-display text-[#F5F0E1] italic font-semibold"
+        style={{ fontSize: '1.8vw', marginBottom: '1.5vh' }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1.5, delay: 3.2 }}
+      >
+        "Making the life of the ordinary become <span className="text-[#C9A227]">extraordinary.</span>"
+      </motion.p>
+
+      <motion.p
+        className="text-[#C9A227] font-body uppercase tracking-widest font-semibold"
+        style={{ fontSize: '1.1vw', letterSpacing: '0.25em', marginBottom: '2.5vh' }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1.5, delay: 4 }}
       >
         The standard is set.
       </motion.p>

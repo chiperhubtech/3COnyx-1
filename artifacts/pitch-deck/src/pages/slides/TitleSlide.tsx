@@ -78,8 +78,11 @@ export default function TitleSlide() {
         <p className="font-body font-light text-text" style={{ fontSize: "1.5vw", marginTop: "1.5vh", opacity: 0.85, maxWidth: "55vw" }}>
           The Protocol for Automotive Value Exchange — every gas station, mechanic bay, and smartphone becomes a high-conversion point-of-sale. The entire industry reduced to one confirmation tap.
         </p>
-        <div style={{ display: "flex", gap: "3vw", marginTop: "2vh", alignItems: "center" }}>
-          <p className="font-body text-primary" style={{ fontSize: "1.2vw", letterSpacing: "0.15em", opacity: 0.9 }}>
+        <p className="font-display font-semibold text-text" style={{ fontSize: "1.6vw", marginTop: "2vh", fontStyle: "italic", opacity: 0.95 }}>
+          "Making the life of the ordinary become <span className="text-primary">extraordinary.</span>"
+        </p>
+        <div style={{ display: "flex", gap: "3vw", marginTop: "1.5vh", alignItems: "center" }}>
+          <p className="font-body text-primary" style={{ fontSize: "1.1vw", letterSpacing: "0.15em", opacity: 0.9 }}>
             One tap. Money moves. Instantly.
           </p>
           <div style={{ width: "1px", height: "2vh" }} className="bg-primary opacity-30" />
