@@ -59,14 +59,24 @@ The architecture prioritizes an AI-first approach with:
 -   **Build Tool**: esbuild
 -   **Cloud/Deployment**: AWS
 -   **Fonts**: Google Fonts
--   **Financial Linking**: Plaid
--   **Insurance Quotes**: Insuremo
--   **Vehicle History**: Motor.com
+-   **Financial Linking**: Plaid (F&I Agent — bank verification, income verification)
+-   **Liability Verification**: Spinwheel Connect (F&I Agent — auto loan payoffs, trade-in equity)
+-   **Insurance Quotes**: InsureMO (F&I Agent + Insurance Agent — multi-carrier quoting)
+-   **Vehicle History**: MOTOR (Service Agent — OEM repair data, labor guides)
+-   **Automotive AI**: Predii (Service Agent + Parts Agent — diagnostics, parts lookup, labor estimates)
+-   **Telematics**: Smartcar (Service Agent — OBD-free vehicle data)
+-   **Vehicle Market Data**: MarketCheck (Deal Agent — valuations, VIN decode, price trends)
+-   **Vehicle Subscriptions**: Loopit (Deal Agent — fleet subscription management)
+-   **E-Signatures**: DocuSign (Trust Agent + Runner Agent — contracts, title transfers, delivery receipts)
+-   **Maps & Navigation**: Mapbox (Roadside Agent + Runner Agent + Partner Agent — geocoding, routing, nearby POI)
+-   **Roadside Assistance**: HONK (Roadside Agent — tow dispatch, roadside coordination)
+-   **AR Safety & HUD**: Basemark Rocksolid AR (Roadside Agent — ADAS visualization, AR navigation, safety scoring)
+-   **Rental Aggregation**: CarTrawler (Runner Agent — multi-provider rental marketplace)
+-   **eCommerce Bridge**: API2Cart (Parts Agent — 40+ platform inventory sync)
+-   **Payments/Payouts**: Stripe Connect (Payout Agent + Growth Agent — Apple Pay, commissions, marketplace payouts)
 -   **Remote Browser Automation**: Browserbase
 -   **AI Workflow Engine**: Gumloop
--   **Telematics**: Smartcar
 -   **Logistics Tracking**: HyperTrack
--   **Payments/Payouts**: Stripe Connect
 -   **Background Checks**: Checkr
 -   **AI/LLM**: Multi-model abstraction (Gemini, OpenAI, Anthropic)
 -   **Charts**: Recharts
@@ -75,8 +85,11 @@ The architecture prioritizes an AI-first approach with:
 -   **Carrier Integration**: Ship.cars, RunBuggy, Enclosed Elite, Montway, AmeriFreight, uShip
 -   **Identity Verification**: Stripe Identity
 -   **Data Intelligence**: Fullpath
--   **Vehicle Market Data**: MarketCheck
 -   **Push Notifications**: Expo
+
+## 15-API Integration Registry (Agent Mesh Ownership)
+
+All 15 API integrations are registered in `GET /api/integrations/status`. Each integration maps to an owner agent with explicit `memberBenefit` (plain-English user value) and `industryBenefit` (professional/B2B value). Every agent in the 12-agent mesh carries an `integrations[]` array with `memberUse` and `proUse` descriptions so agents understand exactly which APIs to call and how they serve both sides. Registry file: `artifacts/api-server/src/routes/integrations.ts`. Mesh definition: `artifacts/api-server/src/lib/agentMesh12.ts`.
 
 # Community & Identity Engine (Viral OS)
 

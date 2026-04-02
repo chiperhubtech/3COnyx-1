@@ -24,6 +24,14 @@ export type MeshAgentId =
 export type AgentStatus = "idle" | "active" | "processing" | "standby";
 export type AgentDomain = "core" | "automotive" | "financial" | "operations" | "intelligence";
 
+export interface AgentIntegration {
+  id: string;
+  name: string;
+  memberUse: string;
+  proUse: string;
+  endpoints: string[];
+}
+
 export interface MeshAgent {
   id: MeshAgentId;
   name: string;
@@ -31,6 +39,7 @@ export interface MeshAgent {
   domain: AgentDomain;
   color: string;
   capabilities: string[];
+  integrations: AgentIntegration[];
   routingKeywords: string[];
   handoffTargets: MeshAgentId[];
   apiRoute: string;
@@ -69,6 +78,7 @@ export const MESH_REGISTRY: Record<MeshAgentId, MeshAgent> = {
       "Multi-agent coordination",
       "Request summarization",
     ],
+    integrations: [],
     routingKeywords: ["help", "handle", "need", "want", "can you", "what", "how", "i want"],
     handoffTargets: ["deal", "service", "finance", "insurance", "roadside", "runner", "growth"],
     apiRoute: "/api/gemini/chat",
@@ -91,6 +101,22 @@ export const MESH_REGISTRY: Record<MeshAgentId, MeshAgent> = {
       "Trade-in valuation",
       "Negotiation automation",
       "CARS Act 2026 compliance",
+    ],
+    integrations: [
+      {
+        id: "marketcheck",
+        name: "MarketCheck",
+        memberUse: "Instant vehicle valuations and price comparisons across every dealer — know the real price before you negotiate",
+        proUse: "Real-time market data, VIN decoding, listing analytics, price trend intelligence for inventory pricing and wholesale sourcing",
+        endpoints: ["/api/marketcheck/search", "/api/marketcheck/vin/:vin", "/api/marketcheck/trends"],
+      },
+      {
+        id: "loopit",
+        name: "Loopit",
+        memberUse: "Subscribe to a car instead of buying — swap vehicles monthly, insurance and maintenance included",
+        proUse: "Fleet subscription management, vehicle utilization tracking, recurring revenue model for dealers and fleet operators",
+        endpoints: ["/api/fleet/plans", "/api/fleet/inventory", "/api/fleet/subscribe", "/api/fleet/swap"],
+      },
     ],
     routingKeywords: ["buy", "vehicle", "car", "price", "deal", "trade", "purchase", "negotiate", "find me a"],
     handoffTargets: ["finance", "partner", "trust"],
@@ -115,6 +141,29 @@ export const MESH_REGISTRY: Record<MeshAgentId, MeshAgent> = {
       "Predictive maintenance",
       "Digital Vehicle Passport",
     ],
+    integrations: [
+      {
+        id: "motor",
+        name: "MOTOR",
+        memberUse: "Factory-accurate repair estimates — know exactly what the work should cost before approving it",
+        proUse: "OEM repair procedures, labor time guides, VIN-specific service data for accurate quoting and warranty compliance",
+        endpoints: ["/api/motor/history/:vin", "/api/motor/market-value/:vin"],
+      },
+      {
+        id: "predii",
+        name: "Predii",
+        memberUse: "AI reads your check-engine codes and tells you what's wrong, what it costs, and where to go — in plain English",
+        proUse: "AI-powered diagnostic analysis, repair prediction, parts matching, and labor estimation trained on millions of automotive records",
+        endpoints: ["/api/predii/diagnose", "/api/predii/parts-lookup", "/api/predii/labor-estimate"],
+      },
+      {
+        id: "smartcar",
+        name: "Smartcar",
+        memberUse: "Connect your car to ONYX — see fuel, mileage, battery, service alerts live without plugging anything in",
+        proUse: "Live OBD-free vehicle data for service scheduling, fleet management, and telemetry-driven underwriting",
+        endpoints: ["/api/garage/vehicles", "/api/garage/vehicles/:id/telemetry", "/api/garage/connect"],
+      },
+    ],
     routingKeywords: ["repair", "broken", "check engine", "diagnostic", "maintenance", "service", "fix", "noise", "light"],
     handoffTargets: ["parts", "runner", "partner", "trust"],
     apiRoute: "/api/agents/pipeline",
@@ -137,6 +186,22 @@ export const MESH_REGISTRY: Record<MeshAgentId, MeshAgent> = {
       "CUXTOMCANDY build visualization",
       "Master technician verification",
       "Global supplier network",
+    ],
+    integrations: [
+      {
+        id: "api2cart",
+        name: "API2Cart",
+        memberUse: "Shop for parts and accessories from the best suppliers — pulled from real inventory across Shopify, WooCommerce, and more",
+        proUse: "Unified eCommerce API across 40+ platforms, real-time inventory sync, order management, wholesale pricing aggregation",
+        endpoints: ["/api/aftermarket/suppliers", "/api/aftermarket/search", "/api/aftermarket/featured"],
+      },
+      {
+        id: "predii",
+        name: "Predii (Parts Lookup)",
+        memberUse: "Find the exact part for your vehicle — OEM, aftermarket, or remanufactured — price-compared instantly",
+        proUse: "AI-matched parts catalog by VIN, cross-reference OEM to aftermarket part numbers, availability and fitment verification",
+        endpoints: ["/api/predii/parts-lookup"],
+      },
     ],
     routingKeywords: ["parts", "custom", "upgrade", "wheels", "audio", "wrap", "build", "accessories", "install"],
     handoffTargets: ["service", "partner", "runner", "trust"],
@@ -161,6 +226,29 @@ export const MESH_REGISTRY: Record<MeshAgentId, MeshAgent> = {
       "Member Slice dividend logic",
       "3% Global Tech Fee management",
     ],
+    integrations: [
+      {
+        id: "plaid",
+        name: "Plaid",
+        memberUse: "Instant bank verification for financing — no paperwork, no pay stubs, approved in seconds from the deal desk",
+        proUse: "Real-time income verification, bank account linking, fraud reduction, and faster loan decisioning for F&I managers",
+        endpoints: ["/api/plaid/link-token", "/api/plaid/accounts", "/api/plaid/transactions", "/api/plaid/identity"],
+      },
+      {
+        id: "spinwheel",
+        name: "Spinwheel Connect",
+        memberUse: "See all your auto loans and payoff amounts in one place — know your trade-in equity instantly",
+        proUse: "Automated payoff quotes, liability verification, negative equity detection for accurate deal structuring",
+        endpoints: ["/api/spinwheel/connect", "/api/spinwheel/payoff/:id", "/api/spinwheel/trade-equity"],
+      },
+      {
+        id: "insuremo",
+        name: "InsureMO",
+        memberUse: "Compare insurance quotes from multiple carriers instantly — bundled into your vehicle purchase or standalone",
+        proUse: "Multi-carrier product distribution, embedded insurance at point of sale, revenue-sharing model for F&I departments",
+        endpoints: ["/api/insuremo/quote", "/api/insuremo/policies"],
+      },
+    ],
     routingKeywords: ["loan", "finance", "payment", "credit", "approve", "monthly", "down payment", "rate", "fund"],
     handoffTargets: ["payout", "trust", "partner"],
     apiRoute: "/api/finance",
@@ -183,6 +271,15 @@ export const MESH_REGISTRY: Record<MeshAgentId, MeshAgent> = {
       "Insuremo API integration",
       "Policy activation",
       "Claims routing",
+    ],
+    integrations: [
+      {
+        id: "insuremo",
+        name: "InsureMO",
+        memberUse: "Compare insurance quotes, activate coverage, and file claims — all from one screen, no phone calls",
+        proUse: "Multi-carrier product distribution, embedded insurance at point of sale, policy lifecycle management",
+        endpoints: ["/api/insuremo/quote", "/api/insuremo/policies"],
+      },
     ],
     routingKeywords: ["insurance", "coverage", "policy", "quote", "claim", "protect", "liability", "collision"],
     handoffTargets: ["trust", "partner", "payout"],
@@ -207,6 +304,29 @@ export const MESH_REGISTRY: Record<MeshAgentId, MeshAgent> = {
       "Real-time GPS tracking",
       "I-95 corridor optimization",
     ],
+    integrations: [
+      {
+        id: "honk",
+        name: "HONK",
+        memberUse: "Flat tire, dead battery, locked out? One tap and help is on the way — tracked live on your map",
+        proUse: "Nationwide roadside dispatch network, real-time ETA tracking, automated service completion verification for fleet operators",
+        endpoints: ["/api/roadside/request", "/api/roadside/request/:id", "/api/roadside/providers"],
+      },
+      {
+        id: "rocksolid",
+        name: "Basemark Rocksolid AR",
+        memberUse: "AR lane departure warnings, collision alerts, and night vision on your HUD — safety you can see while driving",
+        proUse: "In-vehicle AR rendering SDK for ADAS visualization, AR navigation, multi-display cockpit, and driver safety scoring",
+        endpoints: ["/api/ar/status", "/api/ar/session/start", "/api/ar/adas/alerts", "/api/ar/navigation/overlay", "/api/ar/vehicle/:id/safety-score"],
+      },
+      {
+        id: "mapbox",
+        name: "Mapbox",
+        memberUse: "Live map showing the tow truck or service vehicle coming to you — real-time ETA and route",
+        proUse: "Geocoding for dispatch routing, nearest-provider search, optimized routing for roadside service fleets",
+        endpoints: ["/api/maps/geocode", "/api/maps/directions", "/api/maps/nearby"],
+      },
+    ],
     routingKeywords: ["stuck", "tow", "flat tire", "battery", "emergency", "stranded", "help", "accident", "roadside"],
     handoffTargets: ["runner", "partner", "service", "trust"],
     apiRoute: "/api/roadside",
@@ -229,6 +349,29 @@ export const MESH_REGISTRY: Record<MeshAgentId, MeshAgent> = {
       "Pickup & delivery scheduling",
       "DMV and title work dispatch",
       "Performance scoring",
+    ],
+    integrations: [
+      {
+        id: "mapbox",
+        name: "Mapbox",
+        memberUse: "Track your vehicle delivery or runner pickup live on a map — see exactly where they are and when they arrive",
+        proUse: "Route optimization for runner dispatch, distance/time estimation, delivery zone isochrone analysis",
+        endpoints: ["/api/maps/directions", "/api/maps/transport-track/:id", "/api/maps/geocode"],
+      },
+      {
+        id: "cartrawler",
+        name: "CarTrawler",
+        memberUse: "Need a car while yours is in the shop? Instantly compare rentals from Enterprise, Hertz, Avis and 30+ others",
+        proUse: "Multi-provider rental aggregation, affiliate revenue, white-label rental marketplace for dealership service lounges",
+        endpoints: ["/api/rentals/search", "/api/rentals/providers", "/api/rentals/book"],
+      },
+      {
+        id: "docusign",
+        name: "DocuSign",
+        memberUse: "Sign delivery receipts and title transfer docs right from your phone — runner brings the car, you tap to confirm",
+        proUse: "Digital delivery receipt and chain-of-custody signatures, title transfer authorization, power of attorney for DMV runs",
+        endpoints: ["/api/docusign/envelope", "/api/docusign/envelope/:id"],
+      },
     ],
     routingKeywords: ["pickup", "deliver", "dmv", "title", "drop off", "fetch", "transport", "runner", "send someone"],
     handoffTargets: ["partner", "payout", "trust"],
@@ -253,6 +396,15 @@ export const MESH_REGISTRY: Record<MeshAgentId, MeshAgent> = {
       "SLA enforcement",
       "Partner onboarding pipeline",
     ],
+    integrations: [
+      {
+        id: "mapbox",
+        name: "Mapbox",
+        memberUse: "Find the nearest 3C Certified service center, body shop, or detailing studio — with distance and directions",
+        proUse: "Location-based vendor discovery, service area mapping, capacity planning with geographic coverage analysis",
+        endpoints: ["/api/maps/nearby", "/api/maps/geocode"],
+      },
+    ],
     routingKeywords: ["vendor", "shop", "mechanic", "dealer", "partner", "service provider", "who does"],
     handoffTargets: ["payout", "trust", "runner"],
     apiRoute: "/api/specialists",
@@ -275,6 +427,15 @@ export const MESH_REGISTRY: Record<MeshAgentId, MeshAgent> = {
       "Creator payout processing",
       "Dynasty split execution",
       "Stripe Connect disbursement",
+    ],
+    integrations: [
+      {
+        id: "stripe",
+        name: "Stripe",
+        memberUse: "Apple Pay, Google Pay, or card — one tap to pay for anything, and every referral commission lands in your wallet automatically",
+        proUse: "Payment processing, Stripe Connect marketplace payouts, commission splits, subscription billing for recurring services",
+        endpoints: ["/api/checkout/session", "/api/checkout/verify", "/api/wallet/balance"],
+      },
     ],
     routingKeywords: ["commission", "payout", "referral", "earnings", "owe", "pay me", "my money", "balance"],
     handoffTargets: ["trust", "finance"],
@@ -299,6 +460,15 @@ export const MESH_REGISTRY: Record<MeshAgentId, MeshAgent> = {
       "Forensic watermarking",
       "FBI/DOT oversight reporting",
     ],
+    integrations: [
+      {
+        id: "docusign",
+        name: "DocuSign",
+        memberUse: "Every signed document is logged and verifiable — your purchase, title, and warranty contracts are always accessible",
+        proUse: "Audit-ready document trail, compliance-grade e-signatures, automatic document retention for regulatory requirements",
+        endpoints: ["/api/docusign/envelope/:id", "/api/docusign/deal/:dealId/envelopes"],
+      },
+    ],
     routingKeywords: ["audit", "log", "history", "proof", "verify", "compliance", "record", "trace"],
     handoffTargets: [],
     apiRoute: "/api/audit",
@@ -321,6 +491,15 @@ export const MESH_REGISTRY: Record<MeshAgentId, MeshAgent> = {
       "Network expansion modeling",
       "B2B2C institutional pipeline",
       "WhatsApp viral distribution",
+    ],
+    integrations: [
+      {
+        id: "stripe",
+        name: "Stripe",
+        memberUse: "Every referral you make earns a commission — tracked automatically and paid out to your wallet",
+        proUse: "Affiliate program management, tiered commission automation, Stripe Connect payouts for referral networks",
+        endpoints: ["/api/checkout/session", "/api/wallet/balance"],
+      },
     ],
     routingKeywords: ["refer", "invite", "share", "grow", "affiliate", "commission", "network", "spread"],
     handoffTargets: ["payout", "trust", "concierge"],
@@ -402,6 +581,7 @@ export function getMeshStatus() {
       successRate: a.successRate,
       isAiPowered: a.isAiPowered,
       capabilities: a.capabilities,
+      integrations: a.integrations,
       handoffTargets: a.handoffTargets,
       futureReady: a.futureReady,
     })),

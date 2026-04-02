@@ -106,6 +106,12 @@ import communityRouter from "./community";
 import webauthnRouter from "./webauthn";
 import governorRouter from "./governor";
 import commissionsRouter from "./commissions";
+import docusignRouter from "./docusign";
+import mapboxRouter from "./mapbox";
+import prediiRouter from "./predii";
+import spinwheelRouter from "./spinwheel";
+import loopitRouter from "./loopit";
+import integrationsRouter from "./integrations";
 
 const router: IRouter = Router();
 
@@ -234,5 +240,11 @@ router.use(commerceRouter);
 router.use(communityRouter);
 router.use(governorRouter);
 router.use(commissionsRouter);
+router.use(docusignRouter);
+router.use(mapboxRouter);
+router.use(prediiRouter);
+router.use(spinwheelRouter);
+router.use(loopitRouter);
+router.use(integrationsRouter);
 
 export default router;
