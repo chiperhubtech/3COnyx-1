@@ -151,17 +151,29 @@ export default function MemberProfilePage() {
 
         {/* Inviter identity block */}
         <div style={{ textAlign: "center", marginBottom: 48 }}>
-          {/* Avatar */}
-          <div style={{
-            width: 80, height: 80, borderRadius: "50%", margin: "0 auto 20px",
-            background: "linear-gradient(135deg, #C9A227 0%, #8B6914 100%)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 28, fontWeight: 900, color: "#000",
-            fontFamily: "'Barlow Condensed', sans-serif",
-            boxShadow: "0 0 40px rgba(201,162,39,0.3), 0 0 80px rgba(201,162,39,0.1)",
-          }}>
-            {member.firstName.slice(0, 1).toUpperCase()}
-          </div>
+          {(member as any).avatarUrl ? (
+            <img
+              src={(member as any).avatarUrl}
+              alt={member.firstName}
+              style={{
+                width: 80, height: 80, borderRadius: "50%", margin: "0 auto 20px",
+                objectFit: "cover",
+                border: "3px solid #C9A227",
+                boxShadow: "0 0 40px rgba(201,162,39,0.3), 0 0 80px rgba(201,162,39,0.1)",
+              }}
+            />
+          ) : (
+            <div style={{
+              width: 80, height: 80, borderRadius: "50%", margin: "0 auto 20px",
+              background: "linear-gradient(135deg, #C9A227 0%, #8B6914 100%)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 28, fontWeight: 900, color: "#000",
+              fontFamily: "'Barlow Condensed', sans-serif",
+              boxShadow: "0 0 40px rgba(201,162,39,0.3), 0 0 80px rgba(201,162,39,0.1)",
+            }}>
+              {member.firstName.slice(0, 1).toUpperCase()}
+            </div>
+          )}
 
           <p style={{ fontSize: 11, letterSpacing: "0.2em", color: "rgba(255,255,255,0.25)", fontWeight: 700, marginBottom: 8 }}>
             YOU WERE PERSONALLY INVITED BY

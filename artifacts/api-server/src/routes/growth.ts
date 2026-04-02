@@ -12,7 +12,7 @@
 
 import { Router, type IRouter, type Request, type Response } from "express";
 import { db } from "@workspace/db";
-import { foundingMembersTable, analyticsEventsTable } from "@workspace/db";
+import { foundingMembersTable, analyticsEventsTable, usersTable } from "@workspace/db";
 import { eq, count, sql, desc, and } from "drizzle-orm";
 import { logger } from "../lib/logger";
 
@@ -241,41 +241,72 @@ router.get("/growth/member/:code", async (req: Request, res: Response) => {
       )
       .limit(1);
 
-    if (!member) {
+    if (member) {
+      const [{ referredCount }] = await db.select({
+        referredCount: sql<number>`count(*)::int`,
+      })
+        .from(foundingMembersTable)
+        .where(
+          and(
+            eq(foundingMembersTable.referredBy, code),
+            eq(foundingMembersTable.status, "active"),
+          ),
+        );
+
+      const [{ totalActive }] = await db.select({
+        totalActive: sql<number>`count(*)::int`,
+      })
+        .from(foundingMembersTable)
+        .where(eq(foundingMembersTable.status, "active"));
+
+      const rewards = getRewardTier(referredCount ?? 0);
+      const firstName = member.name.split(" ")[0];
+
+      res.json({
+        firstName,
+        memberNumber:  member.memberNumber,
+        referralCode:  member.referralCode,
+        referredCount: referredCount ?? 0,
+        totalMembers:  totalActive ?? 0,
+        rewards,
+        memberSince:   member.confirmedAt?.toISOString() ?? new Date().toISOString(),
+      });
+      return;
+    }
+
+    const [platformUser] = await db.select({
+      id:           usersTable.id,
+      name:         usersTable.name,
+      referralCode: usersTable.referralCode,
+      role:         usersTable.role,
+      avatarUrl:    usersTable.avatarUrl,
+      createdAt:    usersTable.createdAt,
+    })
+      .from(usersTable)
+      .where(eq(usersTable.referralCode, code))
+      .limit(1);
+
+    if (!platformUser) {
       res.status(404).json({ error: "Member not found", code: "NOT_FOUND" });
       return;
     }
 
-    // Count how many they've referred
-    const [{ referredCount }] = await db.select({
-      referredCount: sql<number>`count(*)::int`,
-    })
-      .from(foundingMembersTable)
-      .where(
-        and(
-          eq(foundingMembersTable.referredBy, code),
-          eq(foundingMembersTable.status, "active"),
-        ),
-      );
+    const [{ totalUsers }] = await db.select({
+      totalUsers: sql<number>`count(*)::int`,
+    }).from(usersTable);
 
-    // Total active members for counter
-    const [{ totalActive }] = await db.select({
-      totalActive: sql<number>`count(*)::int`,
-    })
-      .from(foundingMembersTable)
-      .where(eq(foundingMembersTable.status, "active"));
-
-    const rewards = getRewardTier(referredCount ?? 0);
-    const firstName = member.name.split(" ")[0];
+    const firstName = (platformUser.name || "Member").split(" ")[0];
 
     res.json({
       firstName,
-      memberNumber:  member.memberNumber,
-      referralCode:  member.referralCode,
-      referredCount: referredCount ?? 0,
-      totalMembers:  totalActive ?? 0,
-      rewards,
-      memberSince:   member.confirmedAt?.toISOString() ?? new Date().toISOString(),
+      memberNumber:  platformUser.id,
+      referralCode:  platformUser.referralCode,
+      referredCount: 0,
+      totalMembers:  totalUsers ?? 0,
+      rewards:       getRewardTier(0),
+      memberSince:   platformUser.createdAt?.toISOString?.() ?? new Date().toISOString(),
+      avatarUrl:     platformUser.avatarUrl,
+      role:          platformUser.role,
     });
   } catch (err) {
     logger.error({ err, code }, "[growth] Member profile lookup failed");
