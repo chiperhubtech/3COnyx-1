@@ -116,6 +116,13 @@ import vehicleProofRouter from "./vehicleProof";
 import autonomousEngineRouter from "./autonomousEngine";
 import attributionRouter from "./attribution";
 import streetNetworkRouter from "./streetNetwork";
+import developerPlatformRouter from "./developer-platform";
+import federationApiRouter from "./federation-api";
+import settlementApiRouter from "./settlement-api";
+import pluginApiRouter from "./plugin-api";
+import telemetryPipelineRouter from "./telemetry-pipeline";
+import governanceApiRouter from "./governance-api";
+import dataIntelligenceRouter from "./data-intelligence";
 
 const router: IRouter = Router();
 
@@ -254,5 +261,12 @@ router.use(vehicleProofRouter);
 router.use(autonomousEngineRouter);
 router.use(attributionRouter);
 router.use(streetNetworkRouter);
+router.use(developerPlatformRouter);
+router.use(federationApiRouter);
+router.use(settlementApiRouter);
+router.use(pluginApiRouter);
+router.use(telemetryPipelineRouter);
+router.use(governanceApiRouter);
+router.use(dataIntelligenceRouter);
 
 export default router;
