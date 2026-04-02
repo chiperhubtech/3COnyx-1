@@ -1,5 +1,16 @@
 uploads = []
-generated = []
+
+[[generated]]
+id = "JNDopgK1VhAcmPnCMX3yH"
+uri = "file://artifacts/pitch-deck/public/hero-car.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "pl7x6I1S-P2E0V8bUlDLv"
+uri = "file://artifacts/pitch-deck/public/tech-bg.png"
+type = "image"
+title = "generated_image"
 
 [[outputs]]
 id = "mFTjO0a2Tojm93Ww9XA6s"
