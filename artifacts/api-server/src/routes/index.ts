@@ -136,6 +136,8 @@ import remittanceRouter from "./remittance";
 import globalInclusionRouter from "./global-inclusion";
 import themeEngineRouter from "./theme-engine";
 import ttsRouter from "./tts";
+import textToDealRouter from "./text-to-deal";
+import oemIncentivesRouter from "./oem-incentives";
 
 const router: IRouter = Router();
 
@@ -294,5 +296,7 @@ router.use("/remittance", remittanceRouter);
 router.use("/global", globalInclusionRouter);
 router.use("/themes", themeEngineRouter);
 router.use("/tts", ttsRouter);
+router.use("/text-to-deal", textToDealRouter);
+router.use("/oem-incentives", oemIncentivesRouter);
 
 export default router;

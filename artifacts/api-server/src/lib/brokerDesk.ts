@@ -196,7 +196,7 @@ export function structureDeal(inputs: DealInputs): DealStructure {
     sellingPrice,
     tradeInValue    = 0,
     downPayment     = 0,
-    oemIncentives   = 1500,   // conservative default OEM cash
+    oemIncentives   = 0,      // caller should use /api/oem-incentives/match to get real value
     creditTier      = "Tier2",
     financeTerm     = 72,
     leaseTerm       = 36,

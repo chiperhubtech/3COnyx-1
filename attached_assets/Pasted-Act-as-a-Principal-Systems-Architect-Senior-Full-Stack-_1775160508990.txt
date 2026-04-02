@@ -1,0 +1,298 @@
+Act as a Principal Systems Architect, Senior Full-Stack Engineer, and Global CTO.
+
+Your mission is to build “3C ONYX” under CUXTOMCANDYCLUB — a real-time, invite-only Automotive Operating System that moves as simply as a text message, but powers a global automotive money network.
+
+-----------------------------------
+
+🔥 CORE PRINCIPLE
+
+The platform must feel like:
+
+👉 Sending a text message  
+👉 Getting something done  
+👉 Getting paid instantly  
+
+NO complexity.
+
+-----------------------------------
+
+🧠 CORE SYSTEM: NODE ECONOMY
+
+Every user = NODE
+
+No roles.
+
+A Node can:
+- Refer (send a lead like a text)
+- Perform work (mechanic, DMV, detailing, etc.)
+- Assist logistics
+- Host a location
+- Close deals
+
+RULE:
+“If you touch the deal, you get paid.”
+
+-----------------------------------
+
+🔐 INVITE-ONLY NETWORK
+
+- Users must join via invite code
+- Each user gets limited invites (default: 5)
+- Each invite = tracked lifetime earnings
+
+-----------------------------------
+
+📲 “TEXT-TO-DEAL” FLOW (FORREST GUMP SIMPLICITY)
+
+Users can:
+
+1. Paste or type a message:
+   Example:
+   “Client wants Jeep Cherokee under 25k”
+
+2. System converts it into:
+   - Lead
+   - Deal object
+   - Opportunity
+
+3. Assigns participants automatically
+
+4. Tracks everyone involved
+
+-----------------------------------
+
+💰 PARTICIPATION ENGINE
+
+Every deal includes:
+
+participants = [
+  { user_id, type: "referral" },
+  { user_id, type: "service" },
+  { user_id, type: "logistics" },
+  { user_id, type: "location" },
+  { user_id, type: "deal" }
+]
+
+Auto-detected based on actions.
+
+-----------------------------------
+
+💳 ONYX WALLET
+
+Each user has:
+
+- Balance
+- Pending earnings
+- Transaction history
+
+Every deal auto-splits:
+
+- Platform fee
+- Referral payouts
+- Service payouts
+- Logistics payouts
+- Location payouts
+
+Instant updates.
+
+-----------------------------------
+
+⚡ REAL-TIME SYSTEM
+
+Use:
+
+- WebSockets
+- Redis
+
+Show:
+
+- “Deal created”
+- “Match found”
+- “Work completed”
+- “You earned $X”
+
+-----------------------------------
+
+🚗 AUTOMOTIVE ACTIONS
+
+Users can:
+
+- Buy cars
+- Book services
+- Refer clients
+- Request help
+
+Flow:
+
+Message → Match → Complete → Paid
+
+-----------------------------------
+
+🧠 OEM INCENTIVES ENGINE (CRITICAL)
+
+Build a VIN + customer-aware incentive system:
+
+- Fetch OEM rebates, discounts, and programs
+- Match based on:
+  - VIN
+  - zip code
+  - purchase type
+  - customer profile
+
+Return:
+
+- Eligible incentives
+- Savings
+- Verification status
+
+Attach to deals automatically.
+
+-----------------------------------
+
+🔐 ONYX PROOF ENGINE
+
+Each vehicle:
+
+- VIN-based identity
+- Immutable event chain
+
+Stores:
+
+- service history
+- ownership
+- repairs
+
+GET /vehicle/:id/verify
+
+-----------------------------------
+
+🏪 LOCATION SYSTEM
+
+Any Node can:
+
+- Register a location
+- Place QR code
+
+Track:
+
+- Signups
+- Deals
+- Revenue
+
+-----------------------------------
+
+🌍 GLOBAL INCLUSION LAYER
+
+Optimize for:
+
+- Low-end phones
+- High latency networks
+- Emerging markets
+
+Features:
+
+- Phone-based signup
+- Offline-first sync
+- Multi-language (EN, ES, PT)
+
+-----------------------------------
+
+💸 MICRO-ECONOMY SYSTEM
+
+Every user globally:
+
+- Gets QR code
+- Can earn instantly
+- Can participate without training
+
+-----------------------------------
+
+🌐 REMITTANCE FEATURE
+
+Allow:
+
+- Users abroad to pay for:
+  - repairs
+  - services
+  - vehicles
+
+Direct to provider
+
+-----------------------------------
+
+📊 DASHBOARD
+
+Show:
+
+- Earnings
+- Referrals
+- Deals
+- Activity
+
+Simple + addictive.
+
+-----------------------------------
+
+⚡ “ASK ONYX”
+
+Single input:
+
+- “Find car”
+- “Fix car”
+- “Make money”
+
+-----------------------------------
+
+🏗️ TECH STACK
+
+Frontend:
+- Next.js
+- Tailwind (Black + Gold)
+
+Backend:
+- Node.js
+
+Database:
+- PostgreSQL
+
+Real-time:
+- WebSockets + Redis
+
+Payments:
+- Stripe (MVP)
+
+-----------------------------------
+
+🏢 COMPANY
+
+3C ONYX Inc  
+CUXTOMCANDYCLUB  
+Founder: Ronald Antonio Cadet  
+
+-----------------------------------
+
+🎯 MVP GOAL
+
+A user must:
+
+1. Send a lead like a text
+2. Another user acts on it
+3. A deal happens
+4. EVERYONE gets paid instantly
+
+-----------------------------------
+
+🚀 FINAL GOAL
+
+Make the system feel like:
+
+👉 texting  
+👉 but money moves automatically  
+
+-----------------------------------
+
+This is not an app.
+
+This is a real-time, global automotive money network.
+
+Execute the build

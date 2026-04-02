@@ -118,3 +118,11 @@ A theme engine offering 20 culture-driven themes across 10 categories, each with
 -   **Identity Verification**: Stripe Identity
 -   **Data Intelligence**: Fullpath
 -   **Push Notifications**: Expo
+
+## Text-to-Deal Engine (POST /api/text-to-deal)
+
+A unified "Forrest Gump simple" endpoint that converts raw text messages into structured deals. NLP entity extraction identifies customer names, vehicle make/model/year, VIN, budget, phone numbers, location, service type, urgency, and intent (buy/sell/service/refer/assist). Auto-assigns participants with role-based splits and generates SHA-256 proof hashes. Routes: `/convert` (full deal creation), `/extract` (entity extraction only), `/status`.
+
+## OEM Incentives Engine (POST /api/oem-incentives)
+
+VIN + ZIP + Customer Profile → exact discounts and rebates. Covers 28 manufacturers with 90+ active programs across 11 incentive types (rebate, bonus cash, loyalty, conquest, APR reduction, lease cash, tax credits, referral credits, EV rebates). Includes 14 state-level EV incentive programs. Customer qualification factors: military/veteran, first responder, recent graduate, current vehicle brand (loyalty/conquest), income eligibility, referral codes. Routes: `/match` (full personalized matching), `/quick-match` (guaranteed + possible savings), `/manufacturers`, `/programs/:manufacturer`, `/status`. Replaces the hardcoded $1,500 OEM incentive default in brokerDesk.ts.
