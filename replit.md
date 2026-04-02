@@ -1,6 +1,6 @@
 # Overview
 
-3C Onyx is the Global Automotive Liquidity Network — a Protocol for Automotive Value Exchange that decentralizes the dealership. Every gas station, mechanic bay, and smartphone becomes a high-conversion point-of-sale. Known as the Unified Automotive Command Layer (UACL), it replaces fragmented legacy systems with an intelligent, monetized operating system. The Liquidity Network Protocol (v2.0) is the production-hardened final state. Key capabilities include dropshipping integration, professional dashboards, member value intelligence, QR payments, VIN Digital Passports, and a comprehensive AI-enriched marketplace. The project's vision is to establish a comprehensive automotive intelligence layer, offering advanced personalization and a robust platform for consumers and professionals, with significant market potential for monetized services.
+3C Onyx is the Global Automotive Liquidity Network, aiming to decentralize the dealership experience by transforming every gas station, mechanic bay, and smartphone into a high-conversion point-of-sale. It replaces fragmented legacy systems with a Unified Automotive Command Layer (UACL), an intelligent, monetized operating system. The project's vision is to establish a comprehensive automotive intelligence layer, offering advanced personalization and a robust platform for consumers and professionals, with significant market potential for monetized services. Key capabilities include dropshipping integration, professional dashboards, member value intelligence, QR payments, VIN Digital Passports, and an AI-enriched marketplace.
 
 # User Preferences
 
@@ -10,25 +10,25 @@ I prefer detailed explanations and iterative development. Ask before making majo
 
 ## Monorepo Structure and Tooling
 
-The project uses a pnpm workspace monorepo with Node.js 24, TypeScript 5, Express 5 API, PostgreSQL, Drizzle ORM, and Zod for validation. API codegen uses Orval from an OpenAPI spec, and `esbuild` is used for CJS bundling.
+The project utilizes a pnpm workspace monorepo, built with Node.js 24 and TypeScript 5. The backend employs an Express 5 API, PostgreSQL with Drizzle ORM, and Zod for validation. API codegen is handled by Orval from an OpenAPI spec, and `esbuild` is used for CJS bundling.
 
 ## AWS Deployment Architecture
 
-The system is designed for AWS, leveraging Route 53, CloudFront, S3, ALB, ECS Fargate for API containers, and RDS PostgreSQL 16, ensuring lightweight container images and zero-downtime deployments.
+The system is designed for AWS, using Route 53, CloudFront, S3, ALB, ECS Fargate for API containers, and RDS PostgreSQL 16 to ensure lightweight container images and zero-downtime deployments.
 
 ## UI/UX Design (3C Onyx Visual Language)
 
-The platform features a cinematic "Apple × GTA" visual language with a multi-theme system (dark default, warm ivory light mode, plus 12 holiday/seasonal themes and auto-birthday detection). Typography uses Barlow Condensed for headings and Inter for body text. Design elements include an "THE AUTOMOTIVE INTELLIGENCE LAYER" hero, amber accents, translucent glassmorphism, and a custom AI-Native Design System with futuristic components and dynamic animations. The UI also incorporates a "Google Search Bar" pivot for a consumer-first assistant experience, de-jargonized status labels, and a mobile-first, Zero-Thought Assistant-First UI.
+The platform features a cinematic "Apple × GTA" visual language with a multi-theme system, including a dark default, warm ivory light mode, and seasonal themes. Typography uses Barlow Condensed for headings and Inter for body text. Design elements include an "THE AUTOMOTIVE INTELLIGENCE LAYER" hero, amber accents, translucent glassmorphism, and a custom AI-Native Design System with futuristic components and dynamic animations. The UI also incorporates a "Google Search Bar" pivot for a consumer-first assistant experience and is designed with a mobile-first, Zero-Thought Assistant-First approach.
 
 ## Core Platform Features
 
-The architecture is AI-first, featuring:
-- **Enterprise AI Stack v4.0**: An AI router using OpenAI as primary, with Gemini/Bedrock/Anthropic fallbacks, supporting various task types including vision and a Critique & Review loop.
+The architecture is AI-first, encompassing:
+- **Enterprise AI Stack v4.0**: An AI router using OpenAI primarily, with Gemini, Bedrock, and Anthropic fallbacks, supporting various task types including vision and a Critique & Review loop.
 - **WebSocket Real-Time Hub**: Provides real-time communication across distinct rooms.
 - **Agent Orchestration Engine**: A 12-agent UACL mesh with a state machine.
 - **Blockchain Chain-of-Custody**: Ensures tamper-proof ledgering with SHA-256 hash chains, HMAC-SHA-256 signing, PostgreSQL persistence, and optional Ethereum Sepolia anchoring.
-- **Authentication System**: JWT-based (HS256) with `jose`, supporting full authentication flows, role-based access control, bcrypt-hashed passwords, and WebAuthn biometric authentication (Face ID / Fingerprint) via `@simplewebauthn`.
-- **Fortress Governor (AI Safety & Control Layer)**: A three-tier confidence classification system for AI decisions, including AUTO_EXECUTE, SUGGEST, and HALT, with an Explainability Layer for user understanding.
+- **Authentication System**: JWT-based (HS256) with `jose`, supporting full authentication flows, role-based access control, bcrypt-hashed passwords, and WebAuthn biometric authentication via `@simplewebauthn`.
+- **Fortress Governor (AI Safety & Control Layer)**: A three-tier confidence classification system for AI decisions (AUTO_EXECUTE, SUGGEST, HALT) with an Explainability Layer.
 - **Security Middleware**: Uses Helmet for security headers, `express-rate-limit` for API rate limiting, and secure Stripe webhook handling.
 - **Database Layer**: Drizzle ORM with PostgreSQL (optimized connection pool), ensuring all tables are SOC2 audit-trail compliant.
 - **API Performance Stack (ByteByteGo 5)**: Implements standardized pagination, async logging, TTL in-memory caching, gzip/brotli compression, and tuned connection pools.
@@ -36,93 +36,49 @@ The architecture is AI-first, featuring:
 - **DealerFlow OS v2.0**: An industrial infrastructure layer for automotive professionals, featuring a Smart Routing Engine, SLA Auto-Escalation, Bank-Ready Vault, AI Vision OCR Intake, Dependency-Aware DAG Execution, and Zero-Trust Delegation Architecture.
 - **Autonomous Execution Protocol**: AI confidence scoring per task with auto-escalation and a retry mechanism.
 - **Omni-Node Open Intake**: A public submission portal with AI-powered smart routing, duplicate detection, and a Global Trust Score Engine.
-- **Invisible Funnel Protocol**: A headless API orchestration layer for growth, communication, and commerce, including a Growth Event Bus, Communication Orchestrator, Referral Engine API, Commerce API, and a Decentralized Bird-Dog Flywheel.
-- **Universal Commission Engine**: Automates referral commissions on platform transactions, tracking earnings, awarding ONYX Points, and integrating with `commission_ledger` and `transactions` tables.
-- **Shareable AR Badge**: A themed 3C branded badge generator at `/ar-badge` that allows members to create, download, and share personalized badges linking back to their profiles for viral growth.
-- **ONYX Nerve Center**: The "daily habit" dashboard for logged-in members, displaying real-time tiles for total earnings, Driver Tier progress, Garage vehicle summary with service alerts, and People Helped.
-- **Autonomous Execution Engine**: "Scan → Diagnose → Execute" one-tap workflow. `POST /api/input/process` normalizes vehicle input, `POST /api/ai/diagnose` runs AI-powered vehicle analysis (Gemini w/ rule-based fallback), `POST /api/decision/execute` autonomously triggers cascading workflows (deal creation, service scheduling, parts ordering, inspections) with blockchain proof stamping. 90% AI confidence guardrails with human escalation. All routes auth-gated + rate-limited. Server-side diagnosis store prevents client-side action injection. UI at `/one-tap`.
-- **Universal Attribution Engine**: Multi-level referral attribution (Direct + Secondary at 20% of primary rate). `POST /api/payout/distribute` requires proof-of-completion gating (invoice_verified, delivery_signed, service_confirmed, payment_confirmed) before any payout is released. Anti-abuse layer detects velocity spikes (50 referrals/24h), new account gaming, same-domain clusters, suspicious conversion rates — quarantines at risk score >= 70/100. All payouts are blockchain-stamped. Idempotency via dedupe keys prevents replay attacks. Authorization enforces caller === buyer or Admin/Finance role. `GET /api/node/:id/earnings` returns real-time earnings hub.
-- **Altruistic Share Component**: Gold-on-black modal triggered after one-tap completion showing "You helped someone! Earn by helping another." Displays real-time earnings (paid/pending/helped counts), 1-tap native share sheet, copy link, QR code. Referral deep-links go to `/assist/{code}`. Falls back to `/join` if no referral code exists.
-- **Street-Level Distribution Network**: The "Global Automotive Liquidity Network" entry layer. `GET /api/referral/:username` captures QR scans at physical nodes (gas stations, repair shops) and permanently tags the referrer to the new user's attribution chain with SHA-256 hash stamps. `GET /api/node/:id/qr` generates dynamic QR codes for members. `GET /api/leaderboard` ranks nodes by People Helped and Total Earnings. `GET /api/activity/feed` provides real-time dopamine loop ("John in Taunton just earned $150 from a referral"). Identity roles: Connector (0+) → Closer (10+) → Operator (50+) → Enterprise (200+). All responses carry forensic sovereignty headers (X-Protocol-Class: Global-Automotive-Liquidity-Network).
+- **Invisible Funnel Protocol**: A headless API orchestration layer for growth, communication, and commerce.
+- **Universal Commission Engine**: Automates referral commissions on platform transactions.
+- **Shareable AR Badge**: A themed 3C branded badge generator for viral growth.
+- **ONYX Nerve Center**: A "daily habit" dashboard for logged-in members.
+- **Autonomous Execution Engine**: Implements a "Scan → Diagnose → Execute" one-tap workflow, normalizing vehicle input, running AI-powered vehicle analysis, and autonomously triggering cascading workflows with blockchain proof stamping.
+- **Universal Attribution Engine**: Manages multi-level referral attribution and payout distribution with anti-abuse layers and blockchain stamping.
+- **Altruistic Share Component**: A post-completion modal encouraging sharing and displaying real-time earnings.
+- **Street-Level Distribution Network**: The entry layer for the "Global Automotive Liquidity Network," capturing QR scans at physical nodes and tracking referrers.
 - **Architectural Upgrades**: Includes CarPlay/Android Auto integration, a tRPC Type-Safe API Layer, an Admin API, and a Beta Waitlist system.
 
 ## Kilocorn Infrastructure Layers ($1T+ Architecture)
 
-Seven protocol-level infrastructure layers that elevate 3C ONYX from an application to the global automotive protocol:
-
-1. **Developer Platform / API Gateway** (`/api/developer/*`): Third-party developer registration, API key issuance (SHA-256 hashed, prefix-only storage), tiered rate limiting (Free → Builder → Enterprise → Partner → Sovereign), webhook delivery system with retry logic. 16 subscribable event types. This makes ONYX a protocol others build on — like Stripe for automotive.
-
-2. **Federation / Multi-Region Architecture** (`/api/federation/*`): 9-region global node topology (NA_EAST/WEST/CENTRAL, EU_WEST/CENTRAL, APAC_EAST/SOUTH, LATAM, MEA). Event-sourced incremental sync with conflict-free merge. Jurisdiction-aware geographic data sharding. mTLS with certificate pinning. <500ms automatic regional failover. 1M TPS global capacity. Cross-region sync tracking.
-
-3. **Global Settlement Engine** (`/api/settlement/*`): 20-currency support (USD, EUR, GBP, CAD, AUD, JPY, CHF, CNY, INR, BRL, MXN, KRW, AED, SGD, ZAR, NGN, SAR, HKD, SEK, NOK). 8 payment rails (Stripe, ACH, SEPA, PIX, UPI, Wire, Alipay, WeChat Pay). Real-time FX conversion. 2% platform fee on all settlements. Full settlement ledger with jurisdiction tagging and compliance flags.
-
-4. **Plugin / Extension System** (`/api/plugins/*`): App Store for automotive — third parties build modules on ONYX. 8 system plugins (Guardian, Bird-Dog, F&I, Marketplace, Fleet Telemetry, Compliance Shield, Dealer CRM, Transport). Sandboxed V8 isolate execution with memory limits. Plugin lifecycle: Draft → Review → Published → Suspended → Deprecated. Install/uninstall tracking.
-
-5. **IoT / Vehicle Telemetry Pipeline** (`/api/iot/*`): OBD-II, telematics, connected car API, AR headset, and robotics node data ingestion. 12 supported metric types. Predictive maintenance engine with 5 failure prediction models (brake, battery, tire, engine, transmission). Supports Tesla, Ford, GM, BMW, Mercedes connected car APIs + HoloLens, Magic Leap, Apple Vision Pro + Boston Dynamics, Figure, Tesla Bot. 10Hz refresh rate. 90-day raw retention, 7-year aggregated.
-
-6. **Governance & Compliance Engine** (`/api/governance/*`): 10 default jurisdictions (US-FL, US-CA, US-TX, US-NY, GB, DE, JP, AE, BR, IN). 8 compliance frameworks (SOC 2, NIST 800-53, GDPR, CCPA, LGPD, DPDP, PCI DSS 4.0, FIPS 140-3). Automated compliance report generation. Consent model management (opt-in/opt-out per region). Data residency enforcement. Cross-border transfer impact assessments.
-
-7. **Data Intelligence Platform** (`/api/data-intelligence/*`): Bloomberg Terminal for automotive. Market pricing intelligence across 2.8M+ listings. Demand forecasting with ARIMA, Prophet, LSTM, Transformer models (84-92% accuracy). Regional trend analysis at metro-area granularity. Competitive intelligence (Cox, CDK, Carvana, TrueCar, CarGurus). Predictive maintenance models (88-94% accuracy). Fleet analytics with TCO optimization.
-
-### Kilocorn Database Tables
-`developer_apps`, `onyx_api_keys`, `webhook_endpoints`, `webhook_deliveries`, `federation_nodes`, `cross_region_sync`, `settlement_ledger`, `fx_rates`, `plugins`, `plugin_installs`, `telemetry_streams`, `telemetry_data_points`, `predictive_maintenance`, `compliance_jurisdictions`, `compliance_reports`, `intelligence_reports`, `market_data_snapshots`
+Seven protocol-level infrastructure layers designed to elevate 3C ONYX:
+1.  **Developer Platform / API Gateway**: For third-party developer registration, API key issuance, tiered rate limiting, and a webhook delivery system.
+2.  **Federation / Multi-Region Architecture**: A 9-region global node topology with event-sourced incremental sync, jurisdiction-aware data sharding, mTLS, and automatic regional failover.
+3.  **Global Settlement Engine**: Supports 20 currencies and 8 payment rails, with real-time FX conversion and a 2% platform fee.
+4.  **Plugin / Extension System**: An "App Store for automotive" where third parties can build modules.
+5.  **IoT / Vehicle Telemetry Pipeline**: Data ingestion from OBD-II, telematics, connected car APIs, AR headsets, and robotics, with a predictive maintenance engine.
+6.  **Governance & Compliance Engine**: Manages compliance across 10 default jurisdictions and 8 frameworks, with automated reporting and consent management.
+7.  **Data Intelligence Platform**: Provides market pricing intelligence, demand forecasting, regional trend analysis, competitive intelligence, predictive maintenance models, and fleet analytics.
 
 ## Unified Sovereign Nexus — The Living Money Network
 
-Six systems that fuse gig-economy logistics, industrial-grade warranty management, and the 7-Agent Mesh into a Distributed Node Economy. Every participant is a "Node" — if a Node touches the deal, the system mathematically guarantees an instant payout.
-
-1. **Invite-Only Node Architecture** (`/api/invites/*`): Gated entry with 5 cryptographic invites per user. Every invite is SHA-256 chain-signed and linked to the inviter's `onyx_id` for lifetime attribution. Universal roles: Referral, Service (Mechanic/Detailer), Logistics (Runner/Delivery), Hosting (Location QR), Hybrid. Full invite tree visualization with depth tracking. Node leaderboard by recruitment + earnings.
-
-2. **Real-Time Task Matching Engine** (`/api/tasks/*`): Uber/DoorDash-grade distributed task matching. State machine: Open → Matching → Matched → Confirmed → En_Route → Executing → Verifying → Completed → Paid. 16 task categories (Bank_Payoff, DMV_Run, Mechanic_Service, Tire_Service, Transport, Roadside_Assist, etc.). 4 urgency levels (Standard/Priority/Urgent/Emergency). Geo-hash nearest-node dispatching. Proof-of-completion chain for every state transition.
-
-3. **Ask ONYX Command Router** (`/api/ask-onyx/*`): Single NLP-ready input that routes intents to the 7-Agent Mesh. 15 classified intents mapped to agents: "I need a bank payoff" → Finance Agent, "flat tire" → Service Agent (Urgent), "broke down" → Service Agent (Emergency). 92% confidence auto-routing. Batch classification support. Each request gets a SHA-256 proof hash.
-
-4. **Instant Split-Payment Engine** (`/api/splits/*`): Automatic multi-party split on every transaction: [Platform 8.5%] + [Location Host 5%] + [Referrer 10%] + [Service Provider 65%] + [Logistics Runner 11.5%]. Proof-of-completion gating (invoice_verified, delivery_signed, service_confirmed, payment_confirmed, photo_proof, gps_verified). Blockchain-stamped distribution. Full payout history per node. "If a Node touches the deal, the system mathematically guarantees an instant payout."
-
-5. **Bank Payoff Protocol** (`/api/bank-payoff/*`): 1-tap bank payoff automation — the #1 pain point in car deals, solved. 18 supported lenders (Ally, Capital One, Chase, Wells Fargo, Toyota Financial, Stellantis S1-S3, etc.). 16 with full automation. Lifecycle: Initiated → Lender_Contacted → Payoff_Quote_Received → Funding_Requested → Funded → Lien_Released → Title_Clear → Completed. 24-72 hours vs industry average of 7-14 days.
-
-6. **Warranty Intelligence Engine** (`/api/warranty/*`): Factory warranty verification integrated with VIN. 29 supported manufacturers with coverage data (bumper-to-bumper, powertrain, corrosion). VIN decoder extracts make/year. Warranty status determination (Active Full Coverage / Partial Powertrain / Expired). Recall integration. 24h intelligent caching. "Know if a car is covered before anyone touches it."
-
-### Sovereign Nexus Database Tables
-`invite_tree`, `node_profiles`, `task_matching`, `split_payments`, `split_recipients`, `bank_payoffs`, `warranty_intel`
+Six systems integrating gig-economy logistics, warranty management, and a 7-Agent Mesh into a Distributed Node Economy:
+1.  **Invite-Only Node Architecture**: Gated entry with cryptographic invites for lifetime attribution and role assignment.
+2.  **Real-Time Task Matching Engine**: Uber/DoorDash-grade distributed task matching with a state machine and geo-hash nearest-node dispatching.
+3.  **Ask ONYX Command Router**: Single NLP-ready input routing intents to the 7-Agent Mesh with high-confidence auto-routing.
+4.  **Instant Split-Payment Engine**: Automatic multi-party split on every transaction with proof-of-completion gating and blockchain-stamped distribution.
+5.  **Bank Payoff Protocol**: Automates bank payoffs for 18 lenders, significantly reducing processing time.
+6.  **Warranty Intelligence Engine**: Integrates factory warranty verification with VIN decoding and recall information.
 
 ## Global Automotive Economic Network — The Living Money Network
 
-Five systems that complete the zero-friction global economy where every participant earns from automotive activity:
-
-1. **ONYX Wallet System** (`/api/onyx-wallet/*`): Cash App meets automotive. Real-time balance, pending earnings, lifetime tracking, instant credit/debit, withdrawal support. 14 transaction categories. Auto-split integration with split-payment engine. Wallet leaderboard. Stripe Connect ready. Every credit and debit gets a SHA-256 proof hash.
-
-2. **Location Node Network** (`/api/locations/*`): Every gas station, mechanic bay, and shop becomes a high-conversion point-of-sale. 15 location types (Gas_Station, Mechanic_Shop, Dealership, Auto_Parts, Car_Wash, Tire_Shop, Body_Shop, etc.). QR code generation per location. Track scans, signups, transactions, and revenue per location. Geo-hash discovery for nearby locations. Location leaderboard.
-
-3. **Social Proof Engine** (`/api/social-proof/*`): Real-time dopamine loop. Live earnings feed ("A Node just earned $X from a service job"). Personal stats dashboard (lifetime earnings, people referred, tasks completed, 24h earnings). Nearby activity ("$2,300 generated near you"). Milestone system (First Dollar → Hundred K Sovereign). Earnings badges (Rising Node → Power Earner). Global network stats.
-
-4. **Global Remittance System** (`/api/remittance/*`): A user in Haiti pays for a repair in Florida, instantly. 28 supported currencies. 1.5% fee. 14 corridors (US↔Haiti, US↔Jamaica, US↔DR, US↔Mexico, US↔Brazil, US↔Colombia, US↔Nigeria, etc.). Real-time FX conversion. 10 purposes (Vehicle_Repair, Parts_Order, Service_Payment, etc.). Blockchain proof stamps.
-
-5. **Global Inclusion & Localization Engine** (`/api/global/*`): Optimized for every human, every device, every network. 4 languages (English, Spanish, Portuguese, Haitian Creole). 19 currencies with symbols. Offline-first sync queue (cache actions locally, sync when connection returns). Device-adaptive config (2G/3G/satellite network optimization, low-RAM mode, aggressive caching). Emerging market ready (Android 8+, 1GB RAM devices).
-
-### Global Network Database Tables
-`onyx_wallets`, `wallet_transactions`, `location_nodes`, `remittance_transfers`, `offline_sync_queue`
+Five systems completing the zero-friction global economy:
+1.  **ONYX Wallet System**: A financial system for real-time balances, earnings tracking, and instant credit/debit.
+2.  **Location Node Network**: Transforms physical locations into high-conversion points-of-sale with QR code generation and tracking.
+3.  **Social Proof Engine**: Provides real-time social proof and gamification elements for user engagement.
+4.  **Global Remittance System**: Facilitates cross-border payments with multi-currency support and blockchain proof stamps.
+5.  **Global Inclusion & Localization Engine**: Optimizes the platform for diverse users, devices, and networks with multi-language and multi-currency support, offline-first sync, and emerging market readiness.
 
 ## ONYX Theme Engine — Culture-Driven Visual Identity
 
-20 culture-driven themes organized into 10 categories (`/api/themes/*`). Each theme includes full color palette, dark mode overrides, typography, and visual effect flags. Per-user persistence in DB. CSS variable export endpoint for instant theme application.
-
-**Categories & Themes:**
-- **Signature**: ONYX Black & Gold (default)
-- **Motorsport**: Midnight Motorsport, Monster Truck Rally, Rodeo Circuit, Formula 1, Drag Strip, Baja Off-Road
-- **Street Racing**: Neon Drift, Speed Demon
-- **GTA**: GTA Vice City, GTA San Andreas
-- **Military**: Navy SEAL Ops, Army Ranger
-- **Car Culture**: DUB Show, Lowrider Candy Paint
-- **Emergency**: NYPD Pursuit, FDNY Inferno
-- **Urban**: NYCHA Projects
-- **Luxury**: Platinum VIP (premium)
-- **EV**: Electric Future
-
-Visual effects per theme: glassmorphism, neonGlow, particlesBg, scanlines, grain, chrome, flames.
-
-### Theme Database Table
-`user_theme_prefs`
+A theme engine offering 20 culture-driven themes across 10 categories, each with full color palettes, dark mode overrides, typography, and visual effect flags.
 
 # External Dependencies
 
@@ -162,11 +118,3 @@ Visual effects per theme: glassmorphism, neonGlow, particlesBg, scanlines, grain
 -   **Identity Verification**: Stripe Identity
 -   **Data Intelligence**: Fullpath
 -   **Push Notifications**: Expo
-
-## Explainer Video (Onyx Explainer)
-
-Located at `artifacts/onyx-explainer`. 11-scene cinematic explainer video with browser-based voiceover (Web Speech API). Scenes auto-advance with configurable durations in `VideoTemplate.tsx`. Scene arc: Reveal ($2.7T) → Problem → What We Built → Protocol (Scan→Diagnose→Execute) → Agent Mesh (7 agents) → Proof Engine → Revenue (Tollbooth) → Street Economy (K>1 QR viral) → Blitzscaling (10M→100M) → Moat (Five Walls) → Close. Total runtime ~4.5 minutes. Architecture communicates full execution platform vision: AI agents today, AR inspection next, humanoid robotics integration, full autonomous protocol as endgame.
-
-## Pitch Deck
-
-Located at `artifacts/pitch-deck`. 10 slides, routed via `/slide1` through `/slide10`. Auto-discovered via `import.meta.glob` + `slides-manifest.json`. Slide order: Title → Problem ($2.7T) → What We Built (10 LIVE systems) → Protocol (8 pillars) → Street Economy → Revenue (Tollbooth) → Scale (10M→100M, AI→AR→Robotics→Full Autonomy) → Moat (Five Walls) → Capital (SBA 7(a)) → Close. Pre-existing build-time issue: vite.config.ts references PORT env var that isn't set during `pnpm build`; dev server works fine.

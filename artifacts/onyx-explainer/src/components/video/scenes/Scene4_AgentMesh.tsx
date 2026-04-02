@@ -1,11 +1,11 @@
 import { motion } from 'framer-motion';
 import { useEffect } from 'react';
-import { speak } from '@/lib/voiceover';
+import { speak, stopAudio } from '@/lib/voiceover';
 
 export function Scene4_AgentMesh() {
   useEffect(() => {
-    speak("Seven AI agents. One event bus. Zero human coordination. Sales identifies the opportunity. Finance processes the approval. Service dispatches the mechanic. Parts sources the components. Delivery tracks the transport. Support handles the follow-up. Referral attributes the commission. All working simultaneously. All auditable. All autonomous.");
-    return () => window.speechSynthesis.cancel();
+    speak("Seven AI agents. One event bus. Zero human coordination required. Each agent operates autonomously. When a deal enters the system, the sales agent qualifies it. The finance agent structures terms. The service agent schedules inspection. The parts agent sources components. All happening simultaneously. The future of automotive commerce.", "scene4");
+    return () => stopAudio("scene4");
   }, []);
 
   const agents = [

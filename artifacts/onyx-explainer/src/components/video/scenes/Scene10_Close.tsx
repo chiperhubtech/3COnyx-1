@@ -1,12 +1,12 @@
 import { motion } from 'framer-motion';
 import { useEffect } from 'react';
-import { speak } from '@/lib/voiceover';
+import { speak, stopAudio } from '@/lib/voiceover';
 import { OnyxLogo } from '../OnyxLogo';
 
-export function Scene10_Close() {
+export function Scene11_Close() {
   useEffect(() => {
-    speak("This is not a car app. This is the money network for the entire automotive industry. The protocol that every gas station, every mechanic, every dealership, and every smartphone runs on. A broker closes a deal. A mechanic services the vehicle. A random clerk referred the user. Everyone gets paid automatically. All tracked, verified, and visible in one platform. Making the life of the ordinary become extraordinary. Designed, architected, and owned exclusively by Ronald Antonio Cadet. CUXTOMCANDYCLUB LLC. 3C ONYX. The standard is set.");
-    return () => window.speechSynthesis.cancel();
+    speak("This is the money network for the entire automotive industry. The protocol that every gas station, every mechanic, every dealership, and every smartphone runs on. A broker closes a deal. A mechanic services the vehicle. A random clerk referred the customer. Everyone gets paid automatically. All tracked. All verified. All visible. Making the life of the ordinary become extraordinary. Designed, architected, and owned exclusively by Ronald Antonio Cadet. CUXTOMCANDYCLUB LLC. 3C ONYX. The standard is set.", "scene11");
+    return () => stopAudio("scene11");
   }, []);
 
   return (

@@ -1,11 +1,11 @@
 import { motion } from 'framer-motion';
 import { useEffect } from 'react';
-import { speak } from '@/lib/voiceover';
+import { speak, stopAudio } from '@/lib/voiceover';
 
-export function Scene9_Moat() {
+export function Scene10_Moat() {
   useEffect(() => {
-    speak("Five walls deep. First: 100% built and deployable — capital is for scaling, not building. Second: forensic IP — every line of code exclusively owned by Ronald Antonio Cadet. Third: distribution moat — 10,000 QR codes at gas stations create an organic funnel no one can outspend. Fourth: institutional value — solving Contracts in Transit for auto lenders. Fifth: network effects — every new user makes the network more valuable for every existing user. And the architecture is modular — ready for AI agents, AR inspection, humanoid robotics, and full autonomous fulfillment. This is not a feature advantage. This is a structural one.");
-    return () => window.speechSynthesis.cancel();
+    speak("Five walls deep. The moat is permanent. Wall one: one hundred percent built. Every system operational. Wall two: forensic intellectual property. Every line of code traced to the architect. Wall three: distribution moat. Street-level QR network expanding daily. Wall four: institutional value. Protocol-level infrastructure. Wall five: network effects. Every new node makes the entire network more valuable.", "scene10");
+    return () => stopAudio("scene10");
   }, []);
 
   const pillars = [

@@ -1,11 +1,11 @@
 import { motion } from 'framer-motion';
 import { useEffect } from 'react';
-import { speak } from '@/lib/voiceover';
+import { speak, stopAudio } from '@/lib/voiceover';
 
-export function Scene7_Growth() {
+export function Scene9_Growth() {
   useEffect(() => {
-    speak("This is the breakthrough. A gas station clerk tapes a QR code to a pump. A driver scans it to fix a flat tire. ONYX dispatches the service. The vehicle history is stamped. The clerk earns commission instantly. No training. No inventory. No overhead. Just a QR code and a smartphone. Viral coefficient greater than one. The network compounds itself.");
-    return () => window.speechSynthesis.cancel();
+    speak("A gas station clerk tapes a QR code to a pump. A driver scans it while filling up. ONYX dispatches. A deal closes. The clerk gets paid. The mechanic gets paid. The referrer gets paid. Everyone gets paid. Automatically. Viral coefficient greater than one. Phase one: Bootstrap. Phase two: ten million users. Phase three: one hundred million users. Global standard.", "scene9");
+    return () => stopAudio("scene9");
   }, []);
 
   const steps = [

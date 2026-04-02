@@ -135,6 +135,7 @@ import socialProofRouter from "./social-proof";
 import remittanceRouter from "./remittance";
 import globalInclusionRouter from "./global-inclusion";
 import themeEngineRouter from "./theme-engine";
+import ttsRouter from "./tts";
 
 const router: IRouter = Router();
 
@@ -292,5 +293,6 @@ router.use("/social-proof", socialProofRouter);
 router.use("/remittance", remittanceRouter);
 router.use("/global", globalInclusionRouter);
 router.use("/themes", themeEngineRouter);
+router.use("/tts", ttsRouter);
 
 export default router;

@@ -1,11 +1,11 @@
 import { motion } from 'framer-motion';
 import { useEffect } from 'react';
-import { speak } from '@/lib/voiceover';
+import { speak, stopAudio } from '@/lib/voiceover';
 
 export function Scene3_Solution() {
   useEffect(() => {
-    speak("One input. The system handles everything. Scan a VIN — ONYX decodes it. Diagnose the need — AI routes the service. Execute the transaction — payment splits automatically. The member taps once. ONYX coordinates seven agents simultaneously. Under two minutes. Every time.");
-    return () => window.speechSynthesis.cancel();
+    speak("Scan. Diagnose. Execute. The member taps once. ONYX coordinates seven agents simultaneously. Sales, Finance, Service, Parts, Delivery, Support, and Referral. Under two minutes. No phone calls. No paperwork. No waiting.", "scene3");
+    return () => stopAudio("scene3");
   }, []);
 
   const steps = [

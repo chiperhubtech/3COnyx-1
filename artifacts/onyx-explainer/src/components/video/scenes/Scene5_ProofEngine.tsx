@@ -1,11 +1,11 @@
 import { motion } from 'framer-motion';
 import { useEffect } from 'react';
-import { speak } from '@/lib/voiceover';
+import { speak, stopAudio } from '@/lib/voiceover';
 
 export function Scene5_ProofEngine() {
   useEffect(() => {
-    speak("Every vehicle gets a digital passport. Every oil change, every ownership transfer, every inspection — cryptographically stamped in an immutable hash chain. SHA-256. Tamper-evident. Publicly verifiable. CarFax tells you what happened. ONYX mathematically proves it.");
-    return () => window.speechSynthesis.cancel();
+    speak("Every vehicle gets a digital passport. Every transaction cryptographically stamped with SHA-256 hash chains. Every record tamper-evident and immutable. CarFax tells you what happened. ONYX proves it mathematically.", "scene5");
+    return () => stopAudio("scene5");
   }, []);
 
   const events = [

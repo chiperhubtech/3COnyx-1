@@ -2,12 +2,7 @@ function OnyxLogo({ size }: { size: number }) {
   const gold = "#C9A227";
   const gold2 = "#E8B830";
   const white = "#FFFFFF";
-  const RAD = Math.PI / 180;
   const cx = 50, cy = 50, r = 31;
-  const top = { x: cx, y: cy - r };
-  const bot = { x: cx, y: cy + r };
-  const botL = { x: cx + r * Math.cos(210 * RAD), y: cy + r * Math.sin(210 * RAD) };
-  const botR = { x: cx + r * Math.cos(330 * RAD), y: cy + r * Math.sin(330 * RAD) };
   const sw = 2.8;
 
   return (
@@ -27,9 +22,9 @@ function OnyxLogo({ size }: { size: number }) {
       <circle cx={cx} cy={cy} r={46} fill="none" stroke={gold} strokeWidth="0.6" strokeOpacity="0.35" />
       <circle cx={cx} cy={cy} r={43.5} fill="none" stroke={gold} strokeWidth="0.3" strokeOpacity="0.18" />
       <circle cx={cx} cy={cy} r={r} fill="none" stroke="url(#cringGrad)" strokeWidth={sw} strokeLinecap="round" />
-      <line x1={top.x} y1={top.y} x2={bot.x} y2={bot.y} stroke={gold} strokeWidth={sw} strokeLinecap="round" />
-      <line x1={cx} y1={cy} x2={botL.x} y2={botL.y} stroke={gold} strokeWidth={sw} strokeLinecap="round" />
-      <line x1={cx} y1={cy} x2={botR.x} y2={botR.y} stroke={gold} strokeWidth={sw} strokeLinecap="round" />
+      <line x1={cx} y1={cy - r} x2={cx} y2={cy + r} stroke={gold} strokeWidth={sw} strokeLinecap="round" />
+      <line x1={23} y1={34.5} x2={cx} y2={cy} stroke={gold} strokeWidth={sw} strokeLinecap="round" />
+      <line x1={77} y1={34.5} x2={cx} y2={cy} stroke={gold} strokeWidth={sw} strokeLinecap="round" />
       <text x="37" y="50" fontFamily="Inter, sans-serif" fontWeight="800" fontSize="16" fill={white} textAnchor="start">3</text>
       <text x="50" y="56" fontFamily="Inter, sans-serif" fontWeight="800" fontSize="20" fill={white} textAnchor="middle">C</text>
     </svg>
@@ -58,7 +53,7 @@ export default function CloseSlide() {
         <div style={{ marginTop: "2.5vh", display: "flex", gap: "3vw", justifyContent: "center", alignItems: "center" }}>
           <div style={{ textAlign: "center" }}>
             <p className="font-body text-muted" style={{ fontSize: "0.9vw", letterSpacing: "0.15em" }}>TODAY</p>
-            <p className="font-body font-semibold text-text" style={{ fontSize: "1.1vw" }}>7 AI Agents + Street Network</p>
+            <p className="font-body font-semibold text-text" style={{ fontSize: "1.1vw" }}>20+ Systems Live</p>
           </div>
           <p className="font-body text-primary" style={{ fontSize: "1.5vw" }}>→</p>
           <div style={{ textAlign: "center" }}>

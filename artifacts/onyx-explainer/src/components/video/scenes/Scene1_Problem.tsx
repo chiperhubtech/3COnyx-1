@@ -1,11 +1,11 @@
 import { motion } from 'framer-motion';
 import { useEffect } from 'react';
-import { speak } from '@/lib/voiceover';
+import { speak, stopAudio } from '@/lib/voiceover';
 
 export function Scene1_Problem() {
   useEffect(() => {
-    speak("A $2.7 trillion industry built on a model from 1950. 12 handoffs per deal. 14 days to close. 5 vendors that don't talk to each other. 4 hours wasted per buyer. And zero cryptographic proof of anything. The dealership model was never designed for the smartphone era. It's time for a protocol.");
-    return () => window.speechSynthesis.cancel();
+    speak("Twelve handoffs per deal. Fourteen days to close. Five vendors that don't talk to each other. The car business loses billions every year to inefficiency, fraud, and broken trust. This isn't disruption. This is reconstruction.", "scene1");
+    return () => stopAudio("scene1");
   }, []);
 
   const container = {

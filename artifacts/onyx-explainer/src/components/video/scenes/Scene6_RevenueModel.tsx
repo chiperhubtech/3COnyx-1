@@ -1,11 +1,11 @@
 import { motion } from 'framer-motion';
 import { useEffect } from 'react';
-import { speak } from '@/lib/voiceover';
+import { speak, stopAudio } from '@/lib/voiceover';
 
-export function Scene6_RevenueModel() {
+export function Scene8_RevenueModel() {
   useEffect(() => {
-    speak("Every transaction flows through ONYX. And ONYX takes its cut. $150 to $300 per vehicle deal. 3 to 20 percent on parts, service, transport, and aftermarket. Recurring spreads on insurance and lender leads. Auto-split via Stripe Connect. Zero manual reconciliation. The tollbooth never closes.");
-    return () => window.speechSynthesis.cancel();
+    speak("One hundred fifty to three hundred dollars per vehicle deal. Three to twenty percent on parts and service. Recurring subscription spreads. The tollbooth model. Every transaction on the network generates revenue. The tollbooth never closes.", "scene8");
+    return () => stopAudio("scene8");
   }, []);
 
   const streams = [

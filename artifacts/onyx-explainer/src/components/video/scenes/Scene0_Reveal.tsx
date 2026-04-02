@@ -1,12 +1,12 @@
 import { motion } from 'framer-motion';
 import { useEffect } from 'react';
-import { speak } from '@/lib/voiceover';
+import { speak, stopAudio } from '@/lib/voiceover';
 import { OnyxLogo } from '../OnyxLogo';
 
 export function Scene0_Reveal() {
   useEffect(() => {
-    speak("Two point seven trillion dollars. That's the global automotive industry. And it still runs on fax machines. 3C ONYX. The Global Automotive Liquidity Network. Making the life of the ordinary become extraordinary. The entire industry — reduced to one confirmation tap.");
-    return () => window.speechSynthesis.cancel();
+    speak("Two point seven trillion dollars. That's the global automotive industry. And it still runs on fax machines and handshake deals. 3C ONYX. The Global Automotive Liquidity Network. Where every human, automobile, and transaction goes from ordinary to extraordinary.", "scene0");
+    return () => stopAudio("scene0");
   }, []);
 
   return (
