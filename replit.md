@@ -67,6 +67,25 @@ Seven protocol-level infrastructure layers that elevate 3C ONYX from an applicat
 ### Kilocorn Database Tables
 `developer_apps`, `onyx_api_keys`, `webhook_endpoints`, `webhook_deliveries`, `federation_nodes`, `cross_region_sync`, `settlement_ledger`, `fx_rates`, `plugins`, `plugin_installs`, `telemetry_streams`, `telemetry_data_points`, `predictive_maintenance`, `compliance_jurisdictions`, `compliance_reports`, `intelligence_reports`, `market_data_snapshots`
 
+## Unified Sovereign Nexus — The Living Money Network
+
+Six systems that fuse gig-economy logistics, industrial-grade warranty management, and the 7-Agent Mesh into a Distributed Node Economy. Every participant is a "Node" — if a Node touches the deal, the system mathematically guarantees an instant payout.
+
+1. **Invite-Only Node Architecture** (`/api/invites/*`): Gated entry with 5 cryptographic invites per user. Every invite is SHA-256 chain-signed and linked to the inviter's `onyx_id` for lifetime attribution. Universal roles: Referral, Service (Mechanic/Detailer), Logistics (Runner/Delivery), Hosting (Location QR), Hybrid. Full invite tree visualization with depth tracking. Node leaderboard by recruitment + earnings.
+
+2. **Real-Time Task Matching Engine** (`/api/tasks/*`): Uber/DoorDash-grade distributed task matching. State machine: Open → Matching → Matched → Confirmed → En_Route → Executing → Verifying → Completed → Paid. 16 task categories (Bank_Payoff, DMV_Run, Mechanic_Service, Tire_Service, Transport, Roadside_Assist, etc.). 4 urgency levels (Standard/Priority/Urgent/Emergency). Geo-hash nearest-node dispatching. Proof-of-completion chain for every state transition.
+
+3. **Ask ONYX Command Router** (`/api/ask-onyx/*`): Single NLP-ready input that routes intents to the 7-Agent Mesh. 15 classified intents mapped to agents: "I need a bank payoff" → Finance Agent, "flat tire" → Service Agent (Urgent), "broke down" → Service Agent (Emergency). 92% confidence auto-routing. Batch classification support. Each request gets a SHA-256 proof hash.
+
+4. **Instant Split-Payment Engine** (`/api/splits/*`): Automatic multi-party split on every transaction: [Platform 8.5%] + [Location Host 5%] + [Referrer 10%] + [Service Provider 65%] + [Logistics Runner 11.5%]. Proof-of-completion gating (invoice_verified, delivery_signed, service_confirmed, payment_confirmed, photo_proof, gps_verified). Blockchain-stamped distribution. Full payout history per node. "If a Node touches the deal, the system mathematically guarantees an instant payout."
+
+5. **Bank Payoff Protocol** (`/api/bank-payoff/*`): 1-tap bank payoff automation — the #1 pain point in car deals, solved. 18 supported lenders (Ally, Capital One, Chase, Wells Fargo, Toyota Financial, Stellantis S1-S3, etc.). 16 with full automation. Lifecycle: Initiated → Lender_Contacted → Payoff_Quote_Received → Funding_Requested → Funded → Lien_Released → Title_Clear → Completed. 24-72 hours vs industry average of 7-14 days.
+
+6. **Warranty Intelligence Engine** (`/api/warranty/*`): Factory warranty verification integrated with VIN. 29 supported manufacturers with coverage data (bumper-to-bumper, powertrain, corrosion). VIN decoder extracts make/year. Warranty status determination (Active Full Coverage / Partial Powertrain / Expired). Recall integration. 24h intelligent caching. "Know if a car is covered before anyone touches it."
+
+### Sovereign Nexus Database Tables
+`invite_tree`, `node_profiles`, `task_matching`, `split_payments`, `split_recipients`, `bank_payoffs`, `warranty_intel`
+
 # External Dependencies
 
 -   **Monorepo Tool**: pnpm workspaces

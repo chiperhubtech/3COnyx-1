@@ -123,6 +123,12 @@ import pluginApiRouter from "./plugin-api";
 import telemetryPipelineRouter from "./telemetry-pipeline";
 import governanceApiRouter from "./governance-api";
 import dataIntelligenceRouter from "./data-intelligence";
+import inviteNetworkRouter from "./invite-network";
+import taskMatchingEngineRouter from "./task-matching-engine";
+import askOnyxRouter from "./ask-onyx";
+import splitPaymentsRouter from "./split-payments";
+import bankPayoffRouter from "./bank-payoff";
+import warrantyIntelRouter from "./warranty-intel";
 
 const router: IRouter = Router();
 
@@ -268,5 +274,11 @@ router.use(pluginApiRouter);
 router.use(telemetryPipelineRouter);
 router.use(governanceApiRouter);
 router.use(dataIntelligenceRouter);
+router.use("/invites", inviteNetworkRouter);
+router.use("/tasks", taskMatchingEngineRouter);
+router.use("/ask-onyx", askOnyxRouter);
+router.use("/splits", splitPaymentsRouter);
+router.use("/bank-payoff", bankPayoffRouter);
+router.use("/warranty", warrantyIntelRouter);
 
 export default router;
