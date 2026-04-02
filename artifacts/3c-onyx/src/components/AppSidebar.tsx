@@ -13,7 +13,7 @@ import {
   Cpu, Package, Lock, Radio, Users, Sparkles, Heart, Wrench,
   Link2, X, Glasses, Brain, Layers, Activity, Flag, Target, DollarSign,
   Building2, ShieldAlert, Infinity, MessagesSquare, Crown, Scale, FileText, Gavel,
-  CheckCircle2, TrendingUp, BookOpen, Network,
+  CheckCircle2, TrendingUp, BookOpen, Network, Palette,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { NotificationBell } from "./NotificationBell";
@@ -143,6 +143,7 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
 
   const CUSTOMER_NAV = [
     { label: "My QR Badge",               path: "/my-qr",          icon: QrCode,      description: "Your scannable club identity · Download · Share", accent: "#C9A227" },
+    { label: "AR Badge",                  path: "/ar-badge",       icon: Palette,     description: "Themed shareable badges · Holiday · Emoji · Viral", accent: "#A78BFA" },
     { label: "Intelligence Feed",         path: "/intelligence",   icon: Activity,    description: "AI savings · live opportunities",  accent: "#C9A227" },
     { label: "Race Hub",                  path: "/race-hub",       icon: Flag,        description: "F1 · NASCAR · NHRA · Live Motorsport", accent: "#EF4444" },
     { label: "Aftermarket Shop",          path: "/aftermarket",    icon: ShoppingBag, description: "Performance · Wheels · Brakes · Audio",  accent: "#8B5CF6" },

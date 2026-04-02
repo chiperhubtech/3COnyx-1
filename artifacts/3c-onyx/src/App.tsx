@@ -84,6 +84,7 @@ import GuestFlow from "@/pages/guest-flow";
 import BiometricSettings from "@/pages/biometric-settings";
 import NotebookPage from "@/pages/notebook";
 import MyQRPage from "@/pages/my-qr";
+import ARBadgePage from "@/pages/ar-badge";
 
 // Auth + launch pages
 import LoginPage    from "@/pages/login";
@@ -246,6 +247,7 @@ function AppRoutes() {
             <Route path="/biometric-settings"   component={BiometricSettings} />
             <Route path="/notebook"              component={NotebookPage} />
             <Route path="/my-qr"                component={MyQRPage} />
+            <Route path="/ar-badge"             component={ARBadgePage} />
 
             {/* DealerFlow OS — Industry Professional */}
             <Route path="/dealerflow"           component={DealerFlowOS} />

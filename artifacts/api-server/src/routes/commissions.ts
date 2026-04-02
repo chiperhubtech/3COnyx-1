@@ -131,8 +131,13 @@ router.get("/commissions/summary/:userId", requireAuth, async (req: Request, res
   try {
     const callerRole = req.user?.role;
     const callerId = parseInt(req.user?.sub || "0", 10);
-    const rawUserId = req.params.userId;
-    const targetId = parseInt(typeof rawUserId === "string" ? rawUserId : "0", 10);
+    const rawUserId = typeof req.params.userId === "string" ? req.params.userId : "";
+    const targetId = /^\d+$/.test(rawUserId) ? parseInt(rawUserId, 10) : 0;
+
+    if (!targetId || targetId <= 0) {
+      res.status(400).json({ error: "Invalid userId" });
+      return;
+    }
 
     if (callerRole !== "Admin" && callerId !== targetId) {
       res.status(403).json({ error: "Access denied" });
