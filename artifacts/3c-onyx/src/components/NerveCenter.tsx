@@ -22,11 +22,12 @@ interface WalletData {
 }
 
 interface VehicleData {
-  id: number;
+  id: string;
   vin: string;
   year: number;
   make: string;
   model: string;
+  odometer?: number;
   mileage?: number;
   healthScore?: number;
   nextService?: string;
@@ -103,14 +104,15 @@ export function NerveCenter() {
       })
       .catch(() => {});
 
-    authFetch(`${BASE}/api/garage`)
+    authFetch(`${BASE}/api/garage/vehicles`)
       .then(r => r.json())
       .then(d => {
         if (Array.isArray(d.vehicles)) {
           setVehicles(d.vehicles.slice(0, 3));
           const a: string[] = [];
           d.vehicles.forEach((v: any) => {
-            if (v.mileage && v.mileage > 50000 && v.mileage % 5000 < 500) {
+            const miles = v.odometer ?? v.mileage ?? 0;
+            if (miles > 50000 && miles % 5000 < 500) {
               a.push(`${v.year} ${v.make} ${v.model} — service recommended`);
             }
           });
@@ -119,12 +121,12 @@ export function NerveCenter() {
       })
       .catch(() => {});
 
-    authFetch(`${BASE}/api/community/my-network`)
+    authFetch(`${BASE}/api/community/profile`)
       .then(r => r.json())
       .then(d => {
         setNetwork({
-          referrals: d.directReferrals ?? d.totalReferrals ?? 0,
-          networkSize: d.networkSize ?? d.totalMembers ?? 0,
+          referrals: d.connections ?? d.directReferrals ?? 0,
+          networkSize: d.connections ?? d.networkSize ?? 0,
         });
       })
       .catch(() => {});
@@ -141,6 +143,22 @@ export function NerveCenter() {
 
   return (
     <div style={{ marginBottom: 16 }}>
+      <div style={{
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        marginBottom: 10, paddingLeft: 2,
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <Gauge size={14} style={{ color: "#C9A227" }} />
+          <span style={{
+            fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.5)",
+            letterSpacing: 1.5, textTransform: "uppercase",
+            fontFamily: "'Barlow Condensed', sans-serif",
+          }}>
+            NERVE CENTER
+          </span>
+        </div>
+        <span style={{ fontSize: 9, color: "rgba(255,255,255,0.2)" }}>LIVE</span>
+      </div>
       <div style={{
         display: "grid", gridTemplateColumns: "1fr 1fr",
         gap: 8, marginBottom: 8,
