@@ -64,7 +64,7 @@ export function Scene0_Reveal() {
           className="font-display text-[#F5F0E1] italic font-semibold"
           style={{ fontSize: '1.6vw', marginBottom: '2vh' }}
         >
-          "Making the life of the ordinary become <span className="text-[#C9A227]">extraordinary.</span>"
+          "<span className="text-[#C9A227]">Xtraordinary</span> for the ordinary. Lightning doesn't wait. Neither do we. <span className="text-[#C9A227]">Join us.</span>"
         </motion.p>
 
         <motion.div

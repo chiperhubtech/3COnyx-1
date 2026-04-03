@@ -2,31 +2,37 @@ function OnyxLogo({ size }: { size: number }) {
   const gold = "#C9A227";
   const gold2 = "#E8B830";
   const white = "#FFFFFF";
-  const cx = 50, cy = 50, r = 31;
-  const sw = 2.8;
+  const cx = 50, cy = 42, r = 28, sw = 3.2;
+  const forkAngle = Math.PI / 4;
+  const top = { x: cx, y: cy - r };
+  const bot = { x: cx, y: cy + r };
+  const upL = { x: cx - r * Math.sin(forkAngle), y: cy - r * Math.cos(forkAngle) };
+  const upR = { x: cx + r * Math.sin(forkAngle), y: cy - r * Math.cos(forkAngle) };
 
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <radialGradient id="cglow" cx="50%" cy="50%" r="50%">
+        <radialGradient id="cglow" cx="50%" cy="40%" r="50%">
           <stop offset="0%" stopColor={gold} stopOpacity="0.2" />
           <stop offset="100%" stopColor={gold} stopOpacity="0" />
         </radialGradient>
+        <linearGradient id="cgoldGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={gold2} />
+          <stop offset="100%" stopColor={gold} />
+        </linearGradient>
         <linearGradient id="cringGrad" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor={gold2} stopOpacity="0.9" />
-          <stop offset="50%" stopColor={gold} stopOpacity="0.6" />
-          <stop offset="100%" stopColor={gold2} stopOpacity="0.9" />
+          <stop offset="0%" stopColor={gold2} stopOpacity="1" />
+          <stop offset="50%" stopColor={gold} stopOpacity="0.8" />
+          <stop offset="100%" stopColor={gold2} stopOpacity="1" />
         </linearGradient>
       </defs>
-      <circle cx={cx} cy={cy} r={48} fill="url(#cglow)" />
-      <circle cx={cx} cy={cy} r={46} fill="none" stroke={gold} strokeWidth="0.6" strokeOpacity="0.35" />
-      <circle cx={cx} cy={cy} r={43.5} fill="none" stroke={gold} strokeWidth="0.3" strokeOpacity="0.18" />
+      <circle cx={cx} cy={cy} r={42} fill="url(#cglow)" />
       <circle cx={cx} cy={cy} r={r} fill="none" stroke="url(#cringGrad)" strokeWidth={sw} strokeLinecap="round" />
-      <line x1={cx} y1={cy - r} x2={cx} y2={cy + r} stroke={gold} strokeWidth={sw} strokeLinecap="round" />
-      <line x1={23} y1={34.5} x2={cx} y2={cy} stroke={gold} strokeWidth={sw} strokeLinecap="round" />
-      <line x1={77} y1={34.5} x2={cx} y2={cy} stroke={gold} strokeWidth={sw} strokeLinecap="round" />
-      <text x="37" y="50" fontFamily="Inter, sans-serif" fontWeight="800" fontSize="16" fill={white} textAnchor="start">3</text>
-      <text x="50" y="56" fontFamily="Inter, sans-serif" fontWeight="800" fontSize="20" fill={white} textAnchor="middle">C</text>
+      <line x1={top.x} y1={top.y} x2={bot.x} y2={bot.y} stroke={gold2} strokeWidth={sw} strokeLinecap="round" />
+      <line x1={cx} y1={cy} x2={upL.x} y2={upL.y} stroke={gold2} strokeWidth={sw} strokeLinecap="round" />
+      <line x1={cx} y1={cy} x2={upR.x} y2={upR.y} stroke={gold2} strokeWidth={sw} strokeLinecap="round" />
+      <text x="35" y="88" fontFamily="Inter, sans-serif" fontWeight="900" fontSize="16" fill="url(#cgoldGrad)" textAnchor="middle" dominantBaseline="middle">3</text>
+      <text x="65" y="88" fontFamily="Inter, sans-serif" fontWeight="900" fontSize="16" fill={white} textAnchor="middle" dominantBaseline="middle">C</text>
     </svg>
   );
 }
@@ -44,7 +50,7 @@ export default function CloseSlide() {
           "The money network for the entire automotive industry. A broker closes a deal. A mechanic services the vehicle. A random clerk referred the user. Everyone gets paid automatically."
         </p>
         <p className="font-display font-semibold text-text" style={{ fontSize: "1.8vw", marginTop: "2vh", fontStyle: "italic" }}>
-          "Making the life of the ordinary become <span className="text-primary">extraordinary.</span>"
+          "<span className="text-primary">Xtraordinary</span> for the ordinary. Lightning doesn't wait. Neither do we. <span className="text-primary">Join us.</span>"
         </p>
         <p className="font-body text-primary" style={{ fontSize: "1.1vw", marginTop: "1.5vh", letterSpacing: "0.15em" }}>
           Designed, built, and owned exclusively by Ronald Antonio Cadet.

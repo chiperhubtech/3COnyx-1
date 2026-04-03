@@ -5,7 +5,7 @@ import { OnyxLogo } from '../OnyxLogo';
 
 export function Scene11_Close() {
   useEffect(() => {
-    speak("This is the money network for the entire automotive industry. The protocol that every gas station, every mechanic, every dealership, and every smartphone runs on. A broker closes a deal. A mechanic services the vehicle. A random clerk referred the customer. Everyone gets paid automatically. All tracked. All verified. All visible. Making the life of the ordinary become extraordinary. Designed, architected, and owned exclusively by Ronald Antonio Cadet. CUXTOMCANDYCLUB LLC. 3C ONYX. The standard is set.", "scene11");
+    speak("This is the money network for the entire automotive industry. The protocol that every gas station, every mechanic, every dealership, and every smartphone runs on. A broker closes a deal. A mechanic services the vehicle. A random clerk referred the customer. Everyone gets paid automatically. All tracked. All verified. All visible. Xtraordinary for the ordinary. Lightning doesn't wait. Neither do we. Join us. Designed, architected, and owned exclusively by Ronald Antonio Cadet. CUXTOMCANDYCLUB LLC. 3C ONYX. The standard is set.", "scene11");
     return () => stopAudio("scene11");
   }, []);
 
@@ -54,7 +54,7 @@ export function Scene11_Close() {
         animate={{ opacity: 1 }}
         transition={{ duration: 1.5, delay: 3.2 }}
       >
-        "Making the life of the ordinary become <span className="text-[#C9A227]">extraordinary.</span>"
+        "<span className="text-[#C9A227]">Xtraordinary</span> for the ordinary. Lightning doesn't wait. Neither do we. <span className="text-[#C9A227]">Join us.</span>"
       </motion.p>
 
       <motion.p

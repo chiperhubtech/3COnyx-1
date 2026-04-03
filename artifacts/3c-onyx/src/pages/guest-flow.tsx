@@ -518,7 +518,7 @@ export default function GuestFlow() {
             </button>
 
             <p style={{ textAlign: "center", marginTop: 16, fontSize: 12, color: "rgba(255,255,255,0.2)" }}>
-              No account needed — we handle everything
+              Lightning doesn't wait. Neither do we. Join us.
             </p>
           </div>
         )}

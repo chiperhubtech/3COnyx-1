@@ -7,7 +7,7 @@ const router = Router();
 const TRANSLATIONS: Record<string, Record<string, string>> = {
   en: {
     welcome: "Welcome to 3C ONYX",
-    tagline: "Making the life of the ordinary become extraordinary",
+    tagline: "Xtraordinary for the ordinary. Lightning doesn't wait. Neither do we. Join us.",
     earn: "Start Earning",
     share: "Share & Earn",
     wallet: "My Wallet",

@@ -148,7 +148,7 @@ function SplashScreen({ onComplete }: { onComplete: () => void }) {
           fontSize: 16, fontWeight: 300, color: "rgba(255,255,255,0.5)",
           margin: "0 0 6px", fontStyle: "italic",
         }}>
-          We handle everything.
+          Xtraordinary for the ordinary.
         </p>
         <p style={{
           fontSize: 9, fontWeight: 600, letterSpacing: 3, textTransform: "uppercase",
@@ -546,7 +546,7 @@ function ConversationalFlow({
           </button>
 
           <p style={{ textAlign: "center", marginTop: 12, fontSize: 11, color: "rgba(255,255,255,0.15)" }}>
-            No account needed — we handle everything
+            Lightning doesn't wait. Neither do we. Join us.
           </p>
         </div>
       )}
@@ -821,7 +821,7 @@ function ConversationalFlow({
             textAlign: "center", marginTop: 20, fontSize: 11,
             color: "rgba(255,255,255,0.15)", lineHeight: 1.6,
           }}>
-            No account required. We'll handle everything<br />and reach out to you directly.
+            Xtraordinary for the ordinary.<br />Lightning doesn't wait. Neither do we. Join us.
           </p>
         </div>
       )}
@@ -2448,7 +2448,7 @@ export default function Home() {
                 border: "1px solid rgba(201,162,39,0.06)",
               }}>
                 <p style={{ fontSize: 12, color: "rgba(255,255,255,0.2)", margin: 0, lineHeight: 1.6, fontStyle: "italic" }}>
-                  We handle everything automotive so people don't have to.
+                  Xtraordinary for the ordinary. Lightning doesn't wait. Neither do we. Join us.
                 </p>
               </div>
             )}
