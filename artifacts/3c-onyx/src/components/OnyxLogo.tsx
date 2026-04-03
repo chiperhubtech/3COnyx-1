@@ -22,11 +22,11 @@ export function OnyxLogo({ size = 40, variant = "gold", className }: OnyxLogoPro
   const threeColor = variant === "dark"  ? dark  : gold;
   const cColor     = variant === "dark"  ? dark  : white;
 
-  const cx = 50, cy = 42, r = 28;
+  const cx = 50, cy = 50, r = 30;
   const sw = 3.2;
 
-  const forkAngle = Math.PI / 4;
-  const top = { x: cx, y: cy - r };
+  const forkAngle = Math.PI / 5;
+  const topCenter = { x: cx, y: cy - r };
   const bot = { x: cx, y: cy + r };
   const upL = { x: cx - r * Math.sin(forkAngle), y: cy - r * Math.cos(forkAngle) };
   const upR = { x: cx + r * Math.sin(forkAngle), y: cy - r * Math.cos(forkAngle) };
@@ -41,7 +41,7 @@ export function OnyxLogo({ size = 40, variant = "gold", className }: OnyxLogoPro
       aria-label="3C ONYX Logo"
     >
       <defs>
-        <radialGradient id="oglow" cx="50%" cy="40%" r="50%">
+        <radialGradient id="oglow" cx="50%" cy="50%" r="50%">
           <stop offset="0%"   stopColor={gold}  stopOpacity="0.2" />
           <stop offset="100%" stopColor={gold}  stopOpacity="0"   />
         </radialGradient>
@@ -62,20 +62,20 @@ export function OnyxLogo({ size = 40, variant = "gold", className }: OnyxLogoPro
 
       <circle cx={cx} cy={cy} r={r} fill="none" stroke="url(#oringGrad)" strokeWidth={sw} strokeLinecap="round" />
 
-      <line x1={top.x} y1={top.y} x2={bot.x} y2={bot.y} stroke={glyphColor} strokeWidth={sw} strokeLinecap="round" />
+      <line x1={topCenter.x} y1={topCenter.y} x2={bot.x} y2={bot.y} stroke={glyphColor} strokeWidth={sw} strokeLinecap="round" />
       <line x1={cx}    y1={cy}    x2={upL.x} y2={upL.y} stroke={glyphColor} strokeWidth={sw} strokeLinecap="round" />
       <line x1={cx}    y1={cy}    x2={upR.x} y2={upR.y} stroke={glyphColor} strokeWidth={sw} strokeLinecap="round" />
 
       <text
-        x="35" y="88"
-        fontSize="16" fontWeight="900"
+        x={30} y={cy + 14}
+        fontSize="14" fontWeight="900"
         fill="url(#ogoldGrad)"
         textAnchor="middle" dominantBaseline="middle"
         fontFamily="'Inter', 'Helvetica', sans-serif"
       >3</text>
       <text
-        x="65" y="88"
-        fontSize="16" fontWeight="900"
+        x={70} y={cy + 14}
+        fontSize="14" fontWeight="900"
         fill={cColor}
         textAnchor="middle" dominantBaseline="middle"
         fontFamily="'Inter', 'Helvetica', sans-serif"

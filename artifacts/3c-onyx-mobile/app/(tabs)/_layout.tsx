@@ -335,13 +335,12 @@ const styles = StyleSheet.create({
     right:          16,
     alignItems:     "center",
     justifyContent: "center",
+    zIndex:         999,
   },
   fabOuter: {
     alignItems:     "center",
     justifyContent: "center",
     position:       "relative",
-    width:          48,
-    height:         48,
   },
   fabPill: {
     flexDirection:  "row",

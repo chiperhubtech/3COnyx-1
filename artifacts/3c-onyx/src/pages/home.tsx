@@ -75,9 +75,9 @@ function getDealProgress(status: string): number {
 }
 
 function OnyxLogo({ size = 64 }: { size?: number }) {
-  const cx = 50, cy = 42, r = 28, sw = 3.2;
-  const forkAngle = Math.PI / 4;
-  const top = { x: cx, y: cy - r };
+  const cx = 50, cy = 50, r = 30, sw = 3.2;
+  const forkAngle = Math.PI / 5;
+  const topCenter = { x: cx, y: cy - r };
   const bot = { x: cx, y: cy + r };
   const upL = { x: cx - r * Math.sin(forkAngle), y: cy - r * Math.cos(forkAngle) };
   const upR = { x: cx + r * Math.sin(forkAngle), y: cy - r * Math.cos(forkAngle) };
@@ -85,7 +85,7 @@ function OnyxLogo({ size = 64 }: { size?: number }) {
     <div style={{ width: size, height: size, position: "relative" }}>
       <svg width={size} height={size} viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <radialGradient id="splashGlow" cx="50%" cy="40%" r="50%">
+          <radialGradient id="splashGlow" cx="50%" cy="50%" r="50%">
             <stop offset="0%" stopColor="#C9A227" stopOpacity="0.2" />
             <stop offset="100%" stopColor="#C9A227" stopOpacity="0" />
           </radialGradient>
@@ -101,25 +101,35 @@ function OnyxLogo({ size = 64 }: { size?: number }) {
         </defs>
         <circle cx={cx} cy={cy} r={42} fill="url(#splashGlow)" />
         <circle cx={cx} cy={cy} r={r} fill="none" stroke="url(#splashRing)" strokeWidth={sw} strokeLinecap="round" />
-        <line x1={top.x} y1={top.y} x2={bot.x} y2={bot.y} stroke="#E8B830" strokeWidth={sw} strokeLinecap="round" />
+        <line x1={topCenter.x} y1={topCenter.y} x2={bot.x} y2={bot.y} stroke="#E8B830" strokeWidth={sw} strokeLinecap="round" />
         <line x1={cx} y1={cy} x2={upL.x} y2={upL.y} stroke="#E8B830" strokeWidth={sw} strokeLinecap="round" />
         <line x1={cx} y1={cy} x2={upR.x} y2={upR.y} stroke="#E8B830" strokeWidth={sw} strokeLinecap="round" />
-        <text x="35" y="88" fontSize="16" fontWeight="900" fill="url(#splashGold)" textAnchor="middle" dominantBaseline="middle">3</text>
-        <text x="65" y="88" fontSize="16" fontWeight="900" fill="#FFFFFF" textAnchor="middle" dominantBaseline="middle">C</text>
+        <text x={30} y={cy + 14} fontSize="14" fontWeight="900" fill="url(#splashGold)" textAnchor="middle" dominantBaseline="middle" fontFamily="'Inter','Helvetica',sans-serif">3</text>
+        <text x={70} y={cy + 14} fontSize="14" fontWeight="900" fill="#FFFFFF" textAnchor="middle" dominantBaseline="middle" fontFamily="'Inter','Helvetica',sans-serif">C</text>
       </svg>
     </div>
   );
 }
 
 function SplashScreen({ onComplete }: { onComplete: () => void }) {
-  const [phase, setPhase] = useState<"enter" | "hold" | "exit">("enter");
+  const [phase, setPhase] = useState<"logo" | "swing" | "text" | "exit">("logo");
 
   useEffect(() => {
-    const t1 = setTimeout(() => setPhase("hold"), 100);
-    const t2 = setTimeout(() => setPhase("exit"), 1800);
-    const t3 = setTimeout(onComplete, 2400);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+    const t1 = setTimeout(() => setPhase("swing"), 200);
+    const t2 = setTimeout(() => setPhase("text"), 1400);
+    const t3 = setTimeout(() => setPhase("exit"), 2800);
+    const t4 = setTimeout(onComplete, 3400);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
   }, [onComplete]);
+
+  const logoTransform = (() => {
+    switch (phase) {
+      case "logo": return "scale(0.3) rotateY(180deg) rotateZ(45deg)";
+      case "swing": return "scale(1.15) rotateY(0deg) rotateZ(-5deg)";
+      case "text": return "scale(1) rotateY(0deg) rotateZ(0deg)";
+      case "exit": return "scale(0.9) rotateY(0deg) rotateZ(0deg)";
+    }
+  })();
 
   return (
     <div style={{
@@ -127,36 +137,70 @@ function SplashScreen({ onComplete }: { onComplete: () => void }) {
       background: "#000000",
       display: "flex", flexDirection: "column",
       alignItems: "center", justifyContent: "center",
+      perspective: "1200px",
       opacity: phase === "exit" ? 0 : 1,
       transition: "opacity 0.6s ease",
+      overflow: "hidden",
     }}>
       <div style={{
-        opacity: phase === "enter" ? 0 : 1,
-        transform: phase === "enter" ? "scale(0.8)" : "scale(1)",
-        transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1)",
+        position: "absolute", inset: 0,
+        background: phase === "logo"
+          ? "radial-gradient(circle at 50% 50%, rgba(201,162,39,0) 0%, #000 100%)"
+          : "radial-gradient(circle at 50% 50%, rgba(201,162,39,0.08) 0%, #000 70%)",
+        transition: "all 1.2s ease",
+      }} />
+
+      <div style={{
+        position: "relative", zIndex: 2,
         textAlign: "center",
       }}>
-        <OnyxLogo size={80} />
-        <h1 style={{
-          fontFamily: "'Barlow Condensed', sans-serif",
-          fontSize: 36, fontWeight: 900, color: "#fff",
-          margin: "24px 0 8px", letterSpacing: 4, textTransform: "uppercase",
+        <div style={{
+          opacity: phase === "logo" ? 0 : 1,
+          transform: logoTransform,
+          transition: phase === "swing"
+            ? "all 1.0s cubic-bezier(0.34, 1.56, 0.64, 1)"
+            : "all 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
+          transformStyle: "preserve-3d",
+          display: "inline-block",
         }}>
-          3C ONYX
-        </h1>
-        <p style={{
-          fontSize: 16, fontWeight: 300, color: "rgba(255,255,255,0.5)",
-          margin: "0 0 6px", fontStyle: "italic",
+          <OnyxLogo size={100} />
+        </div>
+
+        <div style={{
+          opacity: phase === "text" || phase === "exit" ? 1 : 0,
+          transform: phase === "text" || phase === "exit" ? "translateY(0)" : "translateY(30px)",
+          transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1)",
         }}>
-          Xtraordinary for the ordinary.
-        </p>
-        <p style={{
-          fontSize: 9, fontWeight: 600, letterSpacing: 3, textTransform: "uppercase",
-          color: "rgba(201,162,39,0.4)", margin: 0,
-        }}>
-          Powered by CUXTOMCANDYCLUB
-        </p>
+          <h1 style={{
+            fontFamily: "'Barlow Condensed', sans-serif",
+            fontSize: 40, fontWeight: 900, color: "#fff",
+            margin: "20px 0 8px", letterSpacing: 6, textTransform: "uppercase",
+          }}>
+            3C ONYX
+          </h1>
+          <p style={{
+            fontSize: 16, fontWeight: 300, color: "rgba(255,255,255,0.5)",
+            margin: "0 0 6px", fontStyle: "italic",
+          }}>
+            Xtraordinary for the ordinary.
+          </p>
+          <p style={{
+            fontSize: 9, fontWeight: 600, letterSpacing: 3, textTransform: "uppercase",
+            color: "rgba(201,162,39,0.4)", margin: 0,
+          }}>
+            Powered by CUXTOMCANDYCLUB
+          </p>
+        </div>
       </div>
+
+      <div style={{
+        position: "absolute",
+        width: 2, height: phase === "logo" ? "0%" : "100%",
+        background: "linear-gradient(180deg, transparent, rgba(201,162,39,0.3), transparent)",
+        left: "50%", top: 0,
+        transition: "height 1.5s cubic-bezier(0.16, 1, 0.3, 1)",
+        opacity: phase === "exit" ? 0 : 0.5,
+      }} />
     </div>
   );
 }
