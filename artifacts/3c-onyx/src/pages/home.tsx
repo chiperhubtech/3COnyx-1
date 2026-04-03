@@ -75,7 +75,7 @@ function getDealProgress(status: string): number {
 }
 
 function OnyxLogo({ size = 64 }: { size?: number }) {
-  const cx = 50, cy = 50, r = 31, sw = 3.2;
+  const cx = 50, cy = 42, r = 28, sw = 3.2;
   const forkAngle = Math.PI / 4;
   const top = { x: cx, y: cy - r };
   const bot = { x: cx, y: cy + r };
@@ -85,7 +85,7 @@ function OnyxLogo({ size = 64 }: { size?: number }) {
     <div style={{ width: size, height: size, position: "relative" }}>
       <svg width={size} height={size} viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <radialGradient id="splashGlow" cx="50%" cy="50%" r="50%">
+          <radialGradient id="splashGlow" cx="50%" cy="40%" r="50%">
             <stop offset="0%" stopColor="#C9A227" stopOpacity="0.2" />
             <stop offset="100%" stopColor="#C9A227" stopOpacity="0" />
           </radialGradient>
@@ -99,15 +99,13 @@ function OnyxLogo({ size = 64 }: { size?: number }) {
             <stop offset="100%" stopColor="#C9A227" />
           </linearGradient>
         </defs>
-        <circle cx={cx} cy={cy} r={48} fill="url(#splashGlow)" />
-        <circle cx={cx} cy={cy} r={46} fill="none" stroke="#C9A227" strokeWidth="0.6" strokeOpacity="0.35" />
-        <circle cx={cx} cy={cy} r={43.5} fill="none" stroke="#C9A227" strokeWidth="0.3" strokeOpacity="0.18" />
+        <circle cx={cx} cy={cy} r={42} fill="url(#splashGlow)" />
         <circle cx={cx} cy={cy} r={r} fill="none" stroke="url(#splashRing)" strokeWidth={sw} strokeLinecap="round" />
         <line x1={top.x} y1={top.y} x2={bot.x} y2={bot.y} stroke="#E8B830" strokeWidth={sw} strokeLinecap="round" />
         <line x1={cx} y1={cy} x2={upL.x} y2={upL.y} stroke="#E8B830" strokeWidth={sw} strokeLinecap="round" />
         <line x1={cx} y1={cy} x2={upR.x} y2={upR.y} stroke="#E8B830" strokeWidth={sw} strokeLinecap="round" />
-        <text x="37" y="62" fontSize="13" fontWeight="900" fill="url(#splashGold)" textAnchor="middle" dominantBaseline="middle">3</text>
-        <text x="63" y="62" fontSize="13" fontWeight="900" fill="#FFFFFF" textAnchor="middle" dominantBaseline="middle">C</text>
+        <text x="35" y="88" fontSize="16" fontWeight="900" fill="url(#splashGold)" textAnchor="middle" dominantBaseline="middle">3</text>
+        <text x="65" y="88" fontSize="16" fontWeight="900" fill="#FFFFFF" textAnchor="middle" dominantBaseline="middle">C</text>
       </svg>
     </div>
   );

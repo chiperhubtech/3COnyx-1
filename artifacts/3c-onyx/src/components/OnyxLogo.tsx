@@ -1,6 +1,6 @@
 /**
- * 3C ONYX — Web Logo Mark (pure SVG, zero dependencies)
- * Peace symbol (fork facing UP) + 3C mark
+ * 3C ONYX — Logo Mark
+ * Peace sign (fork facing UP to the sky) with 3 on left, C on right underneath
  */
 
 import React from "react";
@@ -17,18 +17,17 @@ export function OnyxLogo({ size = 40, variant = "gold", className }: OnyxLogoPro
   const white = "#FFFFFF";
   const dark  = "#050505";
 
-  const ringColor  = variant === "white" ? white : gold;
   const glyphColor = variant === "white" ? white : gold2;
+  const ringColor  = variant === "white" ? white : gold;
   const threeColor = variant === "dark"  ? dark  : gold;
   const cColor     = variant === "dark"  ? dark  : white;
 
-  const cx = 50, cy = 50, r = 31;
+  const cx = 50, cy = 42, r = 28;
   const sw = 3.2;
 
+  const forkAngle = Math.PI / 4;
   const top = { x: cx, y: cy - r };
   const bot = { x: cx, y: cy + r };
-
-  const forkAngle = Math.PI / 4;
   const upL = { x: cx - r * Math.sin(forkAngle), y: cy - r * Math.cos(forkAngle) };
   const upR = { x: cx + r * Math.sin(forkAngle), y: cy - r * Math.cos(forkAngle) };
 
@@ -42,7 +41,7 @@ export function OnyxLogo({ size = 40, variant = "gold", className }: OnyxLogoPro
       aria-label="3C ONYX Logo"
     >
       <defs>
-        <radialGradient id="oglow" cx="50%" cy="50%" r="50%">
+        <radialGradient id="oglow" cx="50%" cy="40%" r="50%">
           <stop offset="0%"   stopColor={gold}  stopOpacity="0.2" />
           <stop offset="100%" stopColor={gold}  stopOpacity="0"   />
         </radialGradient>
@@ -57,12 +56,9 @@ export function OnyxLogo({ size = 40, variant = "gold", className }: OnyxLogoPro
         </linearGradient>
       </defs>
 
-      {variant === "app-icon" && <circle cx={cx} cy={cy} r={50} fill={dark} />}
+      {variant === "app-icon" && <circle cx={50} cy={50} r={50} fill={dark} />}
 
-      <circle cx={cx} cy={cy} r={48} fill="url(#oglow)" />
-
-      <circle cx={cx} cy={cy} r={46} fill="none" stroke={ringColor} strokeWidth="0.6" strokeOpacity="0.35" />
-      <circle cx={cx} cy={cy} r={43.5} fill="none" stroke={ringColor} strokeWidth="0.3" strokeOpacity="0.18" />
+      <circle cx={cx} cy={cy} r={42} fill="url(#oglow)" />
 
       <circle cx={cx} cy={cy} r={r} fill="none" stroke="url(#oringGrad)" strokeWidth={sw} strokeLinecap="round" />
 
@@ -71,16 +67,18 @@ export function OnyxLogo({ size = 40, variant = "gold", className }: OnyxLogoPro
       <line x1={cx}    y1={cy}    x2={upR.x} y2={upR.y} stroke={glyphColor} strokeWidth={sw} strokeLinecap="round" />
 
       <text
-        x="37" y="62"
-        fontSize="13" fontWeight="900"
+        x="35" y="88"
+        fontSize="16" fontWeight="900"
         fill="url(#ogoldGrad)"
         textAnchor="middle" dominantBaseline="middle"
+        fontFamily="'Inter', 'Helvetica', sans-serif"
       >3</text>
       <text
-        x="63" y="62"
-        fontSize="13" fontWeight="900"
+        x="65" y="88"
+        fontSize="16" fontWeight="900"
         fill={cColor}
         textAnchor="middle" dominantBaseline="middle"
+        fontFamily="'Inter', 'Helvetica', sans-serif"
       >C</text>
     </svg>
   );
