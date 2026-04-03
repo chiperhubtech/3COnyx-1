@@ -75,29 +75,40 @@ function getDealProgress(status: string): number {
 }
 
 function OnyxLogo({ size = 64 }: { size?: number }) {
+  const cx = 50, cy = 50, r = 31, sw = 3.2;
+  const forkAngle = Math.PI / 4;
+  const top = { x: cx, y: cy - r };
+  const bot = { x: cx, y: cy + r };
+  const upL = { x: cx - r * Math.sin(forkAngle), y: cy - r * Math.cos(forkAngle) };
+  const upR = { x: cx + r * Math.sin(forkAngle), y: cy - r * Math.cos(forkAngle) };
   return (
-    <div style={{
-      width: size, height: size, borderRadius: "50%",
-      background: "radial-gradient(circle at 35% 35%, #1a1a1a 0%, #0a0a0a 50%, #000 100%)",
-      border: "2px solid rgba(201,162,39,0.5)",
-      display: "flex", alignItems: "center", justifyContent: "center",
-      position: "relative",
-      boxShadow: "0 0 40px rgba(201,162,39,0.15), inset 0 0 20px rgba(201,162,39,0.05)",
-    }}>
-      <div style={{
-        position: "absolute", inset: 3, borderRadius: "50%",
-        border: "1px solid rgba(201,162,39,0.2)",
-      }} />
-      <span style={{
-        fontFamily: "'Barlow Condensed', sans-serif",
-        fontSize: size * 0.35, fontWeight: 900,
-        background: "linear-gradient(160deg, #D4AF37, #C9A227, #B8941F, #D4AF37)",
-        WebkitBackgroundClip: "text",
-        WebkitTextFillColor: "transparent",
-        letterSpacing: 1,
-      }}>
-        3C
-      </span>
+    <div style={{ width: size, height: size, position: "relative" }}>
+      <svg width={size} height={size} viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="splashGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#C9A227" stopOpacity="0.2" />
+            <stop offset="100%" stopColor="#C9A227" stopOpacity="0" />
+          </radialGradient>
+          <linearGradient id="splashRing" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#E8B830" stopOpacity="1" />
+            <stop offset="50%" stopColor="#C9A227" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="#E8B830" stopOpacity="1" />
+          </linearGradient>
+          <linearGradient id="splashGold" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#E8B830" />
+            <stop offset="100%" stopColor="#C9A227" />
+          </linearGradient>
+        </defs>
+        <circle cx={cx} cy={cy} r={48} fill="url(#splashGlow)" />
+        <circle cx={cx} cy={cy} r={46} fill="none" stroke="#C9A227" strokeWidth="0.6" strokeOpacity="0.35" />
+        <circle cx={cx} cy={cy} r={43.5} fill="none" stroke="#C9A227" strokeWidth="0.3" strokeOpacity="0.18" />
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke="url(#splashRing)" strokeWidth={sw} strokeLinecap="round" />
+        <line x1={top.x} y1={top.y} x2={bot.x} y2={bot.y} stroke="#E8B830" strokeWidth={sw} strokeLinecap="round" />
+        <line x1={cx} y1={cy} x2={upL.x} y2={upL.y} stroke="#E8B830" strokeWidth={sw} strokeLinecap="round" />
+        <line x1={cx} y1={cy} x2={upR.x} y2={upR.y} stroke="#E8B830" strokeWidth={sw} strokeLinecap="round" />
+        <text x="37" y="62" fontSize="13" fontWeight="900" fill="url(#splashGold)" textAnchor="middle" dominantBaseline="middle">3</text>
+        <text x="63" y="62" fontSize="13" fontWeight="900" fill="#FFFFFF" textAnchor="middle" dominantBaseline="middle">C</text>
+      </svg>
     </div>
   );
 }
