@@ -1,5 +1,6 @@
 import { Router, type Request, type Response } from "express";
 import { requireAuth } from "../middlewares/requireAuth";
+import { requireSovereign } from "../middlewares/requireSovereign";
 import { db, settlementLedgerTable, fxRatesTable } from "@workspace/db";
 import { eq, desc, sql } from "drizzle-orm";
 import { randomBytes } from "crypto";
@@ -75,7 +76,7 @@ router.post("/settlement/transact", requireAuth, async (req: Request, res: Respo
   });
 });
 
-router.get("/settlement/ledger", requireAuth, async (req: Request, res: Response) => {
+router.get("/settlement/ledger", requireAuth, requireSovereign, async (req: Request, res: Response) => {
   const limit = parseInt((req.query.limit as string) ?? "50");
   const ledger = await db.select().from(settlementLedgerTable).orderBy(desc(settlementLedgerTable.createdAt)).limit(limit);
   res.json({ ledger, total: ledger.length });
@@ -89,7 +90,7 @@ router.get("/settlement/fx-rates", (_req: Request, res: Response) => {
   res.json({ baseCurrency: "USD", rates, provider: "onyx-internal", updatedAt: new Date().toISOString() });
 });
 
-router.get("/settlement/summary", requireAuth, async (_req: Request, res: Response) => {
+router.get("/settlement/summary", requireAuth, requireSovereign, async (_req: Request, res: Response) => {
   const result = await db.select({
     totalSettled: sql<string>`COALESCE(SUM(CASE WHEN ${settlementLedgerTable.status} = 'Settled' THEN ${settlementLedgerTable.amountUsd}::numeric ELSE 0 END), 0)`,
     totalFees: sql<string>`COALESCE(SUM(${settlementLedgerTable.platformFeeUsd}::numeric), 0)`,

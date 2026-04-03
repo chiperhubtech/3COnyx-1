@@ -4,6 +4,8 @@ import { eq, desc, and, sql, count, asc, ne, inArray } from "drizzle-orm";
 import { smartRoute, checkSlaBreached } from "../lib/smart-router";
 import { requireAuth } from "../middlewares/requireAuth";
 import { parsePagination, paginatedResponse } from "../lib/pagination";
+import { autoSettle } from "../lib/autoSettle";
+import { logger } from "../lib/logger";
 
 function calculateTaskAiConfidence(task: any): number {
   const routingConf = parseFloat(task.routingConfidence) || 0;
@@ -275,7 +277,28 @@ router.patch("/deals/:id", requireAuth, async (req: Request, res: Response) => {
       .where(and(eq(dealsTable.id, id), eq(dealsTable.dealershipId, userId)))
       .returning();
 
-    res.json({ deal: updated });
+    let settlement = null;
+    if (req.body.status === "Delivered" && updated.salePrice) {
+      const saleAmount = parseFloat(updated.salePrice);
+      if (saleAmount > 0) {
+        settlement = await autoSettle({
+          recipientUserId: userId,
+          amount: saleAmount,
+          transactionType: "Deal_Closed",
+          sourceChannel: "Direct",
+          description: `Deal ${updated.dealNumber || `#${id}`} delivered — auto-payout to bank`,
+          dealId: id,
+          dealNumber: updated.dealNumber || undefined,
+          vin: (updated as any).vin || undefined,
+          businessName: (updated as any).dealershipName || undefined,
+          businessType: "Dealership",
+          sourceRef: `DEAL-${id}`,
+        });
+        logger.info({ dealId: id, settlementRef: settlement.settlementRef, net: settlement.netAmount }, "[deals] Auto-settle triggered on delivery");
+      }
+    }
+
+    res.json({ deal: updated, settlement });
   } catch {
     res.status(500).json({ error: sanitizeError() });
   }

@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import { db, onyxWalletsTable, walletTransactionsTable } from "@workspace/db";
 import { eq, desc, sql, and } from "drizzle-orm";
 import crypto from "crypto";
+import { isSovereign, SOVEREIGN_USER_ID } from "../middlewares/requireSovereign";
 
 const router = Router();
 
@@ -53,12 +54,20 @@ router.post("/create", async (req: Request, res: Response) => {
 
 router.get("/:userId", async (req: Request, res: Response) => {
   try {
-    const userId = parseInt(String(req.params.userId));
-    const [wallet] = await db.select().from(onyxWalletsTable).where(eq(onyxWalletsTable.userId, userId)).limit(1);
+    const targetUserId = parseInt(String(req.params.userId));
+    const requestingUser = (req as any).user;
+    const requestingUserId = requestingUser ? parseInt(String(requestingUser.sub ?? requestingUser.id), 10) : null;
+
+    if (requestingUserId !== targetUserId && requestingUserId !== SOVEREIGN_USER_ID) {
+      res.status(403).json({ error: "You can only view your own wallet" });
+      return;
+    }
+
+    const [wallet] = await db.select().from(onyxWalletsTable).where(eq(onyxWalletsTable.userId, targetUserId)).limit(1);
     if (!wallet) { res.status(404).json({ error: "No wallet found — create one first" }); return; }
 
     const recentTx = await db.select().from(walletTransactionsTable)
-      .where(eq(walletTransactionsTable.userId, userId))
+      .where(eq(walletTransactionsTable.userId, targetUserId))
       .orderBy(desc(walletTransactionsTable.createdAt))
       .limit(20);
 
@@ -203,14 +212,23 @@ router.get("/history/:userId", async (req: Request, res: Response) => {
   }
 });
 
-router.get("/leaderboard", async (_req: Request, res: Response) => {
+router.get("/leaderboard", async (req: Request, res: Response) => {
   try {
+    const requestingUser = (req as any).user;
+    const requestingUserId = requestingUser ? parseInt(String(requestingUser.sub ?? requestingUser.id), 10) : null;
+
+    if (requestingUserId !== SOVEREIGN_USER_ID) {
+      res.status(403).json({ error: "Sovereign access required — only the platform owner can view all wallet data" });
+      return;
+    }
+
     const wallets = await db.select().from(onyxWalletsTable)
       .orderBy(desc(onyxWalletsTable.lifetimeEarnedUsd))
       .limit(50);
 
     res.json({
       protocol: "ONYX Wallet Leaderboard",
+      accessLevel: "Sovereign — Full Visibility",
       topEarners: wallets.map((w, i) => ({
         rank: i + 1,
         userId: w.userId,

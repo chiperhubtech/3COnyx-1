@@ -123,6 +123,14 @@ A theme engine offering 20 culture-driven themes across 10 categories, each with
 
 A unified "Forrest Gump simple" endpoint that converts raw text messages into structured deals. NLP entity extraction identifies customer names, vehicle make/model/year, VIN, budget, phone numbers, location, service type, urgency, and intent (buy/sell/service/refer/assist). Auto-assigns participants with role-based splits and generates SHA-256 proof hashes. Routes: `/convert` (full deal creation), `/extract` (entity extraction only), `/status`.
 
+## Universal Auto-Settle Engine (/api/auto-settle)
+
+Core payment infrastructure: when ANY transaction completes on ANY channel, the business gets paid directly to their linked bank account via Plaid ACH. 3% platform fee auto-calculated, net amount credited to ONYX Wallet, ACH payout initiated — bank statement descriptor "3C ONYX PAYOUT". Supports 28 transaction types (Deal_Closed, Service_Completed, Parts_Order, Body_Shop, Tire_Service, Wrap_Install, etc.) across 15 source channels (Direct, Google_Maps, Mapbox, SEMA, Appexx, AutoCart, QR_Code, WhatsApp, etc.). Auto-splits to all participants. Proof hash on every settlement. Library: `autoSettle.ts` callable from any route. Routes: `/status`, `/settle`, `/settle-batch`. Also wired into deals PATCH — when deal status → "Delivered", auto-settle fires automatically.
+
+## Dealer 20 Group Protocol (/api/dealer-groups)
+
+Viral growth engine: 1 dealer → 20 Group → 400 → 8,000 → 16,700 dealers. Create groups, join via invite codes, anonymized composite benchmarking, leaderboard, proof-of-performance hashes. Genesis node: Elmwood CDJR (MCDJR). Routes: `/status`, `/create`, `/join`, `/my-groups`, `/network-effect`, `/:groupId`, `/:groupId/composite`, `/:groupId/invite`, `/:groupId/leaderboard`, `/:groupId/proof`, `/:groupId/benchmark`.
+
 ## OEM Incentives Engine (POST /api/oem-incentives)
 
 VIN + ZIP + Customer Profile → exact discounts and rebates. Covers 28 manufacturers with 90+ active programs across 11 incentive types (rebate, bonus cash, loyalty, conquest, APR reduction, lease cash, tax credits, referral credits, EV rebates). Includes 14 state-level EV incentive programs. Customer qualification factors: military/veteran, first responder, recent graduate, current vehicle brand (loyalty/conquest), income eligibility, referral codes. Routes: `/match` (full personalized matching), `/quick-match` (guaranteed + possible savings), `/manufacturers`, `/programs/:manufacturer`, `/status`. Replaces the hardcoded $1,500 OEM incentive default in brokerDesk.ts.

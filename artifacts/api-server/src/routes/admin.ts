@@ -15,17 +15,29 @@ import { db, usersTable, transactionsTable, waitlistTable, gigTasksTable, vehicl
 import { eq, desc, count, sql } from "drizzle-orm";
 import { requireAuth } from "../middlewares/requireAuth";
 import { requireRole } from "../middlewares/requireRole";
+import { requireSovereign, isSovereign } from "../middlewares/requireSovereign";
 import { writeAudit } from "../lib/auditService";
 
 const router = Router();
 router.use(requireAuth, requireRole("Admin"));
 
-router.get("/stats", async (_req: Request, res: Response) => {
+router.get("/stats", async (req: Request, res: Response) => {
   const [userCount]    = await db.select({ count: count() }).from(usersTable);
   const [txCount]      = await db.select({ count: count() }).from(transactionsTable);
   const [vehicleCount] = await db.select({ count: count() }).from(vehiclesTable);
   const [taskCount]    = await db.select({ count: count() }).from(gigTasksTable);
   const [waitCount]    = await db.select({ count: count() }).from(waitlistTable);
+
+  if (!isSovereign(req)) {
+    res.json({
+      users: Number(userCount.count),
+      vehicles: Number(vehicleCount.count),
+      gigTasks: Number(taskCount.count),
+      ts: new Date().toISOString(),
+      accessLevel: "Limited — Sovereign access required for full dashboard",
+    });
+    return;
+  }
 
   const roleBreakdown = await db
     .select({ role: usersTable.role, count: count() })
@@ -53,6 +65,7 @@ router.get("/stats", async (_req: Request, res: Response) => {
     roleBreakdown:  roleBreakdown.map((r) => ({ role: r.role, count: Number(r.count) })),
     recentTransactions: recentTx,
     ts: new Date().toISOString(),
+    accessLevel: "Sovereign — Full Command Center",
   });
 });
 
@@ -83,7 +96,7 @@ router.get("/users/:id", async (req: Request, res: Response) => {
   res.json({ user: pub });
 });
 
-router.patch("/users/:id", async (req: Request, res: Response) => {
+router.patch("/users/:id", requireSovereign, async (req: Request, res: Response) => {
   const { role, isActive, isVerified } = req.body as {
     role?: string; isActive?: boolean; isVerified?: boolean;
   };
@@ -94,12 +107,12 @@ router.patch("/users/:id", async (req: Request, res: Response) => {
   if (isVerified !== undefined) updates.isVerified = isVerified;
 
   const [updated] = await db.update(usersTable).set(updates as unknown as typeof usersTable.$inferInsert).where(eq(usersTable.id, userId)).returning();
-  await writeAudit({ eventType: "ADMIN", severity: "INFO", action: `Admin updated user ${userId}`, metadata: { updates, byAdmin: req.user!.sub } });
+  await writeAudit({ eventType: "ADMIN", severity: "INFO", action: `Sovereign updated user ${userId}`, metadata: { updates, byAdmin: req.user!.sub } });
   const { passwordHash: _, ...pub } = updated;
   res.json({ user: pub });
 });
 
-router.get("/transactions", async (req: Request, res: Response) => {
+router.get("/transactions", requireSovereign, async (req: Request, res: Response) => {
   const page  = Math.max(1, Number(req.query.page ?? 1));
   const limit = Math.min(100, Number(req.query.limit ?? 25));
   const offset = (page - 1) * limit;

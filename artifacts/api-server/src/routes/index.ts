@@ -140,6 +140,7 @@ import textToDealRouter from "./text-to-deal";
 import oemIncentivesRouter from "./oem-incentives";
 import vehicleVerifyRouter from "./vehicle-verify";
 import dealerGroupsRouter from "./dealer-groups";
+import autoSettleRouter from "./auto-settle";
 
 const router: IRouter = Router();
 
@@ -302,5 +303,6 @@ router.use("/text-to-deal", textToDealRouter);
 router.use("/oem-incentives", oemIncentivesRouter);
 router.use("/vehicles", vehicleVerifyRouter);
 router.use("/dealer-groups", dealerGroupsRouter);
+router.use("/auto-settle", autoSettleRouter);
 
 export default router;
