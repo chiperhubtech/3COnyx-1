@@ -135,7 +135,7 @@ export default function ARBadgePage() {
 
       const peaceR = 48;
       const logoCx = W / 2;
-      const logoCy = 180;
+      const logoCy = 170;
 
       const grad = ctx.createRadialGradient(logoCx, logoCy, 0, logoCx, logoCy, peaceR + 20);
       grad.addColorStop(0, `${theme.accent}33`);
@@ -153,28 +153,28 @@ export default function ARBadgePage() {
 
       ctx.strokeStyle = theme.accent;
       ctx.lineWidth = 3.5;
-      const RAD = Math.PI / 180;
       ctx.beginPath();
       ctx.moveTo(logoCx, logoCy - peaceR);
       ctx.lineTo(logoCx, logoCy + peaceR);
       ctx.stroke();
 
+      const forkAngle = 45 * (Math.PI / 180);
       ctx.beginPath();
       ctx.moveTo(logoCx, logoCy);
-      ctx.lineTo(logoCx + peaceR * Math.cos(210 * RAD), logoCy + peaceR * Math.sin(210 * RAD));
+      ctx.lineTo(logoCx - peaceR * Math.sin(forkAngle), logoCy - peaceR * Math.cos(forkAngle));
       ctx.stroke();
 
       ctx.beginPath();
       ctx.moveTo(logoCx, logoCy);
-      ctx.lineTo(logoCx + peaceR * Math.cos(330 * RAD), logoCy + peaceR * Math.sin(330 * RAD));
+      ctx.lineTo(logoCx + peaceR * Math.sin(forkAngle), logoCy - peaceR * Math.cos(forkAngle));
       ctx.stroke();
 
       ctx.font = "bold 26px 'Barlow Condensed', 'Inter', sans-serif";
       ctx.fillStyle = theme.accent;
       ctx.textAlign = "center";
-      ctx.fillText("3", logoCx - 16, logoCy + 8);
+      ctx.fillText("3", logoCx - 18, logoCy + peaceR + 32);
       ctx.fillStyle = theme.id === "easter" ? "#374151" : "#FFFFFF";
-      ctx.fillText("C", logoCx + 16, logoCy + 8);
+      ctx.fillText("C", logoCx + 18, logoCy + peaceR + 32);
 
       const avatarY = 295;
       const avatarR = 50;
@@ -258,7 +258,7 @@ export default function ARBadgePage() {
 
       ctx.font = "13px 'Inter', sans-serif";
       ctx.fillStyle = `${theme.accent}88`;
-      ctx.fillText("AUTOMOTIVE ECOSYSTEM OS", W / 2, 592);
+      ctx.fillText("GLOBAL AUTOMOTIVE LIQUIDITY NETWORK", W / 2, 592);
 
       if (theme.id !== "none") {
         const themeLabel = theme.label.toUpperCase();
@@ -272,7 +272,7 @@ export default function ARBadgePage() {
 
       ctx.font = "12px 'Inter', sans-serif";
       ctx.fillStyle = `${theme.id === "easter" ? "#6b7280" : "#FFFFFF"}88`;
-      ctx.fillText("Scan or visit to join the platform", W / 2, 700);
+      ctx.fillText("Scan to join the network", W / 2, 700);
 
       ctx.font = "bold 14px 'Courier New', monospace";
       ctx.fillStyle = theme.accent;
@@ -281,8 +281,8 @@ export default function ARBadgePage() {
 
       ctx.font = "11px 'Inter', sans-serif";
       ctx.fillStyle = `${theme.id === "easter" ? "#9ca3af" : "#FFFFFF"}55`;
-      ctx.fillText("ONYX acts; member confirms.", W / 2, 780);
-      ctx.fillText("cuxtomcandyclub.com", W / 2, 800);
+      ctx.fillText("Xtraordinary for the ordinary.", W / 2, 780);
+      ctx.fillText("Lightning doesn't wait. Neither do we. Join us.", W / 2, 800);
 
       const cornerSize = 16;
       const corners = [
@@ -332,7 +332,7 @@ export default function ARBadgePage() {
         const file = new File([blob], `3C-ONYX-${theme.label}.png`, { type: "image/png" });
         const shareData = {
           title: `${displayName} | 3C ONYX ${theme.label} Badge`,
-          text: `Join me on 3C ONYX — Automotive Ecosystem OS. ${theme.icon}`,
+          text: `You've been invited. Join the network. Lightning doesn't wait. Neither do we. ${theme.icon}`,
           url: profileUrl,
           files: [file],
         };
@@ -391,7 +391,7 @@ export default function ARBadgePage() {
           Shareable AR Badge
         </h1>
         <p className="text-sm text-muted-foreground">
-          Theme it. Brand it. Share it. Every tap links back to you.
+          Your walking billboard. Theme it. Share it. Every scan recruits the network.
         </p>
       </div>
 
@@ -482,12 +482,12 @@ export default function ARBadgePage() {
               </defs>
               <circle cx="50" cy="50" r="48" fill="url(#badgeGlow)" />
               <circle cx="50" cy="50" r="46" fill="none" stroke={theme.ring} strokeWidth="0.6" strokeOpacity="0.35" />
-              <circle cx="50" cy="50" r="31" fill="none" stroke="url(#badgeGold)" strokeWidth="2.8" strokeLinecap="round" />
-              <line x1="50" y1="19" x2="50" y2="81" stroke={theme.accent} strokeWidth="2.8" strokeLinecap="round" />
-              <line x1="50" y1="50" x2={50 + 31 * Math.cos(210 * Math.PI / 180)} y2={50 + 31 * Math.sin(210 * Math.PI / 180)} stroke={theme.accent} strokeWidth="2.8" strokeLinecap="round" />
-              <line x1="50" y1="50" x2={50 + 31 * Math.cos(330 * Math.PI / 180)} y2={50 + 31 * Math.sin(330 * Math.PI / 180)} stroke={theme.accent} strokeWidth="2.8" strokeLinecap="round" />
-              <text x="37" y="52" fontSize="16" fontWeight="900" fill={theme.accent} textAnchor="middle" dominantBaseline="middle">3</text>
-              <text x="63" y="52" fontSize="16" fontWeight="900" fill={isLightBg ? "#374151" : "#FFFFFF"} textAnchor="middle" dominantBaseline="middle">C</text>
+              <circle cx="50" cy="42" r="28" fill="none" stroke="url(#badgeGold)" strokeWidth="3.2" strokeLinecap="round" />
+              <line x1="50" y1="14" x2="50" y2="70" stroke={theme.accent} strokeWidth="3.2" strokeLinecap="round" />
+              <line x1="50" y1="42" x2={50 - 28 * Math.sin(45 * Math.PI / 180)} y2={42 - 28 * Math.cos(45 * Math.PI / 180)} stroke={theme.accent} strokeWidth="3.2" strokeLinecap="round" />
+              <line x1="50" y1="42" x2={50 + 28 * Math.sin(45 * Math.PI / 180)} y2={42 - 28 * Math.cos(45 * Math.PI / 180)} stroke={theme.accent} strokeWidth="3.2" strokeLinecap="round" />
+              <text x="35" y="88" fontSize="16" fontWeight="900" fill={theme.accent} textAnchor="middle" dominantBaseline="middle">3</text>
+              <text x="65" y="88" fontSize="16" fontWeight="900" fill={isLightBg ? "#374151" : "#FFFFFF"} textAnchor="middle" dominantBaseline="middle">C</text>
             </svg>
           </div>
 
@@ -541,7 +541,7 @@ export default function ARBadgePage() {
               3C ONYX
             </p>
             <p className="text-[10px] tracking-[0.1em]" style={{ color: `${theme.accent}88` }}>
-              AUTOMOTIVE ECOSYSTEM OS
+              GLOBAL AUTOMOTIVE LIQUIDITY NETWORK
             </p>
           </div>
 
@@ -553,7 +553,7 @@ export default function ARBadgePage() {
 
           <div className="w-full max-w-[240px] mx-auto border-t pt-3 text-center" style={{ borderColor: `${theme.accent}33` }}>
             <p className="text-[10px] mb-1" style={{ color: `${isLightBg ? "#6b7280" : "#FFFFFF"}88` }}>
-              Scan or visit to join the platform
+              Scan to join the network
             </p>
             <p className="text-[10px] font-mono truncate" style={{ color: theme.accent }}>
               {profileUrl.replace(/^https?:\/\//, "")}
@@ -561,7 +561,7 @@ export default function ARBadgePage() {
           </div>
 
           <p className="text-[9px] mt-4" style={{ color: `${isLightBg ? "#9ca3af" : "#FFFFFF"}55` }}>
-            ONYX acts; member confirms.
+            Xtraordinary for the ordinary. Join us.
           </p>
         </div>
       </div>
