@@ -3,6 +3,23 @@ import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { usersTable } from "./users";
 
+export const vehicleTypeEnum = pgEnum("vehicle_type", [
+  "car",
+  "motorcycle",
+  "scooter",
+  "atv",
+  "rv",
+  "boat",
+  "truck",
+  "suv",
+  "van",
+  "trailer",
+  "jet_ski",
+  "snowmobile",
+  "golf_cart",
+  "other",
+]);
+
 export const vehicleStatusEnum = pgEnum("vehicle_status", [
   "Available",
   "Reserved",
@@ -14,6 +31,7 @@ export const vehicleStatusEnum = pgEnum("vehicle_status", [
 export const vehiclesTable = pgTable("vehicles", {
   id: serial("id").primaryKey(),
   vin: text("vin").notNull().unique(),
+  vehicleType: vehicleTypeEnum("vehicle_type").notNull().default("car"),
   year: integer("year").notNull(),
   make: text("make").notNull(),
   model: text("model").notNull(),
@@ -30,6 +48,7 @@ export const vehiclesTable = pgTable("vehicles", {
   index("vehicles_dealer_id_idx").on(t.dealerId),
   index("vehicles_status_idx").on(t.status),
   index("vehicles_make_model_idx").on(t.make, t.model),
+  index("vehicles_type_idx").on(t.vehicleType),
 ]);
 
 export const insertVehicleSchema = createInsertSchema(vehiclesTable).omit({

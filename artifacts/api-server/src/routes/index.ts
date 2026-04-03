@@ -141,6 +141,15 @@ import oemIncentivesRouter from "./oem-incentives";
 import vehicleVerifyRouter from "./vehicle-verify";
 import dealerGroupsRouter from "./dealer-groups";
 import autoSettleRouter from "./auto-settle";
+import clubsRouter from "./clubs";
+import eventsRouter from "./events";
+import venuesRouter from "./venues";
+import paramountRouter from "./paramount";
+import eventRadarRouter from "./event-radar";
+import apparelRouter from "./apparel";
+import smartPromotionsRouter from "./smart-promotions";
+import culturalEngineRouter from "./cultural-engine";
+import entertainmentRouter from "./entertainment";
 
 const router: IRouter = Router();
 
@@ -304,5 +313,14 @@ router.use("/oem-incentives", oemIncentivesRouter);
 router.use("/vehicles", vehicleVerifyRouter);
 router.use("/dealer-groups", dealerGroupsRouter);
 router.use("/auto-settle", autoSettleRouter);
+router.use("/clubs", clubsRouter);
+router.use("/events", eventsRouter);
+router.use("/venues", venuesRouter);
+router.use("/paramount", paramountRouter);
+router.use("/event-radar", eventRadarRouter);
+router.use("/apparel", apparelRouter);
+router.use("/smart-promotions", smartPromotionsRouter);
+router.use("/cultural", culturalEngineRouter);
+router.use("/entertainment", entertainmentRouter);
 
 export default router;
