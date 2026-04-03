@@ -82,8 +82,8 @@ function BgcResultCard({
       bg: "border-emerald-500/30 bg-emerald-500/[0.06]",
       badge: "bg-emerald-400/10 border-emerald-400/25 text-emerald-400",
       label: "BGC Clear",
-      headline: "You're approved to join 3C!",
-      sub: "Your background check came back clear. Welcome to the 3C Specialist network.",
+      headline: "You're in.",
+      sub: "Your background check came back clear. Welcome to the network. You're one of us now.",
     },
     consider: {
       icon: AlertTriangle,

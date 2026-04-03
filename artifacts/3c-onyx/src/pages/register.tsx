@@ -55,7 +55,7 @@ export default function RegisterPage() {
         {/* Logo */}
         <div style={{ textAlign: "center", marginBottom: 32 }}>
           <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 28, fontWeight: 900, color: "#fff", textTransform: "uppercase", letterSpacing: "0.06em", margin: 0 }}>3C ONYX</h1>
-          <p style={{ color: "rgba(255,255,255,0.35)", fontSize: 13, marginTop: 6 }}>Create your account</p>
+          <p style={{ color: "rgba(255,255,255,0.35)", fontSize: 13, marginTop: 6 }}>You've been invited. Claim your spot.</p>
         </div>
 
         {/* Progress */}
@@ -69,8 +69,8 @@ export default function RegisterPage() {
         {step === 3 && (
           <div style={{ textAlign: "center", padding: 40 }}>
             <CheckCircle2 size={52} style={{ color: "#34D399", margin: "0 auto 16px" }} />
-            <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 24, fontWeight: 800, color: "#fff", textTransform: "uppercase", marginBottom: 8 }}>WELCOME TO 3C ONYX</h2>
-            <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 14 }}>Account created. Redirecting to your dashboard...</p>
+            <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 24, fontWeight: 800, color: "#fff", textTransform: "uppercase", marginBottom: 8 }}>YOU'RE IN.</h2>
+            <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 14 }}>Welcome to the network. Redirecting to your dashboard...</p>
           </div>
         )}
 
@@ -125,7 +125,7 @@ export default function RegisterPage() {
               </button>
               <button type="submit" disabled={loading} style={{ flex: 2, padding: 12, borderRadius: 12, background: "rgba(201,162,39,0.9)", border: "none", color: "#000", fontWeight: 800, fontSize: 13, letterSpacing: "0.06em", cursor: loading ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, opacity: loading ? 0.7 : 1 }}>
                 {loading && <Loader2 size={14} className="animate-spin" />}
-                {loading ? "CREATING..." : "CREATE ACCOUNT"}
+                {loading ? "SECURING YOUR SPOT..." : "JOIN THE NETWORK"}
               </button>
             </div>
 
@@ -138,7 +138,7 @@ export default function RegisterPage() {
         )}
 
         <p style={{ textAlign: "center", marginTop: 20, fontSize: 13, color: "rgba(255,255,255,0.3)" }}>
-          Already have an account?{" "}
+          Already a member?{" "}
           <a href="/login" style={{ color: "#C9A227", textDecoration: "none", fontWeight: 600 }}>Sign in</a>
         </p>
       </div>

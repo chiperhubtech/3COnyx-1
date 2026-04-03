@@ -506,13 +506,13 @@ export function AIConcierge() {
         role: "assistant",
         content: garageVehicles.length > 0
           ? `Welcome back. I can see your ${garageVehicles.map((v) => `${v.year} ${v.make} ${v.model}`).join(" and ")} in your garage. I'm your Master AI Concierge — I diagnose, route, and resolve any automotive need. What's going on?`
-          : "Welcome to 3C Onyx. I'm ONYX — your Master AI Concierge. I diagnose vehicle issues, book Runners, find your next luxury vehicle, and optimize every transaction. What can I help you with?",
+          : "Welcome to the network. I'm ONYX — your Master AI Concierge. I diagnose vehicle issues, book Runners, find your next luxury vehicle, and optimize every transaction. What can I help you with?",
       }]);
     } catch {
       setMessages([{
         id: generateId(),
         role: "assistant",
-        content: "Welcome to 3C Onyx. I'm ONYX — your Master AI Concierge. How can I assist you today?",
+        content: "Welcome to the network. I'm ONYX — your Master AI Concierge. How can I assist you today?",
       }]);
     }
   }

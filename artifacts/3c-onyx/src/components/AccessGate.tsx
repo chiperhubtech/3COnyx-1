@@ -87,7 +87,7 @@ export function AccessGate({ children }: { children: React.ReactNode }) {
           <p style={{
             fontSize: 14, color: "rgba(255,255,255,0.4)",
             marginTop: 8, lineHeight: 1.5,
-          }}>Your automotive concierge</p>
+          }}>Members only. Enter your access code.</p>
         </div>
 
         {pulse && (

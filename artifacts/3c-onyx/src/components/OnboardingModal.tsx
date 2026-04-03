@@ -317,7 +317,7 @@ export function OnboardingModal({ onComplete }: OnboardingModalProps) {
               </div>
               <div>
                 <p style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 18, fontWeight: 900, color: "#fff", letterSpacing: "0.06em", margin: 0 }}>3C ONYX</p>
-                <p style={{ fontSize: 9, color: "rgba(201,162,39,0.5)", letterSpacing: "0.2em", margin: 0 }}>WELCOME — STEP {step} OF {STEPS.length}</p>
+                <p style={{ fontSize: 9, color: "rgba(201,162,39,0.5)", letterSpacing: "0.2em", margin: 0 }}>YOU'RE IN — STEP {step} OF {STEPS.length}</p>
               </div>
             </div>
             {/* Progress dots */}
@@ -349,10 +349,10 @@ export function OnboardingModal({ onComplete }: OnboardingModalProps) {
           {step === 1 && (
             <div>
               <p style={{ fontSize: 22, fontWeight: 800, color: "#fff", margin: "0 0 6px" }}>
-                Welcome{user?.name ? `, ${user.name.split(" ")[0]}` : ""}. Which world are you in?
+                Welcome to the club{user?.name ? `, ${user.name.split(" ")[0]}` : ""}. Which world are you in?
               </p>
               <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", lineHeight: 1.7, margin: "0 0 24px" }}>
-                3C Onyx is free for everyone, forever. Your role unlocks the tools built specifically for you.
+                You're in because someone vouched for you. Free forever. Your role unlocks the tools built specifically for you.
               </p>
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {CATEGORIES.map(cat => {
@@ -380,7 +380,7 @@ export function OnboardingModal({ onComplete }: OnboardingModalProps) {
               </div>
               <div style={{ marginTop: 16, padding: "12px 16px", borderRadius: 10, background: `${GOLD}08`, border: `1px solid ${GOLD}15` }}>
                 <p style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", margin: 0, lineHeight: 1.6 }}>
-                  <span style={{ color: GOLD, fontWeight: 700 }}>Free forever.</span> No credit card. No subscription. The platform is funded by the industry, not by you.
+                  <span style={{ color: GOLD, fontWeight: 700 }}>Free forever.</span> No credit card. No subscription. The network is funded by the industry — members never pay.
                 </p>
               </div>
             </div>
@@ -525,7 +525,7 @@ export function OnboardingModal({ onComplete }: OnboardingModalProps) {
               </button>
             ) : (
               <button onClick={() => void finish()} disabled={loading} style={{ padding: "11px 28px", borderRadius: 12, background: "linear-gradient(135deg,#34D399,#059669)", border: "none", color: "#000", fontWeight: 800, fontSize: 13, cursor: loading ? "not-allowed" : "pointer", display: "flex", alignItems: "center", gap: 7, opacity: loading ? 0.7 : 1, fontFamily: "inherit" }}>
-                {loading ? "Setting up…" : "Enter the Platform"} <ArrowRight size={14} />
+                {loading ? "Setting up…" : "Enter the Network"} <ArrowRight size={14} />
               </button>
             )}
           </div>

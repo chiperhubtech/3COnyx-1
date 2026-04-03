@@ -105,7 +105,7 @@ export default function LoginPage() {
             Welcome back
           </h1>
           <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 15, lineHeight: 1.5 }}>
-            Sign in to continue
+            Members only. Sign in to continue.
           </p>
         </div>
 
@@ -220,9 +220,9 @@ export default function LoginPage() {
 
           <div style={{ textAlign: "center", paddingTop: 4 }}>
             <p style={{ fontSize: 14, color: "rgba(255,255,255,0.4)" }}>
-              Don't have an account?{" "}
+              Not a member yet?{" "}
               <a href="/register" style={{ color: "#C9A227", textDecoration: "none", fontWeight: 600 }}>
-                Get started
+                Get invited
               </a>
             </p>
           </div>

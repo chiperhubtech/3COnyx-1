@@ -12,8 +12,8 @@
     "hero": {
       "line1": "THE AUTOMOTIVE",
       "line2": "INTELLIGENCE LAYER.",
-      "sub": "We sit between consumers and the automotive industry — coordinating every deal, every delivery, every decision. We don't compete. We coordinate. We move like water.",
-      "cta": "JOIN THE PLATFORM",
+      "sub": "We sit between consumers and the automotive industry — coordinating every deal, every delivery, every decision. We don't compete. We coordinate. Xtraordinary for the ordinary.",
+      "cta": "JOIN THE NETWORK",
       "howItWorks": "HOW IT WORKS",
       "discover": "DISCOVER MORE"
     },
@@ -68,10 +68,10 @@
     "cta": {
       "ready": "READY?",
       "title": "TELL US WHAT YOU NEED.",
-      "titleGold": "WE HANDLE EVERYTHING.",
-      "sub": "No phone tag. No markups. No confusion. One clear answer, executed.",
-      "getStarted": "GET STARTED FREE",
-      "signIn": "SIGN IN"
+      "titleGold": "THE NETWORK HANDLES IT.",
+      "sub": "No phone tag. No markups. No confusion. One clear answer, executed. Members get in free.",
+      "getStarted": "JOIN THE NETWORK",
+      "signIn": "MEMBER SIGN IN"
     }
   },
   "join": {
@@ -83,9 +83,9 @@
     "hero": {
       "line1": "OWN YOUR",
       "line2": "SPOT.",
-      "sub": "One-time $99 locks in your founding member status — forever. When we launch, founding members never pay more than $99. Full stop.",
+      "sub": "One-time $99 locks in your founding member status — forever. You were invited because someone in the network vouched for you. This is your moment.",
       "memberIs": "Member #1 is real.",
-      "memberIsDesc": "The first founding member paid today. Every member number after that is yours — first come, first locked."
+      "memberIsDesc": "The first founding member is locked in. Every member number after that is earned — invited, not applied."
     },
     "benefits": {
       "title": "WHAT YOUR $99 INCLUDES — FOREVER",
@@ -314,7 +314,7 @@
     "badge": "JOIN THE WAITLIST",
     "title": "BE FIRST.",
     "titleGold": "GET EARLY ACCESS.",
-    "sub": "3C Onyx is invite-only at launch. Join the waitlist and we'll notify you the moment your spot opens.",
+    "sub": "3C Onyx is invite-only. Join the waitlist — when a member vouches for you, your spot opens.",
     "form": {
       "email": "Email address",
       "emailPlaceholder": "you@example.com",
@@ -332,7 +332,7 @@
     }
   },
   "footer": {
-    "tagline": "\"We move like water.\" — The trust and intelligence layer for the automotive industry.",
+    "tagline": "Xtraordinary for the ordinary. Lightning doesn't wait. Neither do we. Join us.",
     "founded": "Founded 2024 · 3C Onyx — Powered by CUXTOMCANDYCLUB LLC",
     "allRights": "All rights reserved.",
     "aes": "AES-256 ENCRYPTED",
@@ -422,7 +422,7 @@
     "dropship": "Dropship Coordinator",
     "dropshipDesc": "BOL · 360° Scan · AR Preview",
     "apply": "Apply as Specialist",
-    "applyDesc": "Join the 3C Runner fleet",
+    "applyDesc": "Apply to the network",
     "arViewer": "Spatial AR OS",
     "arViewerDesc": "Rocksolid · Guardian HUD",
     "impact": "3C Impact",
