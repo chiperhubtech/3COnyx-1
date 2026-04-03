@@ -163,6 +163,10 @@ Proactive maintenance/upgrade/accessory alerts based on vehicle data. Cultural p
 
 Unifies 40+ eCommerce platforms for B2B and B2C product/parts/accessories/apparel/tools dropship. B2B upsell to freelancers and shops.
 
+## Survey Shield & OEM Bridge Protocol (/api/survey-shield)
+
+Income protection for salespeople. 8 sentiment checkpoints across the customer journey (Greeting, Needs Assessment, Test Drive, Negotiation, F&I, Delivery, OEM Setup, Follow-Up). Score each 0-10. Below 10/10 triggers Red Alert for manager intervention BEFORE the OEM survey arrives. Deal completion blocked until 10/10 or manager override with cryptographic proof hash. OEM Bridge auto-registers customers for 14 manufacturer apps (30+ apps total: Uconnect, FordPass, myChevrolet, Toyota App, HondaLink, etc.) upon deal completion. Zero manual work. Ronald Antonio Cadet hardcoded into Survey-Shield proof hash generation. Routes: `/status`, `/checkpoint`, `/deal/:dealId`, `/manager-override`, `/oem-bridge`, `/oem-manufacturers`, `/stages`, `/verify-readiness`, `/analytics`.
+
 ## Paramount Access & Sovereign Credential (/api/paramount)
 
 Sovereign credential system. userId 6 = Ron (Sovereign). Only Sovereign can verify clubs, approve events, verify venues, view all data. Sovereignty transfer blocked at API level by design.

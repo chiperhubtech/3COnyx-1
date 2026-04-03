@@ -96,6 +96,7 @@ import SmartDealsPage from "@/pages/smart-deals";
 import SocialAmplifierPage from "@/pages/social-amplifier";
 import MarketplaceChannelsPage from "@/pages/marketplace-channels";
 import MarketingHubPage from "@/pages/marketing-hub";
+import SurveyShieldPage from "@/pages/survey-shield";
 
 // Auth + launch pages
 import LoginPage    from "@/pages/login";
@@ -270,6 +271,7 @@ function AppRoutes() {
             <Route path="/social-amplifier"  component={SocialAmplifierPage} />
             <Route path="/marketplace-hub"   component={MarketplaceChannelsPage} />
             <Route path="/marketing"         component={MarketingHubPage} />
+            <Route path="/survey-shield"    component={SurveyShieldPage} />
 
             {/* DealerFlow OS — Industry Professional */}
             <Route path="/dealerflow"           component={DealerFlowOS} />

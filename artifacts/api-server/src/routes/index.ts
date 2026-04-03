@@ -154,6 +154,7 @@ import api2cartRouter from "./api2cart";
 import socialAmplifierRouter from "./social-amplifier";
 import litcommerceRouter from "./litcommerce";
 import constantContactRouter from "./constant-contact";
+import surveyShieldRouter from "./survey-shield";
 
 const router: IRouter = Router();
 
@@ -330,5 +331,6 @@ router.use("/api2cart", api2cartRouter);
 router.use("/social-amplifier", socialAmplifierRouter);
 router.use("/marketplace-hub", litcommerceRouter);
 router.use("/marketing", constantContactRouter);
+router.use("/survey-shield", surveyShieldRouter);
 
 export default router;
