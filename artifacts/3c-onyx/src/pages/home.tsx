@@ -1142,6 +1142,7 @@ function AskOnyxSheet({ open, onClose, initialMessage }: { open: boolean; onClos
       const t = setTimeout(() => setProcessingStep((s) => s + 1), 600);
       return () => clearTimeout(t);
     }
+    return undefined;
   }, [phase, processingStep]);
 
   const handleSend = async () => {

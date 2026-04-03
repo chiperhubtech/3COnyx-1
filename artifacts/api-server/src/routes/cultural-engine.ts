@@ -176,7 +176,6 @@ router.get("/profile", requireAuth, async (req: Request, res: Response) => {
       id: usersTable.id,
       name: usersTable.name,
       email: usersTable.email,
-      zip: usersTable.zip,
     }).from(usersTable).where(eq(usersTable.id, userId));
 
     if (!user) {
@@ -192,8 +191,9 @@ router.get("/profile", requireAuth, async (req: Request, res: Response) => {
 
     const vehicleMake = vehicles[0]?.make || null;
     const vehicleType = "car";
+    let userZip: string | null = null;
 
-    let musicAffinity = inferMusicFromZip(user.zip || null);
+    let musicAffinity = inferMusicFromZip(userZip);
 
     const nameInference = inferFromName(user.name || null);
     if (nameInference) musicAffinity = nameInference;
@@ -220,8 +220,8 @@ router.get("/profile", requireAuth, async (req: Request, res: Response) => {
         event: cultureTone.event,
       },
       demographics: {
-        zipCode: user.zip || null,
-        regionStyle: user.zip ? (ZIP_REGION_MAP[user.zip.charAt(0)] || "unknown") : "unknown",
+        zipCode: userZip,
+        regionStyle: userZip ? (ZIP_REGION_MAP[(userZip as string).charAt(0)] || "unknown") : "unknown",
         purchasePattern: vehicles.length > 0 ? "active_owner" : "prospect",
         vehicleCategory: vehicleType,
       },

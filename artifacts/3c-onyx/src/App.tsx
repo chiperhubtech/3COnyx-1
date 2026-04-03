@@ -87,6 +87,15 @@ import NotebookPage from "@/pages/notebook";
 import MyQRPage from "@/pages/my-qr";
 import ARBadgePage from "@/pages/ar-badge";
 import OneTapPage from "@/pages/one-tap";
+import ClubsPage from "@/pages/clubs";
+import EventsHubPage from "@/pages/events-hub";
+import VenuesPage from "@/pages/venues";
+import EventRadarPage from "@/pages/event-radar";
+import ApparelPage from "@/pages/apparel";
+import SmartDealsPage from "@/pages/smart-deals";
+import SocialAmplifierPage from "@/pages/social-amplifier";
+import MarketplaceChannelsPage from "@/pages/marketplace-channels";
+import MarketingHubPage from "@/pages/marketing-hub";
 
 // Auth + launch pages
 import LoginPage    from "@/pages/login";
@@ -252,6 +261,15 @@ function AppRoutes() {
             <Route path="/my-qr"                component={MyQRPage} />
             <Route path="/ar-badge"             component={ARBadgePage} />
             <Route path="/one-tap"              component={OneTapPage} />
+            <Route path="/clubs"               component={ClubsPage} />
+            <Route path="/events"              component={EventsHubPage} />
+            <Route path="/venues"              component={VenuesPage} />
+            <Route path="/event-radar"         component={EventRadarPage} />
+            <Route path="/apparel"             component={ApparelPage} />
+            <Route path="/smart-deals"         component={SmartDealsPage} />
+            <Route path="/social-amplifier"  component={SocialAmplifierPage} />
+            <Route path="/marketplace-hub"   component={MarketplaceChannelsPage} />
+            <Route path="/marketing"         component={MarketingHubPage} />
 
             {/* DealerFlow OS — Industry Professional */}
             <Route path="/dealerflow"           component={DealerFlowOS} />

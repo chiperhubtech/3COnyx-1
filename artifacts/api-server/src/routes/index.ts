@@ -150,6 +150,10 @@ import apparelRouter from "./apparel";
 import smartPromotionsRouter from "./smart-promotions";
 import culturalEngineRouter from "./cultural-engine";
 import entertainmentRouter from "./entertainment";
+import api2cartRouter from "./api2cart";
+import socialAmplifierRouter from "./social-amplifier";
+import litcommerceRouter from "./litcommerce";
+import constantContactRouter from "./constant-contact";
 
 const router: IRouter = Router();
 
@@ -322,5 +326,9 @@ router.use("/apparel", apparelRouter);
 router.use("/smart-promotions", smartPromotionsRouter);
 router.use("/cultural", culturalEngineRouter);
 router.use("/entertainment", entertainmentRouter);
+router.use("/api2cart", api2cartRouter);
+router.use("/social-amplifier", socialAmplifierRouter);
+router.use("/marketplace-hub", litcommerceRouter);
+router.use("/marketing", constantContactRouter);
 
 export default router;

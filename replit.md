@@ -134,3 +134,35 @@ Viral growth engine: 1 dealer → 20 Group → 400 → 8,000 → 16,700 dealers.
 ## OEM Incentives Engine (POST /api/oem-incentives)
 
 VIN + ZIP + Customer Profile → exact discounts and rebates. Covers 28 manufacturers with 90+ active programs across 11 incentive types (rebate, bonus cash, loyalty, conquest, APR reduction, lease cash, tax credits, referral credits, EV rebates). Includes 14 state-level EV incentive programs. Customer qualification factors: military/veteran, first responder, recent graduate, current vehicle brand (loyalty/conquest), income eligibility, referral codes. Routes: `/match` (full personalized matching), `/quick-match` (guaranteed + possible savings), `/manufacturers`, `/programs/:manufacturer`, `/status`. Replaces the hardcoded $1,500 OEM incentive default in brokerDesk.ts.
+
+## Club / Event / Venue System (/api/clubs, /api/events, /api/venues)
+
+Full social infrastructure: Clubs (create, join, treasury with bottom-up attribution), Events (create, register, check-in, approve), Venues (register, verify, browse). All with 3% commission and 5-level referral chain. Club treasury tracks revenue per club. Event Radar (/api/event-radar) provides global event intelligence.
+
+## Social Amplifier (/api/social-amplifier)
+
+Auto-post campaigns, content, and product promos across 9 social platforms (Instagram, TikTok, Facebook, X/Twitter, YouTube, LinkedIn, Pinterest, Snapchat, Threads). Members grant access → platform auto-posts. 10 campaign templates. Auto-promote mode with configurable frequency. All branded as 3C ONYX — underlying integrations invisible to users.
+
+## Marketplace Hub — LitCommerce (/api/litcommerce)
+
+Multichannel product distribution across 18+ marketplace channels (Amazon, eBay, Etsy, Facebook Marketplace, Google Shopping, Walmart, Shopify, WooCommerce, TikTok Shop, Instagram Shop, etc.). One upload → all channels. Real-time inventory sync. 10 automated growth strategies. Bulk listing. All white-labeled under 3C ONYX brand.
+
+## Marketing Hub — Constant Contact (/api/marketing)
+
+Email campaigns (10 templates including welcome series, product launch, re-engagement, referral nudge, maintenance reminders), SMS campaigns (6 types), landing pages (6 templates), and marketing automations (trigger-based drip sequences). All powered behind the scenes — members only see 3C ONYX branding.
+
+## Apparel & Entertainment (/api/apparel, /api/entertainment)
+
+Motorsport dropship apparel catalog and entertainment subscriptions (Spotify, Apple Music, Pandora, SiriusXM) — all earning 3% commission.
+
+## Smart Promotions & Cultural Engine (/api/smart-promotions, /api/cultural)
+
+Proactive maintenance/upgrade/accessory alerts based on vehicle data. Cultural personalization engine: ZIP → region → music affinity, name inference, vehicle make inference → personalized tone (hip_hop, rock, country, pop, latin, electronic).
+
+## eCommerce Bridge — API2Cart (/api/api2cart)
+
+Unifies 40+ eCommerce platforms for B2B and B2C product/parts/accessories/apparel/tools dropship. B2B upsell to freelancers and shops.
+
+## Paramount Access & Sovereign Credential (/api/paramount)
+
+Sovereign credential system. userId 6 = Ron (Sovereign). Only Sovereign can verify clubs, approve events, verify venues, view all data. Sovereignty transfer blocked at API level by design.
