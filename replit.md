@@ -41,7 +41,7 @@ The architecture is AI-first, encompassing:
 - **Shareable AR Badge**: A themed 3C branded badge generator for viral growth.
 - **ONYX Nerve Center**: A "daily habit" dashboard for logged-in members.
 - **Autonomous Execution Engine**: Implements a "Scan → Diagnose → Execute" one-tap workflow, normalizing vehicle input, running AI-powered vehicle analysis, and autonomously triggering cascading workflows with blockchain proof stamping.
-- **Universal Attribution Engine**: Manages multi-level referral attribution and payout distribution with anti-abuse layers and blockchain stamping.
+- **Universal Attribution Engine**: 5-level depth referral attribution with diminishing commission rates [100%, 20%, 10%, 5%, 2.5%], anti-abuse quarantine (6-factor risk scoring), SHA-256 blockchain proof stamping, and zero-cent payout protection. Network Dominance dashboard compares 3C ONYX protocol against Top 100 MLM companies.
 - **Altruistic Share Component**: A post-completion modal encouraging sharing and displaying real-time earnings.
 - **Street-Level Distribution Network**: The entry layer for the "Global Automotive Liquidity Network," capturing QR scans at physical nodes and tracking referrers.
 - **Architectural Upgrades**: Includes CarPlay/Android Auto integration, a tRPC Type-Safe API Layer, an Admin API, and a Beta Waitlist system.

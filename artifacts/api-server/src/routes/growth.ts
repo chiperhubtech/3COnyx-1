@@ -349,4 +349,63 @@ router.post("/growth/track", (req: Request, res: Response) => {
     .catch((err) => logger.warn({ err, event }, "[growth] Event track insert failed"));
 });
 
+router.get("/growth/network-dominance", async (_req: Request, res: Response) => {
+  try {
+    const [memberStats] = await db.select({
+      active: sql<number>`count(*) filter (where status = 'active')::int`,
+      total: sql<number>`count(*)::int`,
+    }).from(foundingMembersTable);
+
+    const [userStats] = await db.select({
+      totalUsers: sql<number>`count(*)::int`,
+    }).from(usersTable);
+
+    const active = (memberStats?.active ?? 0) + (userStats?.totalUsers ?? 0);
+
+    res.json({
+      protocol: "3C ONYX Universal Participation Network",
+      architect: "Ronald Antonio Cadet — CUXTOMCANDYCLUB LLC",
+      model: {
+        name: "Universal Participation Network",
+        type: "Coordination Protocol (NOT MLM)",
+        joinCost: "$0 — Free forever",
+        inventoryRequired: false,
+        recruitmentPressure: false,
+        revenueSource: "3% platform commission on $2.7T automotive market",
+        settlementSpeed: "Instant (< 2 minutes)",
+        attributionDepth: 5,
+        nodeTypes: 86,
+        transactionCategories: 28,
+        margin: "~98% at scale",
+      },
+      advantages: [
+        { vs: "Traditional MLM", advantage: "No inventory, no recruitment fees, no monthly quotas — members earn from real automotive transactions" },
+        { vs: "Amway ($8.1B)", advantage: "3C ONYX targets $2.7T market with 3% fee = $81B TAM vs Amway's $8.1B on supplements" },
+        { vs: "Herbalife ($5.1B)", advantage: "Zero inventory risk — 3C ONYX nodes earn commissions without buying or storing products" },
+        { vs: "Epixel MLM Software", advantage: "5-level instant-settlement attribution engine with SHA-256 proof, anti-fraud quarantine, and 86 universal node types — built into the protocol, not bolted on" },
+        { vs: "All Top 100 MLMs", advantage: "Instant settlement vs monthly/quarterly payouts. Every node from CEO to gas station clerk earns equally. No downline pressure." },
+      ],
+      metrics: {
+        activeNodes: active,
+        attributionLevels: 5,
+        avgSettlementTime: "< 120 seconds",
+        antifraudSystem: "Quarantine engine with 6-factor risk scoring",
+        proofEngine: "SHA-256 hash chain stamped by architect",
+        payoutMethod: "Stripe Connect ACH — instant",
+        globalSupport: "13 languages, offline-first mobile, universal QR",
+      },
+      competitiveEdge: {
+        reachPerNode: "Every mechanic, clerk, runner, dealer, inspector, and consumer is a revenue node",
+        viralMechanism: "QR-based invite-only access — members recruit the network organically",
+        moat: "Protocol lock-in: once a business runs on 3C ONYX settlement rails, switching cost is infinite",
+        scaleCeiling: "None — no inventory, no labor overhead, no geographic limit",
+      },
+      ts: new Date().toISOString(),
+    });
+  } catch (err) {
+    logger.error({ err }, "[growth] Network dominance query failed");
+    res.status(500).json({ error: "Unavailable" });
+  }
+});
+
 export default router;

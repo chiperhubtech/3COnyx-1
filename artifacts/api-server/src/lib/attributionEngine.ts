@@ -6,8 +6,8 @@ import crypto from "crypto";
 
 const log = logger.child({ module: "attribution-engine" });
 
-const SECONDARY_REFERRER_RATE = 0.20;
-const MAX_ATTRIBUTION_DEPTH = 2;
+const MAX_ATTRIBUTION_DEPTH = 5;
+const DEPTH_RATES = [1.0, 0.20, 0.10, 0.05, 0.025];
 const QUARANTINE_WINDOW_MS = 24 * 60 * 60 * 1000;
 const MAX_REFERRALS_PER_WINDOW = 50;
 const MIN_ACCOUNT_AGE_MS = 60 * 60 * 1000;
@@ -54,8 +54,11 @@ export async function resolveAttributionChain(
     if (!referrer || referrer.id === buyerUserId) break;
 
     depth++;
-    const rate = depth === 1 ? primaryRate : primaryRate * SECONDARY_REFERRER_RATE;
+    const depthMultiplier = DEPTH_RATES[Math.min(depth - 1, DEPTH_RATES.length - 1)];
+    const rate = primaryRate * depthMultiplier;
     const commissionCents = Math.round(transactionAmountCents * rate);
+
+    if (commissionCents <= 0) break;
 
     chain.nodes.push({
       userId: referrer.id,
@@ -122,7 +125,8 @@ export async function executeMultiLevelPayout(
     transactionId = tx?.id ?? null;
 
     for (const node of chain.nodes) {
-      const tierLabel = node.depth === 1 ? "Direct" : "Secondary";
+      const tierLabels = ["", "Direct", "Tier 2", "Tier 3", "Tier 4", "Tier 5"];
+      const tierLabel = tierLabels[Math.min(node.depth, tierLabels.length - 1)] || `Tier ${node.depth}`;
       const [commission] = await trx.insert(commissionLedgerTable).values({
         entryType: "Referral",
         status: "Pending",

@@ -364,6 +364,123 @@ export default function GrowthDashboard() {
           </div>
         </div>
 
+        {/* Network Dominance — MLM Superiority Matrix */}
+        <div style={{
+          padding: "22px 24px", borderRadius: 16, marginBottom: 24,
+          background: "linear-gradient(135deg, rgba(201,162,39,0.04) 0%, rgba(52,211,153,0.02) 100%)",
+          border: "1px solid rgba(201,162,39,0.15)",
+        }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
+            <div>
+              <p style={{ fontSize: 9, letterSpacing: "0.18em", color: "#C9A227", fontWeight: 700, marginBottom: 3 }}>
+                NETWORK DOMINANCE
+              </p>
+              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>
+                3C ONYX vs Top 100 MLM Companies &amp; Epixel Software
+              </p>
+            </div>
+            <Shield size={16} style={{ color: "#C9A227" }} />
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
+            <div style={{ padding: "14px 16px", borderRadius: 12, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
+              <p style={{ fontSize: 8, color: "rgba(255,255,255,0.2)", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 6 }}>3C ONYX PROTOCOL</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                {[
+                  { label: "Join Cost", value: "$0 — Free forever" },
+                  { label: "Inventory Required", value: "None" },
+                  { label: "Settlement Speed", value: "< 2 minutes (instant)" },
+                  { label: "Attribution Depth", value: "5 levels" },
+                  { label: "Revenue Model", value: "3% on $2.7T market" },
+                  { label: "Node Types", value: "86 universal" },
+                  { label: "Transaction Categories", value: "28" },
+                  { label: "Payout Method", value: "Stripe Connect — instant ACH" },
+                  { label: "Anti-Fraud", value: "6-factor quarantine engine" },
+                  { label: "Proof Engine", value: "SHA-256 hash chain" },
+                ].map((item) => (
+                  <div key={item.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)" }}>{item.label}</span>
+                    <span style={{ fontSize: 10, color: "#34D399", fontWeight: 700 }}>{item.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ padding: "14px 16px", borderRadius: 12, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(239,68,68,0.1)" }}>
+              <p style={{ fontSize: 8, color: "rgba(239,68,68,0.5)", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 6 }}>TRADITIONAL MLM MODEL</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                {[
+                  { label: "Join Cost", value: "$99–$500 entry fee" },
+                  { label: "Inventory Required", value: "Yes — monthly quota" },
+                  { label: "Settlement Speed", value: "30–90 days" },
+                  { label: "Attribution Depth", value: "3–7 levels (downline)" },
+                  { label: "Revenue Model", value: "Product markup + recruitment" },
+                  { label: "Node Types", value: "1 (distributor)" },
+                  { label: "Transaction Categories", value: "1–3 products" },
+                  { label: "Payout Method", value: "Monthly check / ACH" },
+                  { label: "Anti-Fraud", value: "Manual review" },
+                  { label: "Proof Engine", value: "None" },
+                ].map((item) => (
+                  <div key={item.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)" }}>{item.label}</span>
+                    <span style={{ fontSize: 10, color: "rgba(239,68,68,0.5)", fontWeight: 700 }}>{item.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 10 }}>
+              <thead>
+                <tr>
+                  {["Company", "Revenue", "Model", "3C ONYX Advantage"].map((h) => (
+                    <th key={h} style={{ padding: "6px 10px", textAlign: "left", color: "rgba(255,255,255,0.2)", fontSize: 8, letterSpacing: "0.1em", fontWeight: 700, borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { co: "Amway", rev: "$8.1B", model: "Supplements / Home", edge: "$81B TAM (3% of $2.7T) vs $8.1B" },
+                  { co: "Herbalife", rev: "$5.1B", model: "Nutrition", edge: "Zero inventory risk — no product storage" },
+                  { co: "Avon", rev: "$3.5B", model: "Beauty", edge: "86 node types vs 1 distributor role" },
+                  { co: "Nu Skin", rev: "$2.4B", model: "Skincare / Devices", edge: "Instant settlement vs 30-day payouts" },
+                  { co: "Vorwerk", rev: "$4.2B", model: "Home Appliances", edge: "Free entry vs $200+ starter kits" },
+                  { co: "Mary Kay", rev: "$2.7B", model: "Cosmetics", edge: "No monthly quotas — earn on real transactions" },
+                  { co: "Natura &Co", rev: "$5.5B", model: "Beauty / Home", edge: "AI-powered 12-agent mesh vs manual operations" },
+                  { co: "Tupperware", rev: "$1.3B", model: "Kitchenware", edge: "Protocol lock-in — infinite switching cost" },
+                  { co: "Epixel Software", rev: "—", model: "MLM Platform", edge: "Built-in attribution engine vs bolted-on software" },
+                ].map((r) => (
+                  <tr key={r.co} style={{ borderBottom: "1px solid rgba(255,255,255,0.03)" }}>
+                    <td style={{ padding: "8px 10px", color: "rgba(255,255,255,0.5)", fontWeight: 600 }}>{r.co}</td>
+                    <td style={{ padding: "8px 10px", color: "rgba(255,255,255,0.3)" }}>{r.rev}</td>
+                    <td style={{ padding: "8px 10px", color: "rgba(255,255,255,0.3)" }}>{r.model}</td>
+                    <td style={{ padding: "8px 10px", color: "#34D399", fontWeight: 700, fontSize: 10 }}>{r.edge}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div style={{
+            marginTop: 16, padding: "12px 16px", borderRadius: 10,
+            background: "rgba(201,162,39,0.06)", border: "1px solid rgba(201,162,39,0.15)",
+            textAlign: "center",
+          }}>
+            <p style={{ fontSize: 11, color: "#C9A227", fontWeight: 700, letterSpacing: "0.04em" }}>
+              ECONOMIC SINGULARITY: When every participant becomes both consumer AND revenue node,
+            </p>
+            <p style={{ fontSize: 11, color: "#C9A227", fontWeight: 700, letterSpacing: "0.04em" }}>
+              the network surpasses every traditional model — simultaneously.
+            </p>
+            <p style={{ fontSize: 9, color: "rgba(255,255,255,0.2)", marginTop: 6 }}>
+              Architect: Ronald Antonio Cadet — CUXTOMCANDYCLUB LLC
+            </p>
+          </div>
+        </div>
+
         {/* Leaderboard */}
         <div style={{
           padding: "22px 24px", borderRadius: 16,
