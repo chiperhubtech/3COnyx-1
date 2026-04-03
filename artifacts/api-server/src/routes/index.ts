@@ -139,6 +139,7 @@ import ttsRouter from "./tts";
 import textToDealRouter from "./text-to-deal";
 import oemIncentivesRouter from "./oem-incentives";
 import vehicleVerifyRouter from "./vehicle-verify";
+import dealerGroupsRouter from "./dealer-groups";
 
 const router: IRouter = Router();
 
@@ -300,5 +301,6 @@ router.use("/tts", ttsRouter);
 router.use("/text-to-deal", textToDealRouter);
 router.use("/oem-incentives", oemIncentivesRouter);
 router.use("/vehicles", vehicleVerifyRouter);
+router.use("/dealer-groups", dealerGroupsRouter);
 
 export default router;
