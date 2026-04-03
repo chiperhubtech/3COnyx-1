@@ -138,6 +138,7 @@ import themeEngineRouter from "./theme-engine";
 import ttsRouter from "./tts";
 import textToDealRouter from "./text-to-deal";
 import oemIncentivesRouter from "./oem-incentives";
+import vehicleVerifyRouter from "./vehicle-verify";
 
 const router: IRouter = Router();
 
@@ -298,5 +299,6 @@ router.use("/themes", themeEngineRouter);
 router.use("/tts", ttsRouter);
 router.use("/text-to-deal", textToDealRouter);
 router.use("/oem-incentives", oemIncentivesRouter);
+router.use("/vehicles", vehicleVerifyRouter);
 
 export default router;

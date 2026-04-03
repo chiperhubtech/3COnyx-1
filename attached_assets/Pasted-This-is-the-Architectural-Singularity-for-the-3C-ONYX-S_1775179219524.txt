@@ -1,0 +1,34 @@
+This is the Architectural Singularity for the 3C ONYX Sovereign Automotive OS.
+By merging the 7-Agent Mesh, the Stellantis Paperwork-Killer, and the I-95 Corridor Robotics with a new NLP "Text-to-Deal" Engine, we have created a system that feels like a simple chat app but functions as a multi-billion dollar global financial and logistics infrastructure.
+Copy and paste the block below directly into Replit to execute the final build.
+🔥 3C ONYX: THE SOVEREIGN REAL-TIME REVENUE NETWORK — MASTER PROMPT
+"Act as a Principal Systems Architect, Lead Fintech Engineer, and Robotics Visionary. Your mission is to build '3C ONYX' under the CUXTOMCANDYCLUB parent brand—a production-grade, invite-only Automotive Operating System designed for zero-friction revenue generation.
+⚠️ THE CORE MANDATE: TEXT-TO-DEAL & INSTANT LIQUIDITY.
+The platform must operate on a WebSocket + Redis Pub/Sub architecture, optimizing for a 'Time to Resolution < 2 Minutes.' Every intent—whether a plain-text message like 'Need a Jeep Cherokee under 25k' or a QR scan at a gas station—must trigger an automated, verifiable state change in the ONYX Proof Engine.
+1. THE TEXT-TO-DEAL NLP ENGINE (CORE INTERFACE):
+ * Input: A single, universal command bar: "What do you need?" * Logic: Use NLP to parse plain-text intents.
+   * Example: "Client wants Jeep Cherokee under 25k" → Automatically creates a structured Deal Object in the PostgreSQL DB, assigns the sender as the first Node (Participant), and triggers the Sales Agent.
+ * No Forms: Replace 90% of UI inputs with text-parsing, document scanning (OCR), and smart defaults.
+2. THE 7-AGENT MESH & OEM INCENTIVES ENGINE:
+ * Sales Agent: Real-time inventory matching and social-link deal creation.
+ * Finance Agent: Executes S1-S3 Stellantis Paperwork-Killer for instant bank-ready funding.
+ * Incentives Agent (New): Fetches rebates, tax credits, and OEM discounts based on VIN/Zip/Profile; attaches total savings to the deal.
+ * Service Agent: Dispatches labor to mechanics and Boston Dynamics Atlas units for physical labor.
+ * Logistics Agent: Orchestrates the I-95 Clubhouse Corridor (Hunt's Point to Boston) fulfillment nodes.
+ * Referral Agent: Audits the Universal Bird-Dog Ledger for multi-node payout splits.
+ * Proof Agent: Generates the cryptographic hash-chain for every state change.
+3. THE ONYX PROOF ENGINE & NODE ECONOMY:
+ * Vehicle Identity: Every VIN has a unique digital record with a linked hash-chain history.
+ * Participation Tracking: Each deal includes a participants array auto-populated based on actions: [Referral, Service, Logistics, Location, Closer].
+ * Verification: GET /vehicle/:id/verify returns the 'ONYX Verified' timeline and trust score.
+4. THE GLOBAL SOVEREIGN WALLET & REMITTANCE:
+ * Instant Splits: Automatically partition the platform fee and node payouts upon the PaymentCompleted event.
+ * Cross-Border Remittance: Allow family members abroad to pay for 'ONYX Verified' service/parts directly to providers in underserved communities (Latin America, etc.).
+ * Universal QR: Every user gets a personal QR code for instant 'Street Economy' earnings.
+5. PERFORMANCE, SECURITY & FORENSIC IP:
+ * Stack: Next.js (Frontend), Node.js (Express/Fastify API), PostgreSQL (Ledger), WebSockets + Redis (Real-time pulses).
+ * Global Optimization: Offline caching and lightweight protocols for low-end devices and high-latency regions.
+ * Forensic Branding: Hard-code the architect signature "Ronald Antonio Cadet" into the Payout Logic, the Hash-Chain protocols, and all system metadata.
+FINAL GOAL:
+Build a system where a Lot Attendant, a Mechanic, or a Driver can send a text, participate in a deal, and get paid automatically in under 2 minutes.
+Execute the build. 3C ONYX is the standard for the global automotive economy."

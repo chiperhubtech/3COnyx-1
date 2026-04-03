@@ -1103,42 +1103,81 @@ function ActiveFlowCard({ deal }: { deal: any }) {
 function AskOnyxSheet({ open, onClose, initialMessage }: { open: boolean; onClose: () => void; initialMessage?: string }) {
   const [message, setMessage] = useState(initialMessage || "");
   const [sending, setSending] = useState(false);
-  const [sent, setSent] = useState(false);
-  const [sendError, setSendError] = useState(false);
+  const [phase, setPhase] = useState<"input" | "processing" | "result" | "error">("input");
+  const [result, setResult] = useState<any>(null);
+  const [processingStep, setProcessingStep] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const PROCESSING_STEPS = [
+    "Parsing your request...",
+    "Classifying intent...",
+    "Routing to Agent Mesh...",
+    "Creating deal structure...",
+    "Generating proof hash...",
+  ];
 
   useEffect(() => {
     if (open) {
       setMessage(initialMessage || "");
       setSending(false);
-      setSent(false);
-      setSendError(false);
+      setPhase("input");
+      setResult(null);
+      setProcessingStep(0);
       setTimeout(() => inputRef.current?.focus(), 200);
     }
   }, [open, initialMessage]);
 
+  useEffect(() => {
+    if (phase !== "processing") return;
+    if (processingStep < PROCESSING_STEPS.length - 1) {
+      const t = setTimeout(() => setProcessingStep((s) => s + 1), 600);
+      return () => clearTimeout(t);
+    }
+  }, [phase, processingStep]);
+
   const handleSend = async () => {
     if (!message.trim() || sending) return;
     setSending(true);
-    setSendError(false);
+    setPhase("processing");
+    setProcessingStep(0);
+
     try {
-      const res = await authFetch(`${BASE}/api/omni-node/submit`, {
+      const dealRes = await fetch(`${BASE}/api/text-to-deal/convert`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: "Ask ONYX — Member Request",
-          description: message.trim(),
-          department: "Sales",
-          initiatorTier: "Customer",
-          initiatorName: "ONYX Member",
-        }),
+        body: JSON.stringify({ message: message.trim() }),
       });
-      if (res.ok) { setSent(true); } else { setSendError(true); }
-    } catch { setSendError(true); }
+
+      if (dealRes.ok) {
+        const dealData = await dealRes.json();
+
+        let routingData = null;
+        try {
+          const routeRes = await fetch(`${BASE}/api/ask-onyx/ask`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ input: message.trim() }),
+          });
+          if (routeRes.ok) routingData = await routeRes.json();
+        } catch {}
+
+        setResult({ deal: dealData, routing: routingData });
+        setPhase("result");
+      } else {
+        setPhase("error");
+      }
+    } catch {
+      setPhase("error");
+    }
     setSending(false);
   };
 
   if (!open) return null;
+
+  const INTENT_COLORS: Record<string, string> = {
+    buy: "#34D399", sell: "#60A5FA", service: "#F59E0B",
+    refer: "#A78BFA", assist: "#EC4899",
+  };
 
   return (
     <div style={{
@@ -1156,6 +1195,7 @@ function AskOnyxSheet({ open, onClose, initialMessage }: { open: boolean; onClos
         border: "1px solid rgba(201,162,39,0.1)",
         borderBottom: "none",
         padding: "28px 24px 36px",
+        maxHeight: "85vh", overflowY: "auto",
         animation: "slideUp 0.3s ease",
       }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
@@ -1163,7 +1203,7 @@ function AskOnyxSheet({ open, onClose, initialMessage }: { open: boolean; onClos
             <OnyxLogo size={36} />
             <div>
               <p style={{ fontSize: 16, fontWeight: 700, color: "#fff", margin: 0 }}>Ask ONYX</p>
-              <p style={{ fontSize: 11, color: "rgba(201,162,39,0.5)", margin: 0, letterSpacing: 1, textTransform: "uppercase", fontWeight: 600 }}>Command Center</p>
+              <p style={{ fontSize: 11, color: "rgba(201,162,39,0.5)", margin: 0, letterSpacing: 1, textTransform: "uppercase", fontWeight: 600 }}>Text-to-Deal Engine</p>
             </div>
           </div>
           <button onClick={onClose} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, padding: 8, cursor: "pointer", color: "rgba(255,255,255,0.4)" }}>
@@ -1171,26 +1211,154 @@ function AskOnyxSheet({ open, onClose, initialMessage }: { open: boolean; onClos
           </button>
         </div>
 
-        {sent ? (
-          <div style={{ textAlign: "center", padding: "32px 0" }}>
-            <CheckCircle2 size={48} style={{ color: "#34D399", marginBottom: 16 }} />
-            <p style={{ fontSize: 18, fontWeight: 700, color: "#fff", marginBottom: 8 }}>Request received</p>
-            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.4)", lineHeight: 1.5, maxWidth: 300, margin: "0 auto 24px" }}>
-              We'll take care of this for you. You'll hear from us shortly.
+        {phase === "processing" && (
+          <div style={{ padding: "24px 0", textAlign: "center" }}>
+            <Loader2 size={36} style={{ color: "#C9A227", marginBottom: 20, animation: "spin 1s linear infinite" }} />
+            <p style={{ fontSize: 15, fontWeight: 600, color: "#fff", marginBottom: 16 }}>
+              {PROCESSING_STEPS[processingStep]}
             </p>
+            <div style={{ display: "flex", gap: 6, justifyContent: "center" }}>
+              {PROCESSING_STEPS.map((_, i) => (
+                <div key={i} style={{
+                  width: 8, height: 8, borderRadius: "50%",
+                  background: i <= processingStep ? "#C9A227" : "rgba(255,255,255,0.1)",
+                  transition: "background 0.3s",
+                }} />
+              ))}
+            </div>
+            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.2)", marginTop: 16 }}>
+              "{message}"
+            </p>
+          </div>
+        )}
+
+        {phase === "result" && result?.deal && (
+          <div style={{ animation: "fadeIn 0.4s ease" }}>
+            <div style={{
+              background: "rgba(52,211,153,0.06)", border: "1px solid rgba(52,211,153,0.15)",
+              borderRadius: 16, padding: 20, marginBottom: 16, textAlign: "center",
+            }}>
+              <CheckCircle2 size={36} style={{ color: "#34D399", marginBottom: 12 }} />
+              <p style={{ fontSize: 18, fontWeight: 800, color: "#fff", margin: "0 0 4px" }}>Deal Created</p>
+              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", margin: 0 }}>
+                {result.deal.deal?.dealId}
+              </p>
+            </div>
+
+            {result.deal.entities && (
+              <div style={{
+                background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)",
+                borderRadius: 14, padding: 16, marginBottom: 12,
+              }}>
+                <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(201,162,39,0.5)", margin: "0 0 10px", letterSpacing: 1.5, textTransform: "uppercase" }}>
+                  Extracted Entities
+                </p>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                  {result.deal.entities.vehicleMake && (
+                    <div style={{ padding: "8px 12px", borderRadius: 10, background: "rgba(96,165,250,0.08)", border: "1px solid rgba(96,165,250,0.15)" }}>
+                      <p style={{ fontSize: 10, color: "rgba(96,165,250,0.6)", margin: 0, fontWeight: 600 }}>VEHICLE</p>
+                      <p style={{ fontSize: 14, color: "#fff", margin: "2px 0 0", fontWeight: 700 }}>
+                        {result.deal.entities.vehicleYear ? `${result.deal.entities.vehicleYear} ` : ""}
+                        {result.deal.entities.vehicleMake} {result.deal.entities.vehicleModel || ""}
+                      </p>
+                    </div>
+                  )}
+                  {(result.deal.entities.budget || result.deal.entities.maxBudget) && (
+                    <div style={{ padding: "8px 12px", borderRadius: 10, background: "rgba(52,211,153,0.08)", border: "1px solid rgba(52,211,153,0.15)" }}>
+                      <p style={{ fontSize: 10, color: "rgba(52,211,153,0.6)", margin: 0, fontWeight: 600 }}>BUDGET</p>
+                      <p style={{ fontSize: 14, color: "#fff", margin: "2px 0 0", fontWeight: 700 }}>
+                        ${Number(result.deal.entities.budget || result.deal.entities.maxBudget).toLocaleString()}
+                      </p>
+                    </div>
+                  )}
+                  {result.deal.entities.customerName && result.deal.entities.customerName !== "Unknown" && (
+                    <div style={{ padding: "8px 12px", borderRadius: 10, background: "rgba(201,162,39,0.08)", border: "1px solid rgba(201,162,39,0.15)" }}>
+                      <p style={{ fontSize: 10, color: "rgba(201,162,39,0.6)", margin: 0, fontWeight: 600 }}>CUSTOMER</p>
+                      <p style={{ fontSize: 14, color: "#fff", margin: "2px 0 0", fontWeight: 700 }}>
+                        {result.deal.entities.customerName}
+                      </p>
+                    </div>
+                  )}
+                  {result.deal.entities.location && (
+                    <div style={{ padding: "8px 12px", borderRadius: 10, background: "rgba(244,114,182,0.08)", border: "1px solid rgba(244,114,182,0.15)" }}>
+                      <p style={{ fontSize: 10, color: "rgba(244,114,182,0.6)", margin: 0, fontWeight: 600 }}>LOCATION</p>
+                      <p style={{ fontSize: 14, color: "#fff", margin: "2px 0 0", fontWeight: 700 }}>
+                        {result.deal.entities.location}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {(result.deal.deal?.intent || result.deal.deal?.type) && (
+              <div style={{
+                display: "flex", alignItems: "center", gap: 8, marginBottom: 12,
+                padding: "10px 14px", borderRadius: 10,
+                background: `${INTENT_COLORS[result.deal.deal.intent || result.deal.deal.type] || "#C9A227"}10`,
+                border: `1px solid ${INTENT_COLORS[result.deal.deal.intent || result.deal.deal.type] || "#C9A227"}25`,
+              }}>
+                <Zap size={14} style={{ color: INTENT_COLORS[result.deal.deal.intent || result.deal.deal.type] || "#C9A227" }} />
+                <span style={{ fontSize: 12, fontWeight: 700, color: INTENT_COLORS[result.deal.deal.intent || result.deal.deal.type] || "#C9A227", textTransform: "uppercase", letterSpacing: 1 }}>
+                  {result.deal.deal.intent || result.deal.deal.type} Intent Detected
+                </span>
+                {result.routing?.classification && (
+                  <span style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", marginLeft: "auto" }}>
+                    → {result.routing.classification.agent}
+                  </span>
+                )}
+              </div>
+            )}
+
+            {result.deal.deal?.participants && result.deal.deal.participants.length > 0 && (
+              <div style={{
+                background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)",
+                borderRadius: 14, padding: 16, marginBottom: 12,
+              }}>
+                <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(201,162,39,0.5)", margin: "0 0 10px", letterSpacing: 1.5, textTransform: "uppercase" }}>
+                  Participants & Splits
+                </p>
+                {result.deal.deal.participants.map((p: any, i: number) => (
+                  <div key={i} style={{
+                    display: "flex", justifyContent: "space-between", alignItems: "center",
+                    padding: "6px 0", borderBottom: i < result.deal.deal.participants.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
+                  }}>
+                    <span style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}>{p.role}</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: "#C9A227" }}>{p.splitPct ?? p.share}%</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {result.deal.deal?.proofHash && (
+              <div style={{
+                display: "flex", alignItems: "center", gap: 8,
+                padding: "10px 14px", borderRadius: 10,
+                background: "rgba(201,162,39,0.04)", border: "1px solid rgba(201,162,39,0.1)",
+                marginBottom: 16,
+              }}>
+                <Shield size={14} style={{ color: "rgba(201,162,39,0.5)" }} />
+                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", fontFamily: "monospace" }}>
+                  {result.deal.deal.proofHash.substring(0, 32)}...
+                </span>
+              </div>
+            )}
+
             <button onClick={onClose} style={{
-              padding: "14px 40px", borderRadius: 12,
-              background: "rgba(201,162,39,0.1)", border: "1px solid rgba(201,162,39,0.2)",
-              color: "#C9A227", fontWeight: 700, fontSize: 14, cursor: "pointer",
+              width: "100%", padding: "16px", borderRadius: 14,
+              background: "linear-gradient(135deg, #D4AF37, #C9A227)",
+              border: "none", color: "#000", fontWeight: 800, fontSize: 15, cursor: "pointer",
             }}>
               Done
             </button>
           </div>
-        ) : sendError ? (
+        )}
+
+        {phase === "error" && (
           <div style={{ textAlign: "center", padding: "32px 0" }}>
             <X size={48} style={{ color: "#EF4444", marginBottom: 16 }} />
             <p style={{ fontSize: 18, fontWeight: 700, color: "#fff", marginBottom: 8 }}>Something went wrong</p>
-            <button onClick={() => setSendError(false)} style={{
+            <button onClick={() => setPhase("input")} style={{
               padding: "14px 40px", borderRadius: 12,
               background: "linear-gradient(135deg, #D4AF37, #C9A227)",
               border: "none", color: "#000", fontWeight: 700, fontSize: 14, cursor: "pointer",
@@ -1198,10 +1366,17 @@ function AskOnyxSheet({ open, onClose, initialMessage }: { open: boolean; onClos
               Try Again
             </button>
           </div>
-        ) : (
+        )}
+
+        {phase === "input" && (
           <>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 20 }}>
-              {["I want to buy a car", "I need roadside help", "Get me an insurance quote", "Schedule a service"].map((q) => (
+              {[
+                "Need a Jeep Cherokee under 25k",
+                "Client wants BMW X5 in Miami",
+                "Schedule oil change for my F-150",
+                "I need roadside assistance now",
+              ].map((q) => (
                 <button key={q} onClick={() => setMessage(q)} style={{
                   padding: "8px 14px", borderRadius: 20,
                   background: "rgba(201,162,39,0.06)",
@@ -1218,7 +1393,7 @@ function AskOnyxSheet({ open, onClose, initialMessage }: { open: boolean; onClos
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                placeholder="Type your request..."
+                placeholder="What do you need?"
                 style={{
                   flex: 1, padding: "16px 18px", borderRadius: 14,
                   background: "rgba(255,255,255,0.03)",
@@ -1236,9 +1411,12 @@ function AskOnyxSheet({ open, onClose, initialMessage }: { open: boolean; onClos
                   display: "flex", alignItems: "center", justifyContent: "center",
                 }}
               >
-                {sending ? <Loader2 size={20} className="animate-spin" style={{ color: "#000" }} /> : <Send size={20} style={{ color: message.trim() ? "#000" : "rgba(255,255,255,0.15)" }} />}
+                {sending ? <Loader2 size={20} style={{ color: "#000", animation: "spin 1s linear infinite" }} /> : <Send size={20} style={{ color: message.trim() ? "#000" : "rgba(255,255,255,0.15)" }} />}
               </button>
             </div>
+            <p style={{ textAlign: "center", fontSize: 10, color: "rgba(255,255,255,0.12)", marginTop: 14, letterSpacing: 0.5 }}>
+              Powered by ONYX Text-to-Deal Engine — NLP entity extraction, 7-Agent Mesh routing, instant proof hashing
+            </p>
           </>
         )}
       </div>
@@ -1247,7 +1425,333 @@ function AskOnyxSheet({ open, onClose, initialMessage }: { open: boolean; onClos
           from { transform: translateY(100%); opacity: 0; }
           to { transform: translateY(0); opacity: 1; }
         }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
       `}</style>
+    </div>
+  );
+}
+
+function VehicleVerifyPanel() {
+  const [vin, setVin] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState(false);
+
+  const handleVerify = async () => {
+    const cleaned = vin.trim().toUpperCase();
+    if (cleaned.length < 11) { setError("VIN must be at least 11 characters"); return; }
+    setLoading(true);
+    setError(null);
+    setData(null);
+    try {
+      const res = await fetch(`${BASE}/api/vehicles/verify/${cleaned}`);
+      if (res.ok) {
+        setData(await res.json());
+      } else {
+        const e = await res.json().catch(() => null);
+        setError(e?.error || "Verification failed");
+      }
+    } catch { setError("Network error"); }
+    setLoading(false);
+  };
+
+  const LEVEL_CONFIG: Record<string, { color: string; bg: string; border: string }> = {
+    "Unverified": { color: "rgba(255,255,255,0.4)", bg: "rgba(255,255,255,0.03)", border: "rgba(255,255,255,0.08)" },
+    "Basic": { color: "#60A5FA", bg: "rgba(96,165,250,0.06)", border: "rgba(96,165,250,0.15)" },
+    "Verified": { color: "#34D399", bg: "rgba(52,211,153,0.06)", border: "rgba(52,211,153,0.15)" },
+    "ONYX Certified": { color: "#C9A227", bg: "rgba(201,162,39,0.06)", border: "rgba(201,162,39,0.15)" },
+    "ONYX Sovereign": { color: "#D4AF37", bg: "rgba(212,175,55,0.08)", border: "rgba(212,175,55,0.25)" },
+  };
+
+  const TIMELINE_ICONS: Record<string, any> = {
+    vin_decoded: ScanLine, blockchain_anchored: Shield, warranty_verified: CheckCircle2,
+    deal_recorded: DollarSign,
+  };
+
+  return (
+    <div style={{ marginBottom: 20 }}>
+      <div
+        onClick={() => setExpanded(!expanded)}
+        style={{
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          padding: "14px 16px", borderRadius: expanded ? "14px 14px 0 0" : 14,
+          background: "rgba(201,162,39,0.03)",
+          border: "1px solid rgba(201,162,39,0.08)",
+          borderBottom: expanded ? "none" : "1px solid rgba(201,162,39,0.08)",
+          cursor: "pointer",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <Shield size={16} style={{ color: "#C9A227" }} />
+          <span style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.6)" }}>Verify Any Vehicle</span>
+        </div>
+        <ChevronRight
+          size={16}
+          style={{
+            color: "rgba(255,255,255,0.2)",
+            transform: expanded ? "rotate(90deg)" : "rotate(0deg)",
+            transition: "transform 0.2s",
+          }}
+        />
+      </div>
+
+      {expanded && (
+        <div style={{
+          padding: "16px",
+          background: "rgba(255,255,255,0.01)",
+          border: "1px solid rgba(201,162,39,0.08)",
+          borderTop: "none",
+          borderRadius: "0 0 14px 14px",
+        }}>
+          <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+            <input
+              value={vin}
+              onChange={(e) => setVin(e.target.value.toUpperCase())}
+              onKeyDown={(e) => e.key === "Enter" && handleVerify()}
+              placeholder="Enter VIN (e.g., 1HGBH41JXMN109186)"
+              maxLength={17}
+              style={{
+                flex: 1, padding: "12px 14px", borderRadius: 10,
+                background: "rgba(255,255,255,0.03)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                color: "#fff", fontSize: 13, outline: "none",
+                fontFamily: "monospace", letterSpacing: 1,
+              }}
+            />
+            <button
+              onClick={handleVerify}
+              disabled={loading || vin.trim().length < 11}
+              style={{
+                padding: "12px 18px", borderRadius: 10, flexShrink: 0,
+                background: vin.trim().length >= 11 ? "linear-gradient(135deg, #D4AF37, #C9A227)" : "rgba(255,255,255,0.04)",
+                border: "none", color: vin.trim().length >= 11 ? "#000" : "rgba(255,255,255,0.2)",
+                fontWeight: 700, fontSize: 12, cursor: vin.trim().length >= 11 ? "pointer" : "default",
+              }}
+            >
+              {loading ? <Loader2 size={16} style={{ animation: "spin 1s linear infinite" }} /> : "Verify"}
+            </button>
+          </div>
+
+          {error && (
+            <p style={{ fontSize: 12, color: "#EF4444", margin: "0 0 12px" }}>{error}</p>
+          )}
+
+          {data && (
+            <div style={{ animation: "fadeIn 0.3s ease" }}>
+              <div style={{
+                display: "flex", alignItems: "center", gap: 12,
+                padding: "16px",
+                background: LEVEL_CONFIG[data.trustLevel]?.bg || "rgba(255,255,255,0.03)",
+                border: `1px solid ${LEVEL_CONFIG[data.trustLevel]?.border || "rgba(255,255,255,0.08)"}`,
+                borderRadius: 12, marginBottom: 12,
+              }}>
+                <div style={{
+                  width: 48, height: 48, borderRadius: 12,
+                  background: `${LEVEL_CONFIG[data.trustLevel]?.color || "#C9A227"}15`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  flexShrink: 0,
+                }}>
+                  <Shield size={22} style={{ color: LEVEL_CONFIG[data.trustLevel]?.color || "#C9A227" }} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <p style={{
+                    fontSize: 14, fontWeight: 800, margin: "0 0 2px",
+                    color: LEVEL_CONFIG[data.trustLevel]?.color || "#fff",
+                  }}>
+                    {data.trustLevel}
+                  </p>
+                  <p style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", margin: 0 }}>
+                    Trust Score: {data.trustScore}/100
+                  </p>
+                </div>
+                <div style={{
+                  fontSize: 24, fontWeight: 900,
+                  color: LEVEL_CONFIG[data.trustLevel]?.color || "#C9A227",
+                  fontFamily: "'Barlow Condensed', sans-serif",
+                }}>
+                  {data.trustScore}
+                </div>
+              </div>
+
+              {data.vehicle && (
+                <div style={{
+                  padding: "12px 14px", borderRadius: 10,
+                  background: "rgba(255,255,255,0.02)",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                  marginBottom: 12,
+                }}>
+                  <p style={{ fontSize: 15, fontWeight: 800, color: "#fff", margin: "0 0 4px" }}>
+                    {data.vehicle.year ? `${data.vehicle.year} ` : ""}{data.vehicle.make} {data.vehicle.model}
+                    {data.vehicle.trim ? ` ${data.vehicle.trim}` : ""}
+                  </p>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    {data.vehicle.color && (
+                      <span style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>{data.vehicle.color}</span>
+                    )}
+                    {data.vehicle.driveType && (
+                      <span style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>{data.vehicle.driveType}</span>
+                    )}
+                    {data.vehicle.fuelType && (
+                      <span style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>{data.vehicle.fuelType}</span>
+                    )}
+                    {data.vehicle.mileage && (
+                      <span style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>{Number(data.vehicle.mileage).toLocaleString()} mi</span>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {data.trustBreakdown && (
+                <div style={{
+                  padding: "12px 14px", borderRadius: 10,
+                  background: "rgba(255,255,255,0.02)",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                  marginBottom: 12,
+                }}>
+                  <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(201,162,39,0.5)", margin: "0 0 10px", letterSpacing: 1.5, textTransform: "uppercase" }}>
+                    Trust Breakdown
+                  </p>
+                  {Object.entries(data.trustBreakdown).map(([key, val]) => (
+                    <div key={key} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                      <span style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", textTransform: "capitalize" }}>
+                        {key.replace(/([A-Z])/g, " $1").trim()}
+                      </span>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <div style={{ width: 60, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
+                          <div style={{
+                            width: `${Math.min(100, ((val as number) / 30) * 100)}%`,
+                            height: "100%", borderRadius: 2,
+                            background: (val as number) > 0 ? "#C9A227" : "transparent",
+                          }} />
+                        </div>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: (val as number) > 0 ? "#C9A227" : "rgba(255,255,255,0.15)", minWidth: 20, textAlign: "right" }}>
+                          {val as number}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {data.blockchain && (
+                <div style={{
+                  display: "flex", gap: 8, marginBottom: 12,
+                }}>
+                  <div style={{
+                    flex: 1, padding: "10px 12px", borderRadius: 10,
+                    background: "rgba(96,165,250,0.04)", border: "1px solid rgba(96,165,250,0.1)",
+                  }}>
+                    <p style={{ fontSize: 10, color: "rgba(96,165,250,0.6)", margin: "0 0 2px", fontWeight: 600 }}>CHAIN RECORDS</p>
+                    <p style={{ fontSize: 18, fontWeight: 800, color: "#60A5FA", margin: 0 }}>{data.blockchain.totalRecords}</p>
+                  </div>
+                  <div style={{
+                    flex: 1, padding: "10px 12px", borderRadius: 10,
+                    background: data.blockchain.chainIntegrity ? "rgba(52,211,153,0.04)" : "rgba(239,68,68,0.04)",
+                    border: `1px solid ${data.blockchain.chainIntegrity ? "rgba(52,211,153,0.1)" : "rgba(239,68,68,0.1)"}`,
+                  }}>
+                    <p style={{ fontSize: 10, color: data.blockchain.chainIntegrity ? "rgba(52,211,153,0.6)" : "rgba(239,68,68,0.6)", margin: "0 0 2px", fontWeight: 600 }}>INTEGRITY</p>
+                    <p style={{ fontSize: 14, fontWeight: 800, color: data.blockchain.chainIntegrity ? "#34D399" : "#EF4444", margin: 0 }}>
+                      {data.blockchain.chainIntegrity ? "Valid" : "Broken"}
+                    </p>
+                  </div>
+                  <div style={{
+                    flex: 1, padding: "10px 12px", borderRadius: 10,
+                    background: "rgba(201,162,39,0.04)", border: "1px solid rgba(201,162,39,0.1)",
+                  }}>
+                    <p style={{ fontSize: 10, color: "rgba(201,162,39,0.6)", margin: "0 0 2px", fontWeight: 600 }}>DEALS</p>
+                    <p style={{ fontSize: 18, fontWeight: 800, color: "#C9A227", margin: 0 }}>{data.dealHistory?.totalDeals ?? 0}</p>
+                  </div>
+                </div>
+              )}
+
+              {data.timeline && data.timeline.length > 0 && (
+                <div style={{
+                  padding: "12px 14px", borderRadius: 10,
+                  background: "rgba(255,255,255,0.02)",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                  marginBottom: 12,
+                }}>
+                  <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(201,162,39,0.5)", margin: "0 0 12px", letterSpacing: 1.5, textTransform: "uppercase" }}>
+                    Verification Timeline
+                  </p>
+                  {data.timeline.map((evt: any, i: number) => {
+                    const Icon = TIMELINE_ICONS[evt.type] || Clock;
+                    return (
+                      <div key={i} style={{
+                        display: "flex", gap: 10, marginBottom: i < data.timeline.length - 1 ? 12 : 0,
+                        position: "relative",
+                      }}>
+                        {i < data.timeline.length - 1 && (
+                          <div style={{
+                            position: "absolute", left: 11, top: 24, bottom: -6,
+                            width: 1, background: "rgba(201,162,39,0.1)",
+                          }} />
+                        )}
+                        <div style={{
+                          width: 24, height: 24, borderRadius: 6,
+                          background: "rgba(201,162,39,0.08)",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          flexShrink: 0,
+                        }}>
+                          <Icon size={12} style={{ color: "#C9A227" }} />
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <p style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.7)", margin: "0 0 2px" }}>
+                            {evt.label}
+                          </p>
+                          {evt.detail && (
+                            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", margin: "0 0 2px" }}>{evt.detail}</p>
+                          )}
+                          <p style={{ fontSize: 10, color: "rgba(255,255,255,0.15)", margin: 0 }}>
+                            {new Date(evt.timestamp).toLocaleDateString()} · {evt.actor}
+                          </p>
+                        </div>
+                        {evt.proofHash && (
+                          <span style={{
+                            fontSize: 9, fontFamily: "monospace",
+                            color: "rgba(201,162,39,0.3)",
+                            alignSelf: "flex-start", marginTop: 2,
+                          }}>
+                            {evt.proofHash.substring(0, 8)}...
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {data.verificationHash && (
+                <div style={{
+                  display: "flex", alignItems: "center", gap: 6,
+                  padding: "8px 12px", borderRadius: 8,
+                  background: "rgba(201,162,39,0.03)",
+                  border: "1px solid rgba(201,162,39,0.06)",
+                }}>
+                  <Shield size={10} style={{ color: "rgba(201,162,39,0.4)" }} />
+                  <span style={{ fontSize: 9, fontFamily: "monospace", color: "rgba(255,255,255,0.2)" }}>
+                    Proof: {data.verificationHash.substring(0, 24)}...
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {!data && !error && !loading && (
+            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.15)", margin: 0, textAlign: "center" }}>
+              Enter any VIN to check its ONYX verification status, trust score, and proof chain
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -1760,7 +2264,44 @@ export default function Home() {
     <div style={{
       background: "#000000", minHeight: "100vh",
       display: "flex", flexDirection: "column",
+      position: "relative", overflow: "hidden",
     }}>
+      <div style={{
+        position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0,
+      }}>
+        <div style={{
+          position: "absolute", top: "-20%", left: "50%", transform: "translateX(-50%)",
+          width: "140%", height: "50%",
+          background: "radial-gradient(ellipse at center, rgba(201,162,39,0.04) 0%, rgba(201,162,39,0.01) 40%, transparent 70%)",
+          animation: "ambientPulse 8s ease-in-out infinite",
+        }} />
+        <div style={{
+          position: "absolute", bottom: "-10%", left: "30%",
+          width: 400, height: 400,
+          background: "radial-gradient(circle, rgba(201,162,39,0.025) 0%, transparent 60%)",
+          animation: "ambientDrift 12s ease-in-out infinite",
+        }} />
+        <div style={{
+          position: "absolute", top: "40%", right: "-10%",
+          width: 300, height: 300,
+          background: "radial-gradient(circle, rgba(96,165,250,0.015) 0%, transparent 60%)",
+          animation: "ambientDrift 15s ease-in-out infinite reverse",
+        }} />
+        {[...Array(12)].map((_, i) => (
+          <div key={i} style={{
+            position: "absolute",
+            left: `${8 + (i * 7.5) % 85}%`,
+            top: `${5 + (i * 13.7) % 90}%`,
+            width: i % 3 === 0 ? 2 : 1,
+            height: i % 3 === 0 ? 2 : 1,
+            borderRadius: "50%",
+            background: i % 2 === 0 ? "rgba(201,162,39,0.25)" : "rgba(255,255,255,0.12)",
+            animation: `particleFloat ${6 + (i % 5) * 2}s ease-in-out infinite`,
+            animationDelay: `${i * 0.7}s`,
+          }} />
+        ))}
+      </div>
+
       {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
 
       <div style={{
@@ -1769,9 +2310,19 @@ export default function Home() {
         padding: "0 20px",
         flex: 1,
         display: "flex", flexDirection: "column",
+        position: "relative", zIndex: 1,
       }}>
         <div style={{ padding: "36px 0 0", textAlign: "center", marginBottom: 6 }}>
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
+          <div style={{
+            display: "flex", justifyContent: "center", marginBottom: 16,
+            position: "relative",
+          }}>
+            <div style={{
+              position: "absolute", inset: -20,
+              background: "radial-gradient(circle, rgba(201,162,39,0.08) 0%, transparent 60%)",
+              animation: "logoPulse 4s ease-in-out infinite",
+              pointerEvents: "none",
+            }} />
             <OnyxLogo size={52} />
           </div>
           <h1 style={{
@@ -1863,6 +2414,8 @@ export default function Home() {
 
             <NeuralInput onSubmit={handleNeuralSubmit} />
 
+            <VehicleVerifyPanel />
+
             {activeDeal && (
               <div style={{ marginBottom: 20 }}>
                 <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.25)", marginBottom: 10, letterSpacing: 1.5, textTransform: "uppercase" }}>Active Deal</p>
@@ -1910,6 +2463,7 @@ export default function Home() {
             boxShadow: "0 8px 32px rgba(201,162,39,0.35), 0 0 60px rgba(201,162,39,0.1)",
             zIndex: 1000,
             transition: "transform 0.15s",
+            animation: "fabGlow 3s ease-in-out infinite",
           }}
           onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.92)")}
           onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
@@ -1955,6 +2509,27 @@ export default function Home() {
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(8px); }
           to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes ambientPulse {
+          0%, 100% { opacity: 0.6; transform: translateX(-50%) scale(1); }
+          50% { opacity: 1; transform: translateX(-50%) scale(1.05); }
+        }
+        @keyframes ambientDrift {
+          0%, 100% { transform: translate(0, 0); opacity: 0.5; }
+          33% { transform: translate(30px, -20px); opacity: 0.8; }
+          66% { transform: translate(-20px, 15px); opacity: 0.6; }
+        }
+        @keyframes particleFloat {
+          0%, 100% { transform: translateY(0) scale(1); opacity: 0.3; }
+          50% { transform: translateY(-20px) scale(1.5); opacity: 0.7; }
+        }
+        @keyframes logoPulse {
+          0%, 100% { opacity: 0.5; transform: scale(1); }
+          50% { opacity: 0.8; transform: scale(1.1); }
+        }
+        @keyframes fabGlow {
+          0%, 100% { box-shadow: 0 8px 32px rgba(201,162,39,0.35), 0 0 60px rgba(201,162,39,0.1); }
+          50% { box-shadow: 0 8px 40px rgba(201,162,39,0.5), 0 0 80px rgba(201,162,39,0.2), 0 0 120px rgba(201,162,39,0.05); }
         }
       `}</style>
     </div>
