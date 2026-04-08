@@ -271,4 +271,204 @@ router.post("/auth/onboarding-complete", requireAuth, async (req: Request, res: 
   }
 });
 
+// ─── POST /api/auth/social ───────────────────────────────────────────────────
+router.post("/auth/social", async (req: Request, res: Response) => {
+  const { provider, token: idToken, name: socialName } = req.body as {
+    provider?: string;
+    token?: string;
+    name?: string;
+  };
+
+  if (!provider || !idToken) {
+    res.status(400).json({ error: "provider and token are required" });
+    return;
+  }
+
+  if (!["google", "apple"].includes(provider)) {
+    res.status(400).json({ error: "Unsupported provider" });
+    return;
+  }
+
+  try {
+    let email: string | undefined;
+    let providerUserId: string | undefined;
+    let userName: string | undefined;
+    let avatarUrl: string | undefined;
+
+    if (provider === "google") {
+      const { OAuth2Client } = await import("google-auth-library");
+      const googleClientId = process.env.GOOGLE_CLIENT_ID;
+      if (!googleClientId) {
+        res.status(500).json({ error: "Google sign-in not configured" });
+        return;
+      }
+      const client = new OAuth2Client(googleClientId);
+      const ticket = await client.verifyIdToken({
+        idToken,
+        audience: googleClientId,
+      });
+      const payload = ticket.getPayload();
+      if (!payload || !payload.email) {
+        res.status(401).json({ error: "Invalid Google token" });
+        return;
+      }
+      email = payload.email;
+      providerUserId = payload.sub;
+      userName = payload.name || socialName || email.split("@")[0];
+      avatarUrl = payload.picture || undefined;
+    }
+
+    if (provider === "apple") {
+      const crypto = await import("crypto");
+      const parts = idToken.split(".");
+      if (parts.length !== 3) {
+        res.status(401).json({ error: "Invalid Apple token format" });
+        return;
+      }
+
+      const headerStr = Buffer.from(parts[0], "base64url").toString("utf-8");
+      const header = JSON.parse(headerStr);
+      const kid = header.kid;
+      if (!kid) {
+        res.status(401).json({ error: "Apple token missing key ID" });
+        return;
+      }
+
+      const jwksRes = await fetch("https://appleid.apple.com/auth/keys");
+      if (!jwksRes.ok) {
+        res.status(502).json({ error: "Failed to fetch Apple public keys" });
+        return;
+      }
+      const jwks = await jwksRes.json() as { keys: Array<{ kid: string; kty: string; n: string; e: string; alg: string }> };
+      const key = jwks.keys.find((k: any) => k.kid === kid);
+      if (!key) {
+        res.status(401).json({ error: "Apple key not found for token" });
+        return;
+      }
+
+      const pubKey = crypto.createPublicKey({
+        key: {
+          kty: key.kty,
+          n: key.n,
+          e: key.e,
+        },
+        format: "jwk",
+      });
+
+      const signatureInput = `${parts[0]}.${parts[1]}`;
+      const signature = Buffer.from(parts[2], "base64url");
+      const isValid = crypto.createVerify("RSA-SHA256")
+        .update(signatureInput)
+        .verify(pubKey, signature);
+
+      if (!isValid) {
+        res.status(401).json({ error: "Apple token signature invalid" });
+        return;
+      }
+
+      const payloadStr = Buffer.from(parts[1], "base64url").toString("utf-8");
+      const payload = JSON.parse(payloadStr);
+
+      if (payload.iss !== "https://appleid.apple.com") {
+        res.status(401).json({ error: "Apple token issuer invalid" });
+        return;
+      }
+      const now = Math.floor(Date.now() / 1000);
+      if (payload.exp && payload.exp < now) {
+        res.status(401).json({ error: "Apple token expired" });
+        return;
+      }
+
+      if (!payload.email && !payload.sub) {
+        res.status(401).json({ error: "Invalid Apple token" });
+        return;
+      }
+      email = payload.email;
+      providerUserId = payload.sub;
+      userName = socialName || email?.split("@")[0] || "Apple User";
+    }
+
+    if (!email || !providerUserId) {
+      res.status(401).json({ error: "Could not verify identity" });
+      return;
+    }
+
+    const existing = await db.select().from(usersTable)
+      .where(eq(usersTable.email, email.toLowerCase()))
+      .limit(1);
+
+    let user: typeof usersTable.$inferSelect;
+
+    if (existing.length > 0) {
+      user = existing[0];
+      await db.update(usersTable)
+        .set({
+          lastLoginAt: new Date(),
+          updatedAt: new Date(),
+          authProvider: provider,
+          authProviderId: providerUserId,
+          ...(avatarUrl && !user.avatarUrl ? { avatarUrl } : {}),
+        })
+        .where(eq(usersTable.id, user.id));
+    } else {
+      const [newUser] = await db.insert(usersTable).values({
+        name: userName || email.split("@")[0],
+        email: email.toLowerCase(),
+        passwordHash: null,
+        role: "Member",
+        isActive: true,
+        isVerified: true,
+        authProvider: provider,
+        authProviderId: providerUserId,
+        avatarUrl: avatarUrl || null,
+      }).returning();
+      user = newUser;
+
+      const referralCode = generateReferralCode(user.name, user.id);
+      await db.update(usersTable)
+        .set({ referralCode, updatedAt: new Date() })
+        .where(eq(usersTable.id, user.id));
+      user = { ...user, referralCode };
+
+      await db.insert(notificationsTable).values({
+        type: "SYSTEM",
+        title: "Welcome to 3C ONYX",
+        body: `You're in. Your referral code is ${referralCode}. Share it — every person you bring earns you ONYX Points.`,
+        read: false,
+      });
+
+      await writeAudit({
+        eventType: "AUTH",
+        action: `Social signup via ${provider}: ${email}`,
+        actorId: user.id,
+        severity: "INFO",
+      });
+    }
+
+    if (!user.isActive) {
+      res.status(403).json({ error: "Account is suspended. Contact support." });
+      return;
+    }
+
+    const jwtToken = await signToken({
+      sub: String(user.id),
+      email: user.email,
+      role: user.role,
+      name: user.name,
+    });
+
+    await writeAudit({
+      eventType: "AUTH",
+      action: `Social login via ${provider}: ${email} (${user.role})`,
+      actorId: user.id,
+      severity: "INFO",
+    });
+
+    res.json({ token: jwtToken, user: sanitize(user) });
+  } catch (err: any) {
+    console.error(`Social auth error (${provider}):`, err.message);
+    res.status(401).json({ error: "Authentication failed. Please try again." });
+  }
+});
+
 export default router;

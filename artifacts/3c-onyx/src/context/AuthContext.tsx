@@ -35,6 +35,7 @@ interface AuthState {
 interface AuthContextValue extends AuthState {
   login:    (email: string, password: string) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
+  socialLogin: (provider: "google" | "apple", token: string, name?: string) => Promise<void>;
   logout:   () => void;
   clearError: () => void;
   refreshProfile: () => Promise<void>;
@@ -117,6 +118,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [apiFetch]);
 
+  const socialLogin = useCallback(async (provider: "google" | "apple", token: string, name?: string) => {
+    setPartial({ loading: true, error: null });
+    try {
+      const data = await apiFetch("/auth/social", {
+        method: "POST",
+        body: JSON.stringify({ provider, token, name }),
+      });
+      localStorage.setItem(TOKEN_KEY, data.token);
+      setState({ user: data.user, token: data.token, loading: false, error: null });
+    } catch (err) {
+      setPartial({ loading: false, error: (err as Error).message });
+      throw err;
+    }
+  }, [apiFetch]);
+
   const logout = useCallback(() => {
     localStorage.removeItem(TOKEN_KEY);
     setState({ user: null, token: null, loading: false, error: null });
@@ -132,7 +148,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [apiFetch]);
 
   return (
-    <AuthContext.Provider value={{ ...state, login, register, logout, clearError, refreshProfile }}>
+    <AuthContext.Provider value={{ ...state, login, register, socialLogin, logout, clearError, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );

@@ -71,6 +71,7 @@ import Pro from "@/pages/pro";
 import Custody from "@/pages/custody";
 import ProofPage from "@/pages/proof";
 import ARViewer from "@/pages/ar-viewer";
+import VisionPage from "@/pages/vision";
 import NotFound from "@/pages/not-found";
 import RunnerTasks from "@/pages/runner-tasks";
 import WorkerDashboard from "@/pages/worker-dashboard";
@@ -236,6 +237,7 @@ function AppRoutes() {
             <Route path="/guardian"             component={Guardian} />
             <Route path="/safety-shield"        component={SafetyShield} />
             <Route path="/sovereign-ops"        component={SovereignOps} />
+              <Route path="/vision"                component={VisionPage} />
             <Route path="/whatsapp"             component={WhatsAppHub} />
             <Route path="/dynasty-foundation"   component={DynastyFoundation} />
             <Route path="/onyx-source"          component={OnyxSource} />

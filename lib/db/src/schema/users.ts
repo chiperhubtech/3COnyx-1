@@ -34,6 +34,8 @@ export const usersTable = pgTable("users", {
   referredBy:         integer("referred_by"),
   points:             integer("points").notNull().default(0),
   birthday:           date("birthday"),
+  authProvider:       text("auth_provider"),
+  authProviderId:     text("auth_provider_id"),
   lastLoginAt:        timestamp("last_login_at", { withTimezone: true }),
   createdAt:          timestamp("created_at",  { withTimezone: true }).notNull().defaultNow(),
   updatedAt:          timestamp("updated_at",  { withTimezone: true }).notNull().defaultNow(),

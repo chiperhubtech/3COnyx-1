@@ -1,394 +1,485 @@
-/**
- * 3C Onyx — Public Marketing Landing Page
- * Shown to logged-out visitors.
- * Apple × Bloomberg Terminal × luxury automotive aesthetic.
- * "The automotive intelligence layer. We move like water."
- */
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import {
-  Shield, Brain, ArrowRight, CheckCircle2, Zap,
-  Lock, Users, BarChart3, Truck, DollarSign,
-  ChevronDown, Star, Layers, Route, Cpu,
-  TrendingDown, Eye, Heart, UserCheck, Briefcase, Car, Crown,
+  ArrowRight, CheckCircle2,
+  Users, DollarSign,
+  ChevronDown, Star,
+  Car, UserCheck, Briefcase, Crown,
+  Shield, Zap, Heart, Wallet, Wrench,
+  TrendingUp, Award, MapPin, Clock,
 } from "lucide-react";
-import { NeuralMesh } from "@/components/NeuralMesh";
-import { PublicNavbar } from "@/components/PublicNavbar";
+import { OnyxLogo } from "@/components/OnyxLogo";
 import { GlobalFooter } from "@/components/GlobalFooter";
-import { useTranslation } from "react-i18next";
 
-/* ─── Industry Ticker ──────────────────────────────────────────────────────── */
-const TICKER_ITEMS = [
-  "ONYX CRM Suite · Compatible with 9 major dealer platforms · Unified pipeline · Real-time sync",
-  "BDC Reps · F&I Managers · Service Advisors · Master Techs · Appraisers · Runners · GMs · Dealer Principals",
-  "F1 · NASCAR · NHRA · Motorsport Universe · 8-Tier ONYX Points System",
-  "CUXTOMCANDYCLUB LLC · Founded by Ron · I-95 Dynasty · Mission: 132M Members",
-];
+const GOLD = "#C9A227";
 
-function Ticker() {
-  const [tickerIdx, setTickerIdx] = useState(0);
-  useEffect(() => {
-    const id = setInterval(() => setTickerIdx(i => (i + 1) % TICKER_ITEMS.length), 5000);
-    return () => clearInterval(id);
-  }, []);
+function SplashHero() {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => { setTimeout(() => setVisible(true), 100); }, []);
+
   return (
-    <div style={{ background: "rgba(9,9,11,0.95)", borderTop: "1px solid #27272a", borderBottom: "1px solid #27272a", padding: "8px 24px", textAlign: "center" }}>
-      <div style={{ fontSize: 10, fontFamily: "monospace", color: "#52525b", letterSpacing: "0.15em", textTransform: "uppercase", transition: "opacity 0.5s" }}>
-        {TICKER_ITEMS[tickerIdx]}
+    <div style={{
+      minHeight: "100vh", display: "flex", flexDirection: "column",
+      alignItems: "center", justifyContent: "center",
+      background: "#050508", position: "relative", overflow: "hidden",
+      padding: "60px 24px 40px",
+    }}>
+      <div style={{
+        position: "absolute", top: "15%", left: "50%", transform: "translateX(-50%)",
+        width: 600, height: 600,
+        background: `radial-gradient(circle, rgba(201,162,39,0.06) 0%, transparent 70%)`,
+        filter: "blur(80px)", pointerEvents: "none",
+      }} />
+
+      <div style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0)" : "translateY(30px)",
+        transition: "all 1s cubic-bezier(0.16, 1, 0.3, 1)",
+        textAlign: "center", maxWidth: 700, position: "relative", zIndex: 2,
+      }}>
+        <div style={{ marginBottom: 32, display: "flex", justifyContent: "center" }}>
+          <OnyxLogo size={72} />
+        </div>
+
+        <h1 style={{
+          fontFamily: "'Barlow Condensed', sans-serif",
+          fontSize: "clamp(36px, 8vw, 72px)",
+          fontWeight: 900, lineHeight: 0.95, letterSpacing: "-0.01em",
+          textTransform: "uppercase", color: "#fff",
+          margin: "0 0 24px",
+        }}>
+          We Handle<br />
+          <span style={{ color: GOLD }}>Everything.</span>
+        </h1>
+
+        <p style={{
+          fontSize: "clamp(15px, 2.5vw, 19px)", color: "rgba(255,255,255,0.5)",
+          lineHeight: 1.7, maxWidth: 520, margin: "0 auto 40px", fontWeight: 400,
+        }}>
+          Buying a car. Selling a car. Parts &amp; accessories. Financing. Insurance. Plates. Delivery.
+          We coordinate the entire deal so you don't have to.
+        </p>
+
+        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+          <Link href="/join">
+            <button style={{
+              padding: "16px 36px", borderRadius: 16,
+              background: `linear-gradient(135deg, ${GOLD}, #8B6914)`,
+              border: "none", color: "#000", fontWeight: 900, fontSize: 16,
+              cursor: "pointer", display: "flex", alignItems: "center", gap: 10,
+              letterSpacing: "0.04em", boxShadow: `0 8px 40px rgba(201,162,39,0.3)`,
+              fontFamily: "'Barlow Condensed', sans-serif", textTransform: "uppercase",
+            }}>
+              Get Started <ArrowRight size={18} />
+            </button>
+          </Link>
+          <Link href="/login">
+            <button style={{
+              padding: "16px 28px", borderRadius: 16,
+              background: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              color: "rgba(255,255,255,0.6)", fontWeight: 700, fontSize: 15,
+              cursor: "pointer", fontFamily: "'Barlow Condensed', sans-serif",
+            }}>
+              Sign In
+            </button>
+          </Link>
+        </div>
+
+        <div style={{ marginTop: 60, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+          <span style={{ fontSize: 8, color: "rgba(255,255,255,0.2)", letterSpacing: "0.2em", textTransform: "uppercase" }}>See how it works</span>
+          <ChevronDown size={14} style={{ color: "rgba(255,255,255,0.2)", animation: "neural-float 2s ease-in-out infinite" }} />
+        </div>
       </div>
     </div>
   );
 }
 
-/* ─── Front Door Selector ──────────────────────────────────────────────────── */
-const DOOR_TYPES = [
+const AUDIENCES = [
   {
-    id: "consumer",   icon: Car,       color: "#3B82F6",
-    label: "I Own or Buy Cars",
-    sub: "Consumer · Enthusiast · Car Owner",
-    desc: "Track vehicles, access AI-powered deals, find verified specialists, join the marketplace.",
-    cta: "Join as a Member",
-    perks: ["Vehicle AI insights", "Verified specialist network", "Marketplace access", "ONYX Points rewards"],
+    id: "consumer", icon: Car, color: "#3B82F6",
+    title: "I Own or Want a Car",
+    who: "Consumer · Enthusiast · First-time Buyer",
+    lines: [
+      "Tell us what you want — we find it, finance it, insure it, and deliver it.",
+      "Need parts or accessories? We source and ship them straight to you.",
+      "Already own a car? Track service, warranty, value — all in one place.",
+      "No haggling. No runaround. One person handles your entire deal.",
+    ],
+    perks: [
+      { icon: Car, text: "AI-matched vehicle search" },
+      { icon: Wrench, text: "Parts & accessories delivered" },
+      { icon: DollarSign, text: "Financing handled for you" },
+      { icon: Shield, text: "Insurance + warranty in one tap" },
+      { icon: MapPin, text: "Delivered to your door" },
+    ],
+    cta: "Join Free",
   },
   {
-    id: "specialist", icon: UserCheck, color: "#C9A227",
-    label: "I Work in the Industry",
-    sub: "BDC · F&I · Service · Sales · Tech · Appraiser · Runner",
-    desc: "All 16 automotive professional roles. Your career network, CRM integrations, and Dynasty Wallet — built for you.",
-    cta: "Claim Your Founding Slice",
-    perks: ["16 role-specific AI tools", "CRM integration", "Lead management", "Dynasty Wallet"],
+    id: "specialist", icon: UserCheck, color: GOLD,
+    title: "I Work in Automotive",
+    who: "Sales · F&I · Service · BDC · Tech · Appraiser · Runner",
+    lines: [
+      "Every deal you touch, you earn on. 3% platform commission split across everyone who contributes.",
+      "Your CRM, your leads, your wallet — all connected. No more juggling 6 different apps.",
+      "Whoever opens the door eats first. Bottom-up attribution, period.",
+    ],
+    perks: [
+      { icon: Wallet, text: "Dynasty Wallet — instant payouts" },
+      { icon: TrendingUp, text: "Lead management + CRM sync" },
+      { icon: Users, text: "Referral network that pays" },
+      { icon: Award, text: "Founding member slice — locked forever" },
+    ],
+    cta: "Claim Your Slice",
     highlight: true,
   },
   {
-    id: "business",   icon: Briefcase, color: "#10B981",
-    label: "I Run a Business",
-    sub: "Dealer · OEM · Lender · Warranty · Vendor · Bank Rep",
-    desc: "Enterprise CRM hub, real-time analytics, founding pilot program, and direct access to the I-95 professional network.",
-    cta: "Activate Dealer Portal",
-    perks: ["9 CRM platforms", "Live lead management", "Real-time analytics", "90-day free pilot"],
+    id: "business", icon: Briefcase, color: "#10B981",
+    title: "I Run a Dealership",
+    who: "Dealer Principal · GM · OEM · Lender · Vendor",
+    lines: [
+      "Plug into a network of verified professionals, AI-powered deal flow, and real-time analytics.",
+      "Compatible with VinSolutions, DealerTrack, RouteOne, and 6 more CRM platforms.",
+      "90-day free pilot. No credit card. See it work before you commit.",
+    ],
+    perks: [
+      { icon: Zap, text: "9 CRM platform integrations" },
+      { icon: TrendingUp, text: "Real-time pipeline analytics" },
+      { icon: Users, text: "Verified professional network" },
+      { icon: Clock, text: "90-day free pilot program" },
+    ],
+    cta: "Activate Portal",
   },
 ];
 
 function FrontDoor() {
   const [selected, setSelected] = useState<string | null>(null);
-  const pick = DOOR_TYPES.find(d => d.id === selected);
+  const pick = AUDIENCES.find(a => a.id === selected);
+
   return (
-    <div style={{ padding: "72px 24px 80px", maxWidth: 1100, margin: "0 auto" }}>
-      <div style={{ textAlign: "center", marginBottom: 40 }}>
-        <p style={{ fontSize: 9, letterSpacing: "0.3em", color: "#C9A227", fontWeight: 700, marginBottom: 10, textTransform: "uppercase" }}>The Front Door</p>
-        <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "clamp(28px,5vw,44px)", fontWeight: 900, color: "#fff", textTransform: "uppercase", lineHeight: 1, marginBottom: 8 }}>
-          Everyone Walks Through the Same Door
-        </h2>
-        <p style={{ fontSize: 13, color: "#71717a" }}>Consumer. Specialist. Business. Choose your path.</p>
-      </div>
+    <div style={{
+      padding: "80px 24px 100px",
+      background: "linear-gradient(180deg, #050508 0%, #0a0a0f 100%)",
+    }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: 48 }}>
+          <p style={{
+            fontSize: 10, letterSpacing: "0.3em", color: GOLD,
+            fontWeight: 700, marginBottom: 12, textTransform: "uppercase",
+          }}>One door for everyone</p>
+          <h2 style={{
+            fontFamily: "'Barlow Condensed', sans-serif",
+            fontSize: "clamp(28px, 5vw, 48px)", fontWeight: 900,
+            color: "#fff", textTransform: "uppercase", lineHeight: 1,
+            marginBottom: 10,
+          }}>
+            Who Are You?
+          </h2>
+          <p style={{ fontSize: 14, color: "rgba(255,255,255,0.35)", maxWidth: 480, margin: "0 auto" }}>
+            Choose your path. Same platform, built for everyone.
+          </p>
+        </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16 }}>
-        {DOOR_TYPES.map(t => {
-          const Icon = t.icon;
-          const active = selected === t.id;
-          return (
-            <button key={t.id} onClick={() => setSelected(active ? null : t.id)}
-              style={{ textAlign: "left", padding: 24, borderRadius: 20, border: `2px solid ${active ? t.color : "#27272a"}`, background: active ? `${t.color}10` : "#18181b", cursor: "pointer", transition: "all 0.25s", transform: active ? "scale(1.02)" : "scale(1)", position: "relative" }}>
-              {t.highlight && (
-                <div style={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", background: "#C9A227", color: "#000", fontSize: 9, fontWeight: 800, letterSpacing: "0.15em", padding: "3px 12px", borderRadius: 20, textTransform: "uppercase", whiteSpace: "nowrap" }}>
-                  Most Popular · Founding Slice
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 16 }}>
+          {AUDIENCES.map(a => {
+            const Icon = a.icon;
+            const active = selected === a.id;
+            return (
+              <button
+                key={a.id}
+                onClick={() => setSelected(active ? null : a.id)}
+                style={{
+                  textAlign: "left", padding: 28, borderRadius: 24,
+                  border: `2px solid ${active ? a.color : "rgba(255,255,255,0.06)"}`,
+                  background: active ? `${a.color}08` : "rgba(255,255,255,0.02)",
+                  cursor: "pointer", transition: "all 0.3s",
+                  transform: active ? "scale(1.02)" : "scale(1)",
+                  position: "relative", color: "#fff",
+                }}>
+                {a.highlight && (
+                  <div style={{
+                    position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)",
+                    background: GOLD, color: "#000",
+                    fontSize: 9, fontWeight: 800, letterSpacing: "0.15em",
+                    padding: "3px 14px", borderRadius: 20, textTransform: "uppercase",
+                    whiteSpace: "nowrap",
+                  }}>
+                    Founding Slice Available
+                  </div>
+                )}
+
+                <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
+                  <div style={{
+                    padding: 12, borderRadius: 14,
+                    background: `${a.color}15`, border: `1px solid ${a.color}25`,
+                  }}>
+                    <Icon size={20} style={{ color: a.color }} />
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 800, fontSize: 16 }}>{a.title}</div>
+                    <div style={{ fontSize: 11, color: a.color, fontFamily: "monospace", marginTop: 2 }}>{a.who}</div>
+                  </div>
                 </div>
-              )}
-              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
-                <div style={{ padding: 10, borderRadius: 12, background: `${t.color}20` }}>
-                  <Icon size={18} style={{ color: t.color }} />
-                </div>
-                <div>
-                  <div style={{ fontWeight: 800, color: "#fff", fontSize: 14 }}>{t.label}</div>
-                  <div style={{ fontSize: 10, color: t.color, fontFamily: "monospace" }}>{t.sub}</div>
-                </div>
-              </div>
-              <p style={{ fontSize: 12, color: "#a1a1aa", lineHeight: 1.7, marginBottom: active ? 12 : 0 }}>{t.desc}</p>
-              {active && (
-                <div style={{ marginBottom: 12 }}>
-                  {t.perks.map(p => (
-                    <div key={p} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: "#d4d4d8", marginBottom: 4 }}>
-                      <span style={{ color: t.color }}>✓</span> {p}
+
+                {!active && (
+                  <p style={{ fontSize: 13, color: "rgba(255,255,255,0.35)", lineHeight: 1.6, margin: 0 }}>
+                    {a.lines[0]}
+                  </p>
+                )}
+
+                {active && (
+                  <div style={{ animation: "slideUp 0.3s ease" }}>
+                    {a.lines.map((line, i) => (
+                      <p key={i} style={{
+                        fontSize: 13, color: "rgba(255,255,255,0.6)",
+                        lineHeight: 1.7, marginBottom: i < a.lines.length - 1 ? 12 : 20,
+                      }}>
+                        {line}
+                      </p>
+                    ))}
+
+                    <div style={{
+                      display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8,
+                      marginBottom: 20,
+                    }}>
+                      {a.perks.map(p => {
+                        const PIcon = p.icon;
+                        return (
+                          <div key={p.text} style={{
+                            display: "flex", alignItems: "center", gap: 8,
+                            fontSize: 11, color: "rgba(255,255,255,0.5)",
+                          }}>
+                            <PIcon size={13} style={{ color: a.color, flexShrink: 0 }} />
+                            {p.text}
+                          </div>
+                        );
+                      })}
                     </div>
-                  ))}
-                </div>
-              )}
-              <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 800, color: t.color, marginTop: 4 }}>
-                {t.cta} <ArrowRight size={14} />
-              </div>
-            </button>
-          );
-        })}
+
+                    <Link href="/join">
+                      <div style={{
+                        display: "inline-flex", alignItems: "center", gap: 8,
+                        padding: "12px 24px", borderRadius: 14,
+                        background: a.color, color: a.id === "specialist" ? "#000" : "#fff",
+                        fontWeight: 800, fontSize: 14, cursor: "pointer",
+                        fontFamily: "'Barlow Condensed', sans-serif",
+                        letterSpacing: "0.04em",
+                      }}>
+                        {a.cta} <ArrowRight size={15} />
+                      </div>
+                    </Link>
+                  </div>
+                )}
+
+                {!active && (
+                  <div style={{
+                    display: "flex", alignItems: "center", gap: 6,
+                    fontSize: 12, fontWeight: 700, color: a.color, marginTop: 12,
+                  }}>
+                    Learn more <ArrowRight size={13} />
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function HowItWorks() {
+  const STEPS = [
+    {
+      num: "01", title: "Tell us what you need",
+      desc: "Type it like a text message. \"I want a 2024 Honda Civic under $30K\" or \"I need brake pads for my F-150.\" Our AI understands.",
+      color: GOLD,
+    },
+    {
+      num: "02", title: "We coordinate everything",
+      desc: "Financing, insurance, trade-in, plates, delivery — all handled behind the scenes. You just confirm.",
+      color: "#60A5FA",
+    },
+    {
+      num: "03", title: "You get the deal",
+      desc: "Every step tracked. Every document signed digitally. Every person who helped gets paid automatically.",
+      color: "#34D399",
+    },
+  ];
+
+  return (
+    <div style={{
+      padding: "80px 24px", maxWidth: 900, margin: "0 auto",
+    }}>
+      <div style={{ textAlign: "center", marginBottom: 56 }}>
+        <p style={{ fontSize: 10, letterSpacing: "0.3em", color: "rgba(255,255,255,0.25)", fontWeight: 700, marginBottom: 12, textTransform: "uppercase" }}>
+          How it works
+        </p>
+        <h2 style={{
+          fontFamily: "'Barlow Condensed', sans-serif",
+          fontSize: "clamp(28px, 5vw, 44px)", fontWeight: 900,
+          textTransform: "uppercase", lineHeight: 1, color: "#fff",
+        }}>
+          Three steps. That's it.
+        </h2>
       </div>
 
-      <div style={{ textAlign: "center", marginTop: 32 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+        {STEPS.map((s, i) => (
+          <div key={s.num} style={{
+            display: "flex", gap: 24, alignItems: "flex-start",
+            padding: "32px 0",
+            borderBottom: i < STEPS.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none",
+          }}>
+            <div style={{
+              fontFamily: "'Barlow Condensed', sans-serif",
+              fontSize: 48, fontWeight: 900, color: `${s.color}20`,
+              lineHeight: 1, minWidth: 60,
+            }}>
+              {s.num}
+            </div>
+            <div>
+              <p style={{ fontSize: 18, fontWeight: 800, color: "#fff", marginBottom: 8 }}>{s.title}</p>
+              <p style={{ fontSize: 14, color: "rgba(255,255,255,0.4)", lineHeight: 1.7 }}>{s.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function TrustStrip() {
+  const POINTS = [
+    "Bank-grade encryption",
+    "Every transaction tracked",
+    "Real people, verified",
+    "No hidden fees",
+    "Your data stays yours",
+  ];
+  return (
+    <div style={{
+      padding: "28px 24px",
+      borderTop: "1px solid rgba(255,255,255,0.04)",
+      borderBottom: "1px solid rgba(255,255,255,0.04)",
+      background: "rgba(255,255,255,0.01)",
+    }}>
+      <div style={{
+        display: "flex", flexWrap: "wrap", gap: 20,
+        justifyContent: "center", alignItems: "center",
+      }}>
+        {POINTS.map(p => (
+          <div key={p} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <CheckCircle2 size={12} style={{ color: "#34D399" }} />
+            <span style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", fontWeight: 600 }}>{p}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FounderQuote() {
+  return (
+    <div style={{
+      padding: "80px 24px",
+      background: "linear-gradient(180deg, #0a0a0f 0%, #050508 100%)",
+    }}>
+      <div style={{ maxWidth: 640, margin: "0 auto", textAlign: "center" }}>
+        <Crown size={24} style={{ color: GOLD, marginBottom: 20 }} />
+        <blockquote style={{
+          fontSize: "clamp(16px, 3vw, 20px)", fontWeight: 600,
+          color: "rgba(255,255,255,0.7)", lineHeight: 1.8,
+          margin: "0 0 24px", fontStyle: "italic",
+        }}>
+          "I built this for the person on the floor. The one who opens the door,
+          shakes the hand, stays late, and gets paid last. That ends here.
+          Whoever opens the door eats first."
+        </blockquote>
+        <div style={{ fontSize: 13, color: "rgba(255,255,255,0.3)" }}>
+          — <strong style={{ color: "rgba(255,255,255,0.6)" }}>Ron</strong> · Founder ·{" "}
+          <span style={{ color: GOLD }}>CUXTOMCANDYCLUB LLC</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FinalCTA() {
+  return (
+    <div style={{
+      padding: "80px 24px 100px", textAlign: "center",
+      maxWidth: 600, margin: "0 auto",
+    }}>
+      <p style={{
+        fontSize: 10, letterSpacing: "0.3em", color: GOLD,
+        fontWeight: 700, marginBottom: 16, textTransform: "uppercase",
+      }}>
+        Ready?
+      </p>
+      <h2 style={{
+        fontFamily: "'Barlow Condensed', sans-serif",
+        fontSize: "clamp(32px, 6vw, 52px)", fontWeight: 900,
+        textTransform: "uppercase", lineHeight: 1,
+        marginBottom: 12, color: "#fff",
+      }}>
+        Your Move.
+      </h2>
+      <p style={{
+        fontSize: 14, color: "rgba(255,255,255,0.35)",
+        marginBottom: 36, lineHeight: 1.7,
+      }}>
+        No credit card. No contract. Founding member pricing locked forever.
+      </p>
+      <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
         <Link href="/join">
-          <button style={{ padding: "15px 36px", borderRadius: 16, background: pick ? pick.color : "linear-gradient(135deg,#C9A227,#8B6914)", border: "none", color: pick?.id === "specialist" ? "#000" : pick ? "#fff" : "#000", fontWeight: 900, fontSize: 15, cursor: "pointer", boxShadow: "0 8px 32px rgba(201,162,39,0.25)", letterSpacing: "0.05em", fontFamily: "'Barlow Condensed', sans-serif" }}>
-            {pick ? `${pick.cta} →` : "Claim Your Founding Member Slice →"}
+          <button style={{
+            padding: "16px 36px", borderRadius: 16,
+            background: `linear-gradient(135deg, ${GOLD}, #8B6914)`,
+            border: "none", color: "#000", fontWeight: 900, fontSize: 15,
+            cursor: "pointer", display: "flex", alignItems: "center", gap: 8,
+            letterSpacing: "0.06em",
+            boxShadow: `0 8px 40px rgba(201,162,39,0.25)`,
+            fontFamily: "'Barlow Condensed', sans-serif",
+          }}>
+            Get Started <ArrowRight size={16} />
           </button>
         </Link>
-        <div style={{ fontSize: 10, color: "#52525b", marginTop: 8, fontFamily: "monospace" }}>
-          No credit card required · Founding price locked forever · Industry Pro · Consumer · Business — all welcome
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ─── I-95 Dynasty Quote ───────────────────────────────────────────────────── */
-function DynastyQuote() {
-  return (
-    <div style={{ padding: "72px 24px", borderTop: "1px solid #1f1f22", background: "linear-gradient(180deg, #0a0a0d 0%, #18181b 100%)" }}>
-      <div style={{ maxWidth: 760, margin: "0 auto", textAlign: "center" }}>
-        <Crown size={28} style={{ color: "#C9A227", marginBottom: 20 }} />
-        <blockquote style={{ fontSize: "clamp(17px,3vw,22px)", fontWeight: 700, color: "#e4e4e7", lineHeight: 1.7, margin: "0 0 20px", fontStyle: "italic" }}>
-          "The I-95 Dynasty is live. Every service advisor, mechanic, F&I manager, appraiser,
-          runner, and dealer I've built relationships with — your slice is pre-reserved.
-          The platform is built. The AI is running. Now it's time to claim your piece of it."
-        </blockquote>
-        <div style={{ fontSize: 13, color: "#71717a" }}>
-          — <strong style={{ color: "#d4d4d8" }}>Ron</strong> · Founder · <span style={{ color: "#C9A227" }}>CUXTOMCANDYCLUB LLC</span>
-        </div>
-        <div style={{ marginTop: 28 }}>
-          <Link href="/join">
-            <button style={{ padding: "14px 32px", borderRadius: 14, background: "#C9A227", color: "#000", fontWeight: 900, fontSize: 14, cursor: "pointer", border: "none", letterSpacing: "0.06em", fontFamily: "'Barlow Condensed', sans-serif" }}>
-              Claim My Founding Slice →
-            </button>
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ─── Animated Counter ──────────────────────────────────────────────────── */
-function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
-  const [val, setVal] = useState(0);
-  useEffect(() => {
-    let start = 0;
-    const step = to / 60;
-    const id = setInterval(() => {
-      start += step;
-      if (start >= to) { setVal(to); clearInterval(id); }
-      else setVal(Math.floor(start));
-    }, 16);
-    return () => clearInterval(id);
-  }, [to]);
-  return <span>{val}{suffix}</span>;
-}
-
-/* ─── Main Landing Page ─────────────────────────────────────────────────── */
-export default function LandingPage() {
-  const { t } = useTranslation();
-
-  const FEATURES = [
-    { icon: Brain,     title: t("landing.features.feature1Title"), desc: t("landing.features.feature1Desc"), color: "#C9A227", badge: t("landing.features.feature1Badge") },
-    { icon: Shield,    title: t("landing.features.feature2Title"), desc: t("landing.features.feature2Desc"), color: "#34D399", badge: t("landing.features.feature2Badge") },
-    { icon: Lock,      title: t("landing.features.feature3Title"), desc: t("landing.features.feature3Desc"), color: "#818CF8", badge: t("landing.features.feature3Badge") },
-    { icon: DollarSign,title: t("landing.features.feature4Title"), desc: t("landing.features.feature4Desc"), color: "#4FC3F7", badge: t("landing.features.feature4Badge") },
-    { icon: Truck,     title: t("landing.features.feature5Title"), desc: t("landing.features.feature5Desc"), color: "#F97316", badge: t("landing.features.feature5Badge") },
-    { icon: Eye,       title: t("landing.features.feature6Title"), desc: t("landing.features.feature6Desc"), color: "#A78BFA", badge: t("landing.features.feature6Badge") },
-  ];
-
-  const STATS = [
-    { value: "$4.7M", label: t("landing.stats.saved"),      color: "#34D399" },
-    { value: "12",    label: t("landing.stats.agents"),     color: "#C9A227" },
-    { value: "94%",   label: t("landing.stats.confidence"), color: "#60A5FA" },
-    { value: "< 2h",  label: t("landing.stats.resolution"), color: "#A78BFA" },
-  ];
-
-  const HOW = [
-    { step: "01", title: t("landing.how.step1Title"), desc: t("landing.how.step1Desc"), icon: Brain,        color: "#C9A227" },
-    { step: "02", title: t("landing.how.step2Title"), desc: t("landing.how.step2Desc"), icon: Cpu,          color: "#60A5FA" },
-    { step: "03", title: t("landing.how.step3Title"), desc: t("landing.how.step3Desc"), icon: CheckCircle2, color: "#34D399" },
-    { step: "04", title: t("landing.how.step4Title"), desc: t("landing.how.step4Desc"), icon: Zap,          color: "#A78BFA" },
-  ];
-
-  const TRUST_POINTS = [
-    { icon: Shield, text: t("landing.trust.soc2") },
-    { icon: Lock,   text: t("landing.trust.aes") },
-    { icon: Eye,    text: t("landing.trust.pii") },
-    { icon: Users,  text: t("landing.trust.checkr") },
-    { icon: Heart,  text: t("landing.trust.neverCompete") },
-    { icon: Star,   text: t("landing.trust.blockchain") },
-  ];
-
-  return (
-    <div className="public-page">
-      <PublicNavbar />
-      <Ticker />
-
-      {/* ── HERO ─────────────────────────────────────────────────────── */}
-      <div style={{ position: "relative", minHeight: "100vh", display: "flex", alignItems: "center", overflow: "hidden", background: "var(--onyx-page-bg)" }}>
-
-        {/* Full bleed neural mesh */}
-        <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
-          <NeuralMesh height={700} nodeCount={70} />
-        </div>
-
-        {/* Gradient overlay */}
-        <div style={{ position: "absolute", inset: 0, zIndex: 1, background: "linear-gradient(180deg, rgba(5,5,8,0.55) 0%, rgba(5,5,8,0.4) 40%, rgba(5,5,8,0.85) 85%, rgba(5,5,8,1) 100%)", pointerEvents: "none" }} />
-
-        {/* Orb glows */}
-        <div style={{ position: "absolute", top: "10%", left: "5%", width: 500, height: 500, background: "radial-gradient(circle, rgba(201,162,39,0.08) 0%, transparent 70%)", filter: "blur(80px)", pointerEvents: "none", zIndex: 1 }} />
-        <div style={{ position: "absolute", top: "20%", right: "5%", width: 400, height: 400, background: "radial-gradient(circle, rgba(96,165,250,0.06) 0%, transparent 70%)", filter: "blur(60px)", pointerEvents: "none", zIndex: 1 }} />
-
-        {/* Hero content */}
-        <div style={{ position: "relative", zIndex: 2, padding: "80px 24px 60px", maxWidth: 900, margin: "0 auto", width: "100%", textAlign: "center", boxSizing: "border-box" }}>
-
-          {/* Status badge */}
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "5px 14px", borderRadius: 20, background: "rgba(52,211,153,0.08)", border: "1px solid rgba(52,211,153,0.2)", marginBottom: 28 }}>
-            <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#34D399", animation: "pulse 2s infinite" }} />
-            <span style={{ fontSize: 9, fontWeight: 800, color: "#34D399", letterSpacing: "0.18em" }}>{t("landing.badge")}</span>
-          </div>
-
-          <h1 style={{
-            fontFamily: "'Barlow Condensed', sans-serif",
-            fontSize: "clamp(44px, 9vw, 108px)",
-            fontWeight: 900,
-            lineHeight: 0.9,
-            letterSpacing: "-0.01em",
-            textTransform: "uppercase",
-            margin: "0 0 28px",
-            color: "#fff",
+        <Link href="/login">
+          <button style={{
+            padding: "16px 28px", borderRadius: 16,
+            background: "transparent",
+            border: "1px solid rgba(255,255,255,0.1)",
+            color: "rgba(255,255,255,0.5)", fontWeight: 700, fontSize: 15,
+            cursor: "pointer", fontFamily: "'Barlow Condensed', sans-serif",
           }}>
-            {t("landing.hero.line1")}<br />
-            <span style={{
-              background: "linear-gradient(90deg, #C9A227 0%, #60A5FA 45%, #A78BFA 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-            }}>
-              {t("landing.hero.line2")}
-            </span>
-          </h1>
-
-          <p style={{ fontSize: "clamp(14px, 2vw, 17px)", color: "rgba(255,255,255,0.45)", lineHeight: 1.8, maxWidth: 580, margin: "0 auto 36px" }}>
-            {t("landing.hero.sub")}
-          </p>
-
-          <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-            <Link href="/join">
-              <button style={{ padding: "14px 28px", borderRadius: 14, background: "linear-gradient(135deg,#C9A227,#8B6914)", border: "none", color: "#000", fontWeight: 800, fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", gap: 8, letterSpacing: "0.06em", boxShadow: "0 8px 32px rgba(201,162,39,0.3)", fontFamily: "'Barlow Condensed', sans-serif" }}>
-                <Brain size={16} />{t("landing.hero.cta")}
-              </button>
-            </Link>
-            <Link href="/trust">
-              <button style={{ padding: "14px 24px", borderRadius: 14, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.7)", fontWeight: 700, fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", gap: 8, fontFamily: "'Barlow Condensed', sans-serif" }}>
-                <Layers size={15} />{t("landing.hero.howItWorks")}
-              </button>
-            </Link>
-          </div>
-
-          {/* Scroll cue */}
-          <div style={{ marginTop: 48, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-            <span style={{ fontSize: 8, color: "rgba(255,255,255,0.2)", letterSpacing: "0.2em" }}>{t("landing.hero.discover")}</span>
-            <ChevronDown size={14} style={{ color: "rgba(255,255,255,0.2)", animation: "neural-float 2s ease-in-out infinite" }} />
-          </div>
-        </div>
+            Sign In
+          </button>
+        </Link>
       </div>
+    </div>
+  );
+}
 
-      {/* ── STATS STRIP ──────────────────────────────────────────────── */}
-      <div style={{ padding: "48px 24px", background: "var(--onyx-surface)", borderTop: "1px solid var(--onyx-border-line)", borderBottom: "1px solid var(--onyx-border-line)" }}>
-        <div className="grid-4-col" style={{ maxWidth: 1000, margin: "0 auto" }}>
-          {STATS.map((s) => (
-            <div key={s.label} style={{ textAlign: "center", padding: "16px 20px" }}>
-              <p style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "clamp(32px,5vw,44px)", fontWeight: 900, color: s.color, lineHeight: 1, marginBottom: 6 }}>{s.value}</p>
-              <p style={{ fontSize: 10, color: "var(--onyx-text-muted)", letterSpacing: "0.14em", fontWeight: 600 }}>{s.label}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ── FRONT DOOR — Who Are You? ────────────────────────────────── */}
+export default function LandingPage() {
+  return (
+    <div style={{ background: "#050508", minHeight: "100vh", color: "#fff" }}>
+      <style>{`
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(12px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes neural-float {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(6px); }
+        }
+      `}</style>
+      <SplashHero />
+      <TrustStrip />
       <FrontDoor />
-
-      {/* ── HOW IT WORKS ─────────────────────────────────────────────── */}
-      <div style={{ padding: "80px 24px", maxWidth: 1100, margin: "0 auto" }}>
-        <div style={{ textAlign: "center", marginBottom: 56 }}>
-          <p style={{ fontSize: 9, letterSpacing: "0.3em", color: "var(--onyx-text-muted)", fontWeight: 700, marginBottom: 12 }}>{t("landing.how.process")}</p>
-          <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "clamp(36px,6vw,52px)", fontWeight: 900, textTransform: "uppercase", lineHeight: 1, color: "var(--onyx-text-primary)" }}>{t("landing.how.title")}</h2>
-        </div>
-        <div className="grid-4-col">
-          {HOW.map((h) => {
-            const Icon = h.icon;
-            return (
-              <div key={h.step} style={{ padding: "24px 20px", borderRadius: 18, background: "var(--onyx-surface)", border: "1px solid var(--onyx-border-line)" }}>
-                <p style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 44, fontWeight: 900, color: `${h.color}30`, lineHeight: 1, marginBottom: 12 }}>{h.step}</p>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: `${h.color}12`, border: `1px solid ${h.color}25`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 14 }}>
-                  <Icon size={16} style={{ color: h.color }} />
-                </div>
-                <p style={{ fontSize: 15, fontWeight: 800, color: "var(--onyx-text-primary)", marginBottom: 8, lineHeight: 1.2 }}>{h.title}</p>
-                <p style={{ fontSize: 12, color: "var(--onyx-text-muted)", lineHeight: 1.6 }}>{h.desc}</p>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* ── FEATURES GRID ────────────────────────────────────────────── */}
-      <div style={{ padding: "0 24px 80px", maxWidth: 1100, margin: "0 auto" }}>
-        <div style={{ textAlign: "center", marginBottom: 56 }}>
-          <p style={{ fontSize: 9, letterSpacing: "0.3em", color: "var(--onyx-text-muted)", fontWeight: 700, marginBottom: 12 }}>{t("landing.features.platform")}</p>
-          <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "clamp(36px,6vw,52px)", fontWeight: 900, textTransform: "uppercase", lineHeight: 1, color: "var(--onyx-text-primary)" }}>{t("landing.features.title")}</h2>
-        </div>
-        <div className="grid-3-col">
-          {FEATURES.map((f) => {
-            const Icon = f.icon;
-            return (
-              <div key={f.title} style={{ padding: "24px 22px", borderRadius: 18, background: "var(--onyx-surface)", border: "1px solid var(--onyx-border-line)", position: "relative", overflow: "hidden" }}>
-                <div style={{ position: "absolute", top: -30, right: -30, width: 100, height: 100, borderRadius: "50%", background: `radial-gradient(circle, ${f.color}12 0%, transparent 70%)`, pointerEvents: "none" }} />
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-                  <div style={{ width: 40, height: 40, borderRadius: 12, background: `${f.color}12`, border: `1px solid ${f.color}25`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <Icon size={18} style={{ color: f.color }} />
-                  </div>
-                  <span style={{ fontSize: 8, fontWeight: 800, color: f.color, letterSpacing: "0.12em", padding: "3px 8px", borderRadius: 20, background: `${f.color}10`, border: `1px solid ${f.color}20` }}>{f.badge}</span>
-                </div>
-                <p style={{ fontSize: 16, fontWeight: 800, color: "var(--onyx-text-primary)", marginBottom: 8 }}>{f.title}</p>
-                <p style={{ fontSize: 12, color: "var(--onyx-text-muted)", lineHeight: 1.7 }}>{f.desc}</p>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* ── TRUST STRIP ──────────────────────────────────────────────── */}
-      <div style={{ padding: "36px 24px", borderTop: "1px solid var(--onyx-border-line)", background: "var(--onyx-surface)" }}>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 24, justifyContent: "center", alignItems: "center" }}>
-          {TRUST_POINTS.map(({ icon: Icon, text }) => (
-            <div key={text} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <Icon size={13} style={{ color: "#34D399" }} />
-              <span style={{ fontSize: 12, color: "var(--onyx-text-muted)" }}>{text}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ── I-95 DYNASTY QUOTE ───────────────────────────────────────── */}
-      <DynastyQuote />
-
-      {/* ── FINAL CTA ────────────────────────────────────────────────── */}
-      <div style={{ padding: "80px 24px 100px", textAlign: "center", maxWidth: 700, margin: "0 auto" }}>
-        <p style={{ fontSize: 9, letterSpacing: "0.3em", color: "#C9A227", fontWeight: 700, marginBottom: 16 }}>{t("landing.cta.ready")}</p>
-        <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "clamp(36px,7vw,56px)", fontWeight: 900, textTransform: "uppercase", lineHeight: 1, marginBottom: 16, color: "var(--onyx-text-primary)" }}>
-          {t("landing.cta.title")}<br />
-          <span style={{ color: "#C9A227" }}>{t("landing.cta.titleGold")}</span>
-        </h2>
-        <p style={{ fontSize: 14, color: "var(--onyx-text-muted)", marginBottom: 36 }}>{t("landing.cta.sub")}</p>
-        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-          <Link href="/join">
-            <button style={{ padding: "15px 32px", borderRadius: 14, background: "linear-gradient(135deg,#C9A227,#8B6914)", border: "none", color: "#000", fontWeight: 800, fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", gap: 8, letterSpacing: "0.08em", boxShadow: "0 8px 40px rgba(201,162,39,0.25)", fontFamily: "'Barlow Condensed', sans-serif" }}>
-              {t("landing.cta.getStarted")} <ArrowRight size={15} />
-            </button>
-          </Link>
-          <Link href="/login">
-            <button style={{ padding: "15px 24px", borderRadius: 14, background: "transparent", border: "1px solid rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.6)", fontWeight: 700, fontSize: 14, cursor: "pointer", fontFamily: "'Barlow Condensed', sans-serif" }}>
-              {t("landing.cta.signIn")}
-            </button>
-          </Link>
-        </div>
-      </div>
-
+      <HowItWorks />
+      <FounderQuote />
+      <FinalCTA />
       <GlobalFooter />
     </div>
   );

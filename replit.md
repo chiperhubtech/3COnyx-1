@@ -23,11 +23,11 @@ The platform features a cinematic "Apple × GTA" visual language with a multi-th
 ## Core Platform Features
 
 The architecture is AI-first, encompassing:
-- **Enterprise AI Stack v4.0**: An AI router using OpenAI primarily, with Gemini, Bedrock, and Anthropic fallbacks, supporting various task types including vision and a Critique & Review loop.
+- **Enterprise AI Stack v4.0**: An AI router using OpenAI primarily, with Gemini, Bedrock, and Anthropic fallbacks.
 - **WebSocket Real-Time Hub**: Provides real-time communication across distinct rooms.
 - **Agent Orchestration Engine**: A 12-agent UACL mesh with a state machine.
 - **Blockchain Chain-of-Custody**: Ensures tamper-proof ledgering with SHA-256 hash chains, HMAC-SHA-256 signing, PostgreSQL persistence, and optional Ethereum Sepolia anchoring.
-- **Authentication System**: JWT-based (HS256) with `jose`, supporting full authentication flows, role-based access control, bcrypt-hashed passwords, and WebAuthn biometric authentication via `@simplewebauthn`.
+- **Authentication System**: JWT-based (HS256) with `jose`, supporting full authentication flows, role-based access control, bcrypt-hashed passwords, WebAuthn biometric authentication (Face ID/fingerprint) via `@simplewebauthn`, and social OAuth login (Google via `google-auth-library`, Apple via JWKS signature verification). Social auth endpoint: `POST /api/auth/social` with `{provider, token, name?}`. Users table has `auth_provider` and `auth_provider_id` columns.
 - **Fortress Governor (AI Safety & Control Layer)**: A three-tier confidence classification system for AI decisions (AUTO_EXECUTE, SUGGEST, HALT) with an Explainability Layer.
 - **Security Middleware**: Uses Helmet for security headers, `express-rate-limit` for API rate limiting, and secure Stripe webhook handling.
 - **Database Layer**: Drizzle ORM with PostgreSQL (optimized connection pool), ensuring all tables are SOC2 audit-trail compliant.
@@ -38,17 +38,14 @@ The architecture is AI-first, encompassing:
 - **Omni-Node Open Intake**: A public submission portal with AI-powered smart routing, duplicate detection, and a Global Trust Score Engine.
 - **Invisible Funnel Protocol**: A headless API orchestration layer for growth, communication, and commerce.
 - **Universal Commission Engine**: Automates referral commissions on platform transactions.
-- **Shareable AR Badge**: A themed 3C branded badge generator for viral growth.
-- **ONYX Nerve Center**: A "daily habit" dashboard for logged-in members.
 - **Autonomous Execution Engine**: Implements a "Scan → Diagnose → Execute" one-tap workflow, normalizing vehicle input, running AI-powered vehicle analysis, and autonomously triggering cascading workflows with blockchain proof stamping.
-- **Universal Attribution Engine**: 5-level depth referral attribution with diminishing commission rates [100%, 20%, 10%, 5%, 2.5%], anti-abuse quarantine (6-factor risk scoring), SHA-256 blockchain proof stamping, and zero-cent payout protection. Network Dominance dashboard compares 3C ONYX protocol against Top 100 MLM companies.
-- **Altruistic Share Component**: A post-completion modal encouraging sharing and displaying real-time earnings.
+- **Universal Attribution Engine**: 5-level depth referral attribution with diminishing commission rates [100%, 20%, 10%, 5%, 2.5%], anti-abuse quarantine, SHA-256 blockchain proof stamping, and zero-cent payout protection.
 - **Street-Level Distribution Network**: The entry layer for the "Global Automotive Liquidity Network," capturing QR scans at physical nodes and tracking referrers.
 - **Architectural Upgrades**: Includes CarPlay/Android Auto integration, a tRPC Type-Safe API Layer, an Admin API, and a Beta Waitlist system.
 
 ## Kilocorn Infrastructure Layers ($1T+ Architecture)
 
-Seven protocol-level infrastructure layers designed to elevate 3C ONYX:
+Seven protocol-level infrastructure layers:
 1.  **Developer Platform / API Gateway**: For third-party developer registration, API key issuance, tiered rate limiting, and a webhook delivery system.
 2.  **Federation / Multi-Region Architecture**: A 9-region global node topology with event-sourced incremental sync, jurisdiction-aware data sharding, mTLS, and automatic regional failover.
 3.  **Global Settlement Engine**: Supports 20 currencies and 8 payment rails, with real-time FX conversion and a 2% platform fee.
@@ -64,7 +61,7 @@ Six systems integrating gig-economy logistics, warranty management, and a 7-Agen
 2.  **Real-Time Task Matching Engine**: Uber/DoorDash-grade distributed task matching with a state machine and geo-hash nearest-node dispatching.
 3.  **Ask ONYX Command Router**: Single NLP-ready input routing intents to the 7-Agent Mesh with high-confidence auto-routing.
 4.  **Instant Split-Payment Engine**: Automatic multi-party split on every transaction with proof-of-completion gating and blockchain-stamped distribution.
-5.  **Bank Payoff Protocol**: Automates bank payoffs for 18 lenders, significantly reducing processing time.
+5.  **Bank Payoff Protocol**: Automates bank payoffs for 18 lenders.
 6.  **Warranty Intelligence Engine**: Integrates factory warranty verification with VIN decoding and recall information.
 
 ## Global Automotive Economic Network — The Living Money Network
@@ -79,6 +76,22 @@ Five systems completing the zero-friction global economy:
 ## ONYX Theme Engine — Culture-Driven Visual Identity
 
 A theme engine offering 20 culture-driven themes across 10 categories, each with full color palettes, dark mode overrides, typography, and visual effect flags.
+
+## Key API Endpoints
+
+-   **Text-to-Deal Engine**: Converts raw text messages into structured deals via NLP entity extraction.
+-   **Universal Auto-Settle Engine**: Core payment infrastructure for transaction settlement with auto-splitting and platform fees.
+-   **Dealer 20 Group Protocol**: Viral growth engine for dealer groups with benchmarking and leaderboards.
+-   **OEM Incentives Engine**: Matches VIN, ZIP, and customer profiles to exact OEM discounts and rebates.
+-   **Club / Event / Venue System**: Full social infrastructure for creating/managing clubs, events, and venues.
+-   **Social Amplifier**: Auto-posts campaigns and content across 9 social platforms.
+-   **Marketplace Hub — LitCommerce**: Multichannel product distribution across 18+ marketplace channels.
+-   **Marketing Hub — Constant Contact**: Email, SMS campaigns, landing pages, and marketing automations.
+-   **Apparel & Entertainment**: Motorsport dropship apparel catalog and entertainment subscriptions.
+-   **Smart Promotions & Cultural Engine**: Proactive maintenance/upgrade alerts and cultural personalization based on user data.
+-   **eCommerce Bridge — API2Cart**: Unifies 40+ eCommerce platforms for B2B and B2C dropship.
+-   **Survey Shield & OEM Bridge Protocol**: Income protection for salespeople via sentiment checkpoints and automatic OEM app registration.
+-   **Paramount Access & Sovereign Credential**: Sovereign credential system with role-based access.
 
 # External Dependencies
 
@@ -118,55 +131,3 @@ A theme engine offering 20 culture-driven themes across 10 categories, each with
 -   **Identity Verification**: Stripe Identity
 -   **Data Intelligence**: Fullpath
 -   **Push Notifications**: Expo
-
-## Text-to-Deal Engine (POST /api/text-to-deal)
-
-A unified "Forrest Gump simple" endpoint that converts raw text messages into structured deals. NLP entity extraction identifies customer names, vehicle make/model/year, VIN, budget, phone numbers, location, service type, urgency, and intent (buy/sell/service/refer/assist). Auto-assigns participants with role-based splits and generates SHA-256 proof hashes. Routes: `/convert` (full deal creation), `/extract` (entity extraction only), `/status`.
-
-## Universal Auto-Settle Engine (/api/auto-settle)
-
-Core payment infrastructure: when ANY transaction completes on ANY channel, the business gets paid directly to their linked bank account via Plaid ACH. 3% platform fee auto-calculated, net amount credited to ONYX Wallet, ACH payout initiated — bank statement descriptor "3C ONYX PAYOUT". Supports 28 transaction types (Deal_Closed, Service_Completed, Parts_Order, Body_Shop, Tire_Service, Wrap_Install, etc.) across 15 source channels (Direct, Google_Maps, Mapbox, SEMA, Appexx, AutoCart, QR_Code, WhatsApp, etc.). Auto-splits to all participants. Proof hash on every settlement. Library: `autoSettle.ts` callable from any route. Routes: `/status`, `/settle`, `/settle-batch`. Also wired into deals PATCH — when deal status → "Delivered", auto-settle fires automatically.
-
-## Dealer 20 Group Protocol (/api/dealer-groups)
-
-Viral growth engine: 1 dealer → 20 Group → 400 → 8,000 → 16,700 dealers. Create groups, join via invite codes, anonymized composite benchmarking, leaderboard, proof-of-performance hashes. Genesis node: Elmwood CDJR (MCDJR). Routes: `/status`, `/create`, `/join`, `/my-groups`, `/network-effect`, `/:groupId`, `/:groupId/composite`, `/:groupId/invite`, `/:groupId/leaderboard`, `/:groupId/proof`, `/:groupId/benchmark`.
-
-## OEM Incentives Engine (POST /api/oem-incentives)
-
-VIN + ZIP + Customer Profile → exact discounts and rebates. Covers 28 manufacturers with 90+ active programs across 11 incentive types (rebate, bonus cash, loyalty, conquest, APR reduction, lease cash, tax credits, referral credits, EV rebates). Includes 14 state-level EV incentive programs. Customer qualification factors: military/veteran, first responder, recent graduate, current vehicle brand (loyalty/conquest), income eligibility, referral codes. Routes: `/match` (full personalized matching), `/quick-match` (guaranteed + possible savings), `/manufacturers`, `/programs/:manufacturer`, `/status`. Replaces the hardcoded $1,500 OEM incentive default in brokerDesk.ts.
-
-## Club / Event / Venue System (/api/clubs, /api/events, /api/venues)
-
-Full social infrastructure: Clubs (create, join, treasury with bottom-up attribution), Events (create, register, check-in, approve), Venues (register, verify, browse). All with 3% commission and 5-level referral chain. Club treasury tracks revenue per club. Event Radar (/api/event-radar) provides global event intelligence.
-
-## Social Amplifier (/api/social-amplifier)
-
-Auto-post campaigns, content, and product promos across 9 social platforms (Instagram, TikTok, Facebook, X/Twitter, YouTube, LinkedIn, Pinterest, Snapchat, Threads). Members grant access → platform auto-posts. 10 campaign templates. Auto-promote mode with configurable frequency. All branded as 3C ONYX — underlying integrations invisible to users.
-
-## Marketplace Hub — LitCommerce (/api/litcommerce)
-
-Multichannel product distribution across 18+ marketplace channels (Amazon, eBay, Etsy, Facebook Marketplace, Google Shopping, Walmart, Shopify, WooCommerce, TikTok Shop, Instagram Shop, etc.). One upload → all channels. Real-time inventory sync. 10 automated growth strategies. Bulk listing. All white-labeled under 3C ONYX brand.
-
-## Marketing Hub — Constant Contact (/api/marketing)
-
-Email campaigns (10 templates including welcome series, product launch, re-engagement, referral nudge, maintenance reminders), SMS campaigns (6 types), landing pages (6 templates), and marketing automations (trigger-based drip sequences). All powered behind the scenes — members only see 3C ONYX branding.
-
-## Apparel & Entertainment (/api/apparel, /api/entertainment)
-
-Motorsport dropship apparel catalog and entertainment subscriptions (Spotify, Apple Music, Pandora, SiriusXM) — all earning 3% commission.
-
-## Smart Promotions & Cultural Engine (/api/smart-promotions, /api/cultural)
-
-Proactive maintenance/upgrade/accessory alerts based on vehicle data. Cultural personalization engine: ZIP → region → music affinity, name inference, vehicle make inference → personalized tone (hip_hop, rock, country, pop, latin, electronic).
-
-## eCommerce Bridge — API2Cart (/api/api2cart)
-
-Unifies 40+ eCommerce platforms for B2B and B2C product/parts/accessories/apparel/tools dropship. B2B upsell to freelancers and shops.
-
-## Survey Shield & OEM Bridge Protocol (/api/survey-shield)
-
-Income protection for salespeople. 8 sentiment checkpoints across the customer journey (Greeting, Needs Assessment, Test Drive, Negotiation, F&I, Delivery, OEM Setup, Follow-Up). Score each 0-10. Below 10/10 triggers Red Alert for manager intervention BEFORE the OEM survey arrives. Deal completion blocked until 10/10 or manager override with cryptographic proof hash. OEM Bridge auto-registers customers for 14 manufacturer apps (30+ apps total: Uconnect, FordPass, myChevrolet, Toyota App, HondaLink, etc.) upon deal completion. Zero manual work. Ronald Antonio Cadet hardcoded into Survey-Shield proof hash generation. Routes: `/status`, `/checkpoint`, `/deal/:dealId`, `/manager-override`, `/oem-bridge`, `/oem-manufacturers`, `/stages`, `/verify-readiness`, `/analytics`.
-
-## Paramount Access & Sovereign Credential (/api/paramount)
-
-Sovereign credential system. userId 6 = Ron (Sovereign). Only Sovereign can verify clubs, approve events, verify venues, view all data. Sovereignty transfer blocked at API level by design.
