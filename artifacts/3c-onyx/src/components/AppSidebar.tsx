@@ -142,6 +142,7 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
   const [showPlatform, setShowPlatform] = useState(false);
 
   const CUSTOMER_NAV = [
+    { label: "Customize Your Vehicle",    path: "/customize",      icon: Sparkles,    description: "Wraps · Wheels · Leather · Side Steps · Fleet Branding", accent: "#A78BFA" },
     { label: "My QR Badge",               path: "/my-qr",          icon: QrCode,      description: "Your scannable club identity · Download · Share", accent: "#C9A227" },
     { label: "AR Badge",                  path: "/ar-badge",       icon: Palette,     description: "Themed shareable badges · Holiday · Emoji · Viral", accent: "#A78BFA" },
     { label: "Auto Pulse",                path: "/auto-pulse",     icon: Radio,       description: "Live automotive news · Social · Recalls · Trends", accent: "#C9A227" },

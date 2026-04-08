@@ -157,6 +157,7 @@ import constantContactRouter from "./constant-contact";
 import surveyShieldRouter from "./survey-shield";
 import dealCommandRouter from "./deal-command";
 import autoPulseRouter from "./auto-pulse";
+import vehicleCustomizeRouter from "./vehicle-customize";
 
 const router: IRouter = Router();
 
@@ -336,5 +337,6 @@ router.use("/marketing", constantContactRouter);
 router.use("/survey-shield", surveyShieldRouter);
 router.use(dealCommandRouter);
 router.use(autoPulseRouter);
+router.use(vehicleCustomizeRouter);
 
 export default router;

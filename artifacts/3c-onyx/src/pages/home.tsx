@@ -10,7 +10,7 @@ import {
   Zap, TrendingUp, Award, Network, Star, Heart,
   AlertTriangle, Repeat, Mic, ChevronLeft,
   Check, Phone, User, Camera, ScanLine, Timer,
-  Building2, Truck, UserPlus,
+  Building2, Truck, UserPlus, Paintbrush,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { NerveCenter } from "@/components/NerveCenter";
@@ -205,7 +205,7 @@ function SplashScreen({ onComplete }: { onComplete: () => void }) {
   );
 }
 
-type ServiceCategory = "buy" | "sell" | "service" | "insurance" | "emergency" | "parts";
+type ServiceCategory = "buy" | "sell" | "service" | "customize" | "insurance" | "emergency" | "parts";
 
 const SERVICE_CONFIG: Record<ServiceCategory, {
   icon: any; label: string; description: string; accent: string;
@@ -257,6 +257,20 @@ const SERVICE_CONFIG: Record<ServiceCategory, {
     resultMessage: "A certified specialist is being assigned. We're coordinating everything — you don't need to do a thing.",
     confirmLabel: "Confirm — Handle My Service",
     confirmSummary: "ONYX will find the best specialist, schedule everything, and coordinate on your behalf.",
+  },
+  customize: {
+    icon: Paintbrush, label: "Customize", description: "Wraps, wheels, leather & more",
+    accent: "#A78BFA", department: "Parts", intakeTitle: "Vehicle Customization Request",
+    chips: ["Full Wrap", "Wheels & Tires", "Leather Interior", "Side Steps", "Fleet Branding", "Window Tint"],
+    processingSteps: [
+      "Reviewing your customization request...",
+      "Matching with specialist installers...",
+      "Building your personalized quote...",
+      "Your customization plan is ready...",
+    ],
+    resultMessage: "Your customization quote is being prepared. A specialist will walk you through every option.",
+    confirmLabel: "Confirm — Build My Quote",
+    confirmSummary: "ONYX will match you with certified installers and build a detailed customization quote.",
   },
   insurance: {
     icon: Shield, label: "Insurance", description: "Best rates, zero hassle",

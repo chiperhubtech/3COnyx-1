@@ -4,7 +4,8 @@ import {
   FileText, CreditCard, Shield, MapPin, Send, CheckCircle2,
   ArrowLeft, MessageCircle, Loader2, ChevronRight,
   Car, DollarSign, AlertTriangle, Sparkles, Zap,
-  TrendingUp, Clock, Hash, X,
+  TrendingUp, Clock, Hash, X, Truck, Radio, Wrench,
+  Activity, Package,
 } from "lucide-react";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -104,6 +105,181 @@ function CommandGrid({ activeDeal, onAction }: { activeDeal: Deal | null; onActi
           </button>
         );
       })}
+    </div>
+  );
+}
+
+const PIPELINE_ICONS: Record<string, typeof Car> = {
+  lead: Sparkles, structure: FileText, credit: CreditCard, lender: DollarSign,
+  insurance: Shield, vehicle: Car, transport: Truck, delivery: Package, funding: CheckCircle2,
+};
+
+interface PipelineStage {
+  id: string;
+  label: string;
+  state: "completed" | "active" | "pending";
+}
+
+function DealPipeline({ stages, progress }: { stages: PipelineStage[]; progress: number }) {
+  return (
+    <div style={{
+      margin: "0 16px 16px", padding: 16,
+      background: "rgba(255,255,255,0.02)",
+      border: "1px solid rgba(255,255,255,0.06)",
+      borderRadius: 20, overflow: "hidden",
+    }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <Activity size={12} style={{ color: GOLD }} />
+          <span style={{ fontSize: 10, fontWeight: 800, color: "rgba(255,255,255,0.4)", letterSpacing: "0.15em" }}>
+            DEAL PIPELINE
+          </span>
+        </div>
+        <span style={{
+          fontSize: 11, fontWeight: 800, color: GOLD,
+          fontFamily: "'Barlow Condensed', sans-serif",
+        }}>
+          {progress}%
+        </span>
+      </div>
+
+      <div style={{
+        height: 4, borderRadius: 2, background: "rgba(255,255,255,0.06)",
+        marginBottom: 16, overflow: "hidden",
+      }}>
+        <div style={{
+          height: "100%", borderRadius: 2,
+          background: `linear-gradient(90deg, ${GOLD}, #10B981)`,
+          width: `${progress}%`,
+          transition: "width 0.5s ease",
+        }} />
+      </div>
+
+      <div style={{
+        display: "flex", justifyContent: "space-between", gap: 2,
+        overflowX: "auto", paddingBottom: 4,
+      }}>
+        {stages.map((stage, i) => {
+          const Icon = PIPELINE_ICONS[stage.id] || Zap;
+          const colors = {
+            completed: { bg: "rgba(16,185,129,0.1)", border: "rgba(16,185,129,0.2)", icon: "#10B981", text: "#10B981" },
+            active: { bg: `${GOLD}15`, border: `${GOLD}35`, icon: GOLD, text: GOLD },
+            pending: { bg: "rgba(255,255,255,0.02)", border: "rgba(255,255,255,0.05)", icon: "rgba(255,255,255,0.15)", text: "rgba(255,255,255,0.2)" },
+          }[stage.state];
+
+          return (
+            <div key={stage.id} style={{
+              display: "flex", flexDirection: "column", alignItems: "center",
+              gap: 4, minWidth: 0, flex: "1 1 0",
+            }}>
+              <div style={{
+                width: 28, height: 28, borderRadius: 8,
+                background: colors.bg, border: `1px solid ${colors.border}`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                position: "relative",
+              }}>
+                {stage.state === "completed" ? (
+                  <CheckCircle2 size={14} style={{ color: colors.icon }} />
+                ) : stage.state === "active" ? (
+                  <div style={{ position: "relative" }}>
+                    <Icon size={13} style={{ color: colors.icon }} />
+                    <div style={{
+                      position: "absolute", top: -2, right: -2,
+                      width: 6, height: 6, borderRadius: "50%",
+                      background: GOLD, boxShadow: `0 0 6px ${GOLD}`,
+                    }} />
+                  </div>
+                ) : (
+                  <Icon size={12} style={{ color: colors.icon }} />
+                )}
+              </div>
+              <span style={{
+                fontSize: 7, fontWeight: 700, color: colors.text,
+                textAlign: "center", letterSpacing: "0.05em",
+                lineHeight: 1.2, maxWidth: 50,
+                overflow: "hidden", textOverflow: "ellipsis",
+              }}>
+                {stage.label.toUpperCase()}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function VehicleIntelCard({ make, model }: { make: string; model: string }) {
+  const [intel, setIntel] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!make) { setLoading(false); return; }
+    apiFetch(`/auto-pulse/vehicle-intel?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model || "")}`)
+      .then(setIntel)
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [make, model]);
+
+  if (!make || loading) return null;
+  if (!intel || intel.totalIntel === 0) return null;
+
+  return (
+    <div style={{
+      margin: "0 16px 12px", padding: 14,
+      background: "rgba(255,255,255,0.02)",
+      border: "1px solid rgba(255,255,255,0.06)",
+      borderRadius: 16,
+    }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+        <Radio size={12} style={{ color: GOLD }} />
+        <span style={{ fontSize: 10, fontWeight: 800, color: "rgba(255,255,255,0.4)", letterSpacing: "0.12em" }}>
+          VEHICLE INTELLIGENCE — {make.toUpperCase()} {model?.toUpperCase() || ""}
+        </span>
+        <span style={{
+          fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 4,
+          background: `${GOLD}12`, color: GOLD,
+        }}>
+          {intel.totalIntel} items
+        </span>
+      </div>
+
+      {intel.sections?.recalls?.length > 0 && (
+        <div style={{ marginBottom: 8 }}>
+          {intel.sections.recalls.slice(0, 2).map((r: any) => (
+            <a key={r.id} href={r.url} target="_blank" rel="noopener noreferrer" style={{
+              display: "block", padding: "8px 10px", borderRadius: 10, marginBottom: 4,
+              background: "rgba(239,68,68,0.05)", border: "1px solid rgba(239,68,68,0.12)",
+              textDecoration: "none",
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <AlertTriangle size={10} style={{ color: "#EF4444" }} />
+                <span style={{ fontSize: 11, fontWeight: 700, color: "#EF4444" }}>RECALL</span>
+              </div>
+              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", margin: "4px 0 0", lineHeight: 1.4 }}>
+                {r.title.replace(/^RECALL:\s*/, "").slice(0, 100)}
+              </p>
+            </a>
+          ))}
+        </div>
+      )}
+
+      {intel.sections?.news?.length > 0 && (
+        <div>
+          {intel.sections.news.slice(0, 2).map((n: any) => (
+            <a key={n.id} href={n.url} target="_blank" rel="noopener noreferrer" style={{
+              display: "block", padding: "6px 10px", borderRadius: 8, marginBottom: 4,
+              background: "rgba(255,255,255,0.02)",
+              textDecoration: "none",
+            }}>
+              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", margin: 0, lineHeight: 1.4 }}>
+                {n.title.slice(0, 80)}
+              </p>
+              <span style={{ fontSize: 9, color: "rgba(255,255,255,0.2)" }}>{n.source}</span>
+            </a>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -525,6 +701,7 @@ export default function DealCommandCenter() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [showDesk, setShowDesk] = useState(false);
   const [parsedDeal, setParsedDeal] = useState<any>(null);
+  const [pipeline, setPipeline] = useState<{ stages: PipelineStage[]; progress: number } | null>(null);
 
   const loadDeals = useCallback(async () => {
     try {

@@ -368,4 +368,86 @@ router.post("/deals/:id/complete-step", requireAuth, async (req: Request, res: R
   }
 });
 
+router.post("/deals/:id/agent/:agentName", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const userId = requireUserId(req, res);
+    if (!userId) return;
+
+    const dealId = parseInt(req.params.id as string, 10);
+    const agentName = req.params.agentName as string;
+
+    const { AGENTS } = await import("../lib/dealAgents");
+    const validAgents = Object.keys(AGENTS);
+    if (!validAgents.includes(agentName)) {
+      res.status(400).json({ error: `Unknown agent: ${agentName}. Valid: ${validAgents.join(", ")}` });
+      return;
+    }
+
+    const agentFn = AGENTS[agentName as keyof typeof AGENTS];
+    const result = await (agentFn as any)(dealId, userId, req.body || {});
+
+    res.json(result);
+  } catch (err: any) {
+    console.error("Agent execution error:", err.message);
+    res.status(500).json({ error: "Agent execution failed" });
+  }
+});
+
+const PIPELINE_STAGES = [
+  { id: "lead",       label: "Lead",           status_match: ["Open"] },
+  { id: "structure",  label: "Structure",      status_match: ["In_Progress"] },
+  { id: "credit",     label: "Credit",         status_match: ["Pending_Finance"] },
+  { id: "lender",     label: "Lender",         status_match: ["Pending_Finance"] },
+  { id: "insurance",  label: "Insurance",      status_match: ["Pending_Insurance"] },
+  { id: "vehicle",    label: "Vehicle",        status_match: ["In_Progress"] },
+  { id: "transport",  label: "Transport",      status_match: ["In_Progress"] },
+  { id: "delivery",   label: "Delivery",       status_match: ["Delivered"] },
+  { id: "funding",    label: "Funding",        status_match: ["Funded", "Delivered"] },
+] as const;
+
+router.get("/deals/:id/pipeline", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const userId = requireUserId(req, res);
+    if (!userId) return;
+
+    const dealId = parseInt(req.params.id as string, 10);
+    const [deal] = await db.select().from(dealsTable)
+      .where(and(eq(dealsTable.id, dealId), eq(dealsTable.dealershipId, userId)));
+
+    if (!deal) { res.status(404).json({ error: "Deal not found" }); return; }
+
+    const statusOrder = ["Open", "In_Progress", "Pending_Finance", "Pending_Insurance", "Delivered", "Funded"];
+    const currentIndex = statusOrder.indexOf(deal.status);
+
+    const pipeline = PIPELINE_STAGES.map((stage, i) => {
+      const stageIndex = stage.status_match
+        .map(s => statusOrder.indexOf(s))
+        .reduce((a, b) => Math.max(a, b), 0);
+
+      let state: "completed" | "active" | "pending" = "pending";
+      if (currentIndex > stageIndex) state = "completed";
+      else if (currentIndex === stageIndex) state = "active";
+      if (deal.status === "Funded" || deal.status === "Delivered") {
+        if (i <= 7) state = "completed";
+        if (stage.id === "funding" && deal.status === "Funded") state = "completed";
+        if (stage.id === "funding" && deal.status === "Delivered") state = "active";
+      }
+
+      return { ...stage, state, status_match: undefined };
+    });
+
+    res.json({
+      dealId,
+      dealNumber: deal.dealNumber,
+      currentStatus: deal.status,
+      pipeline,
+      progress: Math.round(
+        (pipeline.filter(s => s.state === "completed").length / pipeline.length) * 100
+      ),
+    });
+  } catch {
+    res.status(500).json({ error: "Failed to load pipeline" });
+  }
+});
+
 export default router;

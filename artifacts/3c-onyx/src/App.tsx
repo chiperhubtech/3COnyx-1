@@ -74,6 +74,7 @@ import ARViewer from "@/pages/ar-viewer";
 import VisionPage from "@/pages/vision";
 import DealCommandCenter from "@/pages/deal-command";
 import AutoPulse from "@/pages/auto-pulse";
+import VehicleCustomize from "@/pages/vehicle-customize";
 import NotFound from "@/pages/not-found";
 import RunnerTasks from "@/pages/runner-tasks";
 import WorkerDashboard from "@/pages/worker-dashboard";
@@ -242,6 +243,7 @@ function AppRoutes() {
               <Route path="/vision"                component={VisionPage} />
             <Route path="/deal-command"          component={DealCommandCenter} />
             <Route path="/auto-pulse"           component={AutoPulse} />
+            <Route path="/customize"            component={VehicleCustomize} />
             <Route path="/whatsapp"             component={WhatsAppHub} />
             <Route path="/dynasty-foundation"   component={DynastyFoundation} />
             <Route path="/onyx-source"          component={OnyxSource} />

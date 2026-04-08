@@ -1,0 +1,290 @@
+ACT AS: Principal Systems Architect, Lead Backend Engineer, and Product CTO.
+
+MISSION:
+Build "3C ONYX" under CUXTOMCANDYCLUB — a real-time, autonomous Automotive Operating System that replaces fragmented dealership workflows with a unified mobile-first execution platform powered by AI agents and live intelligence.
+
+This system must be BUILT FOR PRODUCTION, not concept.
+
+----------------------------------------
+CORE PRINCIPLE
+
+Dealerships today operate like a broken distributed system:
+- Humans = APIs
+- Paper = database
+- Phone calls = middleware
+
+3C ONYX replaces:
+→ humans as coordination layer
+→ paper as state storage
+→ phone calls as execution
+
+----------------------------------------
+SYSTEM REQUIREMENTS
+
+1. MOBILE-FIRST EXECUTION
+- All workflows must complete from a phone
+- No desktop dependency
+- PWA (Next.js) with app-like behavior
+
+2. REAL-TIME EVERYTHING
+- WebSockets required
+- All deal updates instant across participants
+
+3. ZERO-FRICTION DEAL PIPELINE
+
+Lead → Deal Structuring → Credit → Lender → Insurance → Vehicle → Transport → Delivery → Funding
+
+ALL inside one system
+
+----------------------------------------
+TECH STACK (STRICT)
+
+Frontend:
+- Next.js (App Router)
+- TailwindCSS
+- PWA enabled
+- Zustand (state management)
+
+Backend:
+- Node.js (Fastify)
+- PostgreSQL (primary DB)
+- Prisma ORM
+- Redis (pub/sub + caching)
+- Socket.io (real-time layer)
+
+AI Layer:
+- OpenAI / LLM integration (NLP parsing)
+- Function calling for structured outputs
+
+----------------------------------------
+CORE SYSTEM MODULES
+
+----------------------------------------
+1. DEAL ENGINE (PRIMARY OBJECT)
+
+Define core model:
+
+Deal {
+  id
+  customer_id
+  vehicle_id
+  deal_terms
+  lender
+  insurance_policy
+  status
+  timeline[]
+  participants[]
+  documents[]
+  payouts[]
+  created_at
+}
+
+All actions mutate this object in real-time.
+
+----------------------------------------
+2. TEXT-TO-DEAL (CRITICAL FEATURE)
+
+Input:
+"$599/month, 2k down, 36 months"
+
+Output:
+{
+  monthly_payment: 599,
+  down_payment: 2000,
+  term: 36
+}
+
+Use LLM parsing → validate → store structured deal
+
+----------------------------------------
+3. AUTO PULSE ENGINE (LIVE INTELLIGENCE)
+
+Purpose:
+Make system context-aware
+
+Build:
+
+Service: /services/autoPulse
+
+Features:
+- Fetch automotive news (mock Perplexity-style API)
+- Fetch social content (mock Comet-style API)
+- Tag data by:
+  - VIN
+  - Make/Model
+  - Market trends
+
+Attach to:
+- Deals
+- Vehicles
+- Users
+
+Example:
+If VIN = Jeep:
+→ surface recall
+→ surface rebate
+→ surface trending mods
+
+----------------------------------------
+4. AGENT SYSTEM (SIMPLIFIED + REALISTIC)
+
+DO NOT over-engineer.
+
+Implement as services:
+
+- salesAgent()
+- deskAgent()
+- financeAgent()
+- insuranceAgent()
+- inventoryAgent()
+- logisticsAgent()
+- serviceAgent()
+
+Each agent:
+- takes deal_id
+- performs async task
+- updates deal state
+
+----------------------------------------
+5. INSURANCE INTEGRATION (MOCK FIRST)
+
+Endpoint:
+/insurance/bind
+
+Simulate:
+- provider response
+- policy creation
+
+Return:
+{
+  policy_id,
+  monthly_cost,
+  status: "bound"
+}
+
+----------------------------------------
+6. VEHICLE + VIN SYSTEM
+
+Vehicle {
+  vin
+  make
+  model
+  year
+  history[]
+}
+
+Endpoint:
+GET /vehicle/:vin/verify
+
+Returns:
+- ownership history
+- deal activity
+- verification status
+
+----------------------------------------
+7. REAL-TIME DEAL THREAD (IMPORTANT)
+
+Build chat-style interface:
+
+DealThread {
+  messages[]
+  events[]
+}
+
+Supports:
+- human messages
+- agent updates
+
+----------------------------------------
+8. NODE SYSTEM (FOUNDATION FOR PAYOUTS)
+
+User = Node
+
+Node {
+  id
+  role
+  wallet_balance
+}
+
+Track:
+- participation per deal
+- future payout logic
+
+----------------------------------------
+9. UI / UX SYSTEM (CRITICAL)
+
+Design like RAM 1500 infotainment:
+
+- Large buttons
+- Minimal text
+- Fast actions
+
+Main Screen:
+
+DEAL COMMAND CENTER:
+[ STRUCTURE DEAL ]
+[ RUN CREDIT ]
+[ BIND INSURANCE ]
+[ LOCATE VEHICLE ]
+[ COMPLETE DEAL ]
+
+----------------------------------------
+10. SELF-HEALING (PHASE 2 — PREP ONLY)
+
+Log:
+- errors
+- failed API calls
+
+Create:
+/system/logs
+
+DO NOT overbuild automation yet
+
+----------------------------------------
+PERFORMANCE RULES
+
+- API response < 300ms
+- WebSocket updates < 100ms
+- Mobile-first rendering
+
+----------------------------------------
+SECURITY
+
+- JWT authentication
+- Role-based access
+- Input validation on all endpoints
+
+----------------------------------------
+MVP BUILD ORDER (STRICT)
+
+1. Auth system
+2. Deal model + CRUD
+3. Text-to-deal parsing
+4. Deal command center UI
+5. WebSocket updates
+6. Insurance mock API
+7. Deal thread
+8. Auto Pulse (basic)
+
+----------------------------------------
+FINAL DIRECTIVE
+
+You are NOT building features.
+
+You are building:
+
+→ The operating system for automotive commerce
+
+Every function must:
+- remove a phone call
+- remove paper
+- remove delay
+
+If it does not reduce friction:
+DO NOT BUILD IT
+
+----------------------------------------
+
+3C ONYX = Infrastructure, not an app
+
+EXECUTE MVP IMMEDIATELY

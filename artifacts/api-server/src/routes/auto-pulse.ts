@@ -423,4 +423,98 @@ router.get("/auto-pulse/trending", requireAuth, async (_req: Request, res: Respo
   }
 });
 
+router.get("/auto-pulse/vehicle-intel", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const vin = (req.query.vin as string) || "";
+    const make = (req.query.make as string) || "";
+    const model = (req.query.model as string) || "";
+
+    if (!vin && !make) {
+      res.status(400).json({ error: "VIN or make is required" });
+      return;
+    }
+
+    const searchTerms = [make, model].filter(Boolean).join(" ").toLowerCase();
+    const vinPrefix = vin ? vin.slice(0, 8) : "";
+
+    const [news, reddit, recalls, rss] = await Promise.all([
+      fetchGoogleNewsAuto(),
+      fetchRedditAutomotive(),
+      fetchNHTSARecalls(),
+      fetchAutoRSS(),
+    ]);
+
+    const all = [...news, ...reddit, ...recalls, ...rss];
+
+    const matchScore = (item: FeedItem): number => {
+      const text = (item.title + " " + item.description).toLowerCase();
+      let score = 0;
+      if (make && text.includes(make.toLowerCase())) score += 3;
+      if (model && text.includes(model.toLowerCase())) score += 3;
+      if (searchTerms && text.includes(searchTerms)) score += 2;
+      const autoTerms = ["recall", "rebate", "incentive", "deal", "review", "mod", "upgrade", "issue", "fix", "service", "warranty", "price"];
+      for (const term of autoTerms) {
+        if (text.includes(term)) score += 0.5;
+      }
+      return score;
+    };
+
+    let vehicleRecalls: FeedItem[] = [];
+    if (make) {
+      try {
+        const recallUrl = model
+          ? `https://api.nhtsa.dot.gov/recalls/recallsByVehicle?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`
+          : `https://api.nhtsa.dot.gov/recalls/recallsByVehicle?make=${encodeURIComponent(make)}`;
+        const recallResp = await fetch(recallUrl, { signal: AbortSignal.timeout(6000) });
+        if (recallResp.ok) {
+          const recallData = await recallResp.json() as any;
+          vehicleRecalls = (recallData?.results || []).slice(0, 8).map((r: any, i: number) => ({
+            id: `vr-${r.NHTSACampaignNumber || i}`,
+            title: `RECALL: ${r.Manufacturer || make} ${r.ModelYear || ""} — ${r.Subject || "Safety Issue"}`,
+            description: (r.Summary || r.Consequence || "").slice(0, 280),
+            url: sanitizeUrl(`https://www.nhtsa.gov/recalls`) || "#",
+            source: "NHTSA",
+            sourceType: "recall" as const,
+            publishedAt: r.ReportReceivedDate
+              ? new Date(r.ReportReceivedDate).toISOString()
+              : new Date().toISOString(),
+            category: "Vehicle Recalls",
+          }));
+        }
+      } catch {}
+    }
+
+    const scored = all
+      .map(item => ({ ...item, _score: matchScore(item) }))
+      .filter(i => i._score > 0)
+      .sort((a, b) => b._score - a._score)
+      .slice(0, 20)
+      .map(({ _score, ...item }) => ({
+        ...item,
+        url: sanitizeUrl(item.url) || "#",
+        imageUrl: sanitizeUrl(item.imageUrl) || undefined,
+      }))
+      .filter(item => item.url !== "#");
+
+    const sections = {
+      recalls: vehicleRecalls,
+      news: scored.filter(i => i.sourceType === "news").slice(0, 5),
+      social: scored.filter(i => i.sourceType === "social").slice(0, 5),
+      marketTrends: scored.filter(i =>
+        /price|deal|value|cost|rebate|incentive/i.test(i.title + i.description)
+      ).slice(0, 5),
+    };
+
+    res.json({
+      vehicle: { vin: vin || null, make, model },
+      totalIntel: vehicleRecalls.length + scored.length,
+      sections,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (err: any) {
+    console.error("Vehicle intel error:", err.message);
+    res.status(500).json({ error: "Failed to load vehicle intelligence" });
+  }
+});
+
 export default router;
