@@ -205,7 +205,7 @@ function SplashScreen({ onComplete }: { onComplete: () => void }) {
   );
 }
 
-type ServiceCategory = "buy" | "sell" | "service" | "insurance" | "emergency";
+type ServiceCategory = "buy" | "sell" | "service" | "insurance" | "emergency" | "parts";
 
 const SERVICE_CONFIG: Record<ServiceCategory, {
   icon: any; label: string; description: string; accent: string;
@@ -285,6 +285,20 @@ const SERVICE_CONFIG: Record<ServiceCategory, {
     resultMessage: "Help is being dispatched to your location. A specialist will contact you momentarily.",
     confirmLabel: "Dispatch Help Now",
     confirmSummary: "ONYX will locate and dispatch the nearest available assistance immediately.",
+  },
+  parts: {
+    icon: Truck, label: "Parts & Accessories", description: "OEM, aftermarket & performance",
+    accent: "#F59E0B", department: "Parts", intakeTitle: "Parts & Accessories Request",
+    chips: ["OEM Parts", "Aftermarket", "Performance", "Wheels & Tires", "Interior", "Lighting"],
+    processingSteps: [
+      "Searching parts catalogs...",
+      "Checking availability across suppliers...",
+      "Comparing pricing and fitment...",
+      "Preparing your options...",
+    ],
+    resultMessage: "We've located matching parts from our supplier network. Best pricing and fastest delivery options are ready.",
+    confirmLabel: "Confirm — Find My Parts",
+    confirmSummary: "ONYX will search our global supplier network for the best price, fitment, and fastest delivery.",
   },
 };
 

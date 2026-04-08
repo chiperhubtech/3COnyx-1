@@ -155,6 +155,8 @@ import socialAmplifierRouter from "./social-amplifier";
 import litcommerceRouter from "./litcommerce";
 import constantContactRouter from "./constant-contact";
 import surveyShieldRouter from "./survey-shield";
+import dealCommandRouter from "./deal-command";
+import autoPulseRouter from "./auto-pulse";
 
 const router: IRouter = Router();
 
@@ -332,5 +334,7 @@ router.use("/social-amplifier", socialAmplifierRouter);
 router.use("/marketplace-hub", litcommerceRouter);
 router.use("/marketing", constantContactRouter);
 router.use("/survey-shield", surveyShieldRouter);
+router.use(dealCommandRouter);
+router.use(autoPulseRouter);
 
 export default router;

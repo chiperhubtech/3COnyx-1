@@ -72,6 +72,8 @@ import Custody from "@/pages/custody";
 import ProofPage from "@/pages/proof";
 import ARViewer from "@/pages/ar-viewer";
 import VisionPage from "@/pages/vision";
+import DealCommandCenter from "@/pages/deal-command";
+import AutoPulse from "@/pages/auto-pulse";
 import NotFound from "@/pages/not-found";
 import RunnerTasks from "@/pages/runner-tasks";
 import WorkerDashboard from "@/pages/worker-dashboard";
@@ -238,6 +240,8 @@ function AppRoutes() {
             <Route path="/safety-shield"        component={SafetyShield} />
             <Route path="/sovereign-ops"        component={SovereignOps} />
               <Route path="/vision"                component={VisionPage} />
+            <Route path="/deal-command"          component={DealCommandCenter} />
+            <Route path="/auto-pulse"           component={AutoPulse} />
             <Route path="/whatsapp"             component={WhatsAppHub} />
             <Route path="/dynasty-foundation"   component={DynastyFoundation} />
             <Route path="/onyx-source"          component={OnyxSource} />

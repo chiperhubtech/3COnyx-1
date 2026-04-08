@@ -13,7 +13,7 @@ import {
   Cpu, Package, Lock, Radio, Users, Sparkles, Heart, Wrench,
   Link2, X, Glasses, Brain, Layers, Activity, Flag, Target, DollarSign,
   Building2, ShieldAlert, Infinity, MessagesSquare, Crown, Scale, FileText, Gavel,
-  CheckCircle2, TrendingUp, BookOpen, Network, Palette,
+  CheckCircle2, TrendingUp, BookOpen, Network, Palette, Zap,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { NotificationBell } from "./NotificationBell";
@@ -144,6 +144,7 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
   const CUSTOMER_NAV = [
     { label: "My QR Badge",               path: "/my-qr",          icon: QrCode,      description: "Your scannable club identity · Download · Share", accent: "#C9A227" },
     { label: "AR Badge",                  path: "/ar-badge",       icon: Palette,     description: "Themed shareable badges · Holiday · Emoji · Viral", accent: "#A78BFA" },
+    { label: "Auto Pulse",                path: "/auto-pulse",     icon: Radio,       description: "Live automotive news · Social · Recalls · Trends", accent: "#C9A227" },
     { label: "Intelligence Feed",         path: "/intelligence",   icon: Activity,    description: "AI savings · live opportunities",  accent: "#C9A227" },
     { label: "Race Hub",                  path: "/race-hub",       icon: Flag,        description: "F1 · NASCAR · NHRA · Live Motorsport", accent: "#EF4444" },
     { label: "Aftermarket Shop",          path: "/aftermarket",    icon: ShoppingBag, description: "Performance · Wheels · Brakes · Audio",  accent: "#8B5CF6" },
@@ -165,6 +166,7 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
   ];
 
   const DEALERFLOW_NAV = [
+    { label: "Deal Command Center",        path: "/deal-command",          icon: Zap,             description: "Text-to-Deal · Mobile Desking · One-Tap Insurance", accent: "#C9A227" },
     { label: "DealerFlow OS",              path: "/dealerflow",            icon: Layers,          description: "Unified Integration Layer · Smart Routing · Task Engine", accent: "#F59E0B" },
   ];
 

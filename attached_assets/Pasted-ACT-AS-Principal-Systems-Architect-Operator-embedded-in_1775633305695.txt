@@ -1,0 +1,234 @@
+ACT AS: Principal Systems Architect + Operator embedded inside a real U.S. automotive dealership environment.
+
+MISSION:
+Build "3C ONYX" under CUXTOMCANDYCLUB — the world’s first Autonomous Automotive Operating System.
+
+This is NOT theoretical. The system must replicate, optimize, and ultimately replace REAL dealership workflows observed in the field.
+
+----------------------------------------
+REAL-WORLD CONTEXT (NON-NEGOTIABLE INPUTS)
+
+Dealerships currently operate with:
+- Desktop desking tools (Dealertrack / RouteOne style systems)
+- Sales managers working deals manually at cluttered desks
+- Paper-heavy workflows (contracts, RO sheets, goodwill forms)
+- Insurance binding via 30–60 minute phone calls
+- Dealer trades handled via phone + physical runners delivering paperwork
+- Transport logistics handled in separate apps
+- Warranty/service approvals done manually
+- Customer ID verification via scanned or copied licenses
+- Salespeople already using AI (ChatGPT) informally to structure deals
+
+CORE INSIGHT:
+The dealership already behaves like a distributed system — but humans are acting as APIs.
+
+3C ONYX replaces humans as middleware.
+
+----------------------------------------
+CORE DIRECTIVE: ZERO-FRICTION DEAL PIPELINE
+
+A deal must go from:
+
+Lead → Structuring → Approval → Insurance → Vehicle Acquisition → Delivery → Funding → Survey
+
+ALL inside ONE mobile interface.
+
+NO phone calls
+NO paperwork
+NO switching systems
+
+----------------------------------------
+SYSTEM ARCHITECTURE
+
+Frontend:
+- Next.js Progressive Web App (PWA)
+- Mobile-first (primary device = phone)
+- UI inspired by RAM 1500 infotainment system:
+  - Large touch targets
+  - Minimal text
+  - High contrast
+  - Colors: ONYX BLACK (#000000), METALLIC GOLD (#C9A85D)
+
+Backend:
+- Node.js (Fastify)
+- PostgreSQL (deal + financial ledger)
+- Redis (real-time state + agent communication)
+- WebSockets (live updates across all participants)
+
+----------------------------------------
+THE 7 AGENT SYSTEM (REPLACES STAFF)
+
+Each deal is executed by autonomous agents:
+
+1. SALES AGENT
+- Converts text (SMS/chat) into structured deal terms
+- Example: "$599/month with 2k down" → parsed deal object
+
+2. DESK MANAGER AGENT
+- Replicates dealership desking logic
+- Structures payments, terms, lender matching
+
+3. FINANCE AGENT
+- Submits deals to lenders (API or browser automation)
+- Returns approvals instantly
+
+4. INSURANCE AGENT
+- Integrates with InsureMO API (or mock service)
+- Binds insurance instantly (eliminates phone calls)
+
+5. INVENTORY AGENT
+- Locates vehicles across dealer network
+- Executes digital dealer trades (no runner, no paper)
+
+6. LOGISTICS AGENT
+- Manages vehicle transport (pickup/delivery tracking)
+- Replaces separate transport apps
+
+7. SERVICE + WARRANTY AGENT
+- Digitizes repair orders, goodwill, warranty submissions
+- Eliminates manual paperwork
+
+----------------------------------------
+DEAL OBJECT MODEL
+
+Each deal is a real-time living object:
+
+{
+  deal_id,
+  customer,
+  vehicle,
+  lender,
+  insurance_policy,
+  participants[],
+  status_timeline[],
+  documents[],
+  payouts[]
+}
+
+Every action updates instantly across all nodes.
+
+----------------------------------------
+ONYX PROOF ENGINE
+
+- Every deal action is cryptographically logged
+- Creates immutable timeline of:
+  - who did what
+  - when
+  - why
+
+Endpoint:
+GET /deal/:id/verify
+
+Returns:
+- full deal history
+- trust score
+- verification status
+
+----------------------------------------
+NODE ECONOMY
+
+Every participant becomes a "Node":
+- Salesperson
+- Manager
+- Transport driver
+- Insurance provider
+
+System automatically:
+- Tracks participation
+- Splits payouts
+- Logs contribution
+
+----------------------------------------
+CORE FEATURES (BASED ON REAL PROBLEMS)
+
+1. TEXT-TO-DEAL
+- Convert raw messages into structured deals instantly
+
+2. ONE-TAP INSURANCE
+- Eliminate 45-minute insurance calls
+
+3. DIGITAL DEALER TRADE
+- No physical paperwork movement
+
+4. MOBILE DESKING
+- Replace desktop-only systems
+
+5. DOCUMENT AUTO-CAPTURE
+- Scan ID → auto-fill all fields
+
+6. SURVEY SHIELD
+- Predict and manage customer satisfaction before OEM survey
+- Protect salesperson commissions
+
+----------------------------------------
+UI SCREENS (MUST BUILD)
+
+1. DEAL COMMAND CENTER
+Large buttons:
+- STRUCTURE DEAL
+- RUN CREDIT
+- BIND INSURANCE
+- LOCATE VEHICLE
+- SEND CONTRACT
+- COMPLETE DEAL
+
+2. LIVE DEAL THREAD
+- Chat-style interface
+- Humans + agents collaborate in one thread
+
+3. VEHICLE LOCATOR
+- Search + map view
+
+4. CUSTOMER SNAPSHOT
+- ID scan
+- Credit profile
+- Payment range
+
+----------------------------------------
+SELF-HEALING SYSTEM
+
+- Use browser automation logic (Claude-style)
+- If external system breaks → adapt automatically
+- If UI breaks → auto-fix layout/CSS
+
+----------------------------------------
+PERFORMANCE + SECURITY
+
+- Real-time updates under 200ms
+- Secure API architecture
+- Role-based access control
+- Full audit logging
+
+----------------------------------------
+FINAL STATE
+
+Current dealership process:
+- 2–4 hours
+- Multiple people
+- Multiple systems
+
+3C ONYX target:
+- 2–5 minutes
+- Single mobile interface
+- Autonomous execution
+
+----------------------------------------
+FINAL DIRECTIVE
+
+You are not building software.
+
+You are replacing the operating system of the automotive industry.
+
+Every feature must eliminate:
+- time
+- friction
+- human dependency
+
+Build the MVP immediately with working:
+- Deal structuring
+- Insurance binding (mock acceptable)
+- Live deal thread
+- Mobile-first UI
+
+3C ONYX is the autonomous standard for automotive commerce.
+EXECUTE.
