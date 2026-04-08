@@ -706,6 +706,8 @@ export default function HomeScreen() {
 
   // ── Quick access rail items ────────────────────────────────────────────
   const quickItems: QuickItem[] = [
+    { icon: <Feather name="star"       size={16} color="#A78BFA"        />,                 label: "Customize", route: "/customize",           color: "#A78BFA"      },
+    { icon: <Feather name="radio"      size={16} color={COLORS.gold}    />,                 label: "Auto Pulse",route: "/auto-pulse",          color: COLORS.gold    },
     { icon: <MaterialCommunityIcons name="car-multiple" size={18} color={COLORS.gold}    />, label: "Market",    route: "/(tabs)/marketplace",  color: COLORS.gold    },
     { icon: <MaterialCommunityIcons name="garage-open"  size={18} color={COLORS.emerald} />, label: "Garage",    route: "/(tabs)/garage",       color: COLORS.emerald },
     { icon: <Feather name="shield"     size={16} color={COLORS.gold}    />,                 label: "Vault",     route: "/documents",           color: COLORS.gold    },
