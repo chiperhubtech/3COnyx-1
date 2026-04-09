@@ -160,6 +160,7 @@ import autoPulseRouter from "./auto-pulse";
 import vehicleCustomizeRouter from "./vehicle-customize";
 import aiModeRouter from "./ai-mode";
 import proofEngineRouter from "./proof-engine";
+import behavioralEngineRouter from "./behavioral-engine";
 
 const router: IRouter = Router();
 
@@ -340,7 +341,8 @@ router.use("/survey-shield", surveyShieldRouter);
 router.use(dealCommandRouter);
 router.use(autoPulseRouter);
 router.use(vehicleCustomizeRouter);
-router.use("/ai-mode", aiModeRouter);
+router.use(aiModeRouter);
 router.use(proofEngineRouter);
+router.use(behavioralEngineRouter);
 
 export default router;

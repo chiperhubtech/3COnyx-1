@@ -51,6 +51,18 @@ async function startServer() {
         .catch((err) => logger.warn({ err: (err as Error).message }, "[genesis] Proof Engine init deferred"));
     });
 
+    import("./lib/sovereignBehavior").then(({ getBehavioralStatus }) => {
+      const status = getBehavioralStatus();
+      logger.info({
+        engineVersion: status.engineVersion,
+        agentProfiles: status.agentProfiles,
+        objectionTypes: status.objectionTypes,
+        protocol: status.protocol,
+        architect: status.architect,
+        status: status.status,
+      }, "[genesis] Sovereign Behavioral Execution Engine — ARMED");
+    });
+
     warmSecrets([...CRITICAL_SECRETS]).catch(err =>
       logger.warn({ err: (err as Error).message }, "[startup] Secrets warm skipped")
     );

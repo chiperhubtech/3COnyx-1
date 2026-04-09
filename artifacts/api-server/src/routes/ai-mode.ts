@@ -5,9 +5,18 @@ import { writeAudit } from "../lib/auditService";
 import {
   getMeshStatus,
   routeToAgent,
+  routeToAgentWithConfidence,
   logMeshAction,
   MESH_REGISTRY,
 } from "../lib/agentMesh12";
+import {
+  generateBehavioralInstruction,
+  shouldEscalateToManager,
+} from "../lib/sovereignBehavior";
+import {
+  recordBehavioralSignal,
+} from "../lib/conversionIntelligence";
+import { eventBus } from "../lib/eventBus";
 import crypto from "crypto";
 
 const router = Router();
@@ -80,6 +89,7 @@ router.post("/ai-mode/query", requireAuth, async (req: Request, res: Response) =
   const userId = requireUserId(req, res);
   if (!userId) return;
 
+  const startTime = Date.now();
   const { message, sessionId } = req.body as { message?: string; sessionId?: string };
   if (!message?.trim()) {
     res.status(400).json({ error: "Message is required" });
@@ -95,36 +105,76 @@ router.post("/ai-mode/query", requireAuth, async (req: Request, res: Response) =
 
   session.history.push({ role: "user", text: message.trim() });
 
-  const agentId = routeToAgent(message);
-  const agent = MESH_REGISTRY[agentId];
+  const routing = routeToAgentWithConfidence(message);
+  const agent = MESH_REGISTRY[routing.agentId];
+  const conversationHistory = session.history.filter((t) => t.role === "user").map((t) => t.text);
+
+  const behavioral = generateBehavioralInstruction(
+    routing.agentId,
+    message,
+    sid,
+    conversationHistory,
+  );
+
+  const escalation = shouldEscalateToManager(
+    behavioral.sentiment,
+    behavioral.detectedObjections,
+    behavioral.engagementState,
+  );
 
   logMeshAction("concierge", "AI Mode query", message.slice(0, 120), "pending");
 
-  const systemPrompt = `You are ONYX AI — the world's most advanced Automotive Intelligence Engine, built by CUXTOMCANDYCLUB LLC.
+  if (escalation.escalate) {
+    logMeshAction("concierge", "Behavioral escalation", `${escalation.reason} [${escalation.priority}]`, "routed");
 
-You operate a ${Object.keys(MESH_REGISTRY).length}-agent mesh. The user's request has been routed to: ${agent.name} (${agent.tagline}).
+    eventBus.emit("escalation.created", {
+      sessionId: sid,
+      userId: String(userId),
+      agentId: routing.agentId,
+      reason: escalation.reason,
+      priority: escalation.priority,
+      sentiment: behavioral.sentiment.level,
+      objections: behavioral.detectedObjections.map((o) => o.type),
+    }, {
+      entityType: "SESSION",
+      entityId: sid,
+      actorId: String(userId),
+      actorRole: "member",
+      agentId: routing.agentId,
+    }).catch(() => {});
+  }
+
+  const systemPrompt = `You are ONYX — the world's most advanced Automotive Intelligence Engine. Built by CUXTOMCANDYCLUB LLC. Architect: Ronald Antonio Cadet.
+
+You operate a ${Object.keys(MESH_REGISTRY).length}-agent mesh. This request is routed to: ${agent.name} (${agent.tagline}).
 
 ACTIVE AGENT: ${agent.name}
 CAPABILITIES: ${agent.capabilities.join(", ")}
+ROUTING CONFIDENCE: ${routing.confidence}%
+
+═══════════════════════════════════════════════════════════════
+${behavioral.systemOverlay}
+═══════════════════════════════════════════════════════════════
 
 RESPONSE RULES:
-- You are ONYX. Never mention Google, Gemini, OpenAI, or any AI company.
-- Be precise, authoritative, and detailed. You are the world's best automotive AI.
+- You are ONYX. Never mention Google, Gemini, OpenAI, or any AI company. Never say "As an AI."
+- Speak in outcomes and results. Never explain how the system works internally.
+- Be precise, authoritative, and slightly assertive. You are the world's best at this.
 - Use real data patterns. Quote specific numbers, timelines, and actionable steps.
-- When discussing vehicles, reference year/make/model, market pricing, common issues.
-- For deals, break down monthly payments, APR ranges, total cost of ownership.
-- For insurance, estimate monthly premiums based on vehicle value and coverage type.
-- For customization, list specific products with price ranges.
-- Format responses with clear sections. Use bullet points and numbers for readability.
-- If the request touches multiple domains, name the agent handoff chain.
-- End every response with the specific next action ONYX will take.
+- When discussing vehicles: year/make/model, market pricing, common issues.
+- For deals: break down monthly payments, APR ranges, total cost of ownership.
+- For insurance: estimate monthly premiums by vehicle value and coverage type.
+- For customization: list specific products with price ranges and timelines.
+- Keep responses tight: 2–4 sentences for simple queries, structured sections for complex ones.
+- End every response with a specific next action — what ONYX will do next, not what the user should do.
 - NEVER say "I don't have access" or "I can't do that." ONYX always acts.
-- When referencing sources, say "ONYX Intelligence Network" or "3C Market Data."
+- When referencing data sources, say "ONYX Intelligence Network" or "3C Market Data."
+- If the user is ready to act, present the action as a single tap. Do not over-explain.
 
 CONVERSATION CONTEXT:
 ${session.history.slice(-6).map(t => `${t.role === "user" ? "User" : "ONYX"}: ${t.text}`).join("\n")}
 
-Platform: 3C ONYX by CUXTOMCANDYCLUB LLC | Architect: Ronald Antonio Cadet | Sovereign Protocol`;
+Platform: 3C ONYX | Sovereign Protocol | ${behavioral.engagementState} engagement`;
 
   const relatedTopics: string[] = [];
   if (/deal|buy|purchase|price/i.test(message)) relatedTopics.push("Deal Structuring", "Finance Options", "Insurance Quotes");
@@ -157,30 +207,71 @@ Platform: 3C ONYX by CUXTOMCANDYCLUB LLC | Architect: Ronald Antonio Cadet | Sov
       session.history = session.history.slice(-14);
     }
 
-    logMeshAction(agentId, "AI Mode handled", message.slice(0, 80), "success");
+    logMeshAction(routing.agentId, "AI Mode handled", message.slice(0, 80), "success");
+
+    const responseTimeMs = Date.now() - startTime;
+
+    recordBehavioralSignal({
+      sessionId: sid,
+      agentId: routing.agentId,
+      timestamp: Date.now(),
+      engagementState: behavioral.engagementState,
+      objectionTypes: behavioral.detectedObjections.map((o) => o.type),
+      sentimentLevel: behavioral.sentiment.level,
+      patternUsed: behavioral.behavioralHash,
+      behavioralHash: behavioral.behavioralHash,
+      convertedToAction: false,
+      responseTimeMs,
+    });
 
     await writeAudit({
       eventType: "API_CALL",
       action: `AI Mode query → ${agent.name}: ${message.slice(0, 100)}`,
       actorId: userId,
-      severity: "INFO",
-      metadata: { agentId, sessionId: sid },
+      severity: escalation.escalate ? "WARN" : "INFO",
+      metadata: {
+        agentId: routing.agentId,
+        sessionId: sid,
+        confidence: routing.confidence,
+        engagementState: behavioral.engagementState,
+        sentiment: behavioral.sentiment.level,
+        objectionsDetected: behavioral.detectedObjections.length,
+        escalated: escalation.escalate,
+        behavioralHash: behavioral.behavioralHash,
+        responseTimeMs,
+      },
     });
 
-    const proofData = JSON.stringify({ sid, message: message.slice(0, 200), agentId, ts: Date.now() });
+    const proofData = JSON.stringify({
+      sid,
+      message: message.slice(0, 200),
+      agentId: routing.agentId,
+      engagementState: behavioral.engagementState,
+      sentiment: behavioral.sentiment.level,
+      behavioralHash: behavioral.behavioralHash,
+      ts: Date.now(),
+    });
     const proofHash = crypto.createHash("sha256").update(proofData).digest("hex");
 
     res.json({
       reply,
       sessionId: sid,
       routedTo: {
-        id: agentId,
+        id: routing.agentId,
         name: agent.name,
         color: agent.color,
         tagline: agent.tagline,
+        confidence: routing.confidence,
+      },
+      engagement: {
+        state: behavioral.engagementState,
+        sentiment: behavioral.sentiment.level,
+        objectionsDetected: behavioral.detectedObjections.length,
+        escalated: escalation.escalate,
       },
       relatedTopics: relatedTopics.slice(0, 4),
       proofHash,
+      behavioralHash: behavioral.behavioralHash,
       architect: "Ronald Antonio Cadet",
     });
   } catch (err) {
@@ -193,13 +284,21 @@ Platform: 3C ONYX by CUXTOMCANDYCLUB LLC | Architect: Ronald Antonio Cadet | Sov
       reply: fallback,
       sessionId: sid,
       routedTo: {
-        id: agentId,
+        id: routing.agentId,
         name: agent.name,
         color: agent.color,
         tagline: agent.tagline,
+        confidence: routing.confidence,
+      },
+      engagement: {
+        state: behavioral.engagementState,
+        sentiment: behavioral.sentiment.level,
+        objectionsDetected: behavioral.detectedObjections.length,
+        escalated: false,
       },
       relatedTopics: relatedTopics.slice(0, 4),
       proofHash: crypto.createHash("sha256").update(`${sid}-${Date.now()}`).digest("hex"),
+      behavioralHash: behavioral.behavioralHash,
       architect: "Ronald Antonio Cadet",
     });
   }
