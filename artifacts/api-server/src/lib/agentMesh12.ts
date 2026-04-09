@@ -514,18 +514,77 @@ export const MESH_REGISTRY: Record<MeshAgentId, MeshAgent> = {
 
 // ── Routing Logic ──────────────────────────────────────────────────────────
 
+export interface RoutingResult {
+  agentId: MeshAgentId;
+  confidence: number;
+  matchedKeywords: string[];
+  requiresEscalation: boolean;
+  guardrailTriggered: boolean;
+}
+
+const FINANCIAL_GUARDRAIL_KEYWORDS = [
+  "transfer", "wire", "send money", "withdraw", "payout", "pay me",
+  "refund", "loan", "approve", "finance", "credit", "down payment",
+];
+
+const HIGH_VALUE_THRESHOLD = 10000;
+
 export function routeToAgent(userMessage: string): MeshAgentId {
+  const result = routeToAgentWithConfidence(userMessage);
+  return result.agentId;
+}
+
+export function routeToAgentWithConfidence(userMessage: string): RoutingResult {
   const msg = userMessage.toLowerCase();
+  const scores: { id: MeshAgentId; hits: string[]; weight: number }[] = [];
 
   for (const [id, agent] of Object.entries(MESH_REGISTRY)) {
+    const hits: string[] = [];
+    let weight = 0;
+
     for (const keyword of agent.routingKeywords) {
       if (msg.includes(keyword)) {
-        return id as MeshAgentId;
+        hits.push(keyword);
+        weight += keyword.split(" ").length;
       }
+    }
+
+    if (hits.length > 0) {
+      scores.push({ id: id as MeshAgentId, hits, weight });
     }
   }
 
-  return "concierge"; // default fallback
+  if (scores.length === 0) {
+    return {
+      agentId: "concierge",
+      confidence: 50,
+      matchedKeywords: [],
+      requiresEscalation: false,
+      guardrailTriggered: false,
+    };
+  }
+
+  scores.sort((a, b) => b.weight - a.weight || b.hits.length - a.hits.length);
+  const best = scores[0];
+
+  const maxPossibleKeywords = MESH_REGISTRY[best.id].routingKeywords.length;
+  const rawConfidence = Math.min(100, Math.round((best.hits.length / Math.max(maxPossibleKeywords, 1)) * 100) + (best.weight * 8));
+  const confidence = Math.min(100, Math.max(30, rawConfidence));
+
+  const isFinancial = FINANCIAL_GUARDRAIL_KEYWORDS.some((k) => msg.includes(k));
+  const mentionsMoney = /\$[\d,]+/.test(msg);
+  const highValue = mentionsMoney && parseFloat(msg.replace(/[^0-9.]/g, "")) > HIGH_VALUE_THRESHOLD;
+
+  const guardrailTriggered = isFinancial && confidence < 90;
+  const requiresEscalation = confidence < 70 || highValue || guardrailTriggered;
+
+  return {
+    agentId: best.id,
+    confidence,
+    matchedKeywords: best.hits,
+    requiresEscalation,
+    guardrailTriggered,
+  };
 }
 
 // ── Action Logging (Trust Agent) ───────────────────────────────────────────

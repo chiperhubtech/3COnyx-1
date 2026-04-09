@@ -71,6 +71,13 @@ export const dealsTable = pgTable("deals", {
   deliveredAt: timestamp("delivered_at", { withTimezone: true }),
 
   dealershipId: integer("dealership_id").references(() => usersTable.id, { onDelete: "set null" }),
+  participants: jsonb("participants"),
+
+  techFeeUsd: numeric("tech_fee_usd", { precision: 12, scale: 2 }),
+  techFeePercent: numeric("tech_fee_percent", { precision: 5, scale: 2 }).default("3.00"),
+
+  proofHash: text("proof_hash"),
+
   metadata: jsonb("metadata"),
 
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

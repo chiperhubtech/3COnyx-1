@@ -60,3 +60,4 @@ export * from "./themes";
 export * from "./oem-incentives";
 export * from "./clubs";
 export * from "./events";
+export * from "./proof-chain";

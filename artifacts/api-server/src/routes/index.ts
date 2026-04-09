@@ -159,6 +159,7 @@ import dealCommandRouter from "./deal-command";
 import autoPulseRouter from "./auto-pulse";
 import vehicleCustomizeRouter from "./vehicle-customize";
 import aiModeRouter from "./ai-mode";
+import proofEngineRouter from "./proof-engine";
 
 const router: IRouter = Router();
 
@@ -340,5 +341,6 @@ router.use(dealCommandRouter);
 router.use(autoPulseRouter);
 router.use(vehicleCustomizeRouter);
 router.use("/ai-mode", aiModeRouter);
+router.use(proofEngineRouter);
 
 export default router;

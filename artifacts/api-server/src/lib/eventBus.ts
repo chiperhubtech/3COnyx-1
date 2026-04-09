@@ -1,20 +1,23 @@
 /**
- * 3C ONYX — EventBridge Event Bus
- * ─────────────────────────────────
- * Production: publishes typed events to AWS EventBridge
- * Development: in-process EventEmitter (same API, zero infra needed)
+ * 3C ONYX — EventBridge Event Bus + Proof Engine Integration
+ * Architect: Ronald Antonio Cadet — CUXTOMCANDYCLUB LLC
+ * FINGERPRINT: 3CONYX-RAC-EVENTBUS-SOVEREIGN
  *
- * AWS-05 upgrade — decouples agent mesh into event-driven architecture
+ * The Event Bus is the nervous system of the ONYX network.
+ * Every agent action, deal state change, payment, and vehicle event
+ * flows through this bus. Subscribers react in real-time.
  *
- * Usage:
- *   import { eventBus, onEvent } from "./eventBus";
- *   await eventBus.emit("agent.task.complete", { taskId, agentId, result });
- *   onEvent("agent.task.complete", (payload) => { ... });
+ * Integrations:
+ *   - AWS EventBridge (production pub/sub)
+ *   - WebSocket Hub (real-time client push)
+ *   - Proof Engine (cryptographic state recording)
+ *   - Agent Mesh (agent-to-agent communication)
  */
 
 import { EventBridgeClient, PutEventsCommand } from "@aws-sdk/client-eventbridge";
 import { EventEmitter } from "events";
 import { logger } from "./logger";
+import * as wsHub from "./wsHub";
 
 export type OnyxEventType =
   | "agent.task.pending"
@@ -46,7 +49,30 @@ export type OnyxEventType =
   | "vault.bundle.sealed"
   | "node.registered"
   | "node.appointment.scheduled"
-  | "deal.structured";
+  | "deal.structured"
+  | "deal.created"
+  | "deal.status_changed"
+  | "payment.completed"
+  | "payout.split"
+  | "vehicle.verified"
+  | "vehicle.registered"
+  | "node.joined"
+  | "node.attributed"
+  | "referral.credited"
+  | "service.dispatched"
+  | "service.completed"
+  | "logistics.dispatched"
+  | "logistics.delivered"
+  | "finance.submitted"
+  | "finance.approved"
+  | "incentive.applied"
+  | "kyc.verified"
+  | "wallet.credit"
+  | "wallet.debit"
+  | "remittance.sent"
+  | "qr.scanned"
+  | "agent.action"
+  | "escalation.created";
 
 export interface OnyxEvent<T = Record<string, unknown>> {
   type:      OnyxEventType;
@@ -54,13 +80,18 @@ export interface OnyxEvent<T = Record<string, unknown>> {
   payload:   T;
   ts:        string;
   traceId?:  string;
+  entityType?: string;
+  entityId?:   string;
+  actorId?:    string;
+  actorRole?:  string;
+  agentId?:    string;
+  participants?: Record<string, unknown>[];
+  confidenceScore?: number;
 }
 
-// ── Local EventEmitter (dev + test) ──────────────────────────────────────────
 const localEmitter = new EventEmitter();
-localEmitter.setMaxListeners(50);
+localEmitter.setMaxListeners(100);
 
-// ── AWS EventBridge client ────────────────────────────────────────────────────
 const EVENT_BUS_NAME = process.env.EVENTBRIDGE_BUS_NAME ?? "3c-onyx-event-bus";
 const AWS_REGION     = process.env.AWS_REGION ?? "us-east-1";
 const USE_EVENTBRIDGE = process.env.NODE_ENV === "production" && !!process.env.AWS_REGION;
@@ -71,25 +102,163 @@ function getEBClient(): EventBridgeClient {
   return _eb;
 }
 
-// ── Publish ───────────────────────────────────────────────────────────────────
+const EVENT_TO_WS_ROOM: Record<string, string> = {
+  "deal.created": "agents",
+  "deal.status_changed": "agents",
+  "deal.structured": "agents",
+  "payment.completed": "notify",
+  "payout.split": "notify",
+  "vehicle.verified": "agents",
+  "vehicle.registered": "agents",
+  "node.joined": "notify",
+  "node.attributed": "notify",
+  "service.dispatched": "tracking",
+  "service.completed": "tracking",
+  "logistics.dispatched": "tracking",
+  "logistics.delivered": "tracking",
+  "runner.dispatched": "tracking",
+  "runner.location.updated": "tracking",
+  "runner.mission.complete": "tracking",
+  "agent.action": "agents",
+  "agent.task.complete": "agents",
+  "guardian.predictive.alert": "alerts",
+  "vehicle.alert.guardian": "alerts",
+  "referral.created": "notify",
+  "referral.credited": "notify",
+  "wallet.credit": "notify",
+  "escalation.created": "agents",
+};
+
+const PROOF_EVENTS = new Set([
+  "deal.created",
+  "deal.status_changed",
+  "payment.completed",
+  "payout.split",
+  "vehicle.verified",
+  "vehicle.registered",
+  "node.joined",
+  "node.attributed",
+  "referral.credited",
+  "service.dispatched",
+  "service.completed",
+  "logistics.dispatched",
+  "logistics.delivered",
+  "finance.submitted",
+  "finance.approved",
+  "incentive.applied",
+  "kyc.verified",
+  "wallet.credit",
+  "wallet.debit",
+  "remittance.sent",
+  "qr.scanned",
+  "agent.action",
+  "escalation.created",
+]);
+
+const EVENT_TO_PROOF_TYPE: Record<string, string> = {
+  "deal.created": "DEAL_CREATED",
+  "deal.status_changed": "DEAL_STATUS_CHANGED",
+  "payment.completed": "PAYMENT_COMPLETED",
+  "payout.split": "PAYOUT_SPLIT",
+  "vehicle.verified": "VEHICLE_VERIFIED",
+  "vehicle.registered": "VEHICLE_REGISTERED",
+  "node.joined": "NODE_JOINED",
+  "node.attributed": "NODE_ATTRIBUTED",
+  "referral.credited": "REFERRAL_CREDITED",
+  "service.dispatched": "SERVICE_DISPATCHED",
+  "service.completed": "SERVICE_COMPLETED",
+  "logistics.dispatched": "LOGISTICS_DISPATCHED",
+  "logistics.delivered": "LOGISTICS_DELIVERED",
+  "finance.submitted": "FINANCE_SUBMITTED",
+  "finance.approved": "FINANCE_APPROVED",
+  "incentive.applied": "INCENTIVE_APPLIED",
+  "kyc.verified": "KYC_VERIFIED",
+  "wallet.credit": "WALLET_CREDIT",
+  "wallet.debit": "WALLET_DEBIT",
+  "remittance.sent": "REMITTANCE_SENT",
+  "qr.scanned": "QR_SCANNED",
+  "agent.action": "AGENT_ACTION",
+  "escalation.created": "ESCALATION_CREATED",
+};
+
+let totalEmitted = 0;
+let totalProofed = 0;
+const startedAt = new Date().toISOString();
+
 async function emit<T extends Record<string, unknown>>(
   type: OnyxEventType,
   payload: T,
-  options?: { source?: string; traceId?: string },
-): Promise<void> {
+  options?: {
+    source?: string;
+    traceId?: string;
+    entityType?: string;
+    entityId?: string;
+    actorId?: string;
+    actorRole?: string;
+    agentId?: string;
+    participants?: Record<string, unknown>[];
+    confidenceScore?: number;
+  },
+): Promise<string | null> {
   const event: OnyxEvent<T> = {
     type,
     source:  options?.source ?? "3c-onyx-api",
     payload,
     ts:      new Date().toISOString(),
     traceId: options?.traceId,
+    entityType: options?.entityType,
+    entityId: options?.entityId,
+    actorId: options?.actorId,
+    actorRole: options?.actorRole,
+    agentId: options?.agentId,
+    participants: options?.participants,
+    confidenceScore: options?.confidenceScore,
   };
 
-  // Always emit locally (subscribers in same process always work)
+  totalEmitted++;
+
   localEmitter.emit(type, event);
   localEmitter.emit("*", event);
 
-  // In production, also publish to EventBridge
+  const wsRoom = EVENT_TO_WS_ROOM[type];
+  if (wsRoom) {
+    try {
+      wsHub.broadcast(wsRoom as any, {
+        event: type,
+        entityType: options?.entityType,
+        entityId: options?.entityId,
+        payload,
+        timestamp: event.ts,
+      });
+    } catch (e) {
+      logger.warn({ event: type, error: (e as Error).message }, "WS broadcast failed");
+    }
+  }
+
+  let proofHash: string | null = null;
+  if (PROOF_EVENTS.has(type) && options?.entityType && options?.entityId) {
+    try {
+      const { appendProof } = await import("./proofEngine");
+      const proofType = EVENT_TO_PROOF_TYPE[type] as any;
+      if (proofType) {
+        proofHash = await appendProof({
+          eventType: proofType,
+          entityType: options.entityType,
+          entityId: options.entityId,
+          actorId: options.actorId,
+          actorRole: options.actorRole,
+          agentId: options.agentId,
+          payload: payload as Record<string, unknown>,
+          participants: options.participants,
+          confidenceScore: options.confidenceScore,
+        });
+        totalProofed++;
+      }
+    } catch (e) {
+      logger.error({ event: type, error: (e as Error).message }, "Proof Engine append failed");
+    }
+  }
+
   if (USE_EVENTBRIDGE) {
     try {
       const client = getEBClient();
@@ -106,9 +275,10 @@ async function emit<T extends Record<string, unknown>>(
       logger.warn({ type, err: (err as Error).message }, "[eventBus] EventBridge publish failed — event delivered locally only");
     }
   }
+
+  return proofHash;
 }
 
-// ── Subscribe ─────────────────────────────────────────────────────────────────
 function onEvent<T extends Record<string, unknown>>(
   type: OnyxEventType | "*",
   handler: (event: OnyxEvent<T>) => void | Promise<void>,
@@ -126,12 +296,15 @@ function onEvent<T extends Record<string, unknown>>(
   return () => localEmitter.off(type, wrapper);
 }
 
-// ── Status ────────────────────────────────────────────────────────────────────
 function getStatus() {
   return {
     mode:          USE_EVENTBRIDGE ? "eventbridge" : "local",
     eventBusName:  USE_EVENTBRIDGE ? EVENT_BUS_NAME : "local-emitter",
     listenerCount: localEmitter.eventNames().length,
+    totalEmitted,
+    totalProofed,
+    startedAt,
+    architect: "Ronald Antonio Cadet",
   };
 }
 

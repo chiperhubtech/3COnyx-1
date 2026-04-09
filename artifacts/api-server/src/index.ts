@@ -44,6 +44,13 @@ async function startServer() {
     startMaintenanceScheduler();
     initChains().catch((err) => logger.warn({ err }, "initChains failed"));
 
+    import("./lib/proofEngine").then(({ ensureGenesis, getChainStats }) => {
+      ensureGenesis()
+        .then(() => getChainStats())
+        .then((stats) => logger.info(stats, "[genesis] ONYX Proof Engine — SEALED"))
+        .catch((err) => logger.warn({ err: (err as Error).message }, "[genesis] Proof Engine init deferred"));
+    });
+
     warmSecrets([...CRITICAL_SECRETS]).catch(err =>
       logger.warn({ err: (err as Error).message }, "[startup] Secrets warm skipped")
     );
