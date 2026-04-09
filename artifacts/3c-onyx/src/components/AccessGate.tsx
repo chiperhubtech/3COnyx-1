@@ -60,10 +60,15 @@ export function AccessGate({ children }: { children: React.ReactNode }) {
       alignItems: "center", justifyContent: "center",
       zIndex: 99999,
       fontFamily: "'Barlow Condensed', system-ui, sans-serif",
+      overflow: "hidden",
     }}>
       <div style={{
         position: "absolute", inset: 0, pointerEvents: "none",
-        background: "radial-gradient(ellipse at center, rgba(201,162,39,0.04) 0%, transparent 70%)",
+        background: `
+          radial-gradient(ellipse at 30% 20%, rgba(123,97,255,0.04) 0%, transparent 50%),
+          radial-gradient(ellipse at center, rgba(201,168,93,0.05) 0%, transparent 60%),
+          radial-gradient(ellipse at 70% 80%, rgba(255,45,154,0.02) 0%, transparent 40%)
+        `,
       }} />
 
       <div style={{
@@ -72,11 +77,19 @@ export function AccessGate({ children }: { children: React.ReactNode }) {
         padding: "52px 44px 44px",
         borderRadius: 28,
         background: "rgba(255,255,255,0.025)",
-        border: "1px solid rgba(255,255,255,0.08)",
-        boxShadow: "0 24px 80px rgba(0,0,0,0.5)",
+        backdropFilter: "blur(24px)",
+        WebkitBackdropFilter: "blur(24px)",
+        border: "0.5px solid rgba(201,168,93,0.15)",
+        boxShadow: "0 24px 80px rgba(0,0,0,0.5), inset 0 0 40px rgba(201,168,93,0.02)",
         width: 380,
         maxWidth: "90vw",
+        overflow: "hidden",
       }}>
+        <div style={{
+          position: "absolute", inset: 0, borderRadius: "inherit",
+          background: "linear-gradient(135deg, rgba(201,168,93,0.03) 0%, transparent 50%)",
+          pointerEvents: "none",
+        }} />
         <OnyxLogo size={80} variant="app-icon" />
 
         <div style={{ marginTop: 24, textAlign: "center" }}>
@@ -105,7 +118,10 @@ export function AccessGate({ children }: { children: React.ReactNode }) {
           </div>
         )}
 
-        <div style={{ width: 48, height: 1, background: "rgba(255,255,255,0.06)", margin: "24px 0" }} />
+        <div style={{
+          width: 60, height: 1, margin: "24px 0",
+          background: "linear-gradient(90deg, transparent, rgba(201,168,93,0.2), transparent)",
+        }} />
 
         <div style={{
           animation: shake ? "gate-shake 0.55s ease" : "none",
@@ -156,16 +172,16 @@ export function AccessGate({ children }: { children: React.ReactNode }) {
             padding: "16px",
             fontSize: 16,
             fontWeight: 800,
-            background: "linear-gradient(135deg, #C9A227, #A68B1B)",
+            background: "linear-gradient(135deg, #C9A85D, #A68B1B)",
             border: "none",
             borderRadius: 14,
             color: "#050505",
             cursor: "pointer",
             boxShadow: hover
-              ? "0 6px 24px rgba(201,162,39,0.35)"
-              : "0 4px 16px rgba(201,162,39,0.15)",
+              ? "0 6px 24px rgba(201,168,93,0.4), 0 0 40px rgba(201,168,93,0.1)"
+              : "0 4px 16px rgba(201,168,93,0.2)",
             transform: pressed ? "scale(0.98)" : hover ? "translateY(-1px)" : "none",
-            transition: "all 0.15s",
+            transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
           }}
         >
           Continue
@@ -196,8 +212,8 @@ export function AccessGate({ children }: { children: React.ReactNode }) {
           font-size: 15px;
         }
         input:focus {
-          border-color: rgba(201,162,39,0.4) !important;
-          box-shadow: 0 0 20px rgba(201,162,39,0.08);
+          border-color: rgba(201,168,93,0.4) !important;
+          box-shadow: 0 0 24px rgba(201,168,93,0.1), inset 0 0 12px rgba(201,168,93,0.02);
         }
       `}</style>
     </div>

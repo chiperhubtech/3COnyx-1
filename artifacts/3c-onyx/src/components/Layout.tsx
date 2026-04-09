@@ -10,11 +10,12 @@ export function Layout({ children }: LayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#0d0d10] text-white">
+    <div className="flex h-screen overflow-hidden text-white" style={{ background: "#050508" }}>
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/60 z-30 md:hidden"
+          className="fixed inset-0 z-30 md:hidden"
+          style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(4px)" }}
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -31,11 +32,15 @@ export function Layout({ children }: LayoutProps) {
       </div>
 
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto flex flex-col min-h-0 min-w-0">
+      <main className="flex-1 overflow-y-auto flex flex-col min-h-0 min-w-0" style={{ position: "relative" }}>
         {/* Mobile top bar with hamburger */}
         <div
           className="md:hidden flex items-center gap-3 px-4 py-3 shrink-0"
-          style={{ borderBottom: "1px solid rgba(255,255,255,0.06)", background: "#06060a" }}
+          style={{
+            borderBottom: "0.5px solid rgba(201,168,93,0.08)",
+            background: "linear-gradient(180deg, #08080c 0%, #050508 100%)",
+            backdropFilter: "blur(20px)",
+          }}
         >
           <button
             onClick={() => setSidebarOpen(true)}
@@ -49,11 +54,12 @@ export function Layout({ children }: LayoutProps) {
               style={{
                 width: "28px",
                 height: "28px",
-                borderRadius: "8px",
-                background: "linear-gradient(135deg, #C9A227 0%, #8B6914 100%)",
+                borderRadius: "10px",
+                background: "linear-gradient(135deg, #C9A85D 0%, #8B6914 100%)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                boxShadow: "0 2px 8px rgba(201,168,93,0.2)",
               }}
             >
               <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 text-black fill-current">

@@ -97,7 +97,10 @@ function SectionLabel({ children }: { children: string }) {
 }
 
 function Divider() {
-  return <div style={{ height: 1, background: "rgba(255,255,255,0.045)", margin: "10px 0" }} />;
+  return <div style={{
+    height: 1, margin: "10px 10px",
+    background: "linear-gradient(90deg, transparent, rgba(201,168,93,0.08), transparent)",
+  }} />;
 }
 
 /* ─── Live AI Status Widget ───────────────────────────────────── */
@@ -113,9 +116,13 @@ function AIStatusBar() {
     <div style={{
       margin: "12px 10px",
       padding: "10px 12px",
-      borderRadius: 10,
-      background: "linear-gradient(135deg, rgba(201,162,39,0.06) 0%, rgba(96,165,250,0.03) 100%)",
-      border: "1px solid rgba(201,162,39,0.15)",
+      borderRadius: 12,
+      background: "linear-gradient(135deg, rgba(201,168,93,0.06) 0%, rgba(123,97,255,0.03) 100%)",
+      backdropFilter: "blur(12px)",
+      WebkitBackdropFilter: "blur(12px)",
+      border: "0.5px solid rgba(201,168,93,0.15)",
+      boxShadow: "inset 0 0 16px rgba(201,168,93,0.02)",
+      position: "relative", zIndex: 1,
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 7 }}>
         <div style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--onyx-gold)", animation: "pulse 2s infinite" }} />
@@ -227,12 +234,25 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
       display: "flex",
       flexDirection: "column",
       overflow: "hidden",
-      background: "var(--onyx-sidebar-bg)",
-      borderRight: "1px solid var(--onyx-border-line)",
+      background: "linear-gradient(180deg, #08080c 0%, #050508 50%, #08080c 100%)",
+      borderRight: "0.5px solid rgba(201,168,93,0.1)",
+      position: "relative",
     }}>
+      <div style={{
+        position: "absolute", inset: 0, pointerEvents: "none",
+        background: `
+          radial-gradient(ellipse at 50% 0%, rgba(201,168,93,0.03) 0%, transparent 40%),
+          radial-gradient(ellipse at 50% 100%, rgba(123,97,255,0.02) 0%, transparent 40%)
+        `,
+      }} />
 
       {/* ── Logo ──────────────────────────────────────────────── */}
-      <div style={{ padding: "18px 16px 14px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+      <div style={{
+        padding: "18px 16px 14px",
+        borderBottom: "0.5px solid rgba(201,168,93,0.08)",
+        background: "rgba(201,168,93,0.01)",
+        position: "relative", zIndex: 1,
+      }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <Link href="/" onClick={onClose}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
@@ -269,7 +289,7 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
       </div>
 
       {/* ── Navigation ───────────────────────────────────────── */}
-      <nav style={{ flex: 1, overflowY: "auto", padding: "0 6px 10px", scrollbarWidth: "none" }}>
+      <nav style={{ flex: 1, overflowY: "auto", padding: "0 6px 10px", scrollbarWidth: "none", position: "relative", zIndex: 1 }}>
 
         <SectionLabel>{t("sidebar.sectionMyAccount")}</SectionLabel>
         {CUSTOMER_NAV.map((item) => (
@@ -320,7 +340,12 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
       </nav>
 
       {/* ── Footer — Branding + Theme Toggle + Security Badge ─── */}
-      <div style={{ padding: "10px 12px 14px", borderTop: "1px solid var(--onyx-border-line)" }}>
+      <div style={{
+        padding: "10px 12px 14px",
+        borderTop: "0.5px solid rgba(201,168,93,0.08)",
+        background: "rgba(201,168,93,0.01)",
+        position: "relative", zIndex: 1,
+      }}>
         {/* Brand line */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
           <div>

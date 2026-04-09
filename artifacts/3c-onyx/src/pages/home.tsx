@@ -1069,39 +1069,68 @@ function ServiceCard({ icon: Icon, label, description, accent, onClick }: {
   icon: any; label: string; description: string; accent: string; onClick: () => void;
 }) {
   const [pressed, setPressed] = useState(false);
+  const [hovered, setHovered] = useState(false);
 
   return (
     <button
       onClick={onClick}
       onMouseDown={() => setPressed(true)}
       onMouseUp={() => setPressed(false)}
-      onMouseLeave={() => setPressed(false)}
+      onMouseLeave={() => { setPressed(false); setHovered(false); }}
+      onMouseEnter={() => setHovered(true)}
       style={{
         width: "100%",
         padding: "20px 20px",
-        borderRadius: 16,
-        background: pressed ? "rgba(201,162,39,0.06)" : "rgba(255,255,255,0.02)",
-        border: `1px solid ${pressed ? "rgba(201,162,39,0.2)" : "rgba(255,255,255,0.06)"}`,
+        borderRadius: 18,
+        background: pressed
+          ? `linear-gradient(135deg, ${accent}12 0%, ${accent}06 100%)`
+          : hovered
+            ? "rgba(255,255,255,0.04)"
+            : "rgba(255,255,255,0.02)",
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
+        border: `0.5px solid ${pressed ? `${accent}40` : hovered ? `${accent}25` : "rgba(255,255,255,0.06)"}`,
         cursor: "pointer",
-        transition: "all 0.2s ease",
+        transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+        transform: pressed ? "scale(0.98)" : "scale(1)",
         display: "flex", alignItems: "center", gap: 16,
         textAlign: "left",
         color: "#fff",
+        position: "relative",
+        overflow: "hidden",
+        boxShadow: pressed
+          ? `inset 0 0 20px ${accent}08, 0 2px 8px rgba(0,0,0,0.3)`
+          : hovered
+            ? `0 4px 16px rgba(0,0,0,0.2), 0 0 20px ${accent}08`
+            : "0 2px 8px rgba(0,0,0,0.15)",
       }}
     >
       <div style={{
+        position: "absolute", inset: 0, borderRadius: "inherit",
+        background: `linear-gradient(135deg, ${accent}05 0%, transparent 50%)`,
+        pointerEvents: "none",
+      }} />
+      <div style={{
         width: 48, height: 48, borderRadius: 14, flexShrink: 0,
-        background: `${accent}0D`,
-        border: `1px solid ${accent}1A`,
+        background: `linear-gradient(135deg, ${accent}15, ${accent}08)`,
+        border: `0.5px solid ${accent}25`,
         display: "flex", alignItems: "center", justifyContent: "center",
+        boxShadow: `0 0 12px ${accent}10`,
+        transition: "box-shadow 0.2s",
+        position: "relative", zIndex: 1,
       }}>
         <Icon size={22} style={{ color: accent }} />
       </div>
-      <div style={{ flex: 1 }}>
+      <div style={{ flex: 1, position: "relative", zIndex: 1 }}>
         <p style={{ fontSize: 16, fontWeight: 700, margin: "0 0 2px", lineHeight: 1.2 }}>{label}</p>
         <p style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", margin: 0, lineHeight: 1.4 }}>{description}</p>
       </div>
-      <ChevronRight size={16} style={{ color: "rgba(255,255,255,0.12)", flexShrink: 0 }} />
+      <ChevronRight size={16} style={{
+        color: hovered ? `${accent}90` : "rgba(255,255,255,0.12)",
+        flexShrink: 0, transition: "all 0.2s",
+        transform: hovered ? "translateX(2px)" : "none",
+        position: "relative", zIndex: 1,
+      }} />
     </button>
   );
 }
@@ -1113,18 +1142,28 @@ function ActiveFlowCard({ deal }: { deal: any }) {
 
   return (
     <div style={{
-      background: "linear-gradient(135deg, rgba(201,162,39,0.06), rgba(201,162,39,0.02))",
-      border: "1px solid rgba(201,162,39,0.12)",
+      background: "linear-gradient(135deg, rgba(201,168,93,0.06), rgba(201,168,93,0.02))",
+      backdropFilter: "blur(20px)",
+      WebkitBackdropFilter: "blur(20px)",
+      border: "0.5px solid rgba(201,168,93,0.18)",
       borderRadius: 20, padding: "24px 24px 20px",
+      position: "relative", overflow: "hidden",
+      boxShadow: "inset 0 0 30px rgba(201,168,93,0.03), 0 4px 24px rgba(0,0,0,0.2)",
     }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+      <div style={{
+        position: "absolute", inset: 0, borderRadius: "inherit",
+        background: "linear-gradient(135deg, rgba(201,168,93,0.04) 0%, transparent 60%)",
+        pointerEvents: "none",
+      }} />
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16, position: "relative", zIndex: 1 }}>
         <div style={{
           width: 48, height: 48, borderRadius: 14,
-          background: "linear-gradient(135deg, rgba(201,162,39,0.15), rgba(201,162,39,0.05))",
-          border: "1px solid rgba(201,162,39,0.2)",
+          background: "linear-gradient(135deg, rgba(201,168,93,0.18), rgba(201,168,93,0.06))",
+          border: "0.5px solid rgba(201,168,93,0.25)",
           display: "flex", alignItems: "center", justifyContent: "center",
+          boxShadow: "0 0 16px rgba(201,168,93,0.1)",
         }}>
-          <Car size={22} style={{ color: "#C9A227" }} />
+          <Car size={22} style={{ color: "#C9A85D" }} />
         </div>
         <div style={{ flex: 1 }}>
           <p style={{ fontSize: 17, fontWeight: 700, color: "#fff", margin: 0, lineHeight: 1.3 }}>

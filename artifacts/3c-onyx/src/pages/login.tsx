@@ -8,7 +8,7 @@ import {
 } from "@simplewebauthn/browser";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
-const GOLD = "#C9A227";
+const GOLD = "#C9A85D";
 
 declare global {
   interface Window {
@@ -203,24 +203,44 @@ export default function LoginPage() {
   });
 
   return (
-    <div className="public-page" style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: 24, minHeight: "100vh" }}>
-      <div style={{ width: "100%", maxWidth: 400 }}>
+    <div className="public-page" style={{
+      display: "flex", alignItems: "center", justifyContent: "center",
+      padding: 24, minHeight: "100vh",
+      position: "relative", overflow: "hidden",
+    }}>
+      <div style={{
+        position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0,
+        background: `
+          radial-gradient(ellipse at 20% 30%, rgba(123,97,255,0.04) 0%, transparent 50%),
+          radial-gradient(ellipse at 80% 70%, rgba(201,168,93,0.05) 0%, transparent 50%),
+          radial-gradient(ellipse at 50% 100%, rgba(255,45,154,0.02) 0%, transparent 40%)
+        `,
+      }} />
+      <div style={{ width: "100%", maxWidth: 400, position: "relative", zIndex: 1 }}>
         <div id="google-btn-container" style={{ position: "absolute", opacity: 0, pointerEvents: "none" }} />
 
         <div style={{ textAlign: "center", marginBottom: 40 }}>
           <div style={{
-            width: 64, height: 64, borderRadius: 20,
-            background: "linear-gradient(135deg, rgba(201,162,39,0.15), rgba(201,162,39,0.05))",
-            border: "1px solid rgba(201,162,39,0.25)",
+            width: 72, height: 72, borderRadius: 22,
+            background: "linear-gradient(135deg, rgba(201,168,93,0.18), rgba(201,168,93,0.06))",
+            border: "0.5px solid rgba(201,168,93,0.3)",
             display: "flex", alignItems: "center", justifyContent: "center",
             margin: "0 auto 20px",
-            boxShadow: "0 8px 32px rgba(201,162,39,0.1)",
+            boxShadow: "0 8px 32px rgba(201,168,93,0.15), 0 0 60px rgba(201,168,93,0.05)",
+            position: "relative",
           }}>
-            <span style={{ fontSize: 28, fontWeight: 900, color: GOLD, fontFamily: "'Barlow Condensed', sans-serif" }}>3C</span>
+            <div style={{
+              position: "absolute", inset: -8,
+              background: "radial-gradient(circle, rgba(201,168,93,0.08) 0%, transparent 60%)",
+              animation: "loginLogoPulse 4s ease-in-out infinite",
+              pointerEvents: "none", borderRadius: "50%",
+            }} />
+            <span style={{ fontSize: 28, fontWeight: 900, color: GOLD, fontFamily: "'Barlow Condensed', sans-serif", position: "relative", zIndex: 1 }}>3C</span>
           </div>
           <h1 style={{
             fontFamily: "'Barlow Condensed', sans-serif",
             fontSize: 32, fontWeight: 900, color: "#fff", margin: "0 0 8px",
+            letterSpacing: "0.02em",
           }}>
             Welcome back
           </h1>
@@ -228,6 +248,7 @@ export default function LoginPage() {
             Sign in to your account
           </p>
         </div>
+        <style>{`@keyframes loginLogoPulse { 0%,100%{opacity:0.5;transform:scale(1);} 50%{opacity:0.9;transform:scale(1.15);} }`}</style>
 
         {displayError && (
           <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", borderRadius: 12, background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", marginBottom: 20 }}>
@@ -278,9 +299,13 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} style={{
           background: "rgba(255,255,255,0.03)",
-          border: "1px solid rgba(255,255,255,0.08)",
-          borderRadius: 20, padding: 28,
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          border: "0.5px solid rgba(201,168,93,0.15)",
+          borderRadius: 22, padding: 28,
           display: "flex", flexDirection: "column", gap: 18,
+          position: "relative", overflow: "hidden",
+          boxShadow: "inset 0 0 30px rgba(201,168,93,0.02), 0 4px 24px rgba(0,0,0,0.3)",
         }}>
           <div>
             <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>Email</label>
@@ -323,6 +348,9 @@ export default function LoginPage() {
 
           <button
             type="submit" disabled={loading}
+            onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.98)")}
+            onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
+            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
             style={{
               padding: "16px", borderRadius: 14, marginTop: 4,
               background: `linear-gradient(135deg, ${GOLD}, #A68B1B)`,
@@ -330,8 +358,8 @@ export default function LoginPage() {
               cursor: loading ? "default" : "pointer",
               display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
               opacity: loading ? 0.7 : 1,
-              boxShadow: "0 4px 20px rgba(201,162,39,0.3)",
-              transition: "opacity 0.2s",
+              boxShadow: `0 4px 20px rgba(201,168,93,0.3), 0 0 40px rgba(201,168,93,0.08)`,
+              transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
             }}
           >
             {loading ? <Loader2 size={18} className="animate-spin" /> : null}
