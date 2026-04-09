@@ -72,7 +72,10 @@ export type OnyxEventType =
   | "remittance.sent"
   | "qr.scanned"
   | "agent.action"
-  | "escalation.created";
+  | "escalation.created"
+  | "friction.detected"
+  | "demand.assessed"
+  | "hub.upgrade.eligible";
 
 export interface OnyxEvent<T = Record<string, unknown>> {
   type:      OnyxEventType;
@@ -307,6 +310,37 @@ function getStatus() {
     architect: "Ronald Antonio Cadet",
   };
 }
+
+localEmitter.on("friction.detected", (event: OnyxEvent) => {
+  try {
+    const { assessDemand } = require("./michelinDemandEngine") as typeof import("./michelinDemandEngine");
+    const frictionEvents = (event.payload?.frictionEvents ?? [event.payload?.frictionEvent]) as string[];
+    const assessment = assessDemand(
+      frictionEvents.filter(Boolean) as import("./michelinDemandEngine").FrictionEvent[],
+      event.payload?.vehicleAge as number | undefined,
+      event.payload?.vehicleMileage as number | undefined,
+    );
+    if (assessment.demandTier === "CRITICAL" || assessment.demandTier === "EMERGENCY") {
+      emit("demand.assessed", {
+        ...assessment,
+        sourceEvent: event.type,
+      }, {
+        source: "michelin-demand-engine",
+        entityType: "vehicle",
+        entityId: event.entityId,
+        actorId: event.actorId,
+      }).catch(() => {});
+    }
+    logger.info({
+      demandScore: assessment.demandScore,
+      tier: assessment.demandTier,
+      upgradePath: assessment.upgradePath,
+      entityId: event.entityId,
+    }, "[eventBus] Michelin Demand auto-assessed friction event");
+  } catch (err) {
+    logger.error({ err: (err as Error).message }, "[eventBus] Michelin Demand listener error");
+  }
+});
 
 export const eventBus = { emit, onEvent, getStatus };
 export { onEvent };

@@ -10,15 +10,15 @@ I prefer detailed explanations and iterative development. Ask before making majo
 
 ## Monorepo Structure and Tooling
 
-The project utilizes a pnpm workspace monorepo, built with Node.js 24 and TypeScript 5. The backend employs an Express 5 API, PostgreSQL with Drizzle ORM, and Zod for validation. API codegen is handled by Orval from an OpenAPI spec, and `esbuild` is used for CJS bundling.
+The project utilizes a pnpm workspace monorepo with Node.js 24 and TypeScript 5. The backend uses Express 5, PostgreSQL with Drizzle ORM, and Zod for validation. API codegen is handled by Orval from an OpenAPI spec, and `esbuild` is used for CJS bundling.
 
 ## AWS Deployment Architecture
 
-The system is designed for AWS, using Route 53, CloudFront, S3, ALB, ECS Fargate for API containers, and RDS PostgreSQL 16 to ensure lightweight container images and zero-downtime deployments.
+The system is designed for AWS, leveraging Route 53, CloudFront, S3, ALB, ECS Fargate for API containers, and RDS PostgreSQL 16 for lightweight containers and zero-downtime deployments.
 
 ## UI/UX Design (3C Onyx Visual Language)
 
-The platform features a cinematic "Apple × GTA" visual language with a multi-theme system, including a dark default, warm ivory light mode, and seasonal themes. Typography uses Barlow Condensed for headings and Inter for body text. Design elements include an "THE AUTOMOTIVE INTELLIGENCE LAYER" hero, amber accents, translucent glassmorphism, and a custom AI-Native Design System with futuristic components and dynamic animations. The UI also incorporates a "Google Search Bar" pivot for a consumer-first assistant experience and is designed with a mobile-first, Zero-Thought Assistant-First approach.
+The platform features a cinematic "Apple × GTA" visual language with a multi-theme system (dark default, warm ivory light mode, seasonal themes). Typography uses Barlow Condensed for headings and Inter for body text. Design elements include an "THE AUTOMOTIVE INTELLIGENCE LAYER" hero, amber accents, translucent glassmorphism, and a custom AI-Native Design System with futuristic components and dynamic animations. The UI incorporates a "Google Search Bar" pivot for a consumer-first assistant experience and is designed with a mobile-first, Zero-Thought Assistant-First approach.
 
 ## Core Platform Features
 
@@ -35,28 +35,28 @@ The architecture is AI-first, encompassing:
 -   **API Performance Stack (ByteByteGo 5)**: Implements standardized pagination, async logging, TTL in-memory caching, gzip/brotli compression, and tuned connection pools.
 -   **Sovereign Infrastructure Layer (UACL)**: Ensures every request passes through classification, authentication, execution, verification, logging, and auditing stages, including a 12-Intent Neural Classifier and the Genesis Protocol.
 -   **DealerFlow OS v2.0**: An industrial infrastructure layer for automotive professionals, featuring a Smart Routing Engine, SLA Auto-Escalation, Bank-Ready Vault, AI Vision OCR Intake, Dependency-Aware DAG Execution, and Zero-Trust Delegation Architecture.
--   **Deal Command Center**: Single-screen autonomous deal pipeline replacing the entire dealership workflow, featuring a Text-to-Deal parser, Mobile Desking calculator, One-Tap Insurance binding, cryptographic Deal Verify timeline, Live Deal Thread, and 6-button command grid. Features a spatial UI with glassmorphism, ambient glow, and tactile button effects.
+-   **Deal Command Center**: Single-screen autonomous deal pipeline replacing the entire dealership workflow, featuring a Text-to-Deal parser, Mobile Desking calculator, One-Tap Insurance binding, cryptographic Deal Verify timeline, Live Deal Thread, and 6-button command grid, with a spatial UI.
 -   **ONYX AI Mode**: Google AI Mode-style conversational automotive intelligence interface with a full-page cinematic spatial UI, suggested prompts, 12-agent mesh routing, multi-turn conversation with session persistence, formatted responses, related topics chips, SHA-256 proof hashes, and typing indicators.
--   **Auto Pulse**: Perplexity-style automotive intelligence feed aggregating real-time content from Google News RSS, Reddit automotive communities, NHTSA government recall API, automotive publication RSS feeds, and YouTube automotive channels. Features category tabs, trending topics, and a search filter.
--   **Vehicle Customization Hub**: Full-service vehicle customization platform for wraps & graphics, wheels & tires, interior, exterior, lighting, audio & electronics, and performance. Features fleet mode with volume pricing, instant quote generation, category filtering, and a product selection builder.
+-   **Auto Pulse**: Perplexity-style automotive intelligence feed aggregating real-time content from Google News RSS, Reddit, NHTSA API, and automotive publications.
+-   **Vehicle Customization Hub**: Full-service vehicle customization platform with fleet mode, volume pricing, instant quotes, and a product selection builder.
 -   **Autonomous Execution Protocol**: AI confidence scoring per task with auto-escalation and a retry mechanism.
 -   **Omni-Node Open Intake**: A public submission portal with AI-powered smart routing, duplicate detection, and a Global Trust Score Engine.
 -   **Invisible Funnel Protocol**: A headless API orchestration layer for growth, communication, and commerce.
 -   **Universal Commission Engine**: Automates referral commissions on platform transactions.
 -   **Autonomous Execution Engine**: Implements a "Scan → Diagnose → Execute" one-tap workflow, normalizing vehicle input, running AI-powered vehicle analysis, and autonomously triggering cascading workflows with blockchain proof stamping.
--   **Universal Attribution Engine**: 5-level depth referral attribution with diminishing commission rates, anti-abuse quarantine, SHA-256 blockchain proof stamping, and zero-cent payout protection.
--   **Street-Level Distribution Network**: The entry layer for the "Global Automotive Liquidity Network," capturing QR scans at physical nodes and tracking referrers.
--   **ONYX Proof Engine**: Cryptographic SHA-256 hash-chain recording every state change across the network. Supports 25 event types.
--   **Event Bus + Proof Integration**: Enhanced EventBus integrates with WebSocket Hub for real-time broadcast and Proof Engine for cryptographic recording. Every event is simultaneously pushed to WebSocket clients and sealed in the hash-chain. Supports AWS EventBridge in production.
+-   **Universal Attribution Engine**: 5-level depth referral attribution with diminishing commission rates and blockchain proof stamping.
+-   **Street-Level Distribution Network**: Entry layer for the "Global Automotive Liquidity Network," capturing QR scans at physical nodes and tracking referrers.
+-   **ONYX Proof Engine**: Cryptographic SHA-256 hash-chain recording every state change across the network for 25 event types.
+-   **Event Bus + Proof Integration**: Enhanced EventBus integrates with WebSocket Hub for real-time broadcast and Proof Engine for cryptographic recording. Supports AWS EventBridge in production.
 -   **Node Attribution Engine**: Every deal auto-populates a participants array with roles and calculates a 3% Global Tech Fee split.
 -   **NLP Intent Classifier v2**: Enhanced `routeToAgentWithConfidence()` returns confidence scores, matched keywords, and escalation flags, with 90% AI Confidence Guardrails for financial/critical actions.
--   **Sovereign Behavioral Execution Engine**: Psychological intelligence layer over the 12-Agent Mesh. Each agent has a sealed Behavioral DNA profile, handling 10 objection types via NLP. User Engagement State Machine tracks sentiment and auto-escalates.
--   **Conversion Intelligence Engine**: Global Learning Brain that tracks which behavioral patterns lead to conversions, records behavioral signals, attributes conversions, and calculates effectiveness scores. Provides per-agent metrics and a network-wide intelligence dashboard.
--   **HubSpot CRM Integration**: Full contact sync, deal creation, 3 ONYX pipelines, 11 custom properties, TikTok→HubSpot auto-sync. Routes at `/hubspot`. Requires `HUBSPOT_API_KEY` env var.
--   **TikTok Ads Integration**: 6 campaign templates, 7 automotive audiences, lead ingestion with auto HubSpot sync, member referral share URLs. Routes at `/tiktok-ads`. Requires `TIKTOK_ADS_ACCESS_TOKEN` + `TIKTOK_ADVERTISER_ID`.
--   **Constant Contact Integration**: Email, SMS campaigns, landing pages, e-commerce email automation. Routes at `/marketing`. Requires `CONSTANT_CONTACT_API_KEY`.
--   **Intelligence Layer (Command Center)**: Behavioral Intelligence dashboard, Conversion Intelligence metrics, HubSpot/TikTok/CC integration status panels, staff access controls. Accessible from the "Intelligence" tab in Command Center (Sovereign-only).
--   **Multi-Channel Referral Sharing**: SMS, TikTok, Instagram, WhatsApp, Telegram, Copy Link, QR — visible in AltruisticShare modal and My QR page.
+-   **Sovereign Behavioral Execution Engine**: Psychological intelligence layer over the 12-Agent Mesh.
+-   **Conversion Intelligence Engine**: Global Learning Brain that tracks which behavioral patterns lead to conversions, records behavioral signals, attributes conversions, and calculates effectiveness scores.
+-   **Multi-Channel Referral Sharing**: SMS, TikTok, Instagram, WhatsApp, Telegram, Copy Link, QR sharing in AltruisticShare modal and My QR page.
+-   **Idempotency Guard**: API-level duplicate prevention middleware with HMAC-signed response caching, concurrent lock management, and 24h TTL. Applied to `/auto-settle`, `/splits`, `/bank-payoff`, `/text-to-deal`. Prevents zero-duplicate deals/payments.
+-   **State Transition Hardener**: Strict state transition validation across 7 domains (deal, agent_task, engagement, kyc, transaction, runner_mission, logistics) with 49 states and 79 validated transitions. Architect-signed transition hashes. Integrated into Agent Orchestrator.
+-   **Michelin Demand Engine**: Converts 15 friction event types (accident, breakdown, recall, lease expiry, etc.) into demand scores with 5 tiers (LOW→EMERGENCY), 6 upgrade path types, compound multipliers for multiple friction events, and auto-triggers via EventBus `friction.detected` listener. Routes at `/hardened/michelin`.
+-   **Distribution Hub Auto-Upgrade Engine**: Katamari Growth Model — 5 node tiers (MEMBER→DISTRIBUTION_CENTER), 8 hub categories (Attorney, Rideshare, Shop, Dealer, Fleet, Influencer, Community, General) with category-specific fast-track thresholds and special features. Routes at `/hardened/hub`.
 -   **Architectural Upgrades**: Includes CarPlay/Android Auto integration, a tRPC Type-Safe API Layer, an Admin API, and a Beta Waitlist system.
 
 ## Kilocorn Infrastructure Layers ($1T+ Architecture)
@@ -119,7 +119,6 @@ A theme engine offering 20 culture-driven themes across 10 categories, each with
 -   **API Codegen**: Orval
 -   **Build Tool**: esbuild
 -   **Cloud/Deployment**: AWS
--   **Fonts**: Google Fonts
 -   **Financial Linking**: Plaid
 -   **Liability Verification**: Spinwheel Connect
 -   **Insurance Quotes**: InsureMO
@@ -147,6 +146,6 @@ A theme engine offering 20 culture-driven themes across 10 categories, each with
 -   **Identity Verification**: Stripe Identity
 -   **Data Intelligence**: Fullpath
 -   **Push Notifications**: Expo
--   **CRM**: HubSpot (API key integration)
--   **Advertising**: TikTok Ads (API key integration)
--   **Email Marketing**: Constant Contact (API key integration)
+-   **CRM**: HubSpot
+-   **Advertising**: TikTok Ads
+-   **Email Marketing**: Constant Contact

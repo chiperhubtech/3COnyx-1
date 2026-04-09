@@ -63,6 +63,22 @@ async function startServer() {
       }, "[genesis] Sovereign Behavioral Execution Engine — ARMED");
     });
 
+    Promise.all([
+      import("./lib/stateTransitionHardener"),
+      import("./lib/michelinDemandEngine"),
+      import("./lib/distributionHubEngine"),
+    ]).then(([sh, md, dh]) => {
+      const hardener = sh.getHardenerStatus();
+      const michelin = md.getMichelinEngineStatus();
+      const hub = dh.getHubEngineStatus();
+      logger.info({
+        stateHardener: { domains: hardener.domains, states: hardener.totalStates, transitions: hardener.totalTransitions, status: hardener.status },
+        michelinDemand: { frictionTypes: michelin.frictionEventTypes, tiers: michelin.demandTiers, status: michelin.status },
+        distributionHub: { tiers: hub.tiers, categories: hub.categories, status: hub.status },
+        architect: "Ronald Antonio Cadet",
+      }, "[genesis] Sovereign Hardened Infrastructure — ARMED");
+    }).catch(err => logger.warn({ err: (err as Error).message }, "[genesis] Hardened infra init deferred"));
+
     warmSecrets([...CRITICAL_SECRETS]).catch(err =>
       logger.warn({ err: (err as Error).message }, "[startup] Secrets warm skipped")
     );

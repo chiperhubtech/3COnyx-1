@@ -14,6 +14,7 @@ import { broadcast } from "./wsHub";
 import { route } from "./ai-router";
 import { logger } from "./logger";
 import { eventBus } from "./eventBus";
+import { validateTransition } from "./stateTransitionHardener";
 
 export type AgentId =
   | "guardian"
@@ -59,7 +60,7 @@ export interface AgentTask {
   result?: unknown;
   error?: string;
   handoffChain: HandoffRecord[];
-  auditLog: Array<{ ts: string; agentId: AgentId; event: string; detail?: string }>;
+  auditLog: Array<{ ts: string; agentId: AgentId; event: string; detail?: string; transitionHash?: string }>;
   createdAt: string;
   updatedAt: string;
 }
@@ -166,9 +167,22 @@ function findAgent(taskType: string): AgentId {
 }
 
 function transitionTask(task: AgentTask, status: TaskStatus, agentId: AgentId, detail?: string): void {
+  const validation = validateTransition("agent_task", task.status, status);
+  if (!validation.valid) {
+    logger.warn({
+      taskId: task.id,
+      from: task.status,
+      to: status,
+      agentId,
+      reason: validation.reason,
+      transitionHash: validation.transitionHash,
+    }, "[orchestrator] State Hardener blocked illegal transition");
+    return;
+  }
+
   task.status = status;
   task.updatedAt = new Date().toISOString();
-  task.auditLog.push({ ts: new Date().toISOString(), agentId, event: status, detail });
+  task.auditLog.push({ ts: new Date().toISOString(), agentId, event: status, detail, transitionHash: validation.transitionHash });
 
   const payload = {
     taskId:    task.id,

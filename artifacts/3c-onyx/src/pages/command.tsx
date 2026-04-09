@@ -467,6 +467,21 @@ export default function CommandCenter() {
     refetchInterval: 60_000,
   });
 
+  const { data: hardenedData } = useQuery<{
+    layers: {
+      stateHardener: { domains: number; totalStates: number; totalTransitions: number; status: string };
+      michelinDemand: { frictionEventTypes: number; demandTiers: number; status: string };
+      distributionHub: { tiers: number; categories: number; status: string };
+      idempotencyGuard: { cachedResponses: number; pendingLocks: number };
+    };
+    status: string;
+  }>({
+    queryKey: ["hardened-status"],
+    queryFn: () => fetch("/api/hardened/status").then(r => r.json()),
+    enabled: tab === "intelligence",
+    refetchInterval: 60_000,
+  });
+
   const TABS: { id: Tab; label: string; badge?: number }[] = [
     { id: "overview",      label: "Overview" },
     { id: "intelligence",  label: "Intelligence" },
@@ -977,6 +992,74 @@ export default function CommandCenter() {
               </div>
             </div>
 
+            <div className="rounded-2xl border border-white/8 bg-white/[0.02] overflow-hidden">
+              <div className="p-4 border-b border-white/6 flex items-center gap-2">
+                <Shield className="w-4 h-4 text-red-400" />
+                <p className="text-sm font-semibold text-white">Hardened Infrastructure</p>
+                <span className={`ml-auto text-[9px] font-black px-2 py-0.5 rounded-full ${hardenedData?.status === "ARMED" ? "bg-emerald-500/20 text-emerald-400" : "bg-amber-500/20 text-amber-400"}`}>
+                  {hardenedData?.status ?? "LOADING"}
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-white/5">
+                <div className="p-4">
+                  <p className="text-[9px] text-white/20 uppercase tracking-wider mb-2">State Hardener</p>
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-white/30">Domains</span>
+                      <span className="text-red-400 font-bold">{hardenedData?.layers?.stateHardener?.domains ?? 0}</span>
+                    </div>
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-white/30">States</span>
+                      <span className="text-white/50 font-bold">{hardenedData?.layers?.stateHardener?.totalStates ?? 0}</span>
+                    </div>
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-white/30">Transitions</span>
+                      <span className="text-white/50 font-bold">{hardenedData?.layers?.stateHardener?.totalTransitions ?? 0}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-4">
+                  <p className="text-[9px] text-white/20 uppercase tracking-wider mb-2">Michelin Demand</p>
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-white/30">Friction Types</span>
+                      <span className="text-orange-400 font-bold">{hardenedData?.layers?.michelinDemand?.frictionEventTypes ?? 0}</span>
+                    </div>
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-white/30">Demand Tiers</span>
+                      <span className="text-white/50 font-bold">{hardenedData?.layers?.michelinDemand?.demandTiers ?? 0}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-4">
+                  <p className="text-[9px] text-white/20 uppercase tracking-wider mb-2">Distribution Hubs</p>
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-white/30">Node Tiers</span>
+                      <span className="text-cyan-400 font-bold">{hardenedData?.layers?.distributionHub?.tiers ?? 0}</span>
+                    </div>
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-white/30">Hub Categories</span>
+                      <span className="text-white/50 font-bold">{hardenedData?.layers?.distributionHub?.categories ?? 0}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-4">
+                  <p className="text-[9px] text-white/20 uppercase tracking-wider mb-2">Idempotency Guard</p>
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-white/30">Cached</span>
+                      <span className="text-violet-400 font-bold">{hardenedData?.layers?.idempotencyGuard?.cachedResponses ?? 0}</span>
+                    </div>
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-white/30">Locks Active</span>
+                      <span className="text-white/50 font-bold">{hardenedData?.layers?.idempotencyGuard?.pendingLocks ?? 0}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div className="rounded-xl border border-amber-500/15 bg-amber-500/[0.03] p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Shield className="w-4 h-4 text-amber-400" />
@@ -985,7 +1068,9 @@ export default function CommandCenter() {
               <p className="text-[11px] text-white/40 leading-5">
                 The Intelligence Layer combines Behavioral DNA (12 agent profiles), Conversion Intelligence (pattern learning),
                 HubSpot CRM (contact + deal pipeline), TikTok Ads (lead generation + audience targeting),
-                and Constant Contact (email/SMS marketing automation). All data flows through the proof chain.
+                Constant Contact (email/SMS marketing automation), the Michelin Demand Engine (friction → upgrade path),
+                Distribution Hub auto-upgrade (Katamari Growth), State Transition Hardener (7 domain strict enforcement),
+                and the Idempotency Guard (zero-duplicate transactions). All data flows through the proof chain.
                 Staff access is controlled exclusively by the Sovereign — grant or revoke from this panel.
               </p>
             </div>
