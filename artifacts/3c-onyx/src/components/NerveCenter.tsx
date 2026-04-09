@@ -86,6 +86,44 @@ function computeTier(points: number): GamificationData {
   };
 }
 
+function GlowCard({ href, accent, children }: { href: string; accent: string; children: React.ReactNode }) {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <Link href={href}>
+      <div
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        onTouchStart={() => setHovered(true)}
+        onTouchEnd={() => setTimeout(() => setHovered(false), 300)}
+        style={{
+          background: hovered
+            ? `linear-gradient(135deg, ${accent}14, ${accent}08)`
+            : `linear-gradient(135deg, ${accent}0A, ${accent}04)`,
+          border: `1px solid ${hovered ? `${accent}35` : `${accent}18`}`,
+          borderRadius: 14, padding: "14px 14px 12px",
+          cursor: "pointer",
+          transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+          boxShadow: hovered
+            ? `0 0 24px ${accent}20, 0 0 48px ${accent}0A, inset 0 0 20px ${accent}06`
+            : "none",
+          transform: hovered ? "translateY(-1px)" : "none",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        {hovered && (
+          <div style={{
+            position: "absolute", inset: 0, borderRadius: "inherit", pointerEvents: "none",
+            background: `radial-gradient(circle at 50% 0%, ${accent}15 0%, transparent 70%)`,
+          }} />
+        )}
+        {children}
+      </div>
+    </Link>
+  );
+}
+
 export function NerveCenter() {
   const { user, token } = useAuth();
   const [wallet, setWallet] = useState<WalletData | null>(null);
@@ -99,43 +137,42 @@ export function NerveCenter() {
   useEffect(() => {
     if (!isLoggedIn) return;
 
-    authFetch(`${BASE}/api/commissions/my-earnings?limit=1`)
-      .then(r => r.json())
+    authFetch(`${BASE}/api/wallet/summary`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => d && setWallet(d))
+      .catch(() => {});
+
+    authFetch(`${BASE}/api/garage/vehicles`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => d?.vehicles && setVehicles(d.vehicles))
+      .catch(() => {});
+
+    authFetch(`${BASE}/api/referrals/network-stats`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => d && setNetwork({ referrals: d.referrals ?? 0, networkSize: d.networkSize ?? 0 }))
+      .catch(() => {});
+
+    authFetch(`${BASE}/api/gamification/status`)
+      .then(r => r.ok ? r.json() : null)
       .then(d => {
-        if (d.earnings) setWallet(d.earnings);
+        if (d?.points !== undefined) setGamification(computeTier(d.points));
       })
       .catch(() => {});
 
     authFetch(`${BASE}/api/garage/vehicles`)
-      .then(r => r.json())
+      .then(r => r.ok ? r.json() : null)
       .then(d => {
-        if (Array.isArray(d.vehicles)) {
-          setVehicles(d.vehicles.slice(0, 3));
-          const a: string[] = [];
-          d.vehicles.forEach((v: any) => {
-            const miles = v.odometer ?? v.mileage ?? 0;
-            if (miles > 50000 && miles % 5000 < 500) {
-              a.push(`${v.year} ${v.make} ${v.model} — service recommended`);
-            }
-          });
-          setAlerts(a);
-        }
-      })
-      .catch(() => {});
-
-    authFetch(`${BASE}/api/community/profile`)
-      .then(r => r.json())
-      .then(d => {
-        setNetwork({
-          referrals: d.connections ?? d.directReferrals ?? 0,
-          networkSize: d.connections ?? d.networkSize ?? 0,
+        if (!d?.vehicles) return;
+        const a: string[] = [];
+        d.vehicles.forEach((v: VehicleData) => {
+          const mi = v.odometer || v.mileage || 0;
+          if (mi > 80000) a.push(`${v.year} ${v.make} — high mileage service recommended`);
+          if (v.healthScore && v.healthScore < 60) a.push(`${v.year} ${v.make} — health score below threshold`);
         });
+        setAlerts(a);
       })
       .catch(() => {});
-
-    const pts = user?.points ?? 0;
-    setGamification(computeTier(pts));
-  }, [isLoggedIn, user]);
+  }, [isLoggedIn]);
 
   if (!isLoggedIn) return null;
 
@@ -189,25 +226,19 @@ export function NerveCenter() {
         display: "grid", gridTemplateColumns: "1fr 1fr",
         gap: 8, marginBottom: 8,
       }}>
-        <Link href="/wallet">
-          <div style={{
-            background: "linear-gradient(135deg, rgba(201,168,93,0.08), rgba(201,168,93,0.03))",
-            border: "1px solid rgba(201,168,93,0.15)",
-            borderRadius: 14, padding: "14px 14px 12px",
-            cursor: "pointer", transition: "all 0.2s",
-          }}>
+        <GlowCard href="/wallet" accent="rgba(201,168,93)">
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
               <div style={{
                 width: 28, height: 28, borderRadius: 8,
-                background: "rgba(201,162,39,0.15)",
+                background: "rgba(201,168,93,0.15)",
                 display: "flex", alignItems: "center", justifyContent: "center",
               }}>
-                <Wallet size={14} style={{ color: "#C9A227" }} />
+                <Wallet size={14} style={{ color: "#C9A85D" }} />
               </div>
               <ChevronRight size={12} style={{ color: "rgba(255,255,255,0.2)" }} />
             </div>
             <p style={{
-              fontSize: 18, fontWeight: 800, color: "#C9A227", margin: 0,
+              fontSize: 18, fontWeight: 800, color: "#C9A85D", margin: 0,
               fontFamily: "'Barlow Condensed', sans-serif",
             }}>
               ${totalEarnings}
@@ -220,16 +251,9 @@ export function NerveCenter() {
                 ${wallet.pending} pending
               </p>
             )}
-          </div>
-        </Link>
+        </GlowCard>
 
-        <Link href="/gamification">
-          <div style={{
-            background: "rgba(139,92,246,0.06)",
-            border: "1px solid rgba(139,92,246,0.12)",
-            borderRadius: 14, padding: "14px 14px 12px",
-            cursor: "pointer", transition: "background 0.15s",
-          }}>
+        <GlowCard href="/gamification" accent="rgba(139,92,246)">
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
               <div style={{
                 width: 28, height: 28, borderRadius: 8,
@@ -262,21 +286,14 @@ export function NerveCenter() {
                 }} />
               </div>
             )}
-          </div>
-        </Link>
+        </GlowCard>
       </div>
 
       <div style={{
         display: "grid", gridTemplateColumns: "1fr 1fr",
         gap: 8, marginBottom: 8,
       }}>
-        <Link href="/garage">
-          <div style={{
-            background: "rgba(96,165,250,0.06)",
-            border: "1px solid rgba(96,165,250,0.12)",
-            borderRadius: 14, padding: "14px 14px 12px",
-            cursor: "pointer",
-          }}>
+        <GlowCard href="/garage" accent="rgba(96,165,250)">
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
               <div style={{
                 width: 28, height: 28, borderRadius: 8,
@@ -314,16 +331,9 @@ export function NerveCenter() {
                 </p>
               </>
             )}
-          </div>
-        </Link>
+        </GlowCard>
 
-        <Link href="/impact">
-          <div style={{
-            background: "rgba(52,211,153,0.06)",
-            border: "1px solid rgba(52,211,153,0.12)",
-            borderRadius: 14, padding: "14px 14px 12px",
-            cursor: "pointer",
-          }}>
+        <GlowCard href="/impact" accent="rgba(52,211,153)">
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
               <div style={{
                 width: 28, height: 28, borderRadius: 8,
@@ -348,8 +358,7 @@ export function NerveCenter() {
                 {network.networkSize} in network
               </p>
             )}
-          </div>
-        </Link>
+        </GlowCard>
       </div>
 
       {alerts.length > 0 && (
@@ -359,8 +368,9 @@ export function NerveCenter() {
           borderRadius: 12, padding: "10px 14px",
           display: "flex", alignItems: "center", gap: 10,
           marginBottom: 8,
+          boxShadow: "0 0 20px rgba(245,158,11,0.06)",
         }}>
-          <AlertTriangle size={16} style={{ color: "#F59E0B", flexShrink: 0 }} />
+          <AlertTriangle size={16} style={{ color: "#F59E0B", flexShrink: 0, filter: "drop-shadow(0 0 4px rgba(245,158,11,0.5))" }} />
           <div style={{ flex: 1 }}>
             <p style={{ fontSize: 12, fontWeight: 600, color: "#F59E0B", margin: 0 }}>
               {alerts[0]}
@@ -373,35 +383,60 @@ export function NerveCenter() {
         </div>
       )}
 
-      <Link href="/my-qr">
-        <div style={{
-          background: "linear-gradient(135deg, rgba(255,45,154,0.06), rgba(201,168,93,0.04))",
-          border: "1px solid rgba(255,45,154,0.12)",
+      <ShareEarnCard />
+      </div>
+    </div>
+  );
+}
+
+function ShareEarnCard() {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <Link href="/my-qr">
+      <div
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        onTouchStart={() => setHovered(true)}
+        onTouchEnd={() => setTimeout(() => setHovered(false), 300)}
+        style={{
+          background: hovered
+            ? "linear-gradient(135deg, rgba(255,45,154,0.1), rgba(201,168,93,0.08))"
+            : "linear-gradient(135deg, rgba(255,45,154,0.06), rgba(201,168,93,0.04))",
+          border: `1px solid ${hovered ? "rgba(255,45,154,0.25)" : "rgba(255,45,154,0.12)"}`,
           borderRadius: 12, padding: "10px 14px",
           display: "flex", alignItems: "center", gap: 10,
           cursor: "pointer",
-          transition: "all 0.2s",
+          transition: "all 0.3s",
+          boxShadow: hovered
+            ? "0 0 24px rgba(255,45,154,0.12), 0 0 48px rgba(255,45,154,0.04)"
+            : "none",
+          transform: hovered ? "translateY(-1px)" : "none",
+        }}
+      >
+        <div style={{
+          width: 32, height: 32, borderRadius: 8,
+          background: "linear-gradient(135deg, #FF2D9A, #C9A85D)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          boxShadow: hovered ? "0 0 16px rgba(255,45,154,0.4)" : "0 0 12px rgba(255,45,154,0.3)",
+          transition: "box-shadow 0.3s",
         }}>
-          <div style={{
-            width: 32, height: 32, borderRadius: 8,
-            background: "linear-gradient(135deg, #FF2D9A, #C9A85D)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            boxShadow: "0 0 12px rgba(255,45,154,0.3)",
-          }}>
-            <Shield size={16} style={{ color: "#fff" }} />
-          </div>
-          <div style={{ flex: 1 }}>
-            <p style={{ fontSize: 12, fontWeight: 700, color: "#fff", margin: 0 }}>
-              Share & Earn
-            </p>
-            <p style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", margin: "1px 0 0" }}>
-              Your QR badge earns you commission on every referral
-            </p>
-          </div>
-          <TrendingUp size={14} style={{ color: "#FF2D9A" }} />
+          <Shield size={16} style={{ color: "#fff" }} />
         </div>
-      </Link>
+        <div style={{ flex: 1 }}>
+          <p style={{ fontSize: 12, fontWeight: 700, color: "#fff", margin: 0 }}>
+            Share & Earn
+          </p>
+          <p style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", margin: "1px 0 0" }}>
+            Your QR badge earns you commission on every referral
+          </p>
+        </div>
+        <TrendingUp size={14} style={{
+          color: "#FF2D9A",
+          filter: hovered ? "drop-shadow(0 0 6px rgba(255,45,154,0.6))" : "none",
+          transition: "filter 0.3s",
+        }} />
       </div>
-    </div>
+    </Link>
   );
 }

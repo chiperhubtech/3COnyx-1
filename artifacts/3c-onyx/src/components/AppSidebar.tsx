@@ -50,24 +50,51 @@ function NavItem({ label, path, icon: Icon, description, accent = "#C9A227", onC
         }}
         onMouseEnter={(e) => {
           if (!isActive) {
-            (e.currentTarget as HTMLDivElement).style.background = "rgba(255,45,154,0.04)";
-            (e.currentTarget as HTMLDivElement).style.borderLeftColor = "rgba(255,45,154,0.4)";
+            (e.currentTarget as HTMLDivElement).style.background = `${accent}0A`;
+            (e.currentTarget as HTMLDivElement).style.borderLeftColor = accent;
+            (e.currentTarget as HTMLDivElement).style.boxShadow = `0 0 16px ${accent}10`;
+            const iconBox = e.currentTarget.querySelector('[data-icon-box]') as HTMLDivElement;
+            if (iconBox) {
+              iconBox.style.background = `${accent}15`;
+              iconBox.style.boxShadow = `0 0 10px ${accent}25`;
+            }
+            const icon = e.currentTarget.querySelector('[data-nav-icon]') as SVGElement;
+            if (icon) {
+              icon.style.color = accent;
+              icon.style.filter = `drop-shadow(0 0 3px ${accent})`;
+            }
           }
         }}
         onMouseLeave={(e) => {
           if (!isActive) {
             (e.currentTarget as HTMLDivElement).style.background = "transparent";
             (e.currentTarget as HTMLDivElement).style.borderLeftColor = "transparent";
+            (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
+            const iconBox = e.currentTarget.querySelector('[data-icon-box]') as HTMLDivElement;
+            if (iconBox) {
+              iconBox.style.background = "rgba(255,255,255,0.04)";
+              iconBox.style.boxShadow = "none";
+            }
+            const icon = e.currentTarget.querySelector('[data-nav-icon]') as SVGElement;
+            if (icon) {
+              icon.style.color = "rgba(255,255,255,0.38)";
+              icon.style.filter = "none";
+            }
           }
         }}
       >
-        <div style={{
+        <div data-icon-box="" style={{
           width: 26, height: 26, borderRadius: 7, flexShrink: 0,
           background: isActive ? `${accent}18` : "rgba(255,255,255,0.04)",
           display: "flex", alignItems: "center", justifyContent: "center",
-          transition: "background 0.15s",
+          transition: "all 0.3s",
+          boxShadow: isActive ? `0 0 12px ${accent}30` : "none",
         }}>
-          <Icon size={12} style={{ color: isActive ? accent : "rgba(255,255,255,0.38)" }} />
+          <Icon data-nav-icon="" size={12} style={{
+            color: isActive ? accent : "rgba(255,255,255,0.38)",
+            filter: isActive ? `drop-shadow(0 0 4px ${accent})` : "none",
+            transition: "all 0.3s",
+          }} />
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <p style={{

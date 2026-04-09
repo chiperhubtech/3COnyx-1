@@ -1023,13 +1023,83 @@ const JOIN_ROLES = [
   },
 ];
 
-function JoinPlatformSection() {
-  const [pressed, setPressed] = useState<string | null>(null);
+function JoinRoleCard({ role }: { role: typeof JOIN_ROLES[0] }) {
+  const [hovered, setHovered] = useState(false);
+  const [pressed, setPressed] = useState(false);
+  const Icon = role.icon;
 
+  return (
+    <a
+      href={`/register?role=${role.id}`}
+      onMouseDown={() => setPressed(true)}
+      onMouseUp={() => setPressed(false)}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => { setPressed(false); setHovered(false); }}
+      onTouchStart={() => { setHovered(true); setPressed(true); }}
+      onTouchEnd={() => setTimeout(() => { setHovered(false); setPressed(false); }, 300)}
+      style={{
+        width: "100%",
+        padding: "18px 18px",
+        borderRadius: 16,
+        background: pressed
+          ? `linear-gradient(135deg, ${role.accent}15, ${role.accent}08)`
+          : hovered
+            ? `linear-gradient(135deg, ${role.accent}0C, ${role.accent}04)`
+            : "rgba(255,255,255,0.02)",
+        border: `1px solid ${pressed ? `${role.accent}40` : hovered ? `${role.accent}30` : "rgba(255,255,255,0.06)"}`,
+        cursor: "pointer",
+        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+        display: "flex", alignItems: "center", gap: 14,
+        textDecoration: "none",
+        color: "#fff",
+        boxShadow: hovered
+          ? `0 0 24px ${role.accent}15, 0 0 48px ${role.accent}08`
+          : "none",
+        transform: pressed ? "scale(0.98)" : hovered ? "translateY(-1px)" : "none",
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      {hovered && (
+        <div style={{
+          position: "absolute", left: 0, top: "10%", bottom: "10%", width: 3,
+          borderRadius: "0 3px 3px 0",
+          background: `linear-gradient(180deg, ${role.accent}, ${role.accent}60)`,
+          boxShadow: `0 0 12px ${role.accent}60`,
+        }} />
+      )}
+      <div style={{
+        width: 44, height: 44, borderRadius: 12, flexShrink: 0,
+        background: hovered ? `${role.accent}18` : `${role.accent}0D`,
+        border: `1px solid ${hovered ? `${role.accent}35` : `${role.accent}1A`}`,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        boxShadow: hovered ? `0 0 16px ${role.accent}25` : "none",
+        transition: "all 0.3s",
+      }}>
+        <Icon size={20} style={{
+          color: role.accent,
+          filter: hovered ? `drop-shadow(0 0 6px ${role.accent})` : "none",
+          transition: "filter 0.3s",
+        }} />
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <p style={{ fontSize: 15, fontWeight: 700, margin: "0 0 2px", lineHeight: 1.2 }}>{role.label}</p>
+        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", margin: 0, lineHeight: 1.4 }}>{role.description}</p>
+      </div>
+      <ChevronRight size={16} style={{
+        color: hovered ? role.accent : "rgba(255,255,255,0.12)",
+        flexShrink: 0, transition: "all 0.3s",
+        filter: hovered ? `drop-shadow(0 0 4px ${role.accent})` : "none",
+      }} />
+    </a>
+  );
+}
+
+function JoinPlatformSection() {
   return (
     <div style={{ marginBottom: 16 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14, paddingLeft: 4 }}>
-        <UserPlus size={14} style={{ color: "#C9A227" }} />
+        <UserPlus size={14} style={{ color: "#FF2D9A", filter: "drop-shadow(0 0 4px rgba(255,45,154,0.5))" }} />
         <p style={{
           fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.3)",
           letterSpacing: "0.12em", margin: 0, textTransform: "uppercase",
@@ -1037,56 +1107,17 @@ function JoinPlatformSection() {
           Join the Platform
         </p>
       </div>
-
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        {JOIN_ROLES.map((role) => {
-          const Icon = role.icon;
-          const isPressed = pressed === role.id;
-
-          return (
-            <a
-              key={role.id}
-              href={`/register?role=${role.id}`}
-              onMouseDown={() => setPressed(role.id)}
-              onMouseUp={() => setPressed(null)}
-              onMouseLeave={() => setPressed(null)}
-              style={{
-                width: "100%",
-                padding: "18px 18px",
-                borderRadius: 16,
-                background: isPressed ? `${role.accent}0A` : "rgba(255,255,255,0.02)",
-                border: `1px solid ${isPressed ? `${role.accent}30` : "rgba(255,255,255,0.06)"}`,
-                cursor: "pointer",
-                transition: "all 0.2s ease",
-                display: "flex", alignItems: "center", gap: 14,
-                textDecoration: "none",
-                color: "#fff",
-              }}
-            >
-              <div style={{
-                width: 44, height: 44, borderRadius: 12, flexShrink: 0,
-                background: `${role.accent}0D`,
-                border: `1px solid ${role.accent}1A`,
-                display: "flex", alignItems: "center", justifyContent: "center",
-              }}>
-                <Icon size={20} style={{ color: role.accent }} />
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: 15, fontWeight: 700, margin: "0 0 2px", lineHeight: 1.2 }}>{role.label}</p>
-                <p style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", margin: 0, lineHeight: 1.4 }}>{role.description}</p>
-              </div>
-              <ChevronRight size={16} style={{ color: "rgba(255,255,255,0.12)", flexShrink: 0 }} />
-            </a>
-          );
-        })}
+        {JOIN_ROLES.map((role) => (
+          <JoinRoleCard key={role.id} role={role} />
+        ))}
       </div>
-
       <p style={{
         textAlign: "center", marginTop: 12, fontSize: 11,
         color: "rgba(255,255,255,0.2)",
       }}>
         Already a member?{" "}
-        <a href="/login" style={{ color: "#C9A227", textDecoration: "none", fontWeight: 600 }}>Sign in</a>
+        <a href="/login" style={{ color: "#FF2D9A", textDecoration: "none", fontWeight: 600 }}>Sign in</a>
       </p>
     </div>
   );
@@ -1176,31 +1207,55 @@ function ActiveFlowCard({ deal }: { deal: any }) {
   const pct = getDealProgress(deal.status);
   const label = DEAL_STATUS_LABELS[deal.status] || "We're handling this for you";
   const stepIndex = Math.floor((pct / 100) * DEAL_STEPS.length);
+  const [hovered, setHovered] = useState(false);
 
   return (
-    <div style={{
-      background: "linear-gradient(135deg, rgba(201,168,93,0.06), rgba(201,168,93,0.02))",
-      backdropFilter: "blur(20px)",
-      WebkitBackdropFilter: "blur(20px)",
-      border: "0.5px solid rgba(201,168,93,0.18)",
-      borderRadius: 20, padding: "24px 24px 20px",
-      position: "relative", overflow: "hidden",
-      boxShadow: "inset 0 0 30px rgba(201,168,93,0.03), 0 4px 24px rgba(0,0,0,0.2)",
-    }}>
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onTouchStart={() => setHovered(true)}
+      onTouchEnd={() => setTimeout(() => setHovered(false), 300)}
+      style={{
+        background: "linear-gradient(135deg, rgba(201,168,93,0.06), rgba(201,168,93,0.02))",
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
+        border: `1px solid ${hovered ? "rgba(201,168,93,0.3)" : "rgba(201,168,93,0.15)"}`,
+        borderRadius: 20, padding: "24px 24px 20px",
+        position: "relative", overflow: "hidden",
+        boxShadow: hovered
+          ? "inset 0 0 30px rgba(201,168,93,0.05), 0 4px 24px rgba(0,0,0,0.2), 0 0 40px rgba(201,168,93,0.08)"
+          : "inset 0 0 30px rgba(201,168,93,0.03), 0 4px 24px rgba(0,0,0,0.2)",
+        transition: "all 0.3s",
+      }}
+    >
       <div style={{
         position: "absolute", inset: 0, borderRadius: "inherit",
-        background: "linear-gradient(135deg, rgba(201,168,93,0.04) 0%, transparent 60%)",
-        pointerEvents: "none",
+        background: hovered
+          ? "linear-gradient(135deg, rgba(201,168,93,0.06) 0%, rgba(255,45,154,0.02) 100%)"
+          : "linear-gradient(135deg, rgba(201,168,93,0.04) 0%, transparent 60%)",
+        pointerEvents: "none", transition: "background 0.3s",
       }} />
+      {hovered && (
+        <div style={{
+          position: "absolute", top: 0, left: 0, right: 0, height: 2,
+          background: "linear-gradient(90deg, transparent, #C9A85D, #FF2D9A, #C9A85D, transparent)",
+          opacity: 0.5,
+        }} />
+      )}
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16, position: "relative", zIndex: 1 }}>
         <div style={{
           width: 48, height: 48, borderRadius: 14,
           background: "linear-gradient(135deg, rgba(201,168,93,0.18), rgba(201,168,93,0.06))",
-          border: "0.5px solid rgba(201,168,93,0.25)",
+          border: "1px solid rgba(201,168,93,0.25)",
           display: "flex", alignItems: "center", justifyContent: "center",
-          boxShadow: "0 0 16px rgba(201,168,93,0.1)",
+          boxShadow: hovered ? "0 0 24px rgba(201,168,93,0.2)" : "0 0 16px rgba(201,168,93,0.1)",
+          transition: "box-shadow 0.3s",
         }}>
-          <Car size={22} style={{ color: "#C9A85D" }} />
+          <Car size={22} style={{
+            color: "#C9A85D",
+            filter: hovered ? "drop-shadow(0 0 6px rgba(201,168,93,0.6))" : "none",
+            transition: "filter 0.3s",
+          }} />
         </div>
         <div style={{ flex: 1 }}>
           <p style={{ fontSize: 17, fontWeight: 700, color: "#fff", margin: 0, lineHeight: 1.3 }}>
@@ -1242,16 +1297,18 @@ function ActiveFlowCard({ deal }: { deal: any }) {
       </div>
 
       <Link href="/dealerflow">
-        <button style={{
+        <div role="button" tabIndex={0} style={{
           width: "100%", padding: "16px", borderRadius: 14,
-          background: "linear-gradient(135deg, #D4AF37, #C9A227, #A68B1B)",
-          border: "none", color: "#000", fontWeight: 800, fontSize: 15,
+          background: "linear-gradient(135deg, #FF2D9A, #C9A85D)",
+          border: "none", color: "#fff", fontWeight: 800, fontSize: 15,
           cursor: "pointer", letterSpacing: 0.5,
           display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-          boxShadow: "0 4px 24px rgba(201,162,39,0.3)",
+          boxShadow: "0 4px 24px rgba(255,45,154,0.25), 0 0 40px rgba(255,45,154,0.08)",
+          fontFamily: "'Barlow Condensed', sans-serif",
+          transition: "box-shadow 0.3s",
         }}>
           Continue <ArrowRight size={18} />
-        </button>
+        </div>
       </Link>
     </div>
   );
@@ -1636,19 +1693,43 @@ function VehicleVerifyPanel() {
 
   return (
     <div style={{ marginBottom: 20 }}>
-      <div
+      <button
+        type="button"
         onClick={() => setExpanded(!expanded)}
+        onMouseEnter={(e) => {
+          (e.currentTarget as HTMLButtonElement).style.background = "rgba(201,168,93,0.06)";
+          (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 0 20px rgba(201,168,93,0.08)";
+          (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(201,168,93,0.2)";
+        }}
+        onMouseLeave={(e) => {
+          (e.currentTarget as HTMLButtonElement).style.background = "rgba(201,162,39,0.03)";
+          (e.currentTarget as HTMLButtonElement).style.boxShadow = "none";
+          (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(201,162,39,0.08)";
+        }}
+        onTouchStart={(e) => {
+          (e.currentTarget as HTMLButtonElement).style.background = "rgba(201,168,93,0.06)";
+          (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 0 20px rgba(201,168,93,0.08)";
+        }}
+        onTouchEnd={(e) => {
+          setTimeout(() => {
+            (e.currentTarget as HTMLButtonElement).style.background = "rgba(201,162,39,0.03)";
+            (e.currentTarget as HTMLButtonElement).style.boxShadow = "none";
+          }, 300);
+        }}
         style={{
           display: "flex", alignItems: "center", justifyContent: "space-between",
+          width: "100%",
           padding: "14px 16px", borderRadius: expanded ? "14px 14px 0 0" : 14,
           background: "rgba(201,162,39,0.03)",
           border: "1px solid rgba(201,162,39,0.08)",
           borderBottom: expanded ? "none" : "1px solid rgba(201,162,39,0.08)",
           cursor: "pointer",
+          transition: "all 0.3s",
+          color: "inherit", font: "inherit",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <Shield size={16} style={{ color: "#C9A227" }} />
+          <Shield size={16} style={{ color: "#C9A85D", filter: "drop-shadow(0 0 3px rgba(201,168,93,0.4))" }} />
           <span style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.6)" }}>Verify Any Vehicle</span>
         </div>
         <ChevronRight
@@ -1659,7 +1740,7 @@ function VehicleVerifyPanel() {
             transition: "transform 0.2s",
           }}
         />
-      </div>
+      </button>
 
       {expanded && (
         <div style={{
@@ -1689,9 +1770,11 @@ function VehicleVerifyPanel() {
               disabled={loading || vin.trim().length < 11}
               style={{
                 padding: "12px 18px", borderRadius: 10, flexShrink: 0,
-                background: vin.trim().length >= 11 ? "linear-gradient(135deg, #D4AF37, #C9A227)" : "rgba(255,255,255,0.04)",
-                border: "none", color: vin.trim().length >= 11 ? "#000" : "rgba(255,255,255,0.2)",
+                background: vin.trim().length >= 11 ? "linear-gradient(135deg, #FF2D9A, #C9A85D)" : "rgba(255,255,255,0.04)",
+                border: "none", color: vin.trim().length >= 11 ? "#fff" : "rgba(255,255,255,0.2)",
                 fontWeight: 700, fontSize: 12, cursor: vin.trim().length >= 11 ? "pointer" : "default",
+                boxShadow: vin.trim().length >= 11 ? "0 0 16px rgba(255,45,154,0.25)" : "none",
+                transition: "all 0.3s",
               }}
             >
               {loading ? <Loader2 size={16} style={{ animation: "spin 1s linear infinite" }} /> : "Verify"}
