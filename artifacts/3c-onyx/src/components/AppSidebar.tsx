@@ -142,6 +142,7 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
   const [showPlatform, setShowPlatform] = useState(false);
 
   const CUSTOMER_NAV = [
+    { label: "ONYX AI Mode",              path: "/ai-mode",        icon: Brain,       description: "Ask anything · 12-agent mesh · Automotive intelligence", accent: "#00E5FF" },
     { label: "Customize Your Vehicle",    path: "/customize",      icon: Sparkles,    description: "Wraps · Wheels · Leather · Side Steps · Fleet Branding", accent: "#A78BFA" },
     { label: "My QR Badge",               path: "/my-qr",          icon: QrCode,      description: "Your scannable club identity · Download · Share", accent: "#C9A227" },
     { label: "AR Badge",                  path: "/ar-badge",       icon: Palette,     description: "Themed shareable badges · Holiday · Emoji · Viral", accent: "#A78BFA" },

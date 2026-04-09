@@ -158,6 +158,7 @@ import surveyShieldRouter from "./survey-shield";
 import dealCommandRouter from "./deal-command";
 import autoPulseRouter from "./auto-pulse";
 import vehicleCustomizeRouter from "./vehicle-customize";
+import aiModeRouter from "./ai-mode";
 
 const router: IRouter = Router();
 
@@ -338,5 +339,6 @@ router.use("/survey-shield", surveyShieldRouter);
 router.use(dealCommandRouter);
 router.use(autoPulseRouter);
 router.use(vehicleCustomizeRouter);
+router.use("/ai-mode", aiModeRouter);
 
 export default router;

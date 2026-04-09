@@ -9,8 +9,12 @@ import {
 } from "lucide-react";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
-const GOLD = "#C9A227";
-const BLACK = "#050508";
+const GOLD = "#C9A85D";
+const GOLD_BRIGHT = "#D4B76A";
+const PINK = "#FF2D9A";
+const PURPLE = "#7B61FF";
+const CYAN = "#00E5FF";
+const BLACK = "#000000";
 
 interface Deal {
   id: number;
@@ -74,20 +78,49 @@ function CommandGrid({ activeDeal, onAction }: { activeDeal: Deal | null; onActi
             onClick={() => !disabled && onAction(btn.id)}
             style={{
               padding: "20px 8px", borderRadius: 20,
-              background: disabled ? "rgba(255,255,255,0.02)" : `${btn.color}10`,
-              border: `2px solid ${disabled ? "rgba(255,255,255,0.04)" : `${btn.color}30`}`,
+              background: disabled ? "rgba(255,255,255,0.02)" : `${btn.color}08`,
+              backdropFilter: disabled ? "none" : "blur(20px)",
+              WebkitBackdropFilter: disabled ? "none" : "blur(20px)",
+              border: `0.5px solid ${disabled ? "rgba(255,255,255,0.04)" : `${btn.color}25`}`,
               cursor: disabled ? "default" : "pointer",
               display: "flex", flexDirection: "column",
               alignItems: "center", justifyContent: "center", gap: 8,
-              transition: "all 0.2s",
+              transition: "all 0.15s cubic-bezier(0.4,0,0.2,1)",
               opacity: disabled ? 0.35 : 1,
               minHeight: 110,
+              position: "relative",
+              overflow: "hidden",
+              boxShadow: disabled ? "none" : `inset 0 0 20px ${btn.color}04, 0 1px 3px rgba(0,0,0,0.3)`,
+            }}
+            onMouseEnter={e => {
+              if (!disabled) {
+                (e.currentTarget as HTMLButtonElement).style.borderColor = `${btn.color}45`;
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = `0 0 25px ${btn.color}12, inset 0 0 20px ${btn.color}06`;
+              }
+            }}
+            onMouseLeave={e => {
+              if (!disabled) {
+                (e.currentTarget as HTMLButtonElement).style.borderColor = `${btn.color}25`;
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = `inset 0 0 20px ${btn.color}04, 0 1px 3px rgba(0,0,0,0.3)`;
+              }
+            }}
+            onMouseDown={e => {
+              if (!disabled) (e.currentTarget as HTMLButtonElement).style.transform = "scale(0.98)";
+            }}
+            onMouseUp={e => {
+              if (!disabled) (e.currentTarget as HTMLButtonElement).style.transform = "scale(1)";
             }}
           >
             <div style={{
+              position: "absolute", inset: 0, borderRadius: "inherit",
+              background: `linear-gradient(135deg, ${btn.color}06 0%, transparent 50%)`,
+              pointerEvents: "none",
+            }} />
+            <div style={{
               width: 44, height: 44, borderRadius: 14,
-              background: `${btn.color}18`, border: `1px solid ${btn.color}25`,
+              background: `${btn.color}10`, border: `0.5px solid ${btn.color}20`,
               display: "flex", alignItems: "center", justifyContent: "center",
+              position: "relative", zIndex: 1,
             }}>
               <Icon size={22} style={{ color: btn.color }} />
             </div>
@@ -96,10 +129,11 @@ function CommandGrid({ activeDeal, onAction }: { activeDeal: Deal | null; onActi
               textAlign: "center", lineHeight: 1.3,
               fontFamily: "'Barlow Condensed', sans-serif",
               letterSpacing: "0.08em", whiteSpace: "pre-line",
+              position: "relative", zIndex: 1,
             }}>
               {btn.label}
             </span>
-            <span style={{ fontSize: 8, color: "rgba(255,255,255,0.3)", textAlign: "center" }}>
+            <span style={{ fontSize: 8, color: "rgba(255,255,255,0.3)", textAlign: "center", position: "relative", zIndex: 1 }}>
               {btn.desc}
             </span>
           </button>
@@ -124,9 +158,12 @@ function DealPipeline({ stages, progress }: { stages: PipelineStage[]; progress:
   return (
     <div style={{
       margin: "0 16px 16px", padding: 16,
-      background: "rgba(255,255,255,0.02)",
-      border: "1px solid rgba(255,255,255,0.06)",
+      background: "rgba(255,255,255,0.03)",
+      backdropFilter: "blur(20px)",
+      WebkitBackdropFilter: "blur(20px)",
+      border: "0.5px solid rgba(201,168,93,0.12)",
       borderRadius: 20, overflow: "hidden",
+      boxShadow: "inset 0 0 20px rgba(201,168,93,0.02)",
     }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -309,14 +346,29 @@ function TextToDealInput({ onParsed }: { onParsed: (result: any) => void }) {
     <div style={{ padding: "0 16px", marginBottom: 16 }}>
       <div style={{
         background: "rgba(255,255,255,0.03)",
-        border: "1px solid rgba(255,255,255,0.08)",
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
+        border: "0.5px solid rgba(201,168,93,0.15)",
         borderRadius: 20, padding: 16,
+        position: "relative", overflow: "hidden",
+        boxShadow: "inset 0 0 30px rgba(201,168,93,0.02), 0 2px 8px rgba(0,0,0,0.3)",
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-          <Sparkles size={14} style={{ color: GOLD }} />
-          <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.4)", letterSpacing: "0.15em" }}>
+        <div style={{
+          position: "absolute", inset: 0, borderRadius: "inherit",
+          background: "linear-gradient(135deg, rgba(201,168,93,0.03) 0%, transparent 50%)",
+          pointerEvents: "none",
+        }} />
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, position: "relative", zIndex: 1 }}>
+          <div style={{
+            display: "flex", alignItems: "center", justifyContent: "center",
+            animation: loading ? "energy-pulse-inline 2s ease-in-out infinite" : "none",
+          }}>
+            <Sparkles size={14} style={{ color: GOLD }} />
+          </div>
+          <span style={{ fontSize: 10, fontWeight: 700, color: GOLD, letterSpacing: "0.15em", opacity: 0.7 }}>
             TEXT-TO-DEAL
           </span>
+          <style>{`@keyframes energy-pulse-inline { 0%,100%{filter:drop-shadow(0 0 4px rgba(201,168,93,0.2));} 50%{filter:drop-shadow(0 0 12px rgba(0,229,255,0.4));} }`}</style>
         </div>
         <textarea
           value={text}
@@ -414,17 +466,26 @@ function LiveDealThread({ deal, messages, onSend }: {
 
   return (
     <div style={{
-      background: "rgba(255,255,255,0.02)",
-      border: "1px solid rgba(255,255,255,0.06)",
+      background: "rgba(255,255,255,0.03)",
+      backdropFilter: "blur(20px)",
+      WebkitBackdropFilter: "blur(20px)",
+      border: "0.5px solid rgba(201,168,93,0.12)",
       borderRadius: 20, margin: "0 16px", overflow: "hidden",
+      boxShadow: "inset 0 0 20px rgba(201,168,93,0.02)",
     }}>
       <div style={{
         padding: "12px 16px",
-        borderBottom: "1px solid rgba(255,255,255,0.06)",
+        borderBottom: "0.5px solid rgba(201,168,93,0.08)",
         display: "flex", alignItems: "center", gap: 10,
+        background: "rgba(201,168,93,0.02)",
       }}>
+        <div style={{
+          width: 6, height: 6, borderRadius: "50%",
+          background: CYAN, boxShadow: `0 0 6px ${CYAN}60`,
+          animation: "status-blink 2s ease-in-out infinite",
+        }} />
         <MessageCircle size={14} style={{ color: GOLD }} />
-        <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.5)", letterSpacing: "0.1em" }}>
+        <span style={{ fontSize: 11, fontWeight: 700, color: GOLD, letterSpacing: "0.1em", opacity: 0.7 }}>
           LIVE DEAL THREAD — {deal.dealNumber}
         </span>
       </div>
@@ -815,15 +876,30 @@ export default function DealCommandCenter() {
   const greetingTime = new Date().getHours() < 12 ? "morning" : new Date().getHours() < 17 ? "afternoon" : "evening";
 
   return (
-    <div style={{ background: BLACK, minHeight: "100vh", color: "#fff", paddingBottom: 100 }}>
+    <div style={{
+      background: BLACK, minHeight: "100vh", color: "#fff", paddingBottom: 100,
+      position: "relative", overflow: "hidden",
+    }}>
+      <div style={{
+        position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0,
+        background: `
+          radial-gradient(ellipse at 15% 25%, rgba(123,97,255,0.03) 0%, transparent 50%),
+          radial-gradient(ellipse at 85% 75%, rgba(201,168,93,0.04) 0%, transparent 50%),
+          radial-gradient(ellipse at 50% 95%, rgba(255,45,154,0.015) 0%, transparent 40%)
+        `,
+      }} />
+
       {showDesk && activeDeal && (
         <DealDeskModal deal={activeDeal} onClose={() => setShowDesk(false)} />
       )}
 
       <div style={{
         padding: "16px 20px 12px",
-        background: "linear-gradient(180deg, rgba(201,162,39,0.06) 0%, transparent 100%)",
-        borderBottom: "1px solid rgba(255,255,255,0.04)",
+        background: "linear-gradient(180deg, rgba(201,168,93,0.06) 0%, transparent 100%)",
+        borderBottom: "0.5px solid rgba(201,168,93,0.1)",
+        position: "relative", zIndex: 1,
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
       }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
@@ -887,7 +963,7 @@ export default function DealCommandCenter() {
         )}
       </div>
 
-      <div style={{ padding: "16px 0" }}>
+      <div style={{ padding: "16px 0", position: "relative", zIndex: 1 }}>
         {view === "command" && (
           <>
             <TextToDealInput onParsed={setParsedDeal} />

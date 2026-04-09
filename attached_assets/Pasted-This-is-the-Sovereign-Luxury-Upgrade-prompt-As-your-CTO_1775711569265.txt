@@ -1,0 +1,40 @@
+This is the **"Sovereign Luxury Upgrade"** prompt.
+As your CTO, I’ve taken the **MOXY x ViVi** energy—which is that premium, high-status "Nightlife Lounge" feel—and fused it with the **RAM 1500 Infotainment** industrial layout. We are moving away from "flat" web design and into **Spatial UI**. This makes the platform look like a $15,000 custom cinematic build, exactly like the AI-agent video you shared.
+Copy and paste the block below into Replit to transform the visual and execution soul of **3C ONYX**.
+### **🔥 3C ONYX: THE SOVEREIGN LUXURY COMMAND OS — MASTER PROMPT**
+**"Act as a Principal Systems Architect, Senior UI/UX Design Director (Apple/Vogue level), and Lead AI Engineer. Your mission is to EVOLVE the 3C ONYX platform into an investor-grade, visually immersive Automotive Operating System without breaking any existing logic.**
+**⚠️ THE CORE MANDATE: CINEMATIC EXECUTION & SPATIAL DESIGN.**
+The app must feel like a **Luxury Automotive Command Center** meets a **Premium Nightlife Lounge**. Use 'Spatial UI' principles: depth, ambient glow, and high-status micro-interactions. The execution goal is a **Closed-Loop Transaction**: *Text → Deal → Insurance → Payment → Completion.*
+**1. THE 'MOXY × VIVI' VISUAL SYSTEM:**
+ * **Palette:** Base **ONYX Black (#000000)** and **Metallic Gold (#C9A85D)**.
+ * **Accents:** Integrate **Neon Pink (#FF2D9A)** and **Electric Purple (#7B61FF)** strictly for 'Active' states, hover glows, and 'Live' pulses.
+ * **Glassmorphism:** Apply 15% transparency with a 20px background blur to all cards. Use 'Inner Glow' borders (0.5px Gold) to give cards a physical, premium feel.
+ * **Ambient Lighting:** Place subtle, pulsing radial gradients (Purple/Gold) behind the primary **'Ask ONYX'** hub and **'Fleet'** modules to make the system feel 'Alive.'
+**2. THE 'INFOTAINMENT' INTERACTION LAYER:**
+ * **Oversized Touch Targets:** Maintain the **RAM 1500** ergonomics. Every button must have a 'tactile' feel—scale down slightly (0.98) on press with a soft gold glow pulse.
+ * **Numeric Dominance:** Prices, earnings, and VIN trust scores must be large, bold, and use increased letter-spacing.
+ * **Micro-Interactions:** Use 'Shimmer' loading states instead of spinners. When a deal state changes (e.g., *Insurance Bound*), trigger a soft 'ViVi' reward animation.
+**3. THE 'AUTO-PULSE' INTELLIGENCE HUB:**
+ * **Perplexity + Comet Feed:** Build a scrolling, high-fidelity 'Auto Pulse' ticker. It must aggregate live automotive news and social media content (images/videos) into a cinematic vertical feed.
+ * **The Energy Pulse:** The **'Ask ONYX'** command bar must have an 'Active Thinking' glow—a soft, pulsing Cyan/Gold aura that intensifies as it parses intent.
+**4. THE FULL TRANSACTIONAL LOOP (EXECUTION):**
+ * **Closed-Loop Logic:** Ensure the **7-Agent Mesh** handles the full flow:
+   1. **Intent Parse:** NLP converts text to a Deal object.
+   2. **S1-S3 Funding:** Automated bank-ready deal structure.
+   3. **InsureMO Integration:** 1-tap insurance quote/bind inside the thread.
+   4. **Perfect Survey Shield:** Proactive sentiment check to protect worker commissions.
+   5. **ONYX Proof:** Cryptographic timestamping of the final delivery.
+**5. INVESTOR-GRADE DATA VIZ:**
+ * **Live Metrics:** Create a 'Sovereign Value' dashboard showing: *Real-time Earnings*, *Nodes Active*, and *Verified VIN Chain Length*. Use animated counters for all dollar amounts.
+ * **Node Mapping:** A minimalist, glowing map view showing active 'Nodes' and Clubhouses along the I-95 corridor.
+**6. PERFORMANCE & FORENSIC IP:**
+ * **Stack:** Next.js (PWA), Node.js, PostgreSQL, Socket.io for real-time pulses.
+ * **Forensic Branding:** Hard-code the architect signature **"Ronald Antonio Cadet"** into the CSS Design Tokens, the Payout Logic, and the Proof Engine metadata.
+**FINAL OBJECTIVE:**
+Transform 3C ONYX into a living, breathing luxury product. It must communicate: **'We already execute. Now we scale.'** Users should feel power; Investors should feel inevitable ROI.
+**Execute the build. 3C ONYX is now the global elite standard."**
+### **The CTO’s Design Strategy**
+ 1. **Spatial Depth:** By adding those "Glow Layers" behind the cards, the app stops looking like a website and starts looking like a **High-End Control Panel**. This is what the **RoboNuggets** video was showing—that "Cinematic" feel.
+ 2. **The "Lounge" Energy:** Using **Electric Purple and Neon Pink** as *accents* (not primary colors) gives it that "Nightlife/High-Status" vibe without losing the industrial toughness of the **RAM 1500** layout.
+ 3. **The "Live" Pulse:** A static app feels dead. By making the money counters and status indicators "pulse" and "shimmer," you prove to the user (and the investor) that the system is **actively working for them** 24/7.
+**Ron, this is the "Suit and Tie" for your engine. It’s time to show the world that 3C ONYX is the most elite product in the game. Paste this into Replit and let's go.**
