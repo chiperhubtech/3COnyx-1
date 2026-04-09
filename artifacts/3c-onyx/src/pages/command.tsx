@@ -1,11 +1,12 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
-  Shield, Zap, Truck, AlertTriangle, CheckCircle2, XCircle,
-  RefreshCw, ChevronRight, Globe, Wifi, Clock, DollarSign,
-  TrendingUp, TrendingDown, Users, Package, Radio,
-  BarChart3, Activity, MapPin, X, Eye, Bell, BellOff,
-  TriangleAlert, Loader2, Navigation, ShieldAlert, Layers,
+  Shield, Truck, AlertTriangle, CheckCircle2, XCircle,
+  RefreshCw, ChevronRight, Globe, Clock, DollarSign,
+  TrendingUp, Users, Radio,
+  BarChart3, Activity, MapPin, X, Bell,
+  TriangleAlert, Loader2, ShieldAlert,
+  Brain, Lock, UserCheck, Plug, Target,
 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { useToast } from "@/hooks/use-toast";
@@ -336,7 +337,30 @@ function AlertsPanel({ alerts, onAck }: { alerts: Alert[]; onAck: (id: string) =
 }
 
 // ─── Main Page ─────────────────────────────────────────────────────────────────
-type Tab = "overview" | "missions" | "killswitch" | "alerts" | "hectocorn";
+type Tab = "overview" | "missions" | "killswitch" | "alerts" | "hectocorn" | "intelligence";
+
+interface BehavioralStatus {
+  engineVersion: string;
+  activeSessions: number;
+  stateDistribution: Record<string, number>;
+  agentProfiles: number;
+  objectionTypes: number;
+  status: string;
+}
+
+interface IntelligenceData {
+  totalPatterns: number;
+  topPatterns: { pattern: string; effectiveness: number; conversions: number }[];
+  engagementFunnel: Record<string, number>;
+  networkLearningScore: number;
+}
+
+interface IntegrationStatus {
+  hubspot: { connected: boolean; contacts: number; deals: number; configured: boolean };
+  tiktok: { connected: boolean; campaigns: number; leads: number; configured: boolean };
+  constantContact: { connected: boolean; configured: boolean };
+}
+
 
 export default function CommandCenter() {
   const [pulse, setPulse] = useState<Pulse | null>(null);
@@ -409,12 +433,47 @@ export default function CommandCenter() {
     refetchInterval: 60_000,
   });
 
+  const { data: behavioralData } = useQuery<BehavioralStatus>({
+    queryKey: ["behavioral-status"],
+    queryFn: () => fetch("/api/behavioral/status").then(r => r.json()),
+    enabled: tab === "intelligence",
+    refetchInterval: 15_000,
+  });
+
+  const { data: intelligenceData } = useQuery<IntelligenceData>({
+    queryKey: ["behavioral-intelligence"],
+    queryFn: () => fetch("/api/behavioral/intelligence", {
+      headers: { Authorization: `Bearer ${localStorage.getItem("3c_auth_token") || ""}` },
+    }).then(r => r.ok ? r.json() : { totalPatterns: 0, topPatterns: [], engagementFunnel: {}, networkLearningScore: 0 }),
+    enabled: tab === "intelligence",
+    refetchInterval: 30_000,
+  });
+
+  const { data: integrationStatus } = useQuery<IntegrationStatus>({
+    queryKey: ["integration-status"],
+    queryFn: async () => {
+      const [hs, tt, cc] = await Promise.all([
+        fetch("/api/hubspot/status").then(r => r.json()).catch(() => ({ connected: false, contacts: 0, deals: 0, configured: false })),
+        fetch("/api/tiktok-ads/status").then(r => r.json()).catch(() => ({ connected: false, campaigns: 0, totalLeads: 0, configured: false })),
+        fetch("/api/marketing/capabilities").then(r => r.json()).catch(() => ({ connected: false, configured: false })),
+      ]);
+      return {
+        hubspot: { connected: !!hs.connected, contacts: hs.contacts || 0, deals: hs.deals || 0, configured: !!hs.configured },
+        tiktok: { connected: !!tt.connected, campaigns: tt.campaigns || 0, leads: tt.totalLeads || 0, configured: !!tt.configured },
+        constantContact: { connected: !!cc.features?.emailMarketing, configured: !!cc.features },
+      };
+    },
+    enabled: tab === "intelligence",
+    refetchInterval: 60_000,
+  });
+
   const TABS: { id: Tab; label: string; badge?: number }[] = [
-    { id: "overview",    label: "Overview" },
-    { id: "missions",    label: "Missions",    badge: missions.filter(m => m.status !== "delivered").length },
-    { id: "killswitch",  label: "Kill-Switch", badge: unresolvedFlagged.length },
-    { id: "alerts",      label: "Alerts",      badge: unackedAlerts.length },
-    { id: "hectocorn",   label: "Hectocorn" },
+    { id: "overview",      label: "Overview" },
+    { id: "intelligence",  label: "Intelligence" },
+    { id: "missions",      label: "Missions",    badge: missions.filter(m => m.status !== "delivered").length },
+    { id: "killswitch",    label: "Kill-Switch", badge: unresolvedFlagged.length },
+    { id: "alerts",        label: "Alerts",      badge: unackedAlerts.length },
+    { id: "hectocorn",     label: "Hectocorn" },
   ];
 
   const kColor = pulse
@@ -738,6 +797,198 @@ export default function CommandCenter() {
               </button>
             </div>
             <AlertsPanel alerts={alerts} onAck={ackAlert} />
+          </div>
+        )}
+
+        {/* ── INTELLIGENCE TAB ─────────────────────────────────────────── */}
+        {tab === "intelligence" && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              <div className="rounded-2xl border border-violet-500/20 bg-violet-500/[0.04] p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Brain className="w-3.5 h-3.5 text-violet-400" />
+                  <p className="text-[10px] text-white/25 uppercase tracking-wider">Behavioral Engine</p>
+                </div>
+                <p className="text-2xl font-black text-violet-400 mb-1">{behavioralData?.status === "OPERATIONAL" ? "LIVE" : "OFFLINE"}</p>
+                <p className="text-[10px] text-white/25">v{behavioralData?.engineVersion ?? "—"}</p>
+                <div className="mt-3 space-y-1.5">
+                  <div className="flex justify-between text-[10px]">
+                    <span className="text-white/25">Agent Profiles</span>
+                    <span className="text-violet-400 font-bold">{behavioralData?.agentProfiles ?? 0}</span>
+                  </div>
+                  <div className="flex justify-between text-[10px]">
+                    <span className="text-white/25">Objection Types</span>
+                    <span className="text-violet-400 font-bold">{behavioralData?.objectionTypes ?? 0}</span>
+                  </div>
+                  <div className="flex justify-between text-[10px]">
+                    <span className="text-white/25">Active Sessions</span>
+                    <span className="text-white font-bold">{behavioralData?.activeSessions ?? 0}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.04] p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Target className="w-3.5 h-3.5 text-emerald-400" />
+                  <p className="text-[10px] text-white/25 uppercase tracking-wider">Conversion Intel</p>
+                </div>
+                <p className="text-2xl font-black text-emerald-400 mb-1">{intelligenceData?.networkLearningScore?.toFixed(0) ?? "0"}%</p>
+                <p className="text-[10px] text-white/25">Network Learning Score</p>
+                <div className="mt-3 space-y-1.5">
+                  <div className="flex justify-between text-[10px]">
+                    <span className="text-white/25">Patterns Tracked</span>
+                    <span className="text-emerald-400 font-bold">{intelligenceData?.totalPatterns ?? 0}</span>
+                  </div>
+                  <div className="flex justify-between text-[10px]">
+                    <span className="text-white/25">Top Pattern Score</span>
+                    <span className="text-white font-bold">{intelligenceData?.topPatterns?.[0]?.effectiveness?.toFixed(0) ?? "—"}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Users className="w-3.5 h-3.5 text-amber-400" />
+                  <p className="text-[10px] text-white/25 uppercase tracking-wider">Engagement Funnel</p>
+                </div>
+                <div className="space-y-1">
+                  {["COLD", "CURIOUS", "WARM", "HOT", "CLOSING", "CLOSED"].map((state, i) => {
+                    const count = behavioralData?.stateDistribution?.[state] ?? 0;
+                    const colors = ["text-blue-400", "text-cyan-400", "text-amber-400", "text-orange-400", "text-red-400", "text-emerald-400"];
+                    return (
+                      <div key={state} className="flex justify-between text-[10px]">
+                        <span className="text-white/25">{state}</span>
+                        <span className={`font-bold ${colors[i]}`}>{count}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Lock className="w-3.5 h-3.5 text-amber-400" />
+                  <p className="text-[10px] text-white/25 uppercase tracking-wider">Staff Access</p>
+                </div>
+                <p className="text-2xl font-black text-amber-400 mb-1">Sovereign</p>
+                <p className="text-[10px] text-white/25">Full intelligence access</p>
+                <div className="mt-3 pt-3 border-t border-white/5">
+                  <p className="text-[9px] text-white/20 mb-2">Grant access to staff members from the Staff Management panel. Intelligence data is restricted to Sovereign and authorized personnel only.</p>
+                  <div className="flex items-center gap-1.5">
+                    <UserCheck className="w-3 h-3 text-emerald-400" />
+                    <span className="text-[10px] text-emerald-400 font-bold">Ron Cadet — Full Access</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.02] overflow-hidden">
+                <div className="p-4 border-b border-white/6 flex items-center gap-2">
+                  <Plug className="w-4 h-4 text-[#FF2D9A]" />
+                  <p className="text-sm font-semibold text-white">Integration Status</p>
+                </div>
+                <div className="divide-y divide-white/5">
+                  {[
+                    {
+                      name: "HubSpot CRM",
+                      icon: "HS",
+                      color: "#FF7A59",
+                      status: integrationStatus?.hubspot?.connected ? "Connected" : integrationStatus?.hubspot?.configured ? "Configured" : "Ready to Connect",
+                      live: integrationStatus?.hubspot?.connected,
+                      stats: integrationStatus?.hubspot?.connected
+                        ? `${integrationStatus.hubspot.contacts} contacts · ${integrationStatus.hubspot.deals} deals`
+                        : "Add HUBSPOT_API_KEY to activate",
+                    },
+                    {
+                      name: "TikTok Ads",
+                      icon: "TT",
+                      color: "#FF2D9A",
+                      status: integrationStatus?.tiktok?.connected ? "Connected" : integrationStatus?.tiktok?.configured ? "Configured" : "Ready to Connect",
+                      live: integrationStatus?.tiktok?.connected,
+                      stats: integrationStatus?.tiktok?.connected
+                        ? `${integrationStatus.tiktok.campaigns} campaigns · ${integrationStatus.tiktok.leads} leads`
+                        : "Add TIKTOK_ADS_ACCESS_TOKEN to activate",
+                    },
+                    {
+                      name: "Constant Contact",
+                      icon: "CC",
+                      color: "#0076BE",
+                      status: integrationStatus?.constantContact?.configured ? "Ready" : "Ready to Connect",
+                      live: integrationStatus?.constantContact?.connected,
+                      stats: "Email + SMS + Landing Pages + E-Commerce",
+                    },
+                  ].map(integ => (
+                    <div key={integ.name} className="flex items-center gap-3 p-4">
+                      <div
+                        className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-xs font-black text-white"
+                        style={{ background: `${integ.color}20`, border: `1px solid ${integ.color}30` }}
+                      >
+                        {integ.icon}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="text-xs font-semibold text-white">{integ.name}</p>
+                          <div className={`w-1.5 h-1.5 rounded-full ${integ.live ? "bg-emerald-400 animate-pulse" : "bg-amber-400"}`} />
+                          <span className={`text-[9px] font-bold ${integ.live ? "text-emerald-400" : "text-amber-400"}`}>
+                            {integ.status}
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-white/30 mt-0.5">{integ.stats}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-white/8 bg-white/[0.02] overflow-hidden">
+                <div className="p-4 border-b border-white/6 flex items-center gap-2">
+                  <Brain className="w-4 h-4 text-violet-400" />
+                  <p className="text-sm font-semibold text-white">Top Behavioral Patterns</p>
+                </div>
+                <div className="p-4 space-y-3">
+                  {(intelligenceData?.topPatterns ?? []).length > 0 ? (
+                    intelligenceData!.topPatterns.slice(0, 8).map((p, i) => (
+                      <div key={i} className="flex items-center gap-3">
+                        <span className="text-[10px] text-white/15 font-mono w-4">#{i + 1}</span>
+                        <div className="flex-1">
+                          <p className="text-[11px] text-white/60 font-medium">{p.pattern}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <div className="flex-1 h-1 rounded-full bg-white/6 overflow-hidden">
+                              <div
+                                className="h-full rounded-full bg-gradient-to-r from-violet-500 to-pink-500"
+                                style={{ width: `${Math.min(p.effectiveness * 100, 100)}%` }}
+                              />
+                            </div>
+                            <span className="text-[9px] text-violet-400 font-bold">{(p.effectiveness * 100).toFixed(0)}%</span>
+                          </div>
+                        </div>
+                        <span className="text-[10px] text-white/20">{p.conversions} conv.</span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8">
+                      <Brain className="w-8 h-8 text-white/10 mx-auto mb-2" />
+                      <p className="text-[11px] text-white/25">Behavioral patterns accumulate as users interact with ONYX agents.</p>
+                      <p className="text-[10px] text-white/15 mt-1">The Learning Brain gets smarter with every conversation.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-amber-500/15 bg-amber-500/[0.03] p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Shield className="w-4 h-4 text-amber-400" />
+                <p className="text-[10px] font-black text-amber-400/60 tracking-wider">SOVEREIGN INTELLIGENCE PROTOCOL</p>
+              </div>
+              <p className="text-[11px] text-white/40 leading-5">
+                The Intelligence Layer combines Behavioral DNA (12 agent profiles), Conversion Intelligence (pattern learning),
+                HubSpot CRM (contact + deal pipeline), TikTok Ads (lead generation + audience targeting),
+                and Constant Contact (email/SMS marketing automation). All data flows through the proof chain.
+                Staff access is controlled exclusively by the Sovereign — grant or revoke from this panel.
+              </p>
+            </div>
           </div>
         )}
 

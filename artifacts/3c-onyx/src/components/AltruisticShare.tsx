@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import {
   Heart, Share2, QrCode, Link2, Copy, CheckCircle2,
-  X, DollarSign, Users, TrendingUp
+  X, DollarSign, Users, TrendingUp, MessageCircle, Send,
 } from "lucide-react";
 
 const API = import.meta.env.BASE_URL.replace(/\/$/, "") + "/api";
@@ -118,22 +118,72 @@ export function AltruisticShare({ visible, onDismiss, context }: AltruisticShare
               Share Your Link
             </button>
 
-            <div className="flex gap-2">
+            <div className="grid grid-cols-5 gap-2">
+              <button
+                onClick={() => window.open(`sms:?body=${encodeURIComponent(`Join me on 3C ONYX! ${shareUrl}`)}`, "_blank")}
+                className="py-3 rounded-xl border border-zinc-700 bg-zinc-900 text-sm font-medium flex flex-col items-center justify-center gap-1 hover:border-green-500/40 hover:bg-green-500/5 transition-colors"
+                title="SMS"
+              >
+                <MessageCircle className="w-4 h-4 text-green-400" />
+                <span className="text-[9px] text-zinc-500">SMS</span>
+              </button>
+              <button
+                onClick={() => window.open(`https://www.tiktok.com/share?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(`Join 3C ONYX - your car, handled. 🚗`)}`, "_blank")}
+                className="py-3 rounded-xl border border-zinc-700 bg-zinc-900 text-sm font-medium flex flex-col items-center justify-center gap-1 hover:border-pink-500/40 hover:bg-pink-500/5 transition-colors"
+                title="TikTok"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                  <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V9.41a8.16 8.16 0 004.77 1.53V7.49a4.85 4.85 0 01-1-.8z" fill="#FF2D9A"/>
+                </svg>
+                <span className="text-[9px] text-zinc-500">TikTok</span>
+              </button>
+              <button
+                onClick={() => window.open(`https://www.instagram.com/`, "_blank")}
+                className="py-3 rounded-xl border border-zinc-700 bg-zinc-900 text-sm font-medium flex flex-col items-center justify-center gap-1 hover:border-purple-500/40 hover:bg-purple-500/5 transition-colors"
+                title="Instagram"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                  <rect x="2" y="2" width="20" height="20" rx="5" stroke="#C13584" strokeWidth="2"/>
+                  <circle cx="12" cy="12" r="5" stroke="#C13584" strokeWidth="2"/>
+                  <circle cx="17.5" cy="6.5" r="1.5" fill="#C13584"/>
+                </svg>
+                <span className="text-[9px] text-zinc-500">IG</span>
+              </button>
               <button
                 onClick={handleCopy}
-                className="flex-1 py-3 rounded-xl border border-zinc-700 bg-zinc-900 text-sm font-medium flex items-center justify-center gap-2 hover:border-zinc-600 transition-colors"
+                className="py-3 rounded-xl border border-zinc-700 bg-zinc-900 text-sm font-medium flex flex-col items-center justify-center gap-1 hover:border-zinc-500/40 transition-colors"
+                title="Copy Link"
               >
                 {copied
-                  ? <><CheckCircle2 className="w-4 h-4 text-green-400" /> Copied!</>
-                  : <><Copy className="w-4 h-4 text-zinc-400" /> Copy Link</>
+                  ? <CheckCircle2 className="w-4 h-4 text-green-400" />
+                  : <Copy className="w-4 h-4 text-zinc-400" />
                 }
+                <span className="text-[9px] text-zinc-500">{copied ? "Done" : "Copy"}</span>
               </button>
               <button
                 onClick={() => setShowQR(!showQR)}
-                className="flex-1 py-3 rounded-xl border border-zinc-700 bg-zinc-900 text-sm font-medium flex items-center justify-center gap-2 hover:border-zinc-600 transition-colors"
+                className="py-3 rounded-xl border border-zinc-700 bg-zinc-900 text-sm font-medium flex flex-col items-center justify-center gap-1 hover:border-zinc-500/40 transition-colors"
+                title="QR Code"
               >
                 <QrCode className="w-4 h-4 text-zinc-400" />
-                QR Code
+                <span className="text-[9px] text-zinc-500">QR</span>
+              </button>
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`Check out 3C ONYX! ${shareUrl}`)}`, "_blank")}
+                className="flex-1 py-2.5 rounded-xl border border-zinc-700 bg-zinc-900 text-xs font-medium flex items-center justify-center gap-2 hover:border-green-600/40 hover:bg-green-600/5 transition-colors"
+              >
+                <Send className="w-3.5 h-3.5 text-green-500" />
+                WhatsApp
+              </button>
+              <button
+                onClick={() => window.open(`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent("Join 3C ONYX!")}`, "_blank")}
+                className="flex-1 py-2.5 rounded-xl border border-zinc-700 bg-zinc-900 text-xs font-medium flex items-center justify-center gap-2 hover:border-blue-500/40 hover:bg-blue-500/5 transition-colors"
+              >
+                <Send className="w-3.5 h-3.5 text-blue-400" />
+                Telegram
               </button>
             </div>
           </div>

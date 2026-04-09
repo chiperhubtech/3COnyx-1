@@ -161,6 +161,8 @@ import vehicleCustomizeRouter from "./vehicle-customize";
 import aiModeRouter from "./ai-mode";
 import proofEngineRouter from "./proof-engine";
 import behavioralEngineRouter from "./behavioral-engine";
+import hubspotRouter from "./hubspot";
+import tiktokAdsRouter from "./tiktok-ads";
 
 const router: IRouter = Router();
 
@@ -344,5 +346,7 @@ router.use(vehicleCustomizeRouter);
 router.use(aiModeRouter);
 router.use(proofEngineRouter);
 router.use(behavioralEngineRouter);
+router.use("/hubspot", hubspotRouter);
+router.use("/tiktok-ads", tiktokAdsRouter);
 
 export default router;
