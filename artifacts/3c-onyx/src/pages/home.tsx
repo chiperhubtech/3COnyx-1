@@ -196,10 +196,18 @@ function SplashScreen({ onComplete }: { onComplete: () => void }) {
       <div style={{
         position: "absolute",
         width: 2, height: phase === "logo" ? "0%" : "100%",
-        background: "linear-gradient(180deg, transparent, rgba(201,162,39,0.3), transparent)",
+        background: "linear-gradient(180deg, transparent, #FF2D9A, #C9A85D, transparent)",
         left: "50%", top: 0,
         transition: "height 1.5s cubic-bezier(0.16, 1, 0.3, 1)",
-        opacity: phase === "exit" ? 0 : 0.5,
+        opacity: phase === "exit" ? 0 : 0.6,
+        boxShadow: "0 0 20px rgba(255,45,154,0.3), 0 0 40px rgba(255,45,154,0.1)",
+      }} />
+      <div style={{
+        position: "absolute", bottom: "25%", left: "50%", transform: "translateX(-50%)",
+        width: 300, height: 300,
+        background: "radial-gradient(circle, rgba(255,45,154,0.06) 0%, transparent 60%)",
+        opacity: phase === "text" || phase === "exit" ? 1 : 0,
+        transition: "opacity 1s ease",
       }} />
     </div>
   );
@@ -917,16 +925,32 @@ function NeuralInput({ onSubmit }: { onSubmit: (message: string) => void }) {
       position: "relative",
       marginBottom: 28,
     }}>
+      {focused && (
+        <div style={{
+          position: "absolute", inset: -8, borderRadius: 26, pointerEvents: "none",
+          background: "radial-gradient(ellipse at center, rgba(255,45,154,0.08) 0%, transparent 70%)",
+          animation: "ambientPulse 3s ease-in-out infinite",
+        }} />
+      )}
       <div style={{
         display: "flex", alignItems: "center", gap: 10,
         padding: "6px 6px 6px 20px",
         borderRadius: 18,
-        background: focused ? "rgba(201,162,39,0.04)" : "rgba(255,255,255,0.02)",
-        border: `1px solid ${focused ? "rgba(201,162,39,0.25)" : "rgba(255,255,255,0.06)"}`,
-        transition: "all 0.2s",
-        boxShadow: focused ? "0 0 30px rgba(201,162,39,0.06)" : "none",
+        background: focused
+          ? "linear-gradient(135deg, rgba(255,45,154,0.06), rgba(201,168,93,0.04))"
+          : "rgba(255,255,255,0.025)",
+        border: `1px solid ${focused ? "rgba(255,45,154,0.3)" : "rgba(255,255,255,0.08)"}`,
+        transition: "all 0.3s",
+        boxShadow: focused
+          ? "0 0 30px rgba(255,45,154,0.1), 0 0 60px rgba(201,168,93,0.05), inset 0 0 30px rgba(255,45,154,0.03)"
+          : "0 2px 8px rgba(0,0,0,0.15)",
+        position: "relative",
       }}>
-        <Sparkles size={16} style={{ color: focused ? "#C9A227" : "rgba(255,255,255,0.15)", flexShrink: 0, transition: "color 0.2s" }} />
+        <Sparkles size={16} style={{
+          color: focused ? "#FF2D9A" : "rgba(255,255,255,0.2)",
+          flexShrink: 0, transition: "all 0.3s",
+          filter: focused ? "drop-shadow(0 0 6px rgba(255,45,154,0.6))" : "none",
+        }} />
         <input
           ref={inputRef}
           value={message}
@@ -934,7 +958,7 @@ function NeuralInput({ onSubmit }: { onSubmit: (message: string) => void }) {
           onKeyDown={(e) => e.key === "Enter" && handleSend()}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
-          placeholder="What do you need?"
+          placeholder="Ask 3C anything..."
           style={{
             flex: 1, padding: "14px 0", borderRadius: 0,
             background: "transparent",
@@ -948,13 +972,16 @@ function NeuralInput({ onSubmit }: { onSubmit: (message: string) => void }) {
           disabled={!message.trim()}
           style={{
             width: 44, height: 44, borderRadius: 14, flexShrink: 0,
-            background: message.trim() ? "linear-gradient(135deg, #D4AF37, #C9A227)" : "rgba(255,255,255,0.04)",
+            background: message.trim()
+              ? "linear-gradient(135deg, #FF2D9A, #C9A85D)"
+              : "rgba(255,255,255,0.04)",
             border: "none", cursor: message.trim() ? "pointer" : "default",
             display: "flex", alignItems: "center", justifyContent: "center",
-            transition: "all 0.2s",
+            transition: "all 0.3s",
+            boxShadow: message.trim() ? "0 0 20px rgba(255,45,154,0.3)" : "none",
           }}
         >
-          <Send size={18} style={{ color: message.trim() ? "#000" : "rgba(255,255,255,0.12)" }} />
+          <Send size={18} style={{ color: message.trim() ? "#fff" : "rgba(255,255,255,0.12)" }} />
         </button>
       </div>
     </div>
@@ -1080,55 +1107,65 @@ function ServiceCard({ icon: Icon, label, description, accent, onClick }: {
       onMouseEnter={() => setHovered(true)}
       style={{
         width: "100%",
-        padding: "20px 20px",
-        borderRadius: 18,
+        padding: "18px 20px 18px 24px",
+        borderRadius: 16,
         background: pressed
-          ? `linear-gradient(135deg, ${accent}12 0%, ${accent}06 100%)`
+          ? `linear-gradient(135deg, ${accent}18 0%, rgba(255,45,154,0.04) 50%, ${accent}08 100%)`
           : hovered
-            ? "rgba(255,255,255,0.04)"
-            : "rgba(255,255,255,0.02)",
-        backdropFilter: "blur(20px)",
-        WebkitBackdropFilter: "blur(20px)",
-        border: `0.5px solid ${pressed ? `${accent}40` : hovered ? `${accent}25` : "rgba(255,255,255,0.06)"}`,
+            ? "linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,45,154,0.03) 100%)"
+            : "linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)",
+        backdropFilter: "blur(24px)",
+        WebkitBackdropFilter: "blur(24px)",
+        border: `1px solid ${pressed ? `${accent}50` : hovered ? "rgba(255,45,154,0.25)" : "rgba(255,255,255,0.08)"}`,
         cursor: "pointer",
-        transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
-        transform: pressed ? "scale(0.98)" : "scale(1)",
+        transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+        transform: pressed ? "scale(0.97)" : "scale(1)",
         display: "flex", alignItems: "center", gap: 16,
         textAlign: "left",
         color: "#fff",
         position: "relative",
         overflow: "hidden",
         boxShadow: pressed
-          ? `inset 0 0 20px ${accent}08, 0 2px 8px rgba(0,0,0,0.3)`
+          ? `inset 0 0 30px ${accent}10, 0 2px 8px rgba(0,0,0,0.4)`
           : hovered
-            ? `0 4px 16px rgba(0,0,0,0.2), 0 0 20px ${accent}08`
-            : "0 2px 8px rgba(0,0,0,0.15)",
+            ? `0 4px 24px rgba(0,0,0,0.3), 0 0 30px ${accent}12, 0 0 60px rgba(255,45,154,0.06)`
+            : "0 2px 12px rgba(0,0,0,0.2)",
       }}
     >
       <div style={{
+        position: "absolute", left: 0, top: "15%", bottom: "15%", width: 3,
+        borderRadius: "0 3px 3px 0",
+        background: hovered
+          ? `linear-gradient(180deg, ${accent}, #FF2D9A, ${accent})`
+          : `linear-gradient(180deg, ${accent}60, ${accent}30)`,
+        boxShadow: hovered ? `0 0 12px ${accent}80, 0 0 24px rgba(255,45,154,0.3)` : `0 0 8px ${accent}40`,
+        transition: "all 0.3s",
+      }} />
+      <div style={{
         position: "absolute", inset: 0, borderRadius: "inherit",
-        background: `linear-gradient(135deg, ${accent}05 0%, transparent 50%)`,
+        background: `linear-gradient(135deg, ${accent}08 0%, transparent 40%, rgba(255,45,154,0.02) 100%)`,
         pointerEvents: "none",
       }} />
       <div style={{
         width: 48, height: 48, borderRadius: 14, flexShrink: 0,
-        background: `linear-gradient(135deg, ${accent}15, ${accent}08)`,
-        border: `0.5px solid ${accent}25`,
+        background: `linear-gradient(135deg, ${accent}20, ${accent}0A)`,
+        border: `1px solid ${accent}30`,
         display: "flex", alignItems: "center", justifyContent: "center",
-        boxShadow: `0 0 12px ${accent}10`,
-        transition: "box-shadow 0.2s",
+        boxShadow: hovered ? `0 0 20px ${accent}25, 0 0 40px ${accent}10` : `0 0 12px ${accent}10`,
+        transition: "all 0.3s",
         position: "relative", zIndex: 1,
       }}>
-        <Icon size={22} style={{ color: accent }} />
+        <Icon size={22} style={{ color: accent, filter: hovered ? `drop-shadow(0 0 6px ${accent})` : "none", transition: "filter 0.3s" }} />
       </div>
       <div style={{ flex: 1, position: "relative", zIndex: 1 }}>
-        <p style={{ fontSize: 16, fontWeight: 700, margin: "0 0 2px", lineHeight: 1.2 }}>{label}</p>
-        <p style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", margin: 0, lineHeight: 1.4 }}>{description}</p>
+        <p style={{ fontSize: 16, fontWeight: 700, margin: "0 0 3px", lineHeight: 1.2, letterSpacing: 0.3 }}>{label}</p>
+        <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", margin: 0, lineHeight: 1.4 }}>{description}</p>
       </div>
       <ChevronRight size={16} style={{
-        color: hovered ? `${accent}90` : "rgba(255,255,255,0.12)",
-        flexShrink: 0, transition: "all 0.2s",
-        transform: hovered ? "translateX(2px)" : "none",
+        color: hovered ? "#FF2D9A" : "rgba(255,255,255,0.15)",
+        flexShrink: 0, transition: "all 0.25s",
+        transform: hovered ? "translateX(3px)" : "none",
+        filter: hovered ? "drop-shadow(0 0 4px rgba(255,45,154,0.5))" : "none",
         position: "relative", zIndex: 1,
       }} />
     </button>
@@ -2391,34 +2428,41 @@ export default function Home() {
         position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0,
       }}>
         <div style={{
-          position: "absolute", top: "-20%", left: "50%", transform: "translateX(-50%)",
-          width: "140%", height: "50%",
-          background: "radial-gradient(ellipse at center, rgba(201,162,39,0.04) 0%, rgba(201,162,39,0.01) 40%, transparent 70%)",
+          position: "absolute", top: "-30%", left: "50%", transform: "translateX(-50%)",
+          width: "160%", height: "60%",
+          background: "radial-gradient(ellipse at center, rgba(201,168,93,0.09) 0%, rgba(201,168,93,0.03) 35%, transparent 65%)",
           animation: "ambientPulse 8s ease-in-out infinite",
         }} />
         <div style={{
-          position: "absolute", bottom: "-10%", left: "30%",
-          width: 400, height: 400,
-          background: "radial-gradient(circle, rgba(201,162,39,0.025) 0%, transparent 60%)",
-          animation: "ambientDrift 12s ease-in-out infinite",
+          position: "absolute", bottom: "-15%", right: "-10%",
+          width: 500, height: 500,
+          background: "radial-gradient(circle, rgba(255,45,154,0.06) 0%, rgba(255,45,154,0.02) 40%, transparent 70%)",
+          animation: "ambientDrift 10s ease-in-out infinite",
         }} />
         <div style={{
-          position: "absolute", top: "40%", right: "-10%",
-          width: 300, height: 300,
-          background: "radial-gradient(circle, rgba(96,165,250,0.015) 0%, transparent 60%)",
-          animation: "ambientDrift 15s ease-in-out infinite reverse",
+          position: "absolute", top: "30%", left: "-15%",
+          width: 450, height: 450,
+          background: "radial-gradient(circle, rgba(255,45,154,0.04) 0%, transparent 60%)",
+          animation: "ambientDrift 14s ease-in-out infinite reverse",
         }} />
-        {[...Array(12)].map((_, i) => (
+        <div style={{
+          position: "absolute", bottom: "20%", left: "50%", transform: "translateX(-50%)",
+          width: 600, height: 300,
+          background: "radial-gradient(ellipse at center, rgba(201,168,93,0.05) 0%, transparent 70%)",
+          animation: "ambientPulse 12s ease-in-out infinite reverse",
+        }} />
+        {[...Array(16)].map((_, i) => (
           <div key={i} style={{
             position: "absolute",
-            left: `${8 + (i * 7.5) % 85}%`,
-            top: `${5 + (i * 13.7) % 90}%`,
-            width: i % 3 === 0 ? 2 : 1,
-            height: i % 3 === 0 ? 2 : 1,
+            left: `${8 + (i * 6.2) % 85}%`,
+            top: `${5 + (i * 11.3) % 90}%`,
+            width: i % 3 === 0 ? 2.5 : 1.5,
+            height: i % 3 === 0 ? 2.5 : 1.5,
             borderRadius: "50%",
-            background: i % 2 === 0 ? "rgba(201,162,39,0.25)" : "rgba(255,255,255,0.12)",
-            animation: `particleFloat ${6 + (i % 5) * 2}s ease-in-out infinite`,
-            animationDelay: `${i * 0.7}s`,
+            background: i % 3 === 0 ? "rgba(255,45,154,0.35)" : i % 2 === 0 ? "rgba(201,168,93,0.3)" : "rgba(255,255,255,0.15)",
+            animation: `particleFloat ${5 + (i % 4) * 2}s ease-in-out infinite`,
+            animationDelay: `${i * 0.5}s`,
+            boxShadow: i % 3 === 0 ? "0 0 6px rgba(255,45,154,0.4)" : "none",
           }} />
         ))}
       </div>
@@ -2440,7 +2484,7 @@ export default function Home() {
           }}>
             <div style={{
               position: "absolute", inset: -20,
-              background: "radial-gradient(circle, rgba(201,162,39,0.08) 0%, transparent 60%)",
+              background: "radial-gradient(circle, rgba(255,45,154,0.06) 0%, rgba(201,168,93,0.06) 40%, transparent 60%)",
               animation: "logoPulse 4s ease-in-out infinite",
               pointerEvents: "none",
             }} />
@@ -2462,7 +2506,8 @@ export default function Home() {
         </div>
 
         <div style={{
-          borderTop: "1px solid rgba(201,162,39,0.1)",
+          borderTop: "1px solid transparent",
+          borderImage: "linear-gradient(90deg, transparent, rgba(255,45,154,0.2), rgba(201,168,93,0.15), rgba(255,45,154,0.2), transparent) 1",
           margin: "14px 0 22px",
           padding: "18px 0",
           textAlign: "center",
@@ -2577,11 +2622,11 @@ export default function Home() {
             position: "fixed",
             bottom: 24, right: 24,
             width: 60, height: 60, borderRadius: 18,
-            background: "linear-gradient(135deg, #D4AF37, #C9A227, #A68B1B)",
-            border: "2px solid rgba(212,175,55,0.3)",
+            background: "linear-gradient(135deg, #FF2D9A, #C9A85D)",
+            border: "2px solid rgba(255,45,154,0.4)",
             cursor: "pointer",
             display: "flex", alignItems: "center", justifyContent: "center",
-            boxShadow: "0 8px 32px rgba(201,162,39,0.35), 0 0 60px rgba(201,162,39,0.1)",
+            boxShadow: "0 8px 32px rgba(255,45,154,0.35), 0 0 60px rgba(255,45,154,0.15), 0 0 100px rgba(201,168,93,0.08)",
             zIndex: 1000,
             transition: "transform 0.15s",
             animation: "fabGlow 3s ease-in-out infinite",
@@ -2590,7 +2635,7 @@ export default function Home() {
           onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
           onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
         >
-          <MessageCircle size={24} style={{ color: "#000" }} />
+          <MessageCircle size={24} style={{ color: "#fff" }} />
         </button>
       )}
 
@@ -2649,8 +2694,12 @@ export default function Home() {
           50% { opacity: 0.8; transform: scale(1.1); }
         }
         @keyframes fabGlow {
-          0%, 100% { box-shadow: 0 8px 32px rgba(201,162,39,0.35), 0 0 60px rgba(201,162,39,0.1); }
-          50% { box-shadow: 0 8px 40px rgba(201,162,39,0.5), 0 0 80px rgba(201,162,39,0.2), 0 0 120px rgba(201,162,39,0.05); }
+          0%, 100% { box-shadow: 0 8px 32px rgba(255,45,154,0.35), 0 0 60px rgba(255,45,154,0.15), 0 0 100px rgba(201,168,93,0.08); }
+          50% { box-shadow: 0 8px 40px rgba(255,45,154,0.5), 0 0 80px rgba(255,45,154,0.25), 0 0 120px rgba(201,168,93,0.12); }
+        }
+        @keyframes neonPulse {
+          0%, 100% { opacity: 0.5; }
+          50% { opacity: 1; }
         }
       `}</style>
     </div>

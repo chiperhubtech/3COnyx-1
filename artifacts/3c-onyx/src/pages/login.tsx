@@ -211,9 +211,9 @@ export default function LoginPage() {
       <div style={{
         position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0,
         background: `
-          radial-gradient(ellipse at 20% 30%, rgba(123,97,255,0.04) 0%, transparent 50%),
-          radial-gradient(ellipse at 80% 70%, rgba(201,168,93,0.05) 0%, transparent 50%),
-          radial-gradient(ellipse at 50% 100%, rgba(255,45,154,0.02) 0%, transparent 40%)
+          radial-gradient(ellipse at 20% 30%, rgba(255,45,154,0.06) 0%, transparent 50%),
+          radial-gradient(ellipse at 80% 70%, rgba(201,168,93,0.07) 0%, transparent 50%),
+          radial-gradient(ellipse at 50% 100%, rgba(255,45,154,0.05) 0%, transparent 40%)
         `,
       }} />
       <div style={{ width: "100%", maxWidth: 400, position: "relative", zIndex: 1 }}>
@@ -222,16 +222,16 @@ export default function LoginPage() {
         <div style={{ textAlign: "center", marginBottom: 40 }}>
           <div style={{
             width: 72, height: 72, borderRadius: 22,
-            background: "linear-gradient(135deg, rgba(201,168,93,0.18), rgba(201,168,93,0.06))",
-            border: "0.5px solid rgba(201,168,93,0.3)",
+            background: "linear-gradient(135deg, rgba(255,45,154,0.12), rgba(201,168,93,0.08))",
+            border: "1px solid rgba(255,45,154,0.2)",
             display: "flex", alignItems: "center", justifyContent: "center",
             margin: "0 auto 20px",
-            boxShadow: "0 8px 32px rgba(201,168,93,0.15), 0 0 60px rgba(201,168,93,0.05)",
+            boxShadow: "0 8px 32px rgba(255,45,154,0.15), 0 0 60px rgba(255,45,154,0.05)",
             position: "relative",
           }}>
             <div style={{
               position: "absolute", inset: -8,
-              background: "radial-gradient(circle, rgba(201,168,93,0.08) 0%, transparent 60%)",
+              background: "radial-gradient(circle, rgba(255,45,154,0.08) 0%, transparent 60%)",
               animation: "loginLogoPulse 4s ease-in-out infinite",
               pointerEvents: "none", borderRadius: "50%",
             }} />
@@ -301,11 +301,11 @@ export default function LoginPage() {
           background: "rgba(255,255,255,0.03)",
           backdropFilter: "blur(20px)",
           WebkitBackdropFilter: "blur(20px)",
-          border: "0.5px solid rgba(201,168,93,0.15)",
+          border: "1px solid rgba(255,45,154,0.1)",
           borderRadius: 22, padding: 28,
           display: "flex", flexDirection: "column", gap: 18,
           position: "relative", overflow: "hidden",
-          boxShadow: "inset 0 0 30px rgba(201,168,93,0.02), 0 4px 24px rgba(0,0,0,0.3)",
+          boxShadow: "inset 0 0 30px rgba(255,45,154,0.02), 0 4px 24px rgba(0,0,0,0.3), 0 0 40px rgba(255,45,154,0.03)",
         }}>
           <div>
             <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>Email</label>
@@ -353,12 +353,14 @@ export default function LoginPage() {
             onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
             style={{
               padding: "16px", borderRadius: 14, marginTop: 4,
-              background: `linear-gradient(135deg, ${GOLD}, #A68B1B)`,
-              border: "none", color: "#000", fontWeight: 800, fontSize: 16,
+              background: "linear-gradient(135deg, #FF2D9A, #C9A85D)",
+              border: "none", color: "#fff", fontWeight: 800, fontSize: 16,
               cursor: loading ? "default" : "pointer",
               display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
               opacity: loading ? 0.7 : 1,
-              boxShadow: `0 4px 20px rgba(201,168,93,0.3), 0 0 40px rgba(201,168,93,0.08)`,
+              fontFamily: "'Barlow Condensed', sans-serif",
+              letterSpacing: 1,
+              boxShadow: "0 4px 20px rgba(255,45,154,0.3), 0 0 40px rgba(255,45,154,0.1)",
               transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
             }}
           >

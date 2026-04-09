@@ -39,18 +39,19 @@ function NavItem({ label, path, icon: Icon, description, accent = "#C9A227", onC
           padding: "7px 10px",
           borderRadius: 10,
           cursor: "pointer",
-          transition: "all 0.15s",
+          transition: "all 0.2s",
           background: isActive
-            ? `linear-gradient(135deg, ${accent}12 0%, ${accent}06 100%)`
+            ? `linear-gradient(135deg, rgba(255,45,154,0.08) 0%, ${accent}08 100%)`
             : "transparent",
-          border: isActive ? `1px solid ${accent}28` : "1px solid transparent",
-          borderLeft: isActive ? `2px solid ${accent}` : "2px solid transparent",
+          border: isActive ? `1px solid rgba(255,45,154,0.2)` : "1px solid transparent",
+          borderLeft: isActive ? `2px solid #FF2D9A` : "2px solid transparent",
+          boxShadow: isActive ? "0 0 20px rgba(255,45,154,0.06)" : "none",
           marginBottom: 1,
         }}
         onMouseEnter={(e) => {
           if (!isActive) {
-            (e.currentTarget as HTMLDivElement).style.background = "rgba(255,255,255,0.04)";
-            (e.currentTarget as HTMLDivElement).style.borderLeftColor = `${accent}50`;
+            (e.currentTarget as HTMLDivElement).style.background = "rgba(255,45,154,0.04)";
+            (e.currentTarget as HTMLDivElement).style.borderLeftColor = "rgba(255,45,154,0.4)";
           }
         }}
         onMouseLeave={(e) => {

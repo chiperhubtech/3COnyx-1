@@ -144,22 +144,46 @@ export function NerveCenter() {
     : "0.00";
 
   return (
-    <div style={{ marginBottom: 16 }}>
+    <div style={{
+      marginBottom: 16, position: "relative",
+      padding: 1,
+      borderRadius: 18,
+      background: "linear-gradient(135deg, rgba(255,45,154,0.15), rgba(201,168,93,0.1), rgba(255,45,154,0.08))",
+    }}>
+      <div style={{
+        background: "linear-gradient(135deg, rgba(10,10,14,0.97), rgba(15,15,20,0.95))",
+        borderRadius: 17, padding: "14px 14px 12px",
+        backdropFilter: "blur(20px)",
+        position: "relative", overflow: "hidden",
+      }}>
+      <div style={{
+        position: "absolute", top: 0, left: 0, right: 0, height: 2,
+        background: "linear-gradient(90deg, transparent, #FF2D9A, #C9A85D, #FF2D9A, transparent)",
+        opacity: 0.6,
+      }} />
       <div style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
-        marginBottom: 10, paddingLeft: 2,
+        marginBottom: 12, paddingLeft: 2,
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <Gauge size={14} style={{ color: "#C9A227" }} />
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <Gauge size={14} style={{ color: "#FF2D9A", filter: "drop-shadow(0 0 4px rgba(255,45,154,0.5))" }} />
           <span style={{
-            fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.5)",
-            letterSpacing: 1.5, textTransform: "uppercase",
+            fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.6)",
+            letterSpacing: 2, textTransform: "uppercase",
             fontFamily: "'Barlow Condensed', sans-serif",
           }}>
             NERVE CENTER
           </span>
         </div>
-        <span style={{ fontSize: 9, color: "rgba(255,255,255,0.2)" }}>LIVE</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+          <div style={{
+            width: 6, height: 6, borderRadius: "50%",
+            background: "#FF2D9A",
+            boxShadow: "0 0 8px rgba(255,45,154,0.6), 0 0 16px rgba(255,45,154,0.3)",
+            animation: "ambientPulse 2s ease-in-out infinite",
+          }} />
+          <span style={{ fontSize: 9, color: "#FF2D9A", fontWeight: 700, letterSpacing: 1 }}>LIVE</span>
+        </div>
       </div>
       <div style={{
         display: "grid", gridTemplateColumns: "1fr 1fr",
@@ -167,10 +191,10 @@ export function NerveCenter() {
       }}>
         <Link href="/wallet">
           <div style={{
-            background: "rgba(201,162,39,0.06)",
-            border: "1px solid rgba(201,162,39,0.12)",
+            background: "linear-gradient(135deg, rgba(201,168,93,0.08), rgba(201,168,93,0.03))",
+            border: "1px solid rgba(201,168,93,0.15)",
             borderRadius: 14, padding: "14px 14px 12px",
-            cursor: "pointer", transition: "background 0.15s",
+            cursor: "pointer", transition: "all 0.2s",
           }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
               <div style={{
@@ -351,18 +375,20 @@ export function NerveCenter() {
 
       <Link href="/my-qr">
         <div style={{
-          background: "linear-gradient(135deg, rgba(201,162,39,0.08), rgba(201,162,39,0.03))",
-          border: "1px solid rgba(201,162,39,0.12)",
+          background: "linear-gradient(135deg, rgba(255,45,154,0.06), rgba(201,168,93,0.04))",
+          border: "1px solid rgba(255,45,154,0.12)",
           borderRadius: 12, padding: "10px 14px",
           display: "flex", alignItems: "center", gap: 10,
           cursor: "pointer",
+          transition: "all 0.2s",
         }}>
           <div style={{
             width: 32, height: 32, borderRadius: 8,
-            background: "linear-gradient(135deg, #C9A227, #A68B1B)",
+            background: "linear-gradient(135deg, #FF2D9A, #C9A85D)",
             display: "flex", alignItems: "center", justifyContent: "center",
+            boxShadow: "0 0 12px rgba(255,45,154,0.3)",
           }}>
-            <Shield size={16} style={{ color: "#000" }} />
+            <Shield size={16} style={{ color: "#fff" }} />
           </div>
           <div style={{ flex: 1 }}>
             <p style={{ fontSize: 12, fontWeight: 700, color: "#fff", margin: 0 }}>
@@ -372,9 +398,10 @@ export function NerveCenter() {
               Your QR badge earns you commission on every referral
             </p>
           </div>
-          <TrendingUp size={14} style={{ color: "#C9A227" }} />
+          <TrendingUp size={14} style={{ color: "#FF2D9A" }} />
         </div>
       </Link>
+      </div>
     </div>
   );
 }
