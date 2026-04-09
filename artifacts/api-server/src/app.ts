@@ -80,6 +80,14 @@ app.use((_req: Request, res: Response, next: NextFunction) => {
 // Every log line, every response carries the same trace ID for correlation.
 app.use(tracing);
 
+// ── ONYX Metrics Engine — Prometheus-compatible request telemetry ─────────────
+import { metricsEngine } from "./lib/onyxMetricsEngine";
+app.use(metricsEngine.httpMiddleware());
+
+// ── ONYX Log Aggregator — ELK-equivalent structured logging ──────────────────
+import { logAggregator } from "./lib/onyxLogAggregator";
+app.use(logAggregator.httpMiddleware());
+
 // ── Sovereignty — stamp every response with owner fingerprint ─────────────────
 app.use(sovereigntyMiddleware);
 

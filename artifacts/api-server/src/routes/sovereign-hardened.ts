@@ -71,7 +71,8 @@ router.post("/hardened/state-hardener/validate", requireAuth, (req: Request, res
 });
 
 router.get("/hardened/state-hardener/transitions/:domain/:state", (req: Request, res: Response) => {
-  const { domain, state } = req.params;
+  const domain = req.params.domain as string;
+  const state = req.params.state as string;
   const valid = getValidTransitions(domain, state);
   const allStates = getDomainStates(domain);
   res.json({

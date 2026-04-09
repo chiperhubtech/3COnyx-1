@@ -79,6 +79,28 @@ async function startServer() {
       }, "[genesis] Sovereign Hardened Infrastructure — ARMED");
     }).catch(err => logger.warn({ err: (err as Error).message }, "[genesis] Hardened infra init deferred"));
 
+    Promise.all([
+      import("./lib/sovereignServiceMesh"),
+      import("./lib/onyxMetricsEngine"),
+      import("./lib/onyxLogAggregator"),
+      import("./lib/onyxObjectVault"),
+      import("./lib/onyxCIPipeline"),
+    ]).then(([meshMod, metricsMod, logsMod, vaultMod, ciMod]) => {
+      meshMod.serviceMesh.genesis();
+      metricsMod.metricsEngine.genesis();
+      logsMod.logAggregator.genesis();
+      vaultMod.objectVault.genesis();
+      ciMod.ciPipeline.genesis();
+      logger.info({
+        serviceMesh: "ARMED",
+        metricsEngine: "ARMED",
+        logAggregator: "ARMED",
+        objectVault: "ARMED",
+        ciPipeline: "ARMED",
+        architect: "Ronald Antonio Cadet",
+      }, "[genesis] Sovereign Infrastructure Grid — ALL 5 SYSTEMS ARMED");
+    }).catch(err => logger.warn({ err: (err as Error).message }, "[genesis] Infrastructure Grid init deferred"));
+
     warmSecrets([...CRITICAL_SECRETS]).catch(err =>
       logger.warn({ err: (err as Error).message }, "[startup] Secrets warm skipped")
     );

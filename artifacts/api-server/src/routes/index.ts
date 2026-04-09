@@ -164,6 +164,7 @@ import behavioralEngineRouter from "./behavioral-engine";
 import hubspotRouter from "./hubspot";
 import tiktokAdsRouter from "./tiktok-ads";
 import sovereignHardenedRouter from "./sovereign-hardened";
+import sovereignInfrastructureRouter from "./sovereign-infrastructure";
 import { idempotencyGuard } from "../middlewares/idempotencyGuard";
 
 const router: IRouter = Router();
@@ -351,5 +352,6 @@ router.use(behavioralEngineRouter);
 router.use("/hubspot", hubspotRouter);
 router.use("/tiktok-ads", tiktokAdsRouter);
 router.use(sovereignHardenedRouter);
+router.use(sovereignInfrastructureRouter);
 
 export default router;

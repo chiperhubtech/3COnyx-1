@@ -482,6 +482,41 @@ export default function CommandCenter() {
     refetchInterval: 60_000,
   });
 
+  const { data: infraMeshData } = useQuery<any>({
+    queryKey: ["infra-mesh"],
+    queryFn: () => fetch("/api/infrastructure/mesh", { headers: { "Content-Type": "application/json" } }).then(r => r.ok ? r.json() : null).catch(() => null),
+    enabled: tab === "intelligence",
+    refetchInterval: 15_000,
+  });
+
+  const { data: infraMetricsData } = useQuery<any>({
+    queryKey: ["infra-metrics"],
+    queryFn: () => fetch("/api/infrastructure/metrics", { headers: { "Content-Type": "application/json" } }).then(r => r.ok ? r.json() : null).catch(() => null),
+    enabled: tab === "intelligence",
+    refetchInterval: 10_000,
+  });
+
+  const { data: infraLogsData } = useQuery<any>({
+    queryKey: ["infra-logs-dashboard"],
+    queryFn: () => fetch("/api/infrastructure/logs/dashboard", { headers: { "Content-Type": "application/json" } }).then(r => r.ok ? r.json() : null).catch(() => null),
+    enabled: tab === "intelligence",
+    refetchInterval: 15_000,
+  });
+
+  const { data: infraVaultData } = useQuery<any>({
+    queryKey: ["infra-vault"],
+    queryFn: () => fetch("/api/infrastructure/vault", { headers: { "Content-Type": "application/json" } }).then(r => r.ok ? r.json() : null).catch(() => null),
+    enabled: tab === "intelligence",
+    refetchInterval: 30_000,
+  });
+
+  const { data: infraPipelineData } = useQuery<any>({
+    queryKey: ["infra-pipeline"],
+    queryFn: () => fetch("/api/infrastructure/pipeline", { headers: { "Content-Type": "application/json" } }).then(r => r.ok ? r.json() : null).catch(() => null),
+    enabled: tab === "intelligence",
+    refetchInterval: 30_000,
+  });
+
   const TABS: { id: Tab; label: string; badge?: number }[] = [
     { id: "overview",      label: "Overview" },
     { id: "intelligence",  label: "Intelligence" },
@@ -1060,18 +1095,214 @@ export default function CommandCenter() {
               </div>
             </div>
 
+            <div className="rounded-2xl border border-cyan-500/15 bg-cyan-500/[0.02] overflow-hidden">
+              <div className="p-4 border-b border-cyan-500/10 flex items-center gap-2">
+                <Globe className="w-4 h-4 text-cyan-400" />
+                <p className="text-sm font-semibold text-white">Sovereign Infrastructure Grid</p>
+                <span className="ml-auto text-[9px] font-black px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-400">5 SYSTEMS ARMED</span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-5 divide-y md:divide-y-0 md:divide-x divide-white/5">
+                <div className="p-4">
+                  <p className="text-[9px] text-cyan-400/50 uppercase tracking-wider mb-2">Service Mesh</p>
+                  <p className="text-[9px] text-white/15 mb-2">Kubernetes-equivalent</p>
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-white/30">Services</span>
+                      <span className="text-cyan-400 font-bold">{infraMeshData?.cluster?.totalServices ?? "—"}</span>
+                    </div>
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-white/30">Healthy</span>
+                      <span className="text-emerald-400 font-bold">{infraMeshData?.cluster?.healthyServices ?? "—"}</span>
+                    </div>
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-white/30">Replicas</span>
+                      <span className="text-white/50 font-bold">{infraMeshData?.cluster?.totalReplicas ?? "—"}</span>
+                    </div>
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-white/30">Avg CPU</span>
+                      <span className="text-white/50 font-bold">{infraMeshData?.cluster?.totalCPU ? `${infraMeshData.cluster.totalCPU.toFixed(1)}%` : "—"}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4">
+                  <p className="text-[9px] text-violet-400/50 uppercase tracking-wider mb-2">Metrics Engine</p>
+                  <p className="text-[9px] text-white/15 mb-2">Prometheus+Grafana</p>
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-white/30">Requests</span>
+                      <span className="text-violet-400 font-bold">{infraMetricsData?.summary?.totalRequests?.toLocaleString() ?? "—"}</span>
+                    </div>
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-white/30">Req/s</span>
+                      <span className="text-white/50 font-bold">{infraMetricsData?.summary?.requestRate ?? "—"}</span>
+                    </div>
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-white/30">P95 Latency</span>
+                      <span className="text-white/50 font-bold">{infraMetricsData?.summary?.p95Latency ? `${infraMetricsData.summary.p95Latency}ms` : "—"}</span>
+                    </div>
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-white/30">Error Rate</span>
+                      <span className={`font-bold ${(infraMetricsData?.summary?.errorRate ?? 0) > 5 ? "text-red-400" : "text-emerald-400"}`}>{infraMetricsData?.summary?.errorRate ?? 0}%</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4">
+                  <p className="text-[9px] text-amber-400/50 uppercase tracking-wider mb-2">Log Aggregator</p>
+                  <p className="text-[9px] text-white/15 mb-2">ELK Stack-equivalent</p>
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-white/30">Total Logs</span>
+                      <span className="text-amber-400 font-bold">{infraLogsData?.totalLogs?.toLocaleString() ?? "—"}</span>
+                    </div>
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-white/30">Logs/min</span>
+                      <span className="text-white/50 font-bold">{infraLogsData?.aggregation?.logsPerMinute ?? "—"}</span>
+                    </div>
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-white/30">Error Rate</span>
+                      <span className={`font-bold ${(infraLogsData?.aggregation?.errorRate ?? 0) > 5 ? "text-red-400" : "text-emerald-400"}`}>{infraLogsData?.aggregation?.errorRate ?? 0}%</span>
+                    </div>
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-white/30">Services</span>
+                      <span className="text-white/50 font-bold">{infraLogsData?.services?.length ?? "—"}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4">
+                  <p className="text-[9px] text-emerald-400/50 uppercase tracking-wider mb-2">Object Vault</p>
+                  <p className="text-[9px] text-white/15 mb-2">S3+CloudFront</p>
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-white/30">Objects</span>
+                      <span className="text-emerald-400 font-bold">{infraVaultData?.storage?.totalObjects ?? 0}</span>
+                    </div>
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-white/30">Storage</span>
+                      <span className="text-white/50 font-bold">{infraVaultData?.storage?.totalSizeFormatted ?? "0 B"}</span>
+                    </div>
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-white/30">Buckets</span>
+                      <span className="text-white/50 font-bold">{infraVaultData?.storage?.bucketCount ?? 0}</span>
+                    </div>
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-white/30">Cache Hit</span>
+                      <span className="text-white/50 font-bold">{infraVaultData?.storage?.cacheHitRate ?? 0}%</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4">
+                  <p className="text-[9px] text-pink-400/50 uppercase tracking-wider mb-2">CI/CD Pipeline</p>
+                  <p className="text-[9px] text-white/15 mb-2">GitHub Actions</p>
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-white/30">Status</span>
+                      <span className={`font-bold ${infraPipelineData?.status === "ARMED" ? "text-emerald-400" : "text-amber-400"}`}>{infraPipelineData?.status ?? "—"}</span>
+                    </div>
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-white/30">Total Runs</span>
+                      <span className="text-pink-400 font-bold">{infraPipelineData?.totalRuns ?? 0}</span>
+                    </div>
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-white/30">Pass Rate</span>
+                      <span className="text-white/50 font-bold">{infraPipelineData?.passRate ?? 0}%</span>
+                    </div>
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-white/30">Stages</span>
+                      <span className="text-white/50 font-bold">{infraPipelineData?.stages?.length ?? 0}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {infraMeshData?.services && infraMeshData.services.length > 0 && (
+              <div className="rounded-2xl border border-white/8 bg-white/[0.02] overflow-hidden">
+                <div className="p-4 border-b border-white/6 flex items-center gap-2">
+                  <Activity className="w-4 h-4 text-cyan-400" />
+                  <p className="text-sm font-semibold text-white">Service Mesh — Live Cluster</p>
+                  <span className="ml-auto text-[9px] text-white/30">{infraMeshData.services.length} services</span>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-[10px]">
+                    <thead>
+                      <tr className="border-b border-white/5">
+                        <th className="text-left p-3 text-white/20 font-medium">Service</th>
+                        <th className="text-center p-3 text-white/20 font-medium">Status</th>
+                        <th className="text-center p-3 text-white/20 font-medium">Replicas</th>
+                        <th className="text-center p-3 text-white/20 font-medium">CPU</th>
+                        <th className="text-center p-3 text-white/20 font-medium">Memory</th>
+                        <th className="text-center p-3 text-white/20 font-medium">RPS</th>
+                        <th className="text-center p-3 text-white/20 font-medium">Circuit</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {infraMeshData.services.map((svc: any) => (
+                        <tr key={svc.name} className="border-b border-white/[0.03] hover:bg-white/[0.02]">
+                          <td className="p-3 text-white/60 font-medium">{svc.name}</td>
+                          <td className="p-3 text-center">
+                            <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold ${
+                              svc.status === "RUNNING" ? "bg-emerald-500/20 text-emerald-400" :
+                              svc.status === "DEGRADED" ? "bg-amber-500/20 text-amber-400" :
+                              "bg-red-500/20 text-red-400"
+                            }`}>{svc.status}</span>
+                          </td>
+                          <td className="p-3 text-center text-white/50">{svc.replicas}</td>
+                          <td className="p-3 text-center">
+                            <span className={svc.cpu > 80 ? "text-red-400" : svc.cpu > 50 ? "text-amber-400" : "text-emerald-400"}>{svc.cpu}%</span>
+                          </td>
+                          <td className="p-3 text-center">
+                            <span className={svc.memory > 80 ? "text-red-400" : svc.memory > 50 ? "text-amber-400" : "text-emerald-400"}>{svc.memory}%</span>
+                          </td>
+                          <td className="p-3 text-center text-white/50">{svc.rps}</td>
+                          <td className="p-3 text-center">
+                            <span className={`text-[8px] font-bold ${svc.circuitBreaker === "CLOSED" ? "text-emerald-400" : svc.circuitBreaker === "HALF_OPEN" ? "text-amber-400" : "text-red-400"}`}>{svc.circuitBreaker}</span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {infraPipelineData?.deploymentChecks && (
+              <div className="rounded-2xl border border-white/8 bg-white/[0.02] overflow-hidden">
+                <div className="p-4 border-b border-white/6 flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <p className="text-sm font-semibold text-white">Deployment Readiness</p>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4">
+                  {infraPipelineData.deploymentChecks.map((check: any) => (
+                    <div key={check.name} className="flex items-start gap-2 p-2 rounded-lg bg-white/[0.02]">
+                      <span className={`mt-0.5 w-2 h-2 rounded-full flex-shrink-0 ${check.status === "PASS" ? "bg-emerald-400" : check.status === "WARN" ? "bg-amber-400" : "bg-red-400"}`} />
+                      <div>
+                        <p className="text-[10px] text-white/60 font-medium">{check.name}</p>
+                        <p className="text-[9px] text-white/25 mt-0.5">{check.details}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="rounded-xl border border-amber-500/15 bg-amber-500/[0.03] p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Shield className="w-4 h-4 text-amber-400" />
-                <p className="text-[10px] font-black text-amber-400/60 tracking-wider">SOVEREIGN INTELLIGENCE PROTOCOL</p>
+                <p className="text-[10px] font-black text-amber-400/60 tracking-wider">SOVEREIGN INFRASTRUCTURE GRID</p>
               </div>
               <p className="text-[11px] text-white/40 leading-5">
-                The Intelligence Layer combines Behavioral DNA (12 agent profiles), Conversion Intelligence (pattern learning),
-                HubSpot CRM (contact + deal pipeline), TikTok Ads (lead generation + audience targeting),
-                Constant Contact (email/SMS marketing automation), the Michelin Demand Engine (friction → upgrade path),
-                Distribution Hub auto-upgrade (Katamari Growth), State Transition Hardener (7 domain strict enforcement),
-                and the Idempotency Guard (zero-duplicate transactions). All data flows through the proof chain.
-                Staff access is controlled exclusively by the Sovereign — grant or revoke from this panel.
+                The Sovereign Infrastructure Grid replaces all external cloud dependencies with native 3C ONYX systems:
+                Service Mesh (Kubernetes-equivalent with 13 microservices, circuit breakers, auto-scaling),
+                Metrics Engine (Prometheus+Grafana-equivalent with counters, gauges, histograms, time series),
+                Log Aggregator (ELK Stack-equivalent with full-text search, correlation tracing, structured JSON),
+                Object Vault (S3+CloudFront-equivalent with AES-256 encryption, signed URLs, CDN caching),
+                and CI/CD Pipeline (GitHub Actions-equivalent with 5-stage validation, deployment readiness checks).
+                All systems are self-contained with zero external dependencies — portable to any cloud on day one.
               </p>
             </div>
           </div>
