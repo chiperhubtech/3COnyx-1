@@ -517,6 +517,20 @@ export default function CommandCenter() {
     refetchInterval: 30_000,
   });
 
+  const { data: learningData } = useQuery<any>({
+    queryKey: ["self-learning"],
+    queryFn: () => fetch("/api/learning/dashboard", { headers: { "Content-Type": "application/json" } }).then(r => r.ok ? r.json() : null).catch(() => null),
+    enabled: tab === "intelligence",
+    refetchInterval: 15_000,
+  });
+
+  const { data: nbaData } = useQuery<any>({
+    queryKey: ["nba-dashboard"],
+    queryFn: () => fetch("/api/nba/dashboard", { headers: { "Content-Type": "application/json" } }).then(r => r.ok ? r.json() : null).catch(() => null),
+    enabled: tab === "intelligence",
+    refetchInterval: 15_000,
+  });
+
   const TABS: { id: Tab; label: string; badge?: number }[] = [
     { id: "overview",      label: "Overview" },
     { id: "intelligence",  label: "Intelligence" },
@@ -1095,6 +1109,83 @@ export default function CommandCenter() {
               </div>
             </div>
 
+            <div className="rounded-2xl border border-pink-500/15 bg-pink-500/[0.02] overflow-hidden">
+              <div className="p-4 border-b border-pink-500/10 flex items-center gap-2">
+                <Brain className="w-4 h-4 text-pink-400" />
+                <p className="text-sm font-semibold text-white">Intelligence Singularity</p>
+                <span className="ml-auto text-[9px] font-black px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-400">SELF-LEARNING</span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-white/5">
+                <div className="p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Brain className="w-3.5 h-3.5 text-pink-400" />
+                    <p className="text-[10px] text-pink-400/60 uppercase tracking-wider font-bold">Self-Learning Feedback Loop</p>
+                  </div>
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-white/30">Corrections Captured</span>
+                      <span className="text-pink-400 font-bold">{learningData?.totalCorrections ?? 0}</span>
+                    </div>
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-white/30">Learning Insights</span>
+                      <span className="text-white/50 font-bold">{learningData?.totalInsights ?? 0}</span>
+                    </div>
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-white/30">Network Learning Score</span>
+                      <span className="text-emerald-400 font-bold">{learningData?.networkLearningScore ?? 0}%</span>
+                    </div>
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-white/30">Agent Profiles</span>
+                      <span className="text-white/50 font-bold">{learningData?.agentProfiles?.length ?? 0}</span>
+                    </div>
+                  </div>
+                  {learningData?.agentProfiles?.length > 0 && (
+                    <div className="mt-3 space-y-1">
+                      {learningData.agentProfiles.slice(0, 4).map((ap: any) => (
+                        <div key={ap.agentId} className="flex items-center justify-between text-[9px] py-0.5">
+                          <span className="text-white/25">{ap.agentId}</span>
+                          <span className={`font-bold ${ap.maturityLevel === "MASTER" ? "text-yellow-400" : ap.maturityLevel === "EXPERT" ? "text-emerald-400" : ap.maturityLevel === "COMPETENT" ? "text-cyan-400" : "text-white/30"}`}>{ap.maturityLevel}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Target className="w-3.5 h-3.5 text-amber-400" />
+                    <p className="text-[10px] text-amber-400/60 uppercase tracking-wider font-bold">Next Best Action Engine</p>
+                  </div>
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-white/30">Actions Generated</span>
+                      <span className="text-amber-400 font-bold">{nbaData?.totalActionsGenerated ?? 0}</span>
+                    </div>
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-white/30">Actions Accepted</span>
+                      <span className="text-white/50 font-bold">{nbaData?.totalActionsAccepted ?? 0}</span>
+                    </div>
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-white/30">Acceptance Rate</span>
+                      <span className="text-emerald-400 font-bold">{nbaData?.acceptanceRate ?? 0}%</span>
+                    </div>
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-white/30">Active Rules</span>
+                      <span className="text-white/50 font-bold">{nbaData?.activeRules ?? 0}</span>
+                    </div>
+                  </div>
+                  {nbaData?.actionCategories && (
+                    <div className="mt-3 flex flex-wrap gap-1">
+                      {nbaData.actionCategories.map((cat: string) => (
+                        <span key={cat} className="text-[8px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400/60">{cat}</span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
             <div className="rounded-2xl border border-cyan-500/15 bg-cyan-500/[0.02] overflow-hidden">
               <div className="p-4 border-b border-cyan-500/10 flex items-center gap-2">
                 <Globe className="w-4 h-4 text-cyan-400" />
@@ -1293,16 +1384,19 @@ export default function CommandCenter() {
             <div className="rounded-xl border border-amber-500/15 bg-amber-500/[0.03] p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Shield className="w-4 h-4 text-amber-400" />
-                <p className="text-[10px] font-black text-amber-400/60 tracking-wider">SOVEREIGN INFRASTRUCTURE GRID</p>
+                <p className="text-[10px] font-black text-amber-400/60 tracking-wider">SOVEREIGN INTELLIGENCE SINGULARITY</p>
               </div>
               <p className="text-[11px] text-white/40 leading-5">
-                The Sovereign Infrastructure Grid replaces all external cloud dependencies with native 3C ONYX systems:
-                Service Mesh (Kubernetes-equivalent with 13 microservices, circuit breakers, auto-scaling),
-                Metrics Engine (Prometheus+Grafana-equivalent with counters, gauges, histograms, time series),
-                Log Aggregator (ELK Stack-equivalent with full-text search, correlation tracing, structured JSON),
-                Object Vault (S3+CloudFront-equivalent with AES-256 encryption, signed URLs, CDN caching),
-                and CI/CD Pipeline (GitHub Actions-equivalent with 5-stage validation, deployment readiness checks).
-                All systems are self-contained with zero external dependencies — portable to any cloud on day one.
+                The Intelligence Singularity transforms 3C ONYX from a platform into a Living Organism.
+                The Self-Learning Feedback Loop captures every operator override as a correction event — when a human
+                overrides the AI, the system logs it, detects patterns, adjusts confidence thresholds, and optimizes
+                agent behavior. Each agent matures from INFANT → LEARNING → COMPETENT → EXPERT → MASTER.
+                The Next Best Action Engine eliminates operator guesswork — 11 action rules across 11 categories
+                analyze deal state, engagement temperature, objections, and timing to suggest the exact next move
+                with a confidence score and a suggested response. Zero-Blindness Execution: take someone off the street,
+                give them the HUD, and they perform like a 10-year veteran in 5 minutes.
+                The Sovereign Infrastructure Grid provides Kubernetes, Prometheus, ELK, S3, and CI/CD — all native,
+                zero external dependencies, portable to any cloud on day one.
               </p>
             </div>
           </div>

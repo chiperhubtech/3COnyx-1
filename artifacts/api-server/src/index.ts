@@ -101,6 +101,19 @@ async function startServer() {
       }, "[genesis] Sovereign Infrastructure Grid — ALL 5 SYSTEMS ARMED");
     }).catch(err => logger.warn({ err: (err as Error).message }, "[genesis] Infrastructure Grid init deferred"));
 
+    Promise.all([
+      import("./lib/selfLearningEngine"),
+      import("./lib/nextBestActionEngine"),
+    ]).then(([slMod, nbaMod]) => {
+      slMod.selfLearningEngine.genesis();
+      nbaMod.nbaEngine.genesis();
+      logger.info({
+        selfLearning: "ARMED",
+        nextBestAction: "ARMED",
+        architect: "Ronald Antonio Cadet",
+      }, "[genesis] Sovereign Intelligence Singularity — SELF-LEARNING + NBA ARMED");
+    }).catch(err => logger.warn({ err: (err as Error).message }, "[genesis] Intelligence Singularity init deferred"));
+
     warmSecrets([...CRITICAL_SECRETS]).catch(err =>
       logger.warn({ err: (err as Error).message }, "[startup] Secrets warm skipped")
     );
