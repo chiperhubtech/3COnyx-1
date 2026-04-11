@@ -114,6 +114,15 @@ async function startServer() {
       }, "[genesis] Sovereign Intelligence Singularity — SELF-LEARNING + NBA ARMED");
     }).catch(err => logger.warn({ err: (err as Error).message }, "[genesis] Intelligence Singularity init deferred"));
 
+    import("./lib/cSuiteAgentEngine").then(mod => {
+      mod.cSuiteEngine.genesis();
+      logger.info({
+        agents: 7,
+        protocol: "C-Suite AI Agent Engine",
+        architect: "Ronald Antonio Cadet",
+      }, "[genesis] C-Suite AI Agent Engine — 7 EXECUTIVE AGENTS ARMED");
+    }).catch(err => logger.warn({ err: (err as Error).message }, "[genesis] C-Suite Agent Engine init deferred"));
+
     warmSecrets([...CRITICAL_SECRETS]).catch(err =>
       logger.warn({ err: (err as Error).message }, "[startup] Secrets warm skipped")
     );

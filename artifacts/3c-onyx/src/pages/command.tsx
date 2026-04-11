@@ -337,7 +337,7 @@ function AlertsPanel({ alerts, onAck }: { alerts: Alert[]; onAck: (id: string) =
 }
 
 // ─── Main Page ─────────────────────────────────────────────────────────────────
-type Tab = "overview" | "missions" | "killswitch" | "alerts" | "hectocorn" | "intelligence";
+type Tab = "overview" | "missions" | "killswitch" | "alerts" | "hectocorn" | "intelligence" | "c-suite";
 
 interface BehavioralStatus {
   engineVersion: string;
@@ -531,6 +531,13 @@ export default function CommandCenter() {
     refetchInterval: 15_000,
   });
 
+  const { data: cSuiteData } = useQuery<any>({
+    queryKey: ["c-suite-dashboard"],
+    queryFn: () => fetch("/api/c-suite/dashboard", { headers: { "Content-Type": "application/json" } }).then(r => r.ok ? r.json() : null).catch(() => null),
+    enabled: tab === "c-suite",
+    refetchInterval: 10_000,
+  });
+
   const TABS: { id: Tab; label: string; badge?: number }[] = [
     { id: "overview",      label: "Overview" },
     { id: "intelligence",  label: "Intelligence" },
@@ -538,6 +545,7 @@ export default function CommandCenter() {
     { id: "killswitch",    label: "Kill-Switch", badge: unresolvedFlagged.length },
     { id: "alerts",        label: "Alerts",      badge: unackedAlerts.length },
     { id: "hectocorn",     label: "Hectocorn" },
+    { id: "c-suite",       label: "C-Suite AI" },
   ];
 
   const kColor = pulse
@@ -1491,6 +1499,134 @@ export default function CommandCenter() {
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {tab === "c-suite" && (
+          <div className="space-y-5">
+            <div className="rounded-2xl border border-[#C9A85D]/20 bg-[#C9A85D]/[0.03] p-5">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 rounded-lg bg-[#C9A85D]/20 flex items-center justify-center">
+                  <UserCheck className="w-4 h-4 text-[#C9A85D]" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-white">C-Suite AI Agent Engine</p>
+                  <p className="text-[9px] text-white/30">7 Executive AI Agents — Autonomous Company Operations</p>
+                </div>
+                <span className="ml-auto text-[9px] font-black px-2.5 py-1 rounded-full bg-[#C9A85D]/20 text-[#C9A85D]">
+                  {cSuiteData?.status || "LOADING"}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                {[
+                  { label: "TOTAL DIRECTIVES", value: cSuiteData?.totalDirectivesIssued ?? 0, color: "#C9A85D" },
+                  { label: "ACCEPTED", value: cSuiteData?.totalDirectivesAccepted ?? 0, color: "#10B981" },
+                  { label: "ACCEPTANCE RATE", value: `${cSuiteData?.overallAcceptanceRate ?? 100}%`, color: "#10B981" },
+                  { label: "ACTIVE RULES", value: cSuiteData?.activeRules ?? 0, color: "#fff" },
+                ].map((s) => (
+                  <div key={s.label}>
+                    <div className="text-[9px] text-white/25 font-bold tracking-wider mb-1">{s.label}</div>
+                    <div className="text-xl font-black" style={{ color: s.color }}>{s.value}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+              {(cSuiteData?.agents || []).map((agent: any) => (
+                <div
+                  key={agent.id}
+                  className="rounded-xl border bg-white/[0.02] p-4 transition-all hover:bg-white/[0.04]"
+                  style={{ borderColor: `${agent.color}22` }}
+                >
+                  <div className="flex items-center gap-2 mb-3">
+                    <div
+                      className="w-6 h-6 rounded-md flex items-center justify-center text-[9px] font-black text-white"
+                      style={{ backgroundColor: `${agent.color}30` }}
+                    >
+                      {agent.id === "ceo" ? "👔" : agent.id === "cto" ? "⚡" : agent.id === "cfo" ? "💰" : agent.id === "coo" ? "⚙️" : agent.id === "content-social" ? "📱" : agent.id === "business-dev" ? "🚀" : "⚖️"}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[10px] font-bold text-white truncate">{agent.name}</p>
+                      <p className="text-[8px] text-white/25 truncate">{agent.title}</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5 mb-3">
+                    <div className="flex justify-between text-[9px]">
+                      <span className="text-white/25">Maturity</span>
+                      <span className={`font-bold ${
+                        agent.maturity === "SOVEREIGN" ? "text-[#C9A85D]" :
+                        agent.maturity === "AUTONOMOUS" ? "text-emerald-400" :
+                        agent.maturity === "CALIBRATED" ? "text-cyan-400" :
+                        agent.maturity === "LEARNING" ? "text-amber-400" :
+                        "text-white/30"
+                      }`}>{agent.maturity}</span>
+                    </div>
+                    <div className="flex justify-between text-[9px]">
+                      <span className="text-white/25">Directives</span>
+                      <span className="text-white/50 font-bold">{agent.totalDirectives}</span>
+                    </div>
+                    <div className="flex justify-between text-[9px]">
+                      <span className="text-white/25">Acceptance</span>
+                      <span className="text-emerald-400 font-bold">{agent.acceptanceRate}%</span>
+                    </div>
+                    <div className="flex justify-between text-[9px]">
+                      <span className="text-white/25">Calibration</span>
+                      <span className="text-white/40 font-bold">{agent.confidenceCalibration}</span>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-white/5 pt-2">
+                    <p className="text-[8px] text-white/20 font-bold tracking-wider mb-1">KPIs</p>
+                    <div className="flex flex-wrap gap-1">
+                      {agent.kpis?.slice(0, 3).map((kpi: string) => (
+                        <span
+                          key={kpi}
+                          className="text-[7px] px-1 py-0.5 rounded"
+                          style={{ backgroundColor: `${agent.color}15`, color: `${agent.color}AA` }}
+                        >{kpi}</span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {agent.recentDirectives?.length > 0 && (
+                    <div className="border-t border-white/5 pt-2 mt-2">
+                      <p className="text-[8px] text-white/20 font-bold tracking-wider mb-1">LATEST DIRECTIVE</p>
+                      <p className="text-[9px] text-white/40 leading-relaxed line-clamp-2">{agent.recentDirectives[0]?.directive}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className={`text-[7px] font-black px-1 py-0.5 rounded ${
+                          agent.recentDirectives[0]?.urgency === "SOVEREIGN" ? "bg-[#C9A85D]/20 text-[#C9A85D]" :
+                          agent.recentDirectives[0]?.urgency === "CRITICAL" ? "bg-red-500/20 text-red-400" :
+                          agent.recentDirectives[0]?.urgency === "HIGH" ? "bg-amber-500/20 text-amber-400" :
+                          "bg-white/10 text-white/30"
+                        }`}>{agent.recentDirectives[0]?.urgency}</span>
+                        <span className="text-[7px] text-white/20">{(agent.recentDirectives[0]?.confidence * 100).toFixed(0)}% confidence</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div className="rounded-xl border border-[#C9A85D]/10 bg-[#C9A85D]/[0.02] p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Shield className="w-4 h-4 text-[#C9A85D]" />
+                <p className="text-[10px] font-black text-[#C9A85D]/60 tracking-wider">AUTONOMOUS C-SUITE PROTOCOL</p>
+              </div>
+              <p className="text-[11px] text-white/40 leading-5">
+                The C-Suite AI Agent Engine replaces the need for a full executive team.
+                7 autonomous agents — CEO (SOVEREIGN-1), CTO (ARCHITECT-1), CFO (TREASURY-1),
+                COO (OPERATIONS-1), Content Director (SIGNAL-1), BD Director (EXPANSION-1),
+                and Legal Officer (GUARDIAN-1) — each with their own decision rules,
+                confidence scoring, urgency levels, and self-learning integration.
+                Every directive is architect-sealed, every override feeds back into the
+                Self-Learning Engine. The system matures from INITIALIZING to SOVEREIGN
+                as it accumulates operational intelligence. Bootstrap to billion nodes
+                with under 10 people — the AI runs the company.
+              </p>
+            </div>
           </div>
         )}
       </div>

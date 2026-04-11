@@ -166,6 +166,7 @@ import tiktokAdsRouter from "./tiktok-ads";
 import sovereignHardenedRouter from "./sovereign-hardened";
 import sovereignInfrastructureRouter from "./sovereign-infrastructure";
 import sovereignLearningRouter from "./sovereign-learning";
+import cSuiteAgentsRouter from "./c-suite-agents";
 import { idempotencyGuard } from "../middlewares/idempotencyGuard";
 
 const router: IRouter = Router();
@@ -355,5 +356,6 @@ router.use("/tiktok-ads", tiktokAdsRouter);
 router.use(sovereignHardenedRouter);
 router.use(sovereignInfrastructureRouter);
 router.use(sovereignLearningRouter);
+router.use(cSuiteAgentsRouter);
 
 export default router;
