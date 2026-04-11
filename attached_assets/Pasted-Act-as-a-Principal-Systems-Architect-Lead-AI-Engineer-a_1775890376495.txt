@@ -1,0 +1,241 @@
+Act as a Principal Systems Architect, Lead AI Engineer, and Chief Product Officer.
+
+Your mission is to design and implement a PRODUCTION-GRADE, MODULAR, and SCALABLE Automotive Operating System called 3C ONYX, under the CUXTOMCANDYCLUB brand.
+
+This is NOT a typical app. This is a REAL-WORLD OPERATING SYSTEM that connects:
+
+- Customers (buyers, owners)
+- Dealerships (sales, service, finance)
+- Lenders & banks
+- Service shops & body shops
+- Logistics runners (vehicle delivery, document handling)
+- Legal, insurance, and support roles
+- Referral-based network participants (“Nodes”)
+
+The system must eliminate friction, automate workflows, and enable real transactions to happen faster, smarter, and with minimal human effort.
+
+---
+
+## ⚠️ CORE MANDATE
+
+- Replace repetitive human work (CRM entry, paperwork, coordination)
+- Enable “Text-to-Deal” execution
+- Deliver a 4X productivity multiplier for every user
+- Operate as a network-driven system (not a marketplace)
+
+---
+
+## 🧠 1. AI AGENT SYSTEM (7-AGENT MESH)
+
+Build an intelligent orchestration layer of 7 AI agents:
+
+1. Sales Agent → Converts conversations into structured deal flows  
+2. Finance Agent → Handles approvals, structuring, and lender coordination  
+3. Service Agent → Manages repairs, approvals, and parts workflows  
+4. Manager Agent → Detects friction and makes high-level decisions  
+5. Logistics Agent → Coordinates runners (vehicle delivery, movement)  
+6. Network Agent → Manages referral/node growth and attribution  
+7. Support Agent → Handles communication, satisfaction, and retention  
+
+Each agent must:
+- Subscribe to system events
+- Act based on context
+- Log decisions
+- Continuously improve behavior
+
+---
+
+## 🔄 2. SYSTEM ARCHITECTURE
+
+Design a modular microservices system:
+
+Core Services:
+- Auth Service (JWT / OAuth)
+- User & Role Service
+- Deal Engine (vehicle transactions)
+- Workflow Engine (service, legal, insurance)
+- Messaging Service (real-time + SMS integration)
+- Notification Service
+- Referral / Node Attribution Engine
+- Payment & Payout Engine
+- AI Orchestrator
+
+Requirements:
+- API Gateway entry point
+- Stateless services
+- Event-driven communication (Kafka / PubSub)
+- Horizontal scalability
+
+---
+
+## 💸 3. NODE ECONOMY (NON-MLM STRUCTURE)
+
+Implement a clean, compliant reward system:
+
+- Users become “Nodes”
+- Nodes are rewarded ONLY when real transactions occur
+- No rewards for sign-ups or recruiting alone
+- Attribution is based on participation in real deal flow
+
+Payout System:
+- Split a platform fee across participants in a transaction
+- Use activity-based attribution (who contributed to the outcome)
+- Track all contributions transparently
+
+Build:
+- ONYX Wallet system
+- Transaction-based payout logic
+- Real-time earnings dashboard (clean, non-MLM UX)
+
+---
+
+## 🚗 4. LOGISTICS LAYER (RUNNER SYSTEM)
+
+Create a built-in gig layer:
+
+- “Runners” handle:
+  - vehicle delivery
+  - document transport
+  - service logistics
+
+Features:
+- Task assignment engine
+- Real-time tracking
+- Payment per completed task
+- Integration with deal workflows
+
+---
+
+## 🎨 5. UI / UX DESIGN SYSTEM
+
+Inspired by:
+- RAM 1500 infotainment system
+- Apple / Airbnb design standards
+
+Requirements:
+- Mobile-first (PWA)
+- Large touch targets
+- Minimal steps (1–3 taps max per action)
+- High contrast:
+
+Colors:
+- ONYX Black (#000000)
+- Metallic Gold (#C9A85D)
+
+Experience:
+- Fast, clean, zero confusion
+- Designed for real-world usage (dealership floors, phones, on-the-go)
+
+---
+
+## ☁️ 6. INFRASTRUCTURE
+
+Cloud Architecture (AWS preferred):
+
+- Compute: Kubernetes (EKS) or containerized services
+- Database:
+  - PostgreSQL (core data)
+  - Redis (real-time + caching)
+- Storage: S3
+- CDN: CloudFront
+
+Requirements:
+- Auto-scaling
+- Fault tolerance
+- High availability
+
+---
+
+## 🔄 7. DATA FLOW
+
+Use event-driven architecture:
+
+Events:
+- user_created
+- deal_started
+- deal_updated
+- workflow_progressed
+- payout_triggered
+- agent_action
+
+Flow:
+1. User action → API
+2. Service processes → emits event
+3. Other services react
+4. UI updates in real time (WebSockets)
+
+---
+
+## 🚀 8. DEPLOYMENT (CI/CD)
+
+Implement:
+
+- Git-based workflow (main / staging / feature branches)
+- CI/CD (GitHub Actions)
+
+Pipeline:
+1. Build
+2. Test
+3. Dockerize
+4. Deploy to staging
+5. Validate
+6. Deploy to production
+
+Requirements:
+- Zero downtime deployments
+- Rollback capability
+
+---
+
+## 🔐 9. SECURITY & ROLES
+
+Roles:
+- Customer
+- Dealer
+- Lender
+- Service Provider
+- Runner
+- Admin
+
+Implement:
+- Role-based access control
+- Secure APIs
+- Encrypted communication
+
+---
+
+## 📊 10. OBSERVABILITY
+
+- Logging (ELK)
+- Metrics (Prometheus + Grafana)
+
+Track:
+- system performance
+- errors
+- user activity
+- transaction flow
+
+---
+
+## 🧠 FINAL OBJECTIVE
+
+Build a system where:
+
+- A deal can start from a text message
+- AI agents coordinate execution
+- Logistics are handled automatically
+- Payments and rewards are distributed instantly
+- Every participant in the process benefits
+
+This is not:
+- a marketplace
+- a referral app
+- a dealership tool
+
+This is:
+
+“A real-time operating system for automotive transactions powered by AI, network participation, and intelligent automation.”
+
+---
+
+Execute with production-level quality, clean architecture, and scalability from day one
