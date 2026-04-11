@@ -1,8 +1,8 @@
 import { Router, type Request, type Response } from "express";
-import { db } from "../lib/db";
-import { successStoriesTable } from "@workspace/db/schema";
+import { db, successStoriesTable } from "@workspace/db";
 import { eq, desc, and, sql } from "drizzle-orm";
-import { requireAuth, requireSovereign } from "../lib/auth";
+import { requireAuth } from "../middlewares/requireAuth";
+import { requireSovereign } from "../middlewares/requireSovereign";
 
 const router = Router();
 

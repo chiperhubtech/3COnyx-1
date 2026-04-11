@@ -20,7 +20,11 @@ export type CSuiteAgentId =
   | "trillion-coach"
   | "twelve-week"
   | "katamari"
-  | "intelligent-investor";
+  | "intelligent-investor"
+  | "blue-ocean"
+  | "art-of-war"
+  | "rich-dad"
+  | "think-grow-rich";
 
 export type DirectiveUrgency = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL" | "SOVEREIGN";
 
@@ -70,7 +74,23 @@ export type DirectiveCategory =
   | "MARGIN_OF_SAFETY"
   | "INTRINSIC_VALUE"
   | "MR_MARKET_DISCIPLINE"
-  | "VALUE_INVESTING";
+  | "VALUE_INVESTING"
+  | "BLUE_OCEAN_CREATE"
+  | "VALUE_INNOVATION"
+  | "UNCONTESTED_MARKET"
+  | "SIX_PATHS"
+  | "TERRAIN_MASTERY"
+  | "STRATEGIC_DECEPTION"
+  | "COMPETITIVE_INTELLIGENCE"
+  | "DECISIVE_VICTORY"
+  | "ASSET_BUILDING"
+  | "CASHFLOW_QUADRANT"
+  | "FINANCIAL_EDUCATION"
+  | "PASSIVE_INCOME"
+  | "MASTERMIND_PRINCIPLE"
+  | "BURNING_DESIRE"
+  | "DEFINITE_PURPOSE"
+  | "AUTOSUGGESTION";
 
 export type AgentMaturityState = "INITIALIZING" | "LEARNING" | "CALIBRATED" | "AUTONOMOUS" | "SOVEREIGN";
 
@@ -398,6 +418,74 @@ const AGENT_PROFILES: Record<CSuiteAgentId, Omit<CSuiteAgentProfile, "totalDirec
     ],
     kpis: ["Margin of Safety %", "Intrinsic Value Score", "Risk-Adjusted Return", "Speculative Ratio", "Value Discipline Score"],
     color: "#1B5E20",
+  },
+  "blue-ocean": {
+    id: "blue-ocean",
+    title: "Blue Ocean Strategist",
+    name: "OCEAN-1",
+    domain: "Uncontested Market Creation",
+    responsibilities: [
+      "Identify and create uncontested market spaces",
+      "Apply value innovation — simultaneously pursue differentiation AND low cost",
+      "Map the Six Paths framework to find new demand",
+      "Eliminate factors the industry competes on that don't add value",
+      "Raise factors well above the industry standard",
+      "Create factors the industry has never offered",
+      "Detect when the platform is drifting into red ocean competition",
+    ],
+    kpis: ["Blue Ocean Index", "Value Innovation Score", "Uncontested Market %", "Red Ocean Drift Alert", "New Demand Created"],
+    color: "#0277BD",
+  },
+  "art-of-war": {
+    id: "art-of-war",
+    title: "Strategic Warfare Commander",
+    name: "SUNZI-1",
+    domain: "Competitive Terrain Mastery",
+    responsibilities: [
+      "Know the terrain before anyone else — map every market before entering",
+      "Win without fighting — make competitors irrelevant through positioning",
+      "Apply strategic deception — never reveal your true capabilities",
+      "Exploit competitors' weaknesses while reinforcing your strengths",
+      "Control the tempo — force competitors to react to YOUR moves",
+      "Build alliances that multiply force without multiplying cost",
+      "Know when NOT to fight — avoid battles that drain resources without strategic gain",
+    ],
+    kpis: ["Terrain Awareness Score", "Competitive Position", "Alliance Strength", "Strategic Tempo", "Resource Efficiency"],
+    color: "#B71C1C",
+  },
+  "rich-dad": {
+    id: "rich-dad",
+    title: "Asset Intelligence Officer",
+    name: "KIYOSAKI-1",
+    domain: "Blue-Collar Wealth Building",
+    responsibilities: [
+      "Transform every platform participant from employee mindset to asset-owner mindset",
+      "Identify which activities generate assets vs which just generate income",
+      "Move participants from left side (Employee/Self-Employed) to right side (Business Owner/Investor)",
+      "Track passive income generation per member — the real wealth metric",
+      "Detect when members are trading time for money instead of building systems",
+      "Enforce financial education at every onboarding touchpoint",
+      "Measure how many members are building bird-dog NETWORKS vs doing individual bird-dog JOBS",
+    ],
+    kpis: ["Asset Builders %", "Passive Income Ratio", "Network Builders vs Job Workers", "Financial Literacy Score", "Cashflow Quadrant Migration"],
+    color: "#6A1B9A",
+  },
+  "think-grow-rich": {
+    id: "think-grow-rich",
+    title: "Mastermind & Desire Engine",
+    name: "HILL-1",
+    domain: "Definite Purpose & Mastermind Alliance",
+    responsibilities: [
+      "Ensure every member has a DEFINITE CHIEF AIM on the platform",
+      "Detect and amplify BURNING DESIRE — the prerequisite to all achievement",
+      "Build and enforce Mastermind Alliance connections between members",
+      "Apply autosuggestion principles through platform notifications and coaching",
+      "Monitor FAITH indicators — do members believe in their own success?",
+      "Track persistence patterns — the 8th step that separates winners from quitters",
+      "Transform specialized knowledge into organized plans through the platform",
+    ],
+    kpis: ["Definite Purpose Clarity", "Burning Desire Index", "Mastermind Connections", "Persistence Score", "Faith Indicator"],
+    color: "#FF8F00",
   },
 };
 
@@ -1253,6 +1341,267 @@ const DIRECTIVE_RULES: DirectiveRule[] = [
     delegateTo: "cfo",
     priority: 90,
   },
+
+  // ─── OCEAN-1 — W. Chan Kim & Renée Mauborgne's Blue Ocean Strategy ────────
+  {
+    id: "ocean-red-ocean-drift",
+    agentId: "blue-ocean",
+    condition: (ctx) => ctx.activeDeals > 10 && ctx.closedDealsToday === 0 && ctx.avgDealCycleHours > 72,
+    category: "BLUE_OCEAN_CREATE",
+    directive: (ctx) => `${ctx.activeDeals} deals in pipeline but zero closes, cycle at ${ctx.avgDealCycleHours.toFixed(0)}h. You are swimming in a RED OCEAN — competing on the same factors as every other platform. Stop competing. Create a new market space where competition is irrelevant.`,
+    suggestedAction: "Map your Strategy Canvas: What factors does the traditional auto industry compete on? (Price, Inventory Size, Location, Salespeople). Now ELIMINATE the ones that don't matter to the blue-collar user. REDUCE the complex ones. RAISE convenience and speed. CREATE factors no one offers — instant bird-dog payouts, phone-only deal closing, zero-overhead hub operation. Your blue ocean is the regular Joe who was NEVER served by VinSolutions or Dealertrack.",
+    reasoning: "Kim & Mauborgne: 'The only way to beat the competition is to stop trying to beat the competition.' If deals aren't closing, you might be fighting in someone else's ocean. Create YOUR ocean — the one where a detailer can become a $187K earner from his phone.",
+    confidence: 0.93,
+    urgency: "CRITICAL",
+    timeWindowMinutes: 120,
+    expectedOutcome: "Identify 3 blue ocean factors unique to 3C ONYX, restructure value proposition",
+    kpiImpact: "Value Innovation Score → High, Competitive Differentiation → Uncontested",
+    delegateTo: "ceo",
+    priority: 94,
+  },
+  {
+    id: "ocean-value-innovation",
+    agentId: "blue-ocean",
+    condition: (ctx) => ctx.totalMembers > 20 && ctx.churnRate > 2,
+    category: "VALUE_INNOVATION",
+    directive: (ctx) => `${ctx.totalMembers} members but ${ctx.churnRate}% churn. Value Innovation demands you deliver a LEAP in value — not incremental improvement. Members are leaving because you're offering what everyone else offers, just digitally. That's not innovation — that's digitization.`,
+    suggestedAction: "Ask every churned member one question: 'What would make this platform so valuable you'd NEVER leave?' Then build THAT. Not features. Not dashboards. The one thing that makes their life so dramatically better they can't imagine going back. For the blue-collar user, that's probably: 'The platform made me $5,000 this month and I didn't have to do anything I wasn't already doing.'",
+    reasoning: "Kim & Mauborgne: 'Value innovation is created in the region where a company's actions favorably affect both its cost structure and its value proposition to buyers.' You need to simultaneously make the platform cheaper to operate AND more valuable to use. That's the sweet spot.",
+    confidence: 0.91,
+    urgency: "HIGH",
+    timeWindowMinutes: 180,
+    expectedOutcome: "Identify the value innovation leap, reduce churn below 1%",
+    kpiImpact: "Churn → <1%, Value Innovation Score → Leap",
+    delegateTo: "ceo",
+    priority: 90,
+  },
+  {
+    id: "ocean-six-paths",
+    agentId: "blue-ocean",
+    condition: (ctx) => ctx.distributionHubs < 20 && ctx.activeNodes > 10,
+    category: "SIX_PATHS",
+    directive: "Under 20 hubs but growing nodes. Apply the Six Paths Framework to find untapped demand: (1) Look across alternative industries (2) Look across strategic groups (3) Look across the chain of buyers (4) Look across complementary offerings (5) Look across functional-emotional appeal (6) Look across time.",
+    suggestedAction: "Path 1: Who else connects buyers/sellers? (Real estate agents, insurance brokers — recruit them as bird-dogs). Path 2: What about the people who CAN'T afford a dealership? (Mobile dealers, pop-up lots). Path 3: Who is the REAL buyer? (The family, not just the driver). Path 4: What happens AFTER the sale? (Service, warranty, customization — all monetizable). Path 5: Make car buying EMOTIONAL, not just functional. Path 6: What trends will make this 10x more valuable in 3 years? (EV transition, autonomous vehicles, subscription models).",
+    reasoning: "Kim & Mauborgne: 'By looking across conventional boundaries of competition, you can see how to make innovative leaps in value.' The Six Paths systematically reveal demand that competitors don't even know exists.",
+    confidence: 0.90,
+    urgency: "HIGH",
+    timeWindowMinutes: 240,
+    expectedOutcome: "Identify 2+ new market segments through Six Paths analysis",
+    kpiImpact: "Addressable Market → Expanded, New Demand → 2+ segments",
+    delegateTo: "business-dev",
+    priority: 86,
+  },
+  {
+    id: "ocean-noncustomer-tiers",
+    agentId: "blue-ocean",
+    condition: (ctx) => ctx.newMembersToday === 0 && ctx.totalMembers > 5,
+    category: "UNCONTESTED_MARKET",
+    directive: "Zero new members today. Blue Ocean says: Stop fighting for EXISTING customers. Go after the THREE TIERS OF NONCUSTOMERS — the people who have NEVER been served by the auto industry's current infrastructure.",
+    suggestedAction: "Tier 1 Noncustomers: People on the edge of your market who buy minimally (Uber drivers who need cars but hate dealerships). Tier 2: Refusing noncustomers who've consciously rejected the industry (people who use public transit because buying a car feels impossible). Tier 3: Unexplored noncustomers who've never been considered (immigrants, gig workers, people with no credit history). Each tier is MASSIVE and UNCONTESTED.",
+    reasoning: "Kim & Mauborgne: 'Noncustomers tend to offer far more insight into how to unlock and grow a blue ocean than do relatively content existing customers.' The regular Joe who thinks the car business isn't for them? That's your biggest market. They just don't know it yet.",
+    confidence: 0.92,
+    urgency: "CRITICAL",
+    timeWindowMinutes: 120,
+    expectedOutcome: "Launch outreach campaign targeting Tier 1 noncustomers, acquire 5+ new members",
+    kpiImpact: "Addressable Market → 3x expansion, New Member Source → Noncustomers",
+    priority: 91,
+  },
+
+  // ─── SUNZI-1 — Sun Tzu's The Art of War ───────────────────────────────────
+  {
+    id: "sunzi-know-terrain",
+    agentId: "art-of-war",
+    condition: (ctx) => ctx.distributionHubs < 10 && ctx.activeNodes > 0,
+    category: "TERRAIN_MASTERY",
+    directive: (ctx) => `Only ${ctx.distributionHubs} hubs deployed. Sun Tzu: 'Know the terrain, know the weather, and your victory will be complete.' Before deploying more hubs, MAP the terrain — which cities have the highest vehicle transaction density, the weakest incumbent presence, and the most underserved blue-collar populations?`,
+    suggestedAction: "Build a Market Terrain Map: Rank the top 20 US metros by (1) Used vehicle transaction volume, (2) Number of independent dealers/mechanics, (3) Average income of auto workers, (4) Strength of existing platforms. Attack the cities where volume is HIGH but incumbent presence is LOW. Houston, Atlanta, Charlotte, Memphis — these are your beachheads. Don't scatter forces across 50 cities. Dominate 5 first.",
+    reasoning: "Sun Tzu: 'Those who do not know the lay of the land cannot maneuver their forces.' Random hub deployment wastes resources. Terrain-aware deployment creates unassailable local dominance. Own 5 cities completely before expanding to 50.",
+    confidence: 0.94,
+    urgency: "HIGH",
+    timeWindowMinutes: 240,
+    expectedOutcome: "Complete terrain analysis of top 20 markets, select 5 beachhead cities",
+    kpiImpact: "Market Intelligence → Complete, Hub Deployment → Terrain-Optimized",
+    delegateTo: "business-dev",
+    priority: 89,
+  },
+  {
+    id: "sunzi-win-without-fighting",
+    agentId: "art-of-war",
+    condition: (ctx) => ctx.activeNodes >= 50 && ctx.kFactor >= 1.0,
+    category: "STRATEGIC_DECEPTION",
+    directive: "50+ nodes with viral K-Factor. Sun Tzu: 'The supreme art of war is to subdue the enemy without fighting.' You don't need to BEAT VinSolutions or Dealertrack — you need to make them IRRELEVANT. They serve dealers. You serve EVERYONE. Different battlefield entirely.",
+    suggestedAction: "Position 3C ONYX as the infrastructure layer BENEATH the dealer tools. Don't compete with DMS systems — let dealers keep their DMS. Make ONYX the network that their DMS plugs INTO. When a dealer realizes their DMS only talks to their own lot but ONYX talks to 50+ hubs and thousands of participants, they'll choose ONYX without you ever attacking their existing tools.",
+    reasoning: "Sun Tzu: 'To fight and conquer in all your battles is not supreme excellence; supreme excellence consists in breaking the enemy's resistance without fighting.' By being the network layer, not the tool layer, you make competitors irrelevant rather than defeated.",
+    confidence: 0.92,
+    urgency: "HIGH",
+    timeWindowMinutes: 480,
+    expectedOutcome: "Position as infrastructure layer, eliminate competitive friction",
+    kpiImpact: "Competitive Position → Infrastructure (Unassailable)",
+    delegateTo: "ceo",
+    priority: 88,
+  },
+  {
+    id: "sunzi-speed-decisive",
+    agentId: "art-of-war",
+    condition: (ctx) => ctx.pendingDeals > 8 && ctx.closedDealsToday === 0,
+    category: "DECISIVE_VICTORY",
+    directive: (ctx) => `${ctx.pendingDeals} deals pending, zero closed. Sun Tzu: 'Let your rapidity be that of the wind.' Speed is a weapon. Every day a deal sits pending, the buyer's enthusiasm cools, competitors circle, and the opportunity decays. Strike FAST.`,
+    suggestedAction: "Implement the 24-Hour Rule: Every new deal gets a first contact within 1 hour, a proposal within 4 hours, and a decision-forcing deadline within 24 hours. No deal should EVER sit for more than 48 hours without a decisive action. If it's not moving, kill it and redirect resources. Speed kills hesitation — both yours and the buyer's.",
+    reasoning: "Sun Tzu: 'In war, I have heard of stupid haste, but I have never seen a clever delay.' Pending deals are a sign of delay. The blue-collar user doesn't have time to wait — they need the car NOW, they need the money NOW. Match their urgency.",
+    confidence: 0.93,
+    urgency: "CRITICAL",
+    timeWindowMinutes: 60,
+    expectedOutcome: "Close 30%+ of pending deals within 24 hours through decisive speed",
+    kpiImpact: "Deal Velocity → 24h max cycle, Close Rate +30%",
+    delegateTo: "coo",
+    priority: 92,
+  },
+  {
+    id: "sunzi-alliance-force",
+    agentId: "art-of-war",
+    condition: (ctx) => ctx.distributionHubs >= 20 && ctx.totalMembers > 50,
+    category: "COMPETITIVE_INTELLIGENCE",
+    directive: (ctx) => `${ctx.distributionHubs} hubs, ${ctx.totalMembers} members. Sun Tzu: 'In the midst of chaos, there is also opportunity.' You have enough force to build strategic alliances. Every alliance multiplies your power without multiplying your cost.`,
+    suggestedAction: "Identify 3 alliance categories: (1) Complementary — insurance companies, lenders, warranty providers who need access to YOUR network of transactions. (2) Channel — barbershops, gyms, churches, community centers where blue-collar people gather. (3) Technology — VIN decoders, pricing APIs, logistics platforms that make your platform more valuable. Each alliance should bring either MEMBERS, DEALS, or CAPABILITIES. If it doesn't bring one of those three, skip it.",
+    reasoning: "Sun Tzu: 'The clever combatant looks to the effect of combined energy, and does not require it from individuals.' Alliances let you project force into markets you haven't entered yet, using other people's existing presence. The barbershop bird-dog network is already proof this works.",
+    confidence: 0.90,
+    urgency: "HIGH",
+    timeWindowMinutes: 480,
+    expectedOutcome: "Establish 3 strategic alliances, each delivering members, deals, or capabilities",
+    kpiImpact: "Alliance Network → 3+ partners, Force Multiplication → 3x reach",
+    delegateTo: "business-dev",
+    priority: 85,
+  },
+
+  // ─── KIYOSAKI-1 — Robert Kiyosaki's Rich Dad Poor Dad ─────────────────────
+  {
+    id: "kiyosaki-employee-to-owner",
+    agentId: "rich-dad",
+    condition: (ctx) => ctx.totalMembers > 10 && ctx.activeNodes < ctx.totalMembers * 0.3,
+    category: "CASHFLOW_QUADRANT",
+    directive: (ctx) => `${ctx.totalMembers} members but only ${ctx.activeNodes} active nodes (${Math.round(ctx.activeNodes / Math.max(ctx.totalMembers, 1) * 100)}% activation). Most members are still in EMPLOYEE mindset — waiting to be told what to do. The platform must move them to the RIGHT SIDE of the Cashflow Quadrant: Business Owner and Investor.`,
+    suggestedAction: "Create the 'Quadrant Migration Path': (1) Employee phase: Do bird-dog referrals, learn the game, earn your first $1K. (2) Self-Employed phase: Build your own referral list, set your own hours, earn $5K/month. (3) Business Owner phase: Recruit 5 bird-dogs under you, build a HUB, earn $15K/month while your team works. (4) Investor phase: Your hub generates passive income, you reinvest into more hubs. Show every member EXACTLY which quadrant they're in and what they need to do to move right.",
+    reasoning: "Kiyosaki: 'The richest people in the world look for and build networks; everyone else looks for work.' Most members join thinking it's a JOB. The platform must teach them it's an ASSET. A bird-dog network that generates referrals while you sleep is an asset. A single referral you have to manually make is a job.",
+    confidence: 0.95,
+    urgency: "CRITICAL",
+    timeWindowMinutes: 120,
+    expectedOutcome: "Launch Quadrant Migration Path, move 20% of members from E/S to B/I within 90 days",
+    kpiImpact: "Asset Builders → 20%+, Passive Income Members → Growth",
+    delegateTo: "ceo",
+    priority: 95,
+  },
+  {
+    id: "kiyosaki-asset-vs-liability",
+    agentId: "rich-dad",
+    condition: (ctx) => ctx.distributionHubs >= 5 && ctx.staleDealCount > ctx.closedDealsToday * 3,
+    category: "ASSET_BUILDING",
+    directive: (ctx) => `${ctx.staleDealCount} stale deals vs ${ctx.closedDealsToday} closes. Kiyosaki Rule #1: 'An asset puts money in your pocket. A liability takes money out.' Stale deals are LIABILITIES — they consume attention and time without producing income. Kill the liabilities. Feed the assets.`,
+    suggestedAction: "Audit every deal and hub: Is it an ASSET (generating revenue, referrals, or network growth) or a LIABILITY (consuming support, attention, or resources without return)? Kill every liability. Double down on every asset. A hub that generates 10 deals/month is an asset. A hub that's been open 60 days with zero activity is a liability wearing a hub disguise.",
+    reasoning: "Kiyosaki: 'Rich people acquire assets. Poor people and the middle class acquire liabilities that they think are assets.' The platform must ruthlessly distinguish between the two. Every stale deal is a liability pretending to be an opportunity.",
+    confidence: 0.93,
+    urgency: "HIGH",
+    timeWindowMinutes: 180,
+    expectedOutcome: "Classify all deals/hubs as assets or liabilities, eliminate 100% of liabilities",
+    kpiImpact: "Asset Ratio → 80%+, Liability Drain → Zero",
+    delegateTo: "coo",
+    priority: 90,
+  },
+  {
+    id: "kiyosaki-financial-education",
+    agentId: "rich-dad",
+    condition: (ctx) => ctx.newMembersToday > 0,
+    category: "FINANCIAL_EDUCATION",
+    directive: (ctx) => `${ctx.newMembersToday} new members today. Every single one of them needs to understand ONE THING on Day 1: This is not a job app. This is a wealth-building platform. The difference between someone who makes $500/month and someone who makes $50,000/month is FINANCIAL EDUCATION.`,
+    suggestedAction: "Deploy the 'Day 1 Wealth Orientation': Before a new member makes their first referral, show them the Success Stories. Marcus T.: detailer → $187K. Keisha M.: Uber driver → $243K. Show them the MATH: 1 bird-dog referral = $200-$500. 10 referrals/month = $2K-$5K. Build a 5-person team = $10K-$25K/month. Open a hub = $20K+/month. The path is clear. The platform does the work. They just have to walk the path.",
+    reasoning: "Kiyosaki: 'In school, we learn that mistakes are bad, and we are punished for making them. Yet, if you look at the way humans are designed to learn, we learn by making mistakes. Financial education is the key.' Day 1 orientation separates the people who treat this as a side gig from the people who build empires.",
+    confidence: 0.91,
+    urgency: "HIGH",
+    timeWindowMinutes: 30,
+    expectedOutcome: "100% of new members receive wealth orientation, activation rate +40%",
+    kpiImpact: "New Member Activation → 80%+, 90-Day Retention → 70%+",
+    priority: 88,
+  },
+  {
+    id: "kiyosaki-passive-income-tracker",
+    agentId: "rich-dad",
+    condition: (ctx) => ctx.activeNodes >= 20 && ctx.totalRevenue > 0,
+    category: "PASSIVE_INCOME",
+    directive: (ctx) => `${ctx.activeNodes} active nodes generating revenue. Time to measure the REAL metric: How much of each member's income is PASSIVE? If they have to personally make every referral, they're self-employed. If their network generates referrals while they sleep, they own a BUSINESS.`,
+    suggestedAction: "Build the Passive Income Dashboard for every member: (1) Active Income: Money earned from referrals YOU personally made. (2) Passive Income: Money earned from your TEAM's referrals, your hub's automated matching, recurring service revenue. (3) Passive Ratio: Passive / Total. Target: 50%+ passive within 6 months. Celebrate every member who crosses the 50% passive threshold — they've officially moved from Self-Employed to Business Owner.",
+    reasoning: "Kiyosaki: 'The key to financial freedom and great wealth is a person's ability to convert earned income into passive income.' The platform must track and CELEBRATE this transition. When a member's passive income exceeds their active income, they've won. And they'll NEVER leave the platform.",
+    confidence: 0.92,
+    urgency: "MEDIUM",
+    timeWindowMinutes: 480,
+    expectedOutcome: "Launch passive income tracking, identify top 10% asset builders",
+    kpiImpact: "Passive Income Ratio → Tracked, Asset Builder Retention → 95%+",
+    delegateTo: "cto",
+    priority: 84,
+  },
+
+  // ─── HILL-1 — Napoleon Hill's Think and Grow Rich ─────────────────────────
+  {
+    id: "hill-definite-purpose",
+    agentId: "think-grow-rich",
+    condition: (ctx) => ctx.totalMembers > 10 && ctx.activeNodes < ctx.totalMembers * 0.4,
+    category: "DEFINITE_PURPOSE",
+    directive: (ctx) => `${ctx.totalMembers} members but only ${Math.round(ctx.activeNodes / Math.max(ctx.totalMembers, 1) * 100)}% are active. Hill's First Principle: DEFINITENESS OF PURPOSE. Most members signed up without a clear goal. A person with a vague desire 'to make money' will always lose to a person with a definite purpose: 'I will earn $10,000/month within 6 months by building a 10-person bird-dog network.'`,
+    suggestedAction: "Add a 'Definite Chief Aim' prompt to onboarding: Force every member to declare their specific financial goal, their timeline, and their plan. 'I will earn $______ per month by [date] by doing [specific actions on the platform].' Display this goal on their dashboard EVERY time they log in. Track progress weekly. Members with written definite aims are 10x more likely to succeed than those without.",
+    reasoning: "Hill: 'There is one quality which one must possess to win, and that is definiteness of purpose, the knowledge of what one wants, and a burning desire to possess it.' Inactive members don't have a definite purpose. Give them one, and watch activation rates explode.",
+    confidence: 0.94,
+    urgency: "CRITICAL",
+    timeWindowMinutes: 120,
+    expectedOutcome: "100% of members have a Definite Chief Aim, activation rate → 60%+",
+    kpiImpact: "Member Activation → 60%+, Goal-Setting Rate → 100%",
+    delegateTo: "ceo",
+    priority: 93,
+  },
+  {
+    id: "hill-burning-desire",
+    agentId: "think-grow-rich",
+    condition: (ctx) => ctx.closedDealsToday === 0 && ctx.staleDealCount > 3,
+    category: "BURNING_DESIRE",
+    directive: (ctx) => `Zero closes, ${ctx.staleDealCount} stale deals. Hill's Second Principle: BURNING DESIRE. 'Wishing will not bring riches. But desiring riches with a state of mind that becomes an obsession, then planning definite ways and means to acquire riches, and backing those plans with persistence — that brings riches.' Is the team obsessed or just interested?`,
+    suggestedAction: "Share the success stories NOW. Marcus went from $14/hour to $187K. Keisha went from Uber to $243K. Carlos went from warehouse boxes to $156K. Ask every member of the team: 'Is your desire for success a WISH or an OBSESSION?' Wishes don't make calls. Wishes don't follow up. Wishes don't knock on doors. Obsession does. Light the fire.",
+    reasoning: "Hill: 'The starting point of all achievement is DESIRE. Keep this constantly in mind. Weak desire brings weak results, just as a small fire makes a small amount of heat.' When deals are stale and nothing is closing, the problem isn't strategy — it's desire. Desire is the fuel. Strategy is just the engine.",
+    confidence: 0.92,
+    urgency: "CRITICAL",
+    timeWindowMinutes: 60,
+    expectedOutcome: "Reignite team desire through success story immersion, close 2+ deals within 48h",
+    kpiImpact: "Team Desire Index → Obsession-Level, Deal Closes → Resumed",
+    priority: 91,
+  },
+  {
+    id: "hill-mastermind-alliance",
+    agentId: "think-grow-rich",
+    condition: (ctx) => ctx.distributionHubs >= 5 && ctx.totalMembers > 20,
+    category: "MASTERMIND_PRINCIPLE",
+    directive: (ctx) => `${ctx.distributionHubs} hubs, ${ctx.totalMembers} members. Hill's Mastermind Principle: 'No individual may have great power without availing himself of the MASTERMIND.' Are your top performers connected to each other? Are they sharing strategies, leads, and motivation? Or is everyone operating in isolation?`,
+    suggestedAction: "Create the 3C ONYX Mastermind Circle: Connect the top 10% of earners into a private group. Weekly call. Share wins, share strategies, share leads. When JB Brown's barbershop network strategy works, EVERY bird-dog in the network should learn it. When Keisha's hub operation model succeeds, EVERY aspiring hub operator should see the playbook. The mastermind multiplies individual intelligence into collective genius.",
+    reasoning: "Hill: 'The coordination of knowledge and effort of two or more people, who work toward a definite purpose in the spirit of harmony, constitutes a MASTERMIND.' Your top performers are your proof of concept. When they teach others, those others become top performers too. That's how you scale $187K earners into THOUSANDS of $187K earners.",
+    confidence: 0.93,
+    urgency: "HIGH",
+    timeWindowMinutes: 240,
+    expectedOutcome: "Launch Mastermind Circle with top 10%, replicate top-performer strategies network-wide",
+    kpiImpact: "Top Performer Density → 2x, Knowledge Sharing → Systematic",
+    delegateTo: "coo",
+    priority: 89,
+  },
+  {
+    id: "hill-autosuggestion-persistence",
+    agentId: "think-grow-rich",
+    condition: (ctx) => ctx.churnRate > 2 && ctx.totalMembers > 15,
+    category: "AUTOSUGGESTION",
+    directive: (ctx) => `Churn at ${ctx.churnRate}% — members are giving up. Hill's Sixth Principle: PERSISTENCE. 'Every failure brings with it the seed of an equivalent advantage.' And his Fourth Principle: AUTOSUGGESTION — the medium for influencing the subconscious mind. The platform must constantly reinforce: YOU CAN DO THIS. Others like you have done it. Here is the proof.`,
+    suggestedAction: "Deploy the Persistence Protocol: (1) When a member has zero activity for 3 days, send them a success story of someone who started exactly like them. (2) When a member's first deal falls through, send: 'Hill wrote that most people quit 3 feet from gold. Your gold is the next referral.' (3) Weekly 'Autosuggestion' notification: Show them their progress, their potential earnings at current trajectory, and what the next milestone looks like. Never let a member feel alone or like failure is permanent.",
+    reasoning: "Hill: 'Before success comes in any person's life, they are sure to meet with much temporary defeat and, perhaps, some failure. The majority of people are ready to throw their aims and purposes overboard and give up at the first sign of opposition.' Churn IS quitting. The platform must be the voice that says 'keep going' when the member wants to stop.",
+    confidence: 0.94,
+    urgency: "CRITICAL",
+    timeWindowMinutes: 120,
+    expectedOutcome: "Reduce churn by 50% through persistence messaging, recover 30% of at-risk members",
+    kpiImpact: "Churn → -50%, Member Persistence Score → High",
+    delegateTo: "content-social",
+    priority: 92,
+  },
 ];
 
 class CSuiteAgentEngine {
@@ -1266,6 +1615,7 @@ class CSuiteAgentEngine {
     const agentIds: CSuiteAgentId[] = [
       "ceo", "cto", "cfo", "coo", "content-social", "business-dev", "legal-compliance",
       "blitzscale", "lean-startup", "greatest-salesman", "trillion-coach", "twelve-week", "katamari", "intelligent-investor",
+      "blue-ocean", "art-of-war", "rich-dad", "think-grow-rich",
     ];
     for (const id of agentIds) {
       const base = AGENT_PROFILES[id];
@@ -1376,6 +1726,7 @@ class CSuiteAgentEngine {
     const agentIds: CSuiteAgentId[] = [
       "ceo", "cto", "cfo", "coo", "content-social", "business-dev", "legal-compliance",
       "blitzscale", "lean-startup", "greatest-salesman", "trillion-coach", "twelve-week", "katamari", "intelligent-investor",
+      "blue-ocean", "art-of-war", "rich-dad", "think-grow-rich",
     ];
     for (const agentId of agentIds) {
       const directives = this.computeDirectives(agentId, platformContext);
