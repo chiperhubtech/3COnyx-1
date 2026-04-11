@@ -117,10 +117,13 @@ async function startServer() {
     import("./lib/cSuiteAgentEngine").then(mod => {
       mod.cSuiteEngine.genesis();
       logger.info({
-        agents: 7,
-        protocol: "C-Suite AI Agent Engine",
+        agents: 14,
+        cSuiteAgents: 7,
+        bookDoctrineAgents: 7,
+        protocol: "C-Suite + Book Doctrine Agent Engine",
+        doctrines: ["Blitzscaling", "Lean Startup", "Greatest Salesman", "Trillion Dollar Coach", "12 Week Year", "Katamari Damacy", "The Intelligent Investor"],
         architect: "Ronald Antonio Cadet",
-      }, "[genesis] C-Suite AI Agent Engine — 7 EXECUTIVE AGENTS ARMED");
+      }, "[genesis] C-Suite + Book Doctrine Agent Engine — 14 EXECUTIVE AGENTS ARMED");
     }).catch(err => logger.warn({ err: (err as Error).message }, "[genesis] C-Suite Agent Engine init deferred"));
 
     import("./lib/fintechComplianceGuard").then(mod => {

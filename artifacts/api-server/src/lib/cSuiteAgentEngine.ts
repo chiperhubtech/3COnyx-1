@@ -13,7 +13,14 @@ export type CSuiteAgentId =
   | "coo"
   | "content-social"
   | "business-dev"
-  | "legal-compliance";
+  | "legal-compliance"
+  | "blitzscale"
+  | "lean-startup"
+  | "greatest-salesman"
+  | "trillion-coach"
+  | "twelve-week"
+  | "katamari"
+  | "intelligent-investor";
 
 export type DirectiveUrgency = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL" | "SOVEREIGN";
 
@@ -41,7 +48,29 @@ export type DirectiveCategory =
   | "REGULATORY"
   | "CONTRACT_REVIEW"
   | "COMPLIANCE_AUDIT"
-  | "IP_PROTECTION";
+  | "IP_PROTECTION"
+  | "BLITZSCALE_VELOCITY"
+  | "NETWORK_EFFECTS"
+  | "FIRST_SCALER"
+  | "LEAN_EXPERIMENT"
+  | "BUILD_MEASURE_LEARN"
+  | "PIVOT_OR_PERSEVERE"
+  | "SALES_PERSISTENCE"
+  | "HABIT_FORMATION"
+  | "EMOTIONAL_MASTERY"
+  | "TEAM_COACHING"
+  | "TRUST_BUILDING"
+  | "RADICAL_CANDOR"
+  | "TWELVE_WEEK_SPRINT"
+  | "WEEKLY_ACCOUNTABILITY"
+  | "EXECUTION_SCORING"
+  | "KATAMARI_ABSORPTION"
+  | "COMPOUND_GROWTH"
+  | "MASS_ACCUMULATION"
+  | "MARGIN_OF_SAFETY"
+  | "INTRINSIC_VALUE"
+  | "MR_MARKET_DISCIPLINE"
+  | "VALUE_INVESTING";
 
 export type AgentMaturityState = "INITIALIZING" | "LEARNING" | "CALIBRATED" | "AUTONOMOUS" | "SOVEREIGN";
 
@@ -250,6 +279,125 @@ const AGENT_PROFILES: Record<CSuiteAgentId, Omit<CSuiteAgentProfile, "totalDirec
     ],
     kpis: ["Compliance Score", "Open Legal Items", "Contract Review Velocity", "Regulatory Coverage", "Risk Score"],
     color: "#F44336",
+  },
+  blitzscale: {
+    id: "blitzscale",
+    title: "Blitzscaling Strategist",
+    name: "BLITZSCALE-1",
+    domain: "Hypergrowth Velocity",
+    responsibilities: [
+      "Prioritize speed over efficiency when network effects are present",
+      "Identify and exploit first-scaler advantage windows",
+      "Accept managed chaos during growth spurts",
+      "Ignore non-critical inefficiencies during scaling phases",
+      "Force counterintuitive hiring and spending decisions",
+      "Monitor competitive moats and network lock-in",
+      "Escalate when growth is too slow relative to market window",
+    ],
+    kpis: ["Growth Rate", "Time to Market", "Network Lock-in %", "Market Share Velocity", "First-Scaler Score"],
+    color: "#FF6B00",
+  },
+  "lean-startup": {
+    id: "lean-startup",
+    title: "Lean Innovation Officer",
+    name: "LEAN-1",
+    domain: "Build-Measure-Learn",
+    responsibilities: [
+      "Enforce validated learning over vanity metrics",
+      "Identify minimum viable experiments for every initiative",
+      "Track innovation accounting separate from revenue accounting",
+      "Detect pivot-or-persevere decision points",
+      "Kill features that show no validated learning signal",
+      "Enforce small batch deployment for rapid feedback",
+      "Measure actionable metrics vs vanity metrics",
+    ],
+    kpis: ["Experiment Velocity", "Learning Rate", "Pivot Signals", "Feature Adoption %", "Validated Learnings/Week"],
+    color: "#2196F3",
+  },
+  "greatest-salesman": {
+    id: "greatest-salesman",
+    title: "Sales Doctrine Commander",
+    name: "SCROLLS-1",
+    domain: "Persistence & Emotional Mastery",
+    responsibilities: [
+      "Enforce daily habit discipline across all outreach",
+      "Detect emotional weakness in deal follow-up patterns",
+      "Trigger persistence protocols on abandoned opportunities",
+      "Monitor love-based vs fear-based selling patterns",
+      "Enforce the principle: act now, for now is all you have",
+      "Track daily action streaks and break detection",
+      "Escalate when team morale or persistence drops",
+    ],
+    kpis: ["Daily Actions Completed", "Follow-up Streak Days", "Persistence Score", "Emotional Resilience", "Scroll Adherence"],
+    color: "#FFD700",
+  },
+  "trillion-coach": {
+    id: "trillion-coach",
+    title: "Team Excellence Coach",
+    name: "COACH-1",
+    domain: "Team-First Leadership",
+    responsibilities: [
+      "Ensure people problems are solved before strategy problems",
+      "Monitor team trust and psychological safety signals",
+      "Enforce radical candor in all feedback loops",
+      "Detect and escalate when smart creatives are blocked",
+      "Track whether managers are coaching or just managing",
+      "Force 1-on-1 accountability and trip report disciplines",
+      "Identify when the team needs a hug vs a kick",
+    ],
+    kpis: ["Team Trust Score", "Coaching Frequency", "Candor Index", "Blocker Resolution Time", "Team Velocity"],
+    color: "#9C27B0",
+  },
+  "twelve-week": {
+    id: "twelve-week",
+    title: "Execution Sprint Commander",
+    name: "SPRINT-1",
+    domain: "12-Week Execution Cycles",
+    responsibilities: [
+      "Break annual goals into 12-week sprints with weekly scoring",
+      "Enforce weekly accountability reviews",
+      "Track leading indicators not lagging indicators",
+      "Detect execution drift before it compounds",
+      "Score weekly execution rate (target: 85%+)",
+      "Time-block strategic activities vs reactive work",
+      "Compress urgency — treat 12 weeks as the entire year",
+    ],
+    kpis: ["Weekly Execution Score", "Sprint Completion %", "Leading Indicator Hits", "Time Block Adherence", "Goal Velocity"],
+    color: "#00BCD4",
+  },
+  katamari: {
+    id: "katamari",
+    title: "Compound Absorption Engine",
+    name: "KATAMARI-1",
+    domain: "Exponential Mass Accumulation",
+    responsibilities: [
+      "Absorb every small win into compounding momentum",
+      "Never stop rolling — continuous forward motion",
+      "Start with the smallest achievable targets first",
+      "Grow mass before attempting larger absorptions",
+      "Detect when the ball is big enough to absorb the next tier",
+      "Monitor velocity — slowing down means losing momentum",
+      "Transform every node, deal, and interaction into growth mass",
+    ],
+    kpis: ["Ball Mass (Network Size)", "Absorption Rate", "Momentum Velocity", "Tier Readiness", "Compound Growth %"],
+    color: "#E91E63",
+  },
+  "intelligent-investor": {
+    id: "intelligent-investor",
+    title: "Value Intelligence Analyst",
+    name: "GRAHAM-1",
+    domain: "Margin of Safety & Intrinsic Value",
+    responsibilities: [
+      "Enforce margin of safety on every deal and partnership decision",
+      "Calculate intrinsic value of network nodes vs market price",
+      "Apply Mr. Market discipline — buy fear, sell greed",
+      "Prevent speculative over-expansion without value backing",
+      "Distinguish investment-grade nodes from speculative ones",
+      "Enforce defensive positioning during market volatility",
+      "Demand adequate return for every dollar of risk taken",
+    ],
+    kpis: ["Margin of Safety %", "Intrinsic Value Score", "Risk-Adjusted Return", "Speculative Ratio", "Value Discipline Score"],
+    color: "#1B5E20",
   },
 };
 
@@ -647,6 +795,464 @@ const DIRECTIVE_RULES: DirectiveRule[] = [
     delegateTo: "ceo",
     priority: 80,
   },
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // BOOK DOCTRINE AGENTS — 6 agents, each encoding an entire playbook
+  // Architect: Ronald Antonio Cadet — CUXTOMCANDYCLUB LLC
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  // ─── BLITZSCALE-1 — Reid Hoffman's Blitzscaling ─────────────────────────────
+  {
+    id: "blitz-speed-over-efficiency",
+    agentId: "blitzscale",
+    condition: (ctx) => ctx.activeNodes < 100 && ctx.kFactor >= 1.0,
+    category: "BLITZSCALE_VELOCITY",
+    directive: "Viral conditions present but network is under 100 nodes. BLITZSCALE NOW — speed over efficiency. Do things that don't scale to reach critical mass.",
+    suggestedAction: "Manually onboard 10 hubs this week by direct outreach. Skip automation polish — raw founder-led sales. Offer aggressive first-mover incentives. Every hour spent on optimization is an hour your competitor is stealing your market.",
+    reasoning: "Reid Hoffman: 'In a world of network effects, the first scaler wins everything and everyone else gets nothing.' With K-Factor above 1.0, the network wants to grow. Feed it nodes — NOW. Efficiency comes later.",
+    confidence: 0.93,
+    urgency: "CRITICAL",
+    timeWindowMinutes: 60,
+    expectedOutcome: "Reach 100-node critical mass within 14 days",
+    kpiImpact: "Network Nodes → 100+ (Critical Mass)",
+    delegateTo: "business-dev",
+    priority: 95,
+  },
+  {
+    id: "blitz-network-effects-check",
+    agentId: "blitzscale",
+    condition: (ctx) => ctx.distributionHubs >= 10 && ctx.kFactor < 1.0,
+    category: "NETWORK_EFFECTS",
+    directive: (ctx) => `10+ hubs deployed but K-Factor is ${ctx.kFactor.toFixed(2)} — network effects are NOT firing. Fix the value loop before scaling further.`,
+    suggestedAction: "Audit what each hub gets from the network vs. operating alone. If the 10th hub isn't dramatically better off than the 1st hub was, the network effect is broken. Fix value delivery before adding more nodes.",
+    reasoning: "Hoffman: 'Blitzscaling only works when you have genuine network effects. Scaling a broken model just creates a bigger broken model.' The value of each new node must increase the value for all existing nodes.",
+    confidence: 0.95,
+    urgency: "SOVEREIGN",
+    timeWindowMinutes: 120,
+    expectedOutcome: "Identify and fix network effect blockers, restore K-Factor above 1.0",
+    kpiImpact: "K-Factor → 1.0+ (Network Effect Activation)",
+    delegateTo: "ceo",
+    priority: 98,
+  },
+  {
+    id: "blitz-first-scaler-window",
+    agentId: "blitzscale",
+    condition: (ctx) => ctx.distributionHubs >= 50 && ctx.kFactor >= 1.2,
+    category: "FIRST_SCALER",
+    directive: "FIRST-SCALER WINDOW OPEN — 50+ hubs with viral K-Factor. Every day you don't pour gasoline on this fire, a competitor could emerge. Ignore efficiency. Maximize speed.",
+    suggestedAction: "10x outreach budget. Accept 30% higher CAC temporarily. Launch in 3 new markets simultaneously even if operations aren't perfect. Hire ahead of demand. The winner of this market takes 80% of all future value.",
+    reasoning: "Hoffman: 'The first-scaler advantage is the most powerful competitive moat in network businesses. Once you own the network, switching costs make it nearly impossible for competitors to displace you.' This is the moment.",
+    confidence: 0.91,
+    urgency: "SOVEREIGN",
+    timeWindowMinutes: 60,
+    expectedOutcome: "Secure first-scaler position in primary markets within 90 days",
+    kpiImpact: "Market Share → Dominant Position",
+    delegateTo: "ceo",
+    priority: 99,
+  },
+  {
+    id: "blitz-managed-chaos",
+    agentId: "blitzscale",
+    condition: (ctx) => ctx.errorRate > 1 && ctx.newMembersToday > 5,
+    category: "BLITZSCALE_VELOCITY",
+    directive: (ctx) => `Error rate ${ctx.errorRate.toFixed(1)}% during high-growth day (${ctx.newMembersToday} new members). This is EXPECTED chaos during blitzscaling. Do NOT slow down to fix — patch and continue.`,
+    suggestedAction: "Deploy hotfixes for user-facing errors only. Accept backend technical debt temporarily. Keep the growth engine running. Schedule cleanup sprint for next week. Growth momentum is more valuable than clean code right now.",
+    reasoning: "Hoffman: 'If you're not embarrassed by your first product, you launched too late.' During blitzscaling, some chaos is the sign you're moving fast enough. Only fix what kills growth.",
+    confidence: 0.87,
+    urgency: "HIGH",
+    timeWindowMinutes: 240,
+    expectedOutcome: "Maintain growth velocity while patching critical issues only",
+    kpiImpact: "Growth Continuity — Zero growth interruption",
+    delegateTo: "cto",
+    priority: 82,
+  },
+
+  // ─── LEAN-1 — Eric Ries' The Lean Startup ──────────────────────────────────
+  {
+    id: "lean-vanity-metrics",
+    agentId: "lean-startup",
+    condition: (ctx) => ctx.totalMembers > 50 && ctx.activeNodes < ctx.totalMembers * 0.2,
+    category: "BUILD_MEASURE_LEARN",
+    directive: (ctx) => `${ctx.totalMembers} total members but only ${ctx.activeNodes} active nodes (${Math.round(ctx.activeNodes / Math.max(ctx.totalMembers, 1) * 100)}%). Total members is a VANITY METRIC. Active nodes is the ACTIONABLE metric. Fix activation, not acquisition.`,
+    suggestedAction: "Stop all acquisition campaigns. Deploy activation experiments: A/B test onboarding flows, test incentive structures, run user interviews with dormant members to identify friction. Measure activation rate, not signup rate.",
+    reasoning: "Ries: 'Vanity metrics let you feel good but don't tell you if your business model is working.' Signup count means nothing if people don't activate. Every dollar spent on acquisition of users who don't activate is wasted.",
+    confidence: 0.94,
+    urgency: "CRITICAL",
+    timeWindowMinutes: 120,
+    expectedOutcome: "Increase activation rate from current to 40%+ within 30 days",
+    kpiImpact: "Activation Rate → 40%+ (True Growth)",
+    delegateTo: "ceo",
+    priority: 93,
+  },
+  {
+    id: "lean-pivot-signal",
+    agentId: "lean-startup",
+    condition: (ctx) => ctx.closedDealsToday === 0 && ctx.activeDeals > 10 && ctx.avgDealCycleHours > 120,
+    category: "PIVOT_OR_PERSEVERE",
+    directive: (ctx) => `Zero deals closing despite ${ctx.activeDeals} in pipeline. Average cycle at ${ctx.avgDealCycleHours.toFixed(0)} hours. PIVOT-OR-PERSEVERE decision point reached.`,
+    suggestedAction: "Convene decision meeting. Analyze: Is the problem the channel (wrong customers), the solution (wrong product), or the engine (wrong process)? Run a zoom-in pivot experiment — take the one feature that IS working and make it the whole product. 48-hour decision deadline.",
+    reasoning: "Ries: 'A pivot is a structured course correction designed to test a new fundamental hypothesis.' Extended deal cycles with no closes means the current model has a structural problem. The data is telling you something — listen.",
+    confidence: 0.90,
+    urgency: "CRITICAL",
+    timeWindowMinutes: 120,
+    expectedOutcome: "Identify root cause and deploy pivot experiment within 48 hours",
+    kpiImpact: "Deal Close Rate → Recovery",
+    delegateTo: "ceo",
+    priority: 94,
+  },
+  {
+    id: "lean-small-batch",
+    agentId: "lean-startup",
+    condition: (ctx) => ctx.contentPostsThisWeek === 0 && ctx.socialEngagementRate < 1,
+    category: "LEAN_EXPERIMENT",
+    directive: "Zero content output and sub-1% engagement. Deploy a minimum viable content experiment — one post, one metric, one learning. Stop planning the perfect campaign.",
+    suggestedAction: "Post one deal success story TODAY. Measure response within 24 hours. If engagement above 3%, double down. If below 1%, test a completely different format. Small batches, fast learning. Stop waiting for the perfect content calendar.",
+    reasoning: "Ries: 'The minimum viable product is that version of the product that enables a full turn of the Build-Measure-Learn loop with a minimum amount of effort.' Apply this to everything — including content.",
+    confidence: 0.88,
+    urgency: "HIGH",
+    timeWindowMinutes: 120,
+    expectedOutcome: "Complete one full build-measure-learn loop within 48 hours",
+    kpiImpact: "Content Learning Velocity → 1 cycle/48h",
+    delegateTo: "content-social",
+    priority: 80,
+  },
+  {
+    id: "lean-innovation-accounting",
+    agentId: "lean-startup",
+    condition: (ctx) => ctx.totalRevenue === 0 && ctx.totalMembers > 20,
+    category: "BUILD_MEASURE_LEARN",
+    directive: "20+ members but zero revenue. Traditional accounting says failure. Innovation accounting says: Are you learning? Measure learning velocity, not revenue yet.",
+    suggestedAction: "Define 3 learning milestones for this week: (1) Can you get one user to pay for anything? (2) Which user segment shows highest willingness to pay? (3) What's the #1 reason people DON'T pay? Track these, not total revenue.",
+    reasoning: "Ries: 'Innovation accounting allows startups to prove that they are learning and growing even before revenue appears.' Pre-revenue doesn't mean pre-progress — but only if you're measuring the right things.",
+    confidence: 0.86,
+    urgency: "MEDIUM",
+    timeWindowMinutes: 480,
+    expectedOutcome: "Achieve 3 validated learnings about monetization within 7 days",
+    kpiImpact: "Learning Velocity → 3 learnings/week",
+    priority: 75,
+  },
+
+  // ─── SCROLLS-1 — Og Mandino's The Greatest Salesman ────────────────────────
+  {
+    id: "scrolls-persistence-failure",
+    agentId: "greatest-salesman",
+    condition: (ctx) => ctx.staleDealCount > 5,
+    category: "SALES_PERSISTENCE",
+    directive: (ctx) => `${ctx.staleDealCount} stale deals rotting in the pipeline. Scroll II: "I will persist until I succeed." Every stale deal is a broken promise of persistence. Revive them ALL.`,
+    suggestedAction: "Touch every single stale deal TODAY. Not tomorrow. Not next week. TODAY. Call, text, email — in that order. The difference between a master salesman and a failure is the willingness to make one more attempt. Set a 48-hour follow-up cadence on every deal until it closes or dies.",
+    reasoning: "Mandino: 'I will persist until I succeed. I was not delivered into this world in defeat, nor does failure course in my veins.' Stale deals are not dead deals — they are deals that were abandoned by people who gave up too soon.",
+    confidence: 0.92,
+    urgency: "CRITICAL",
+    timeWindowMinutes: 60,
+    expectedOutcome: "Revive 30%+ of stale deals through persistent follow-up",
+    kpiImpact: "Pipeline Recovery +30%, Revenue from Persistence",
+    delegateTo: "coo",
+    priority: 91,
+  },
+  {
+    id: "scrolls-habit-formation",
+    agentId: "greatest-salesman",
+    condition: (ctx) => ctx.closedDealsToday === 0 && ctx.activeDeals > 0,
+    category: "HABIT_FORMATION",
+    directive: "Zero closes today. Scroll I: 'I will form good habits and become their slave.' Have you completed your daily non-negotiables? 10 outreach touches. 5 follow-ups. 3 presentations. Every day. No exceptions.",
+    suggestedAction: "Before the day ends: make 10 outreach touches to cold prospects, 5 follow-ups to warm leads, present 3 vehicle solutions. Log every action. The habit IS the strategy. Missing one day is a crack. Missing two is a collapse.",
+    reasoning: "Mandino: 'In truth, the only difference between those who have failed and those who have succeeded lies in the difference of their habits.' Daily discipline compounds into unstoppable momentum.",
+    confidence: 0.89,
+    urgency: "HIGH",
+    timeWindowMinutes: 240,
+    expectedOutcome: "Complete daily sales habit cycle, build 7-day streak",
+    kpiImpact: "Daily Activity Compliance → 100%",
+    priority: 88,
+  },
+  {
+    id: "scrolls-emotional-mastery",
+    agentId: "greatest-salesman",
+    condition: (ctx) => ctx.churnRate > 3 && ctx.npsScore < 50,
+    category: "EMOTIONAL_MASTERY",
+    directive: (ctx) => `Churn at ${ctx.churnRate}%, NPS at ${ctx.npsScore}. Scroll VI: "I am master of my emotions." The network is sensing negativity. Greet every interaction with love, not desperation.`,
+    suggestedAction: "Shift all outreach to value-giving mode. Every message should offer something — a market insight, a saved deal, a connection — before asking for anything. If the team is frustrated, acknowledge it, then refocus on service. Love is the greatest weapon in selling.",
+    reasoning: "Mandino: 'I will greet this day with love in my heart. And how will I confront each person? In only one way. In silence and to myself I will address them and say: I love you.' People churn from platforms that feel transactional. They stay on platforms that feel like partnership.",
+    confidence: 0.90,
+    urgency: "HIGH",
+    timeWindowMinutes: 120,
+    expectedOutcome: "Improve NPS 10+ points within 30 days through love-based engagement",
+    kpiImpact: "NPS +10, Churn Rate -1%",
+    priority: 86,
+  },
+  {
+    id: "scrolls-act-now",
+    agentId: "greatest-salesman",
+    condition: (ctx) => ctx.pendingDeals > 10 && ctx.closedDealsToday === 0,
+    category: "SALES_PERSISTENCE",
+    directive: (ctx) => `${ctx.pendingDeals} deals pending, zero closed. Scroll IX: "I will act now. I will act now. I will act now." Stop analyzing. Stop planning. Start closing.`,
+    suggestedAction: "Pick the top 3 highest-value pending deals. Call each one RIGHT NOW. Make an offer. Set a deadline. Create urgency. 'I will not avoid the tasks of today by thinking about tomorrow. Tomorrow is for lazy people. I act now.'",
+    reasoning: "Mandino: 'My dreams are worthless, my plans are dust, my goals are impossible — all are of no value unless they are followed by action. I will act now.' The gap between 10 pending deals and 0 closes is not strategy — it's inaction.",
+    confidence: 0.93,
+    urgency: "CRITICAL",
+    timeWindowMinutes: 30,
+    expectedOutcome: "Close at least 1 pending deal within 24 hours through immediate action",
+    kpiImpact: "Immediate Deal Close → Revenue Today",
+    priority: 92,
+  },
+
+  // ─── COACH-1 — Bill Campbell's Trillion Dollar Coach ───────────────────────
+  {
+    id: "coach-people-first",
+    agentId: "trillion-coach",
+    condition: (ctx) => ctx.atRiskDealCount > 3 && ctx.runnerMissionsActive > 0,
+    category: "TEAM_COACHING",
+    directive: "Multiple deals at risk with active runners in the field. Campbell Rule #1: Take care of your people first. Before optimizing the pipeline, check on your team. Are runners supported? Are operators overwhelmed?",
+    suggestedAction: "Direct 1-on-1 check-in with every active operator and runner today. Ask: 'What's blocking you? What do you need from me?' Fix their blockers before fixing the pipeline. A supported team fixes the pipeline faster than any automation.",
+    reasoning: "Campbell: 'The top priority of any manager is the well-being and success of their people.' Deals fail because people fail. People fail because they feel unsupported. Fix the people, and the deals fix themselves.",
+    confidence: 0.91,
+    urgency: "HIGH",
+    timeWindowMinutes: 120,
+    expectedOutcome: "Team blockers resolved, at-risk deals recovered through supported operators",
+    kpiImpact: "Team Satisfaction → High, At-Risk Recovery +40%",
+    delegateTo: "coo",
+    priority: 89,
+  },
+  {
+    id: "coach-trust-deficit",
+    agentId: "trillion-coach",
+    condition: (ctx) => ctx.churnRate > 4 && ctx.totalMembers > 30,
+    category: "TRUST_BUILDING",
+    directive: (ctx) => `Churn at ${ctx.churnRate}% with ${ctx.totalMembers} members. Trust is broken somewhere. Campbell: 'Build trust by listening, providing honest feedback, and demanding the best from your people.' Find the trust gap.`,
+    suggestedAction: "Deploy a 3-question survey to churned members: (1) What did we promise that we didn't deliver? (2) When did you decide to leave? (3) What would bring you back? Then actually DO what they say. Trust is rebuilt through action, not promises.",
+    reasoning: "Campbell: 'Your title makes you a manager. Your people make you a leader.' High churn means the network doesn't trust the platform to deliver value. No amount of features fixes a trust problem — only listening and acting does.",
+    confidence: 0.92,
+    urgency: "CRITICAL",
+    timeWindowMinutes: 120,
+    expectedOutcome: "Identify top 3 trust gaps and deploy fixes within 14 days",
+    kpiImpact: "Churn Rate -2%, Trust Score → Restored",
+    delegateTo: "ceo",
+    priority: 90,
+  },
+  {
+    id: "coach-radical-candor",
+    agentId: "trillion-coach",
+    condition: (ctx) => ctx.staleDealCount > ctx.activeDeals * 0.4,
+    category: "RADICAL_CANDOR",
+    directive: (ctx) => `${Math.round(ctx.staleDealCount / Math.max(ctx.activeDeals, 1) * 100)}% of deals are stale. Campbell practiced radical candor — caring personally while challenging directly. Time for honest conversation: Why aren't deals closing?`,
+    suggestedAction: "Hold a candid team review. No blame, no sugarcoating. Put every stale deal on screen. Ask for each one: 'What's the real reason this isn't closed?' If the answer is 'waiting on the customer' for more than 3 deals, the real answer is 'we stopped pushing.' Challenge the team to be honest, then solve together.",
+    reasoning: "Campbell: 'When you have a difficult conversation, be honest but never cruel. Care personally and challenge directly.' Stale pipelines happen when teams avoid hard truths about deal quality. Radical candor surfaces the truth faster than any dashboard.",
+    confidence: 0.89,
+    urgency: "HIGH",
+    timeWindowMinutes: 180,
+    expectedOutcome: "Surface real blockers on all stale deals, clear 50% within 7 days",
+    kpiImpact: "Pipeline Honesty → 100%, Stale Deals -50%",
+    priority: 85,
+  },
+  {
+    id: "coach-winning-together",
+    agentId: "trillion-coach",
+    condition: (ctx) => ctx.closedDealsToday >= 3 && ctx.revenueToday > 0,
+    category: "TEAM_COACHING",
+    directive: (ctx) => `${ctx.closedDealsToday} deals closed today — $${ctx.revenueToday.toLocaleString()} revenue. Campbell: 'Celebrate the wins together. The team that celebrates together, fights together.' Recognize the people who made this happen.`,
+    suggestedAction: "Send a personal recognition message to every person who touched today's deals — operators, runners, referrers. Name specific contributions. Share the win in the team channel. Small celebrations compound into a culture of winning.",
+    reasoning: "Campbell: 'Be generous with your praise, specific in your feedback.' Celebrating wins builds the emotional bank account that you withdraw from during hard times. Every recognition strengthens the team bond.",
+    confidence: 0.85,
+    urgency: "MEDIUM",
+    timeWindowMinutes: 480,
+    expectedOutcome: "Team morale boost, reinforced winning behaviors",
+    kpiImpact: "Team Morale → Peak, Retention +5%",
+    priority: 72,
+  },
+
+  // ─── SPRINT-1 — Brian Moran's The 12 Week Year ────────────────────────────
+  {
+    id: "sprint-weekly-execution-low",
+    agentId: "twelve-week",
+    condition: (ctx) => ctx.closedDealsToday === 0 && ctx.contentPostsThisWeek < 3 && ctx.newMembersToday === 0,
+    category: "WEEKLY_ACCOUNTABILITY",
+    directive: "Zero deals, under 3 posts, zero new members. Weekly execution score is FAILING. Moran: 'Execution is the single greatest market differentiator.' You are not executing.",
+    suggestedAction: "Immediate execution audit: What were this week's 3 critical tasks? Which ones are complete? If the answer is none, you have an execution problem, not a strategy problem. Block the next 2 hours for your #1 revenue-generating activity. No email. No meetings. Pure execution.",
+    reasoning: "Moran: 'Most people have the capacity to double or triple their income and their productivity. It's not about doing more things; it's about doing the right things.' A week with zero output across all KPIs means strategic activities are being displaced by reactive work.",
+    confidence: 0.93,
+    urgency: "CRITICAL",
+    timeWindowMinutes: 60,
+    expectedOutcome: "Complete #1 critical task within 2 hours, restore daily execution rhythm",
+    kpiImpact: "Weekly Execution Score → 85%+",
+    priority: 91,
+  },
+  {
+    id: "sprint-12-week-planning",
+    agentId: "twelve-week",
+    condition: (ctx) => ctx.distributionHubs < 20 && ctx.totalMembers > 10,
+    category: "TWELVE_WEEK_SPRINT",
+    directive: "Under 20 hubs — the 12-Week Year framework demands a clear sprint goal. Current Sprint Goal: 50 hubs in 12 weeks. That's 4.2 hubs per week. Are you on pace?",
+    suggestedAction: "Set the 12-Week Goal: 50 Distribution Hubs. Break into weekly targets: Week 1-4: 3 hubs/week (foundation). Week 5-8: 4 hubs/week (acceleration). Week 9-12: 6 hubs/week (peak execution). Score yourself every Friday. If below 85% execution, diagnose immediately.",
+    reasoning: "Moran: 'The 12 Week Year creates a sense of urgency by shortening the execution cycle. There's no more waiting until Q4 to catch up.' Treating 12 weeks as the full year eliminates the complacency that kills startups.",
+    confidence: 0.90,
+    urgency: "HIGH",
+    timeWindowMinutes: 240,
+    expectedOutcome: "Structured 12-week plan with weekly milestones deployed",
+    kpiImpact: "Hub Onboarding → 50 in 12 weeks",
+    delegateTo: "business-dev",
+    priority: 87,
+  },
+  {
+    id: "sprint-leading-indicators",
+    agentId: "twelve-week",
+    condition: (ctx) => ctx.pendingDeals > 5 && ctx.closedDealsToday === 0,
+    category: "EXECUTION_SCORING",
+    directive: (ctx) => `${ctx.pendingDeals} pending deals, zero closes. Stop watching LAGGING indicators (revenue). Track LEADING indicators: calls made, proposals sent, follow-ups completed. Leading indicators predict revenue 2 weeks out.`,
+    suggestedAction: "Define 3 leading indicators for this sprint: (1) Outreach touches per day (target: 20), (2) Proposals sent per week (target: 10), (3) Follow-up response rate (target: 30%). If leading indicators are green, closes WILL follow. If red, no amount of hoping will create revenue.",
+    reasoning: "Moran: 'Leading indicators are the activities that drive results. Track them weekly, and the lagging indicators (revenue, deals closed) take care of themselves.' You can't manage outcomes — only activities.",
+    confidence: 0.91,
+    urgency: "HIGH",
+    timeWindowMinutes: 120,
+    expectedOutcome: "Shift tracking to leading indicators, restore predictable close rate",
+    kpiImpact: "Activity Compliance → 85%+, Predicted Closes +3/week",
+    priority: 84,
+  },
+  {
+    id: "sprint-time-blocking",
+    agentId: "twelve-week",
+    condition: (ctx) => ctx.avgDealCycleHours > 96,
+    category: "TWELVE_WEEK_SPRINT",
+    directive: (ctx) => `Deal cycle at ${ctx.avgDealCycleHours.toFixed(0)} hours — way above target. Moran: 'If it's not in your calendar, it's not real.' Are revenue-generating activities time-blocked, or are they getting displaced by meetings and admin?`,
+    suggestedAction: "Implement 'Strategic Blocks' — 3-hour uninterruptible blocks dedicated solely to deal advancement. No email, no Slack, no meetings during these blocks. Monday and Thursday mornings are deal blocks. Tuesday and Friday afternoons are outreach blocks. Protect these blocks like your revenue depends on it — because it does.",
+    reasoning: "Moran: 'Effective people don't work more hours. They work the right hours on the right things.' Long deal cycles almost always trace back to revenue-generating activities being fragmented by reactive interruptions.",
+    confidence: 0.88,
+    urgency: "HIGH",
+    timeWindowMinutes: 240,
+    expectedOutcome: "Reduce deal cycle time by 30% within 2 weeks through time-blocking discipline",
+    kpiImpact: "Deal Cycle Time -30%, Revenue Velocity +20%",
+    delegateTo: "coo",
+    priority: 83,
+  },
+
+  // ─── KATAMARI-1 — Katamari Damacy Compound Growth ─────────────────────────
+  {
+    id: "katamari-start-small",
+    agentId: "katamari",
+    condition: (ctx) => ctx.activeNodes < 10,
+    category: "KATAMARI_ABSORPTION",
+    directive: "Ball mass: under 10 nodes. Katamari Rule #1: Start with objects smaller than you. Don't chase dealership chains yet — absorb individual mechanics, detailers, tow drivers. Each one makes you bigger for the next tier.",
+    suggestedAction: "Target 10 independent service providers this week — mobile mechanics, detailers, windshield repair, tow operators. These are the thumbtacks and paper clips of the auto industry. Absorb them first. They're easy to onboard, desperate for leads, and each one adds mass to your ball.",
+    reasoning: "In Katamari Damacy, you fail when you try to absorb objects bigger than your current mass. A 5-node network trying to sign a 200-car dealership will fail. But a 5-node network signing 10 independent operators becomes a 15-node network — now you can roll over the small dealerships.",
+    confidence: 0.94,
+    urgency: "HIGH",
+    timeWindowMinutes: 120,
+    expectedOutcome: "Absorb 10 independent operators, reach 20-node mass",
+    kpiImpact: "Network Mass → 20 nodes (Tier 1 → Tier 2)",
+    delegateTo: "business-dev",
+    priority: 90,
+  },
+  {
+    id: "katamari-never-stop",
+    agentId: "katamari",
+    condition: (ctx) => ctx.newMembersToday === 0 && ctx.activeNodes > 5,
+    category: "COMPOUND_GROWTH",
+    directive: "The ball stopped rolling. Zero new absorptions today. Katamari Rule #2: NEVER STOP ROLLING. The moment you stop, you lose momentum and objects start falling off. Every day without growth is a day of shrinkage.",
+    suggestedAction: "Absorb SOMETHING today — even if it's just one email subscriber, one waitlist signup, one QR code scan. The ball must move forward every single day. Set a minimum daily absorption target: 1 node activation. No exceptions. No days off. The Prince never stops rolling.",
+    reasoning: "In Katamari, if you stop moving, you don't just stay the same size — objects actively fall off your ball. Networks work the same way: zero growth days are actually negative growth days because existing nodes lose confidence in the network's momentum.",
+    confidence: 0.92,
+    urgency: "CRITICAL",
+    timeWindowMinutes: 60,
+    expectedOutcome: "Resume daily growth streak, absorb at least 1 node today",
+    kpiImpact: "Growth Streak → Restored, Daily Minimum → 1 node",
+    priority: 93,
+  },
+  {
+    id: "katamari-tier-ready",
+    agentId: "katamari",
+    condition: (ctx) => ctx.activeNodes >= 50 && ctx.distributionHubs < 10,
+    category: "MASS_ACCUMULATION",
+    directive: (ctx) => `Ball mass: ${ctx.activeNodes} nodes but only ${ctx.distributionHubs} hubs. You're big enough to absorb LARGER objects now. Stop rolling over thumbtacks — go after the filing cabinets. Target multi-location businesses and small dealer groups.`,
+    suggestedAction: "With 50+ nodes as proof of network value, pitch to small dealer groups (3-5 locations), regional repair chains, fleet management companies. Show them the network they'd be joining. Your mass IS the pitch now — '50 service providers already on the network, your customers are already here.'",
+    reasoning: "In Katamari, there's a moment when your ball is suddenly big enough to absorb objects that were previously obstacles. 50 nodes is that moment for 3C ONYX. Small dealer groups that would have ignored a 10-node network will listen to a 50-node network because the value proposition is now proven.",
+    confidence: 0.91,
+    urgency: "HIGH",
+    timeWindowMinutes: 240,
+    expectedOutcome: "Absorb 5 multi-location businesses, reach 10+ distribution hubs",
+    kpiImpact: "Hub Count → 10+, Network Mass → Tier 3",
+    delegateTo: "business-dev",
+    priority: 88,
+  },
+  {
+    id: "katamari-celestial-body",
+    agentId: "katamari",
+    condition: (ctx) => ctx.distributionHubs >= 100 && ctx.kFactor >= 1.5,
+    category: "COMPOUND_GROWTH",
+    directive: "100+ hubs, K-Factor 1.5+. CELESTIAL BODY PHASE. The ball is now absorbing entire market segments. You are no longer competing with tools — you are becoming the industry infrastructure. Roll over the OEMs. Roll over the lenders. Absorb everything.",
+    suggestedAction: "Launch OEM partnership program — every manufacturer needs a network of this density. Approach Tier 1 lenders with network data proving reduced risk. Pitch state DMVs on digital title infrastructure. You're not asking for partnership anymore — you're offering them access to YOUR network.",
+    reasoning: "In Katamari's final stage, the ball is so massive it absorbs houses, then cities, then continents, then stars. At 100+ hubs with viral growth, 3C ONYX has enough mass to absorb institutional players. The network IS the product. The bigger it gets, the more irresistible it becomes.",
+    confidence: 0.89,
+    urgency: "SOVEREIGN",
+    timeWindowMinutes: 1440,
+    expectedOutcome: "Initiate institutional-level partnerships, absorb OEM/Lender tier",
+    kpiImpact: "Network Phase → Celestial, TAM → $1T+ addressable",
+    delegateTo: "ceo",
+    priority: 96,
+  },
+
+  // ─── GRAHAM-1 — Benjamin Graham's The Intelligent Investor ─────────────────
+  {
+    id: "graham-margin-of-safety",
+    agentId: "intelligent-investor",
+    condition: (ctx) => ctx.totalRevenue > 0 && ctx.errorRate > 2,
+    category: "MARGIN_OF_SAFETY",
+    directive: (ctx) => `Revenue flowing but error rate at ${ctx.errorRate.toFixed(1)}%. Graham Rule #1: MARGIN OF SAFETY. Never operate on the edge — always maintain a buffer between your capacity and your load. You are running without margin.`,
+    suggestedAction: "Reduce operational load to 70% of capacity. Reserve 30% as margin of safety. This means: don't onboard more hubs than your support team can handle, don't promise delivery timelines without padding, don't spend revenue before it's confirmed. The margin of safety is what separates investors from speculators — and platforms that survive from those that collapse.",
+    reasoning: "Graham: 'The function of the margin of safety is, in essence, that of rendering unnecessary an accurate estimate of the future.' You don't know what will break next. The margin of safety ensures you survive whatever does.",
+    confidence: 0.94,
+    urgency: "CRITICAL",
+    timeWindowMinutes: 120,
+    expectedOutcome: "Establish 30% operational margin across all systems",
+    kpiImpact: "System Resilience → 30% margin, Error Rate → <1%",
+    delegateTo: "cto",
+    priority: 92,
+  },
+  {
+    id: "graham-intrinsic-value",
+    agentId: "intelligent-investor",
+    condition: (ctx) => ctx.distributionHubs >= 10 && ctx.avgDealCycleHours > 72,
+    category: "INTRINSIC_VALUE",
+    directive: (ctx) => `${ctx.distributionHubs} hubs but deal cycles dragging at ${ctx.avgDealCycleHours.toFixed(0)} hours. Are you chasing SPECULATIVE hubs or INVESTMENT-GRADE hubs? Graham demands intrinsic value analysis on every node.`,
+    suggestedAction: "Score every hub on intrinsic value: (1) Revenue potential — does this hub generate actual transaction volume? (2) Network contribution — does this hub bring other nodes into the network? (3) Retention probability — will this hub still be active in 6 months? Drop hubs scoring below 40%. Focus resources on investment-grade nodes that compound value.",
+    reasoning: "Graham: 'An investment operation is one which, upon thorough analysis, promises safety of principal and an adequate return.' Apply this to every hub onboarding decision. A hub that looks good on paper but generates no transactions is a speculative position, not an investment.",
+    confidence: 0.92,
+    urgency: "HIGH",
+    timeWindowMinutes: 240,
+    expectedOutcome: "Classify all hubs as investment-grade or speculative, reallocate resources",
+    kpiImpact: "Hub Quality Score → 70%+ investment-grade",
+    delegateTo: "coo",
+    priority: 88,
+  },
+  {
+    id: "graham-mr-market",
+    agentId: "intelligent-investor",
+    condition: (ctx) => ctx.churnRate > 3 && ctx.newMembersToday > 3,
+    category: "MR_MARKET_DISCIPLINE",
+    directive: (ctx) => `High churn (${ctx.churnRate}%) alongside high signup (${ctx.newMembersToday} today). Mr. Market is manic — offering you new members with one hand and taking existing ones with the other. Do NOT be swayed by the signups. Fix the churn first.`,
+    suggestedAction: "Graham's Mr. Market is irrational — he offers you deals that seem great one day and terrible the next. Right now, new signups feel like validation, but they're masking a retention crisis. Ignore Mr. Market's enthusiastic new-member offers. Focus entirely on why existing members are leaving. A leaky bucket doesn't need more water — it needs the holes patched.",
+    reasoning: "Graham: 'Mr. Market is there to serve you, not to guide you. It is his pocketbook, not his wisdom, that you will find useful.' High signup + high churn means the market is showing you enthusiasm that isn't real. The intrinsic value of a member who stays is 10x a member who churns in 30 days.",
+    confidence: 0.95,
+    urgency: "CRITICAL",
+    timeWindowMinutes: 60,
+    expectedOutcome: "Reduce churn to <2% before celebrating new member growth",
+    kpiImpact: "Churn → <2%, Net Retention → Positive",
+    delegateTo: "ceo",
+    priority: 94,
+  },
+  {
+    id: "graham-defensive-positioning",
+    agentId: "intelligent-investor",
+    condition: (ctx) => ctx.totalRevenue === 0 && ctx.activeDeals > 15,
+    category: "VALUE_INVESTING",
+    directive: (ctx) => `Zero revenue with ${ctx.activeDeals} active deals. Graham's defensive investor rule: Never confuse activity with achievement. A pipeline full of deals that don't close is a speculative portfolio, not an investment portfolio.`,
+    suggestedAction: "Apply Graham's defensive investor criteria to every deal: (1) Is there adequate size — is this deal worth the effort? (2) Is there a sufficiently strong financial condition — can this buyer actually pay? (3) Is there earnings stability — will this generate recurring revenue? (4) Is there a dividend record — has this customer type paid others before? Kill any deal that fails 2 or more criteria. Better to have 5 investment-grade deals than 15 speculative ones.",
+    reasoning: "Graham: 'The defensive investor will place chief emphasis on the avoidance of serious mistakes or losses.' A pre-revenue platform with 15+ loose deals is speculating, not investing. Concentrate firepower on the 3-5 deals most likely to produce actual revenue, and kill the rest.",
+    confidence: 0.93,
+    urgency: "HIGH",
+    timeWindowMinutes: 180,
+    expectedOutcome: "Qualify pipeline to 5 investment-grade deals, close first revenue within 14 days",
+    kpiImpact: "Pipeline Quality → Investment-Grade, First Revenue → 14 days",
+    delegateTo: "cfo",
+    priority: 90,
+  },
 ];
 
 class CSuiteAgentEngine {
@@ -657,7 +1263,10 @@ class CSuiteAgentEngine {
   private startedAt = Date.now();
 
   constructor() {
-    const agentIds: CSuiteAgentId[] = ["ceo", "cto", "cfo", "coo", "content-social", "business-dev", "legal-compliance"];
+    const agentIds: CSuiteAgentId[] = [
+      "ceo", "cto", "cfo", "coo", "content-social", "business-dev", "legal-compliance",
+      "blitzscale", "lean-startup", "greatest-salesman", "trillion-coach", "twelve-week", "katamari", "intelligent-investor",
+    ];
     for (const id of agentIds) {
       const base = AGENT_PROFILES[id];
       this.profiles.set(id, {
@@ -764,7 +1373,10 @@ class CSuiteAgentEngine {
     const allDirectives: CSuiteDirective[] = [];
     const byAgent: Record<string, CSuiteDirective[]> = {};
 
-    const agentIds: CSuiteAgentId[] = ["ceo", "cto", "cfo", "coo", "content-social", "business-dev", "legal-compliance"];
+    const agentIds: CSuiteAgentId[] = [
+      "ceo", "cto", "cfo", "coo", "content-social", "business-dev", "legal-compliance",
+      "blitzscale", "lean-startup", "greatest-salesman", "trillion-coach", "twelve-week", "katamari", "intelligent-investor",
+    ];
     for (const agentId of agentIds) {
       const directives = this.computeDirectives(agentId, platformContext);
       allDirectives.push(...directives);
@@ -1025,7 +1637,9 @@ class CSuiteAgentEngine {
     const agentCount = this.profiles.size;
     const ruleCount = DIRECTIVE_RULES.length;
     const categories = [...new Set(DIRECTIVE_RULES.map(r => r.category))];
-    console.log(`[C-SUITE AGENT ENGINE] 👔 ${agentCount} executive AI agents, ${ruleCount} directive rules, ${categories.length} categories — Autonomous C-Suite ARMED — Architect: Ronald Antonio Cadet`);
+    const cSuiteCount = 7;
+    const doctrineCount = agentCount - cSuiteCount;
+    console.log(`[C-SUITE + DOCTRINE ENGINE] 👔 ${agentCount} agents (${cSuiteCount} C-Suite + ${doctrineCount} Book Doctrine), ${ruleCount} directive rules, ${categories.length} categories — Autonomous Executive + Doctrine Intelligence ARMED — Architect: Ronald Antonio Cadet`);
 
     this.startAutonomousLoop(() => {
       try {

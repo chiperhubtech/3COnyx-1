@@ -168,6 +168,7 @@ import sovereignInfrastructureRouter from "./sovereign-infrastructure";
 import sovereignLearningRouter from "./sovereign-learning";
 import cSuiteAgentsRouter from "./c-suite-agents";
 import fintechComplianceRouter from "./fintech-compliance";
+import successStoriesRouter from "./success-stories";
 import { idempotencyGuard } from "../middlewares/idempotencyGuard";
 
 const router: IRouter = Router();
@@ -359,5 +360,6 @@ router.use(sovereignInfrastructureRouter);
 router.use(sovereignLearningRouter);
 router.use(cSuiteAgentsRouter);
 router.use(fintechComplianceRouter);
+router.use("/success-stories", successStoriesRouter);
 
 export default router;
