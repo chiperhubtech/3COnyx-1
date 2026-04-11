@@ -19,8 +19,8 @@
     "id": "a1b2c3d4-9999-4aaa-bbbb-000000000009",
     "position": 3,
     "filepath": "src/pages/slides/TodaySlide.tsx",
-    "title": "Not a Pitch. A Platform.",
-    "description": "10 live systems inventory — all built, tested, and operational. Future-ready for AI, AR, robotics.",
+    "title": "Not a Pitch. A Protocol.",
+    "description": "20+ live systems inventory — all built, tested, and operational. Future-ready for AI, AR, robotics.",
     "speakerNotes": ""
   },
   {
@@ -28,12 +28,20 @@
     "position": 4,
     "filepath": "src/pages/slides/PlatformSlide.tsx",
     "title": "The Protocol — One OS. Every Transaction.",
-    "description": "8-pillar architecture: Agent Mesh, Proof Engine, Street Network, Wallet, Anti-Abuse, Attribution, SDV, Robotics-Ready",
+    "description": "9-pillar architecture: Agent Mesh, Proof Engine, Street Network, Wallet, Anti-Abuse, Attribution, SDV, Robotics-Ready",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-eeee-4aaa-bbbb-00000000000e",
+    "position": 5,
+    "filepath": "src/pages/slides/EcosystemSlide.tsx",
+    "title": "Not Just Cars — Every Vehicle on Earth",
+    "description": "$3.7T+ TAM across automobiles, motorcycles/powersports, commercial fleet, marine, off-road, and aftermarket",
     "speakerNotes": ""
   },
   {
     "id": "a1b2c3d4-4444-4aaa-bbbb-000000000004",
-    "position": 5,
+    "position": 6,
     "filepath": "src/pages/slides/GrowthSlide.tsx",
     "title": "The Street Economy — K>1 Viral Growth",
     "description": "QR viral distribution, K>1 coefficient, commission structure, zero CAC",
@@ -41,7 +49,7 @@
   },
   {
     "id": "a1b2c3d4-6666-4aaa-bbbb-000000000006",
-    "position": 6,
+    "position": 7,
     "filepath": "src/pages/slides/RevenueSlide.tsx",
     "title": "The Tollbooth — Revenue Model",
     "description": "Three revenue streams: per-deal fees, logistic commissions, recurring service spreads",
@@ -49,7 +57,7 @@
   },
   {
     "id": "a1b2c3d4-aaaa-4aaa-bbbb-00000000000a",
-    "position": 7,
+    "position": 8,
     "filepath": "src/pages/slides/ScaleSlide.tsx",
     "title": "Lean Startup → Blitzscaling — 10M → 100M Users",
     "description": "Three-phase trajectory: Bootstrap → 10M users → 100M users. AI agents → AR → Robotics → Full autonomy.",
@@ -57,15 +65,31 @@
   },
   {
     "id": "a1b2c3d4-8888-4aaa-bbbb-000000000008",
-    "position": 8,
+    "position": 9,
     "filepath": "src/pages/slides/MoatSlide.tsx",
     "title": "The Moat — Five Walls Deep",
     "description": "Asset-light, forensic IP, distribution moat, institutional value, network effects + future stack",
     "speakerNotes": ""
   },
   {
+    "id": "a1b2c3d4-dddd-4aaa-bbbb-00000000000d",
+    "position": 10,
+    "filepath": "src/pages/slides/DoctrineSlide.tsx",
+    "title": "11 Doctrines. 69 Directives. One Engine.",
+    "description": "Intellectual architecture: 11 book doctrines encoded as autonomous agent directives. Subtle competitive positioning vs Carvana, TrueCar, AutoTrader.",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-ffff-4aaa-bbbb-00000000000f",
+    "position": 11,
+    "filepath": "src/pages/slides/BlueprintSlide.tsx",
+    "title": "Built for the People Who Build America",
+    "description": "Blue-collar wealth creation. $1.53M in network earnings. Direct selling/MLM comparison. Gig economy comparison. $191K avg income.",
+    "speakerNotes": ""
+  },
+  {
     "id": "a1b2c3d4-7777-4aaa-bbbb-000000000007",
-    "position": 9,
+    "position": 12,
     "filepath": "src/pages/slides/CapitalSlide.tsx",
     "title": "SBA 7(a) Capital Strategy",
     "description": "Capital request $250K–$1M, allocation breakdown, Phase I/II growth projections, debt coverage ratios",
@@ -73,7 +97,7 @@
   },
   {
     "id": "a1b2c3d4-5555-4aaa-bbbb-000000000005",
-    "position": 10,
+    "position": 13,
     "filepath": "src/pages/slides/CloseSlide.tsx",
     "title": "The Close — The Standard Is Set",
     "description": "Contact info, brand lockup, today → next → endgame trajectory, closing statement",

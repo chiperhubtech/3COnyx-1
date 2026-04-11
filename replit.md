@@ -113,7 +113,7 @@ A theme engine offering 20 culture-driven themes across 10 categories, each with
 -   **Social Amplifier**: Auto-posts campaigns and content across 9 social platforms.
 -   **Marketplace Hub**: Multichannel product distribution across 18+ marketplace channels.
 -   **Marketing Hub**: Email, SMS campaigns, landing pages, and marketing automations.
--   **Apparel & Entertainment**: Motorsport dropship apparel catalog and entertainment subscriptions.
+-   **Apparel & Powersport Catalog**: 40-product motorsport/powersport dropship catalog (66 categories) covering motorcycle jackets, helmets, riding boots, leather vests/chaps, motocross gear, ATV helmets, jet ski life vests, snowmobile jackets, Bluetooth communicators, LED kits, saddlebags, tool rolls, and accessories. Entertainment subscriptions.
 -   **Smart Promotions & Cultural Engine**: Proactive maintenance/upgrade alerts and cultural personalization based on user data.
 -   **eCommerce Bridge**: Unifies 40+ eCommerce platforms for B2B and B2C dropship.
 -   **Survey Shield & OEM Bridge Protocol**: Income protection for salespeople via sentiment checkpoints and automatic OEM app registration.
