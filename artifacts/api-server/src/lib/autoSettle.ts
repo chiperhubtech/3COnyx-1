@@ -2,6 +2,7 @@ import { db, onyxWalletsTable, walletTransactionsTable, settlementLedgerTable } 
 import { eq } from "drizzle-orm";
 import crypto from "crypto";
 import { logger } from "./logger";
+import { fintechGuard } from "./fintechComplianceGuard";
 
 const PLATFORM_FEE_PCT = 0.03;
 const ARCHITECT = "Ronald Antonio Cadet";
@@ -213,6 +214,55 @@ export async function autoSettle(request: SettleRequest): Promise<SettleResult> 
   });
 
   try {
+    const payoutValidation = await fintechGuard.validatePayoutEligibility(
+      request.recipientUserId,
+      grossAmount,
+      request.transactionType,
+      request.dealNumber,
+    );
+
+    if (!payoutValidation.approved) {
+      logger.warn({
+        userId: request.recipientUserId,
+        reason: payoutValidation.reason,
+        amountUsd: grossAmount,
+      }, "[auto-settle] Payout held by Fintech Compliance Guard");
+
+      return {
+        success: false,
+        settlementRef,
+        walletTxRef,
+        recipientUserId: request.recipientUserId,
+        grossAmount,
+        platformFee,
+        netAmount,
+        proofHash,
+        bankPayoutStatus: `HELD: ${payoutValidation.reason}`,
+        bankPayoutMethod: "Stripe_Connect_Required",
+        estimatedArrival: "Pending account connection",
+        message: payoutValidation.message,
+      };
+    }
+
+    const methodCheck = fintechGuard.enforcePayoutMethod("stripe_connect_transfer");
+    if (!methodCheck.allowed) {
+      logger.error({ violation: methodCheck.violation }, "[auto-settle] Forbidden payout method detected");
+      return {
+        success: false,
+        settlementRef,
+        walletTxRef,
+        recipientUserId: request.recipientUserId,
+        grossAmount,
+        platformFee,
+        netAmount,
+        proofHash,
+        bankPayoutStatus: "BLOCKED: Forbidden method",
+        bankPayoutMethod: "BLOCKED",
+        estimatedArrival: "N/A",
+        message: methodCheck.violation || "Payout method not allowed",
+      };
+    }
+
     let [wallet] = await db.select().from(onyxWalletsTable)
       .where(eq(onyxWalletsTable.userId, request.recipientUserId)).limit(1);
 
@@ -256,9 +306,9 @@ export async function autoSettle(request: SettleRequest): Promise<SettleResult> 
         dealId: request.dealId,
         participants: request.participants,
         bankPayout: {
-          method: "ACH_Direct",
+          method: "Stripe_Connect_Transfer",
           status: "Initiated",
-          estimatedArrival: "1-2 business days",
+          estimatedArrival: "Instant via Stripe Connect",
           descriptor: "3C ONYX PAYOUT",
         },
       },
@@ -276,7 +326,7 @@ export async function autoSettle(request: SettleRequest): Promise<SettleResult> 
       platformFeeUsd: platformFee.toFixed(4),
       netAmountUsd: netAmount.toFixed(4),
       status: "Settled",
-      settlementMethod: "ach_plaid",
+      settlementMethod: "stripe_connect",
       region: "US",
       jurisdiction: "US-RI",
       settledAt: new Date(),
@@ -398,7 +448,7 @@ export async function autoSettle(request: SettleRequest): Promise<SettleResult> 
             sourceChannel: request.sourceChannel,
             businessName: request.businessName,
             bankPayout: {
-              method: "ACH_Direct",
+              method: "Stripe_Connect_Transfer",
               status: "Initiated",
               descriptor: "3C ONYX SPLIT",
             },
@@ -435,9 +485,9 @@ export async function autoSettle(request: SettleRequest): Promise<SettleResult> 
       netAmount,
       proofHash,
       bankPayoutStatus: "Initiated",
-      bankPayoutMethod: "ACH via Plaid — direct to linked bank account",
-      estimatedArrival: "1-2 business days",
-      message: `$${netAmount.toFixed(2)} sent to bank account (3C ONYX PAYOUT). Platform fee: $${platformFee.toFixed(2)}.`,
+      bankPayoutMethod: "Stripe Connect Transfer — direct to connected account",
+      estimatedArrival: "Instant via Stripe Connect",
+      message: `$${netAmount.toFixed(2)} transferred via Stripe Connect (3C ONYX PAYOUT). Platform fee: $${platformFee.toFixed(2)}.`,
     };
   } catch (error) {
     logger.error({ error, request: { ...request, metadata: undefined } }, "[auto-settle] Settlement failed");
@@ -452,7 +502,7 @@ export async function autoSettle(request: SettleRequest): Promise<SettleResult> 
       netAmount,
       proofHash,
       bankPayoutStatus: "Failed",
-      bankPayoutMethod: "ACH via Plaid",
+      bankPayoutMethod: "Stripe Connect Transfer",
       estimatedArrival: "Retry pending",
       message: "Settlement failed — will retry automatically",
     };
@@ -477,9 +527,9 @@ export function getAutoSettleStatus() {
     architect: ARCHITECT,
     sovereignty: SOVEREIGNTY,
     platformFee: `${PLATFORM_FEE_PCT * 100}%`,
-    payoutMethod: "ACH via Plaid — direct to linked bank account",
+    payoutMethod: "Stripe Connect Transfer — direct to connected account",
     bankDescriptor: "3C ONYX PAYOUT",
-    estimatedArrival: "1-2 business days",
+    estimatedArrival: "Instant via Stripe Connect",
     supportedTransactionTypes: [
       "Deal_Closed", "Service_Completed", "Parts_Order", "Logistics_Delivery",
       "Aftermarket_Install", "Insurance_Bound", "Warranty_Claim", "Inspection_Completed",
@@ -498,8 +548,8 @@ export function getAutoSettleStatus() {
       step1: "Transaction completes on any channel (Maps, SEMA, Appexx, QR, WhatsApp, Walk-in...)",
       step2: "Auto-Settle calculates 3% platform fee automatically",
       step3: "Net amount credited to business's ONYX Wallet instantly",
-      step4: "ACH payout initiated to their linked Plaid bank account",
-      step5: "Money lands in their checking account — descriptor: '3C ONYX PAYOUT'",
+      step4: "Stripe Connect transfer initiated to their connected account",
+      step5: "Money lands instantly via Stripe — descriptor: '3C ONYX PAYOUT'",
       step6: "Every participant in the transaction gets their split automatically",
       step7: "Proof hash recorded on the ONYX ledger — immutable, auditable, sovereign",
     },

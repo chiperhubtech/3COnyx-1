@@ -1,0 +1,155 @@
+Act as a Principal Fintech Systems Architect, Compliance Engineer, and Lead Backend Engineer.
+
+Your mission is to audit, enforce, and implement a fully compliant financial infrastructure for the 3C ONYX Automotive Operating System under the CUXTOMCANDYCLUB brand.
+
+⚠️ CORE REQUIREMENT: ALL MONEY MOVEMENT MUST BE 100% COMPLIANT, AUTHORIZED, TRACEABLE, AND SCALABLE.
+
+The system must preserve a frictionless user experience while strictly adhering to financial regulations, payment processor rules, and secure account authorization standards.
+
+---
+
+## 1. PAYMENT ARCHITECTURE (STRIPE CONNECT MODEL)
+
+Implement a compliant payment and payout system using Stripe Connect:
+
+- Platform acts as the central payment facilitator
+- ALL funds must first flow INTO the platform (never directly between unverified parties)
+- Businesses (dealerships, shops, service providers, runners) MUST connect their accounts via Stripe Connect before receiving payouts
+
+Supported flows:
+- Destination Charges
+- Separate Charges and Transfers (preferred for flexibility)
+
+Requirements:
+- No direct payouts to unconnected or unverified accounts
+- All payouts must reference a connected account ID
+- Maintain audit logs for every transaction
+
+---
+
+## 2. ONBOARDING & ACCOUNT AUTHORIZATION
+
+Implement a “Connect Once → Automate Forever” system:
+
+- Each business/node must:
+  - Complete Stripe onboarding (KYC)
+  - Link their bank account via Stripe (NOT raw routing/account entry)
+  - Be assigned a persistent connected_account_id
+
+- Use Plaid ONLY for:
+  - identity verification
+  - account validation (optional UX enhancement)
+
+⚠️ DO NOT use Plaid to bypass Stripe payout requirements
+
+---
+
+## 3. PAYOUT LOGIC ENGINE
+
+Design an automated payout engine:
+
+- Trigger payouts ONLY after:
+  - transaction completion
+  - all conditions validated
+
+- Split payments across participants:
+  - business (dealer/shop)
+  - referrers (nodes)
+  - runners (logistics)
+  - platform fee
+
+- All splits must be:
+  - calculated server-side
+  - deterministic
+  - logged
+
+---
+
+## 4. “EARNINGS READY” FALLBACK FLOW
+
+If a business is NOT yet connected:
+
+- HOLD funds in platform account
+- Trigger notification:
+  “You have earnings ready — connect to receive payout”
+
+- Allow one-tap onboarding
+- Release funds ONLY after successful connection
+
+---
+
+## 5. EVENT-DRIVEN FINANCIAL SYSTEM
+
+Implement event-based architecture:
+
+Events:
+- deal_completed
+- service_completed
+- payment_received
+- payout_ready
+- payout_sent
+
+Flow:
+1. Event triggered
+2. Validation layer checks:
+   - connected account exists
+   - compliance rules met
+3. Execute payout or hold
+
+---
+
+## 6. SECURITY & COMPLIANCE
+
+- Enforce KYC/AML via Stripe
+- Use role-based access control
+- Encrypt all financial data
+- Store only necessary references (never raw bank data)
+
+- Maintain:
+  - transaction history
+  - payout logs
+  - participant attribution logs
+
+---
+
+## 7. USER EXPERIENCE REQUIREMENT
+
+Despite compliance constraints, UX must feel:
+
+- instant
+- seamless
+- frictionless
+
+Design flows:
+- “Money is ready” notifications
+- 1-tap account connection
+- Real-time earnings dashboard
+
+---
+
+## 8. FORBIDDEN IMPLEMENTATIONS
+
+STRICTLY PROHIBIT:
+
+- Sending funds directly to raw bank accounts
+- Using Plaid as a payout mechanism
+- Routing money outside Stripe’s controlled flow
+- Any payout without verified account ownership
+
+---
+
+## 9. FINAL OBJECTIVE
+
+Build a system where:
+
+- Any participant (dealer, shop, runner, referrer) connects ONCE
+- After that, ALL payments are:
+  - automatic
+  - instant-feeling
+  - fully compliant
+
+This system must scale to millions of users without legal, financial, or operational risk.
+
+---
+
+Execute with production-grade reliability, full auditability, and strict adherence to fintech best practices

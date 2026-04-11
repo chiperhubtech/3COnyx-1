@@ -123,6 +123,17 @@ async function startServer() {
       }, "[genesis] C-Suite AI Agent Engine — 7 EXECUTIVE AGENTS ARMED");
     }).catch(err => logger.warn({ err: (err as Error).message }, "[genesis] C-Suite Agent Engine init deferred"));
 
+    import("./lib/fintechComplianceGuard").then(mod => {
+      mod.fintechGuard.genesis();
+      logger.info({
+        protocol: "Fintech Compliance Guard",
+        enforcement: "Stripe-Only Payouts",
+        earningsHold: "ACTIVE",
+        forbiddenMethods: "BLOCKED",
+        architect: "Ronald Antonio Cadet",
+      }, "[genesis] Fintech Compliance Guard — PAYOUT VALIDATION ARMED");
+    }).catch(err => logger.warn({ err: (err as Error).message }, "[genesis] Fintech Compliance Guard init deferred"));
+
     warmSecrets([...CRITICAL_SECRETS]).catch(err =>
       logger.warn({ err: (err as Error).message }, "[startup] Secrets warm skipped")
     );

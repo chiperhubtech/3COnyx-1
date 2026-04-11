@@ -337,7 +337,7 @@ function AlertsPanel({ alerts, onAck }: { alerts: Alert[]; onAck: (id: string) =
 }
 
 // ─── Main Page ─────────────────────────────────────────────────────────────────
-type Tab = "overview" | "missions" | "killswitch" | "alerts" | "hectocorn" | "intelligence" | "c-suite";
+type Tab = "overview" | "missions" | "killswitch" | "alerts" | "hectocorn" | "intelligence" | "c-suite" | "fintech";
 
 interface BehavioralStatus {
   engineVersion: string;
@@ -538,6 +538,13 @@ export default function CommandCenter() {
     refetchInterval: 10_000,
   });
 
+  const { data: fintechData } = useQuery<any>({
+    queryKey: ["fintech-dashboard"],
+    queryFn: () => fetch("/api/fintech/dashboard", { headers: { "Content-Type": "application/json" } }).then(r => r.ok ? r.json() : null).catch(() => null),
+    enabled: tab === "fintech",
+    refetchInterval: 10_000,
+  });
+
   const TABS: { id: Tab; label: string; badge?: number }[] = [
     { id: "overview",      label: "Overview" },
     { id: "intelligence",  label: "Intelligence" },
@@ -546,6 +553,7 @@ export default function CommandCenter() {
     { id: "alerts",        label: "Alerts",      badge: unackedAlerts.length },
     { id: "hectocorn",     label: "Hectocorn" },
     { id: "c-suite",       label: "C-Suite AI" },
+    { id: "fintech",       label: "Fintech Guard" },
   ];
 
   const kColor = pulse
@@ -1625,6 +1633,125 @@ export default function CommandCenter() {
                 Self-Learning Engine. The system matures from INITIALIZING to SOVEREIGN
                 as it accumulates operational intelligence. Bootstrap to billion nodes
                 with under 10 people — the AI runs the company.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {tab === "fintech" && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3 text-center">
+                <p className="text-[10px] text-emerald-400/60 font-bold tracking-wider mb-1">VALIDATIONS</p>
+                <p className="text-xl font-black text-emerald-400">{fintechData?.totalValidations ?? 0}</p>
+              </div>
+              <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-3 text-center">
+                <p className="text-[10px] text-red-400/60 font-bold tracking-wider mb-1">BLOCKED</p>
+                <p className="text-xl font-black text-red-400">{fintechData?.totalBlocked ?? 0}</p>
+              </div>
+              <div className="rounded-xl border border-[#C9A85D]/20 bg-[#C9A85D]/5 p-3 text-center">
+                <p className="text-[10px] text-[#C9A85D]/60 font-bold tracking-wider mb-1">RELEASED</p>
+                <p className="text-xl font-black text-[#C9A85D]">{fintechData?.totalReleased ?? 0}</p>
+              </div>
+              <div className="rounded-xl border border-[#FF2D9A]/20 bg-[#FF2D9A]/5 p-3 text-center">
+                <p className="text-[10px] text-[#FF2D9A]/60 font-bold tracking-wider mb-1">HELD USD</p>
+                <p className="text-xl font-black text-[#FF2D9A]">${fintechData?.totalHeldAmountUsd?.toFixed(2) ?? "0.00"}</p>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-emerald-500/10 bg-[#0A0A0F] p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Shield className="w-4 h-4 text-emerald-400" />
+                <p className="text-sm font-bold text-white">Payout Enforcement</p>
+                <span className="ml-auto px-2 py-0.5 rounded-full bg-emerald-500/20 text-[9px] font-black text-emerald-400 tracking-wider">
+                  {fintechData?.status ?? "ARMED"}
+                </span>
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="text-white/40">Allowed Methods</span>
+                  <span className="text-emerald-400 font-mono text-[10px]">
+                    {(fintechData?.allowedPayoutMethods ?? []).join(" · ")}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="text-white/40">Block Rate</span>
+                  <span className="text-white font-mono">{fintechData?.blockRate ?? 0}%</span>
+                </div>
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="text-white/40">Held Earnings</span>
+                  <span className="text-[#FF2D9A] font-mono">{fintechData?.totalHeldEarnings ?? 0}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-red-500/10 bg-[#0A0A0F] p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Lock className="w-4 h-4 text-red-400" />
+                <p className="text-sm font-bold text-white">Forbidden Patterns</p>
+              </div>
+              <div className="grid grid-cols-1 gap-1.5">
+                {(fintechData?.forbiddenPatterns ?? []).map((p: string) => (
+                  <div key={p} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-500/5 border border-red-500/10">
+                    <XCircle className="w-3 h-3 text-red-400 shrink-0" />
+                    <span className="text-[10px] font-mono text-red-300">{p}</span>
+                    <span className="ml-auto text-[9px] text-red-400/60 font-bold">BLOCKED</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {fintechData?.heldByReason && Object.keys(fintechData.heldByReason).length > 0 && (
+              <div className="rounded-xl border border-[#C9A85D]/10 bg-[#0A0A0F] p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <AlertTriangle className="w-4 h-4 text-[#C9A85D]" />
+                  <p className="text-sm font-bold text-white">Held by Reason</p>
+                </div>
+                <div className="space-y-1.5">
+                  {Object.entries(fintechData.heldByReason).map(([reason, count]) => (
+                    <div key={reason} className="flex items-center justify-between px-3 py-1.5 rounded-lg bg-[#C9A85D]/5 border border-[#C9A85D]/10">
+                      <span className="text-[10px] font-mono text-[#C9A85D]">{reason}</span>
+                      <span className="text-[11px] font-bold text-white">{count as number}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {fintechData?.recentAudit && fintechData.recentAudit.length > 0 && (
+              <div className="rounded-xl border border-white/5 bg-[#0A0A0F] p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Activity className="w-4 h-4 text-white/40" />
+                  <p className="text-sm font-bold text-white">Audit Trail</p>
+                </div>
+                <div className="space-y-1">
+                  {fintechData.recentAudit.slice(0, 10).map((a: any, i: number) => (
+                    <div key={i} className="flex items-center gap-3 px-3 py-1.5 rounded-lg bg-white/[0.02]">
+                      <span className="text-[9px] text-white/20 font-mono w-20 shrink-0">{new Date(a.ts).toLocaleTimeString()}</span>
+                      <span className="text-[10px] text-white/50 font-mono">{a.action}</span>
+                      <span className={`ml-auto text-[9px] font-bold ${a.result === "APPROVED" ? "text-emerald-400" : a.result.includes("CONNECT") || a.result.includes("KYC") ? "text-[#FF2D9A]" : "text-white/40"}`}>
+                        {a.result}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="rounded-xl border border-[#C9A85D]/10 bg-[#C9A85D]/[0.02] p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Shield className="w-4 h-4 text-[#C9A85D]" />
+                <p className="text-[10px] font-black text-[#C9A85D]/60 tracking-wider">FINTECH COMPLIANCE MANDATE</p>
+              </div>
+              <p className="text-[11px] text-white/40 leading-5">
+                ALL money movement is 100% compliant, authorized, traceable, and scalable.
+                Payouts flow exclusively through Stripe Connect — raw bank transfers, Plaid payouts,
+                and unverified account distributions are permanently blocked at the code level.
+                When a participant earns but hasn't connected their Stripe account, funds are held
+                in the platform with an "Earnings Ready" notification and one-tap onboarding.
+                Every transaction carries a SHA-256 proof hash. Every payout attempt is validated
+                against KYC status, connected account verification, and fraud scoring before execution.
+                Connect once → automate forever.
               </p>
             </div>
           </div>
