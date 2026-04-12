@@ -88,8 +88,24 @@
     "speakerNotes": ""
   },
   {
-    "id": "a1b2c3d4-7777-4aaa-bbbb-000000000007",
+    "id": "a1b2c3d4-aabb-4aaa-bbbb-000000000a01",
     "position": 12,
+    "filepath": "src/pages/slides/AdoptionSlide.tsx",
+    "title": "Everyone Drives. Everyone Earns.",
+    "description": "Universal adoption: Law enforcement, military, biker clubs, car clubs, sports teams, unions, churches, individuals — how every organization and person benefits.",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-aabb-4aaa-bbbb-000000000a02",
+    "position": 13,
+    "filepath": "src/pages/slides/ResidualSlide.tsx",
+    "title": "Work Once. Get Paid Forever.",
+    "description": "Residual income model: 4 earning tiers from Casual ($1.8K-$6K/yr) to Network Builder ($100K-$300K+/yr). Year 1 vs Year 2 compounding. How attribution chain works.",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-7777-4aaa-bbbb-000000000007",
+    "position": 14,
     "filepath": "src/pages/slides/CapitalSlide.tsx",
     "title": "SBA 7(a) Capital Strategy",
     "description": "Capital request $250K–$1M, allocation breakdown, Phase I/II growth projections, debt coverage ratios",
@@ -97,7 +113,7 @@
   },
   {
     "id": "a1b2c3d4-5555-4aaa-bbbb-000000000005",
-    "position": 13,
+    "position": 15,
     "filepath": "src/pages/slides/CloseSlide.tsx",
     "title": "The Close — The Standard Is Set",
     "description": "Contact info, brand lockup, today → next → endgame trajectory, closing statement",

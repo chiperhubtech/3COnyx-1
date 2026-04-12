@@ -226,7 +226,7 @@ export default function DynastyFoundation() {
             The immutable constitutional layer of 3C ONYX. Not a mission statement. Not a pitch deck. The permanent architecture of a platform designed to be indefinite, bottom-up, unstoppable, and unbreakable for every participant — founding member to the last.
           </p>
           <p className="text-[11px] text-gray-600 font-mono">
-            Founded by Ronald Antonio Cadet · aka Ron3C · CUXTOMCANDYCLUB LLC
+            Founded by RAC3C · CUXTOMCANDYCLUB LLC
           </p>
 
           {/* Core numbers */}
@@ -554,7 +554,7 @@ export default function DynastyFoundation() {
         >
           <Crown className="w-8 h-8 text-[#C9A227] mx-auto mb-4 opacity-80" />
           <p className="text-xs font-black tracking-[0.25em] text-[#C9A227]/60 uppercase mb-2">Founded & Sealed</p>
-          <p className="text-xl font-black text-white mb-1">Ronald Antonio Cadet</p>
+          <p className="text-xl font-black text-white mb-1">RAC3C</p>
           <p className="text-xs text-gray-500 mb-4">aka Ron3C · Founder & Chief Visionary Officer · CUXTOMCANDYCLUB LLC</p>
           <div className="w-24 h-px bg-gradient-to-r from-transparent via-[#C9A227]/40 to-transparent mx-auto mb-4" />
           <p className="text-[11px] text-gray-500 leading-relaxed max-w-md mx-auto">

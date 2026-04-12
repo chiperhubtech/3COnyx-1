@@ -615,7 +615,7 @@ export default function AiModePage() {
           fontSize: 9, color: "rgba(255,255,255,0.15)",
           letterSpacing: "0.1em",
         }}>
-          3C ONYX AI MODE — CUXTOMCANDYCLUB LLC — Architect: Ronald Antonio Cadet
+          3C ONYX AI MODE — CUXTOMCANDYCLUB LLC — Architect: RAC3C
         </div>
       </div>
 

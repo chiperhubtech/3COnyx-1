@@ -2750,7 +2750,7 @@ export default function Home() {
         <p style={{
           fontSize: 10, color: "rgba(255,255,255,0.08)", margin: 0, lineHeight: 1.6, letterSpacing: 0.5,
         }}>
-          3C ONYX · CUXTOMCANDYCLUB LLC · Architect: Ronald Antonio Cadet
+          3C ONYX · CUXTOMCANDYCLUB LLC · Architect: RAC3C
         </p>
       </div>
 

@@ -607,7 +607,7 @@ export default function CommandCenter() {
             </div>
             <div>
               <p className="text-xs font-black text-white tracking-wide uppercase">Founder's Ownership Contract</p>
-              <p className="text-[10px] text-white/40 mt-0.5">Ronald Antonio Cadet · CUXTOMCANDYCLUB LLC · Private — Your Eyes Only</p>
+              <p className="text-[10px] text-white/40 mt-0.5">RAC3C · CUXTOMCANDYCLUB LLC · Private — Your Eyes Only</p>
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">

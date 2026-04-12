@@ -53,7 +53,7 @@ export default function CloseSlide() {
           "<span className="text-primary">Xtraordinary</span> for the ordinary. Lightning doesn't wait. Neither do we. <span className="text-primary">Join us.</span>"
         </p>
         <p className="font-body text-primary" style={{ fontSize: "1.1vw", marginTop: "1.5vh", letterSpacing: "0.15em" }}>
-          Designed, built, and owned exclusively by Ronald Antonio Cadet.
+          Designed, built, and owned exclusively by RAC3C.
         </p>
 
         <div style={{ marginTop: "2.5vh", display: "flex", gap: "3vw", justifyContent: "center", alignItems: "center" }}>
@@ -75,7 +75,7 @@ export default function CloseSlide() {
 
         <div style={{ marginTop: "3vh", display: "flex", gap: "4vw", justifyContent: "center" }}>
           <div style={{ textAlign: "center" }}>
-            <p className="font-body font-semibold text-primary" style={{ fontSize: "1.4vw" }}>Ronald Antonio Cadet</p>
+            <p className="font-body font-semibold text-primary" style={{ fontSize: "1.4vw" }}>RAC3C</p>
             <p className="font-body text-muted" style={{ fontSize: "1vw", marginTop: "0.5vh" }}>CVO / Founder — Sole Architect</p>
           </div>
           <div style={{ width: "1px", height: "5vh" }} className="bg-primary opacity-30" />
@@ -87,7 +87,7 @@ export default function CloseSlide() {
       </div>
       <div className="absolute" style={{ bottom: "3vh", left: "6vw", right: "6vw", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <p className="font-body text-muted" style={{ fontSize: "0.9vw", opacity: 0.5 }}>Confidential — For Authorized Review Only</p>
-        <p className="font-body text-muted" style={{ fontSize: "0.9vw", opacity: 0.5 }}>All IP exclusively owned by Ronald Antonio Cadet — CUXTOMCANDYCLUB LLC — 2026</p>
+        <p className="font-body text-muted" style={{ fontSize: "0.9vw", opacity: 0.5 }}>All IP exclusively owned by RAC3C — CUXTOMCANDYCLUB LLC — 2026</p>
       </div>
     </div>
   );

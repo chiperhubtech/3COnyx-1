@@ -89,7 +89,7 @@ export default function TitleSlide() {
         </div>
       </div>
       <div className="absolute" style={{ right: "6vw", bottom: "5vh" }}>
-        <p className="font-body text-muted" style={{ fontSize: "1.2vw" }}>Ronald Antonio Cadet, CVO / Founder</p>
+        <p className="font-body text-muted" style={{ fontSize: "1.2vw" }}>RAC3C, CVO / Founder</p>
         <p className="font-body text-muted" style={{ fontSize: "1vw", marginTop: "0.5vh", opacity: 0.6 }}>ron@cuxtomcandyclub.com</p>
       </div>
     </div>

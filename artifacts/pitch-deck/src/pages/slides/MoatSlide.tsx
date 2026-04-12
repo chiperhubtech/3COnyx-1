@@ -34,7 +34,7 @@ export default function MoatSlide() {
             <p className="font-display font-semibold text-text" style={{ fontSize: "1.1vw", marginTop: "0.5vh" }}>Sovereign State Machine</p>
             <div style={{ width: "3vw", height: "2px", margin: "1vh 0" }} className="bg-primary opacity-50" />
             <p className="font-body text-muted" style={{ fontSize: "1vw", lineHeight: 1.5 }}>
-              All systems forensically branded — sole property of Ronald Antonio Cadet. Every commit, agent, and protocol traceable to origin.
+              All systems forensically branded — sole property of RAC3C / CUXTOMCANDYCLUB LLC. Every commit, agent, and protocol traceable to origin.
             </p>
           </div>
 
@@ -70,7 +70,7 @@ export default function MoatSlide() {
 
         <div style={{ marginTop: "2vh", padding: "1.8vh 3vw", borderRadius: "0.8vw", textAlign: "center" }} className="bg-surface">
           <p className="font-display font-bold text-text" style={{ fontSize: "1.5vw" }}>
-            "Not a car app. A <span className="text-primary">Protocol for Automotive Value Exchange</span> — designed, built, and owned exclusively by Ronald Antonio Cadet."
+            "Not a car app. A <span className="text-primary">Protocol for Automotive Value Exchange</span> — designed, built, and owned exclusively by RAC3C."
           </p>
         </div>
       </div>

@@ -283,7 +283,7 @@ export default function LegalArmor() {
             The complete IP, corporate, contractual, and regulatory protection architecture of the 3C ONYX platform. Calibrated to the standard of the world's leading corporate law firms — protecting the founder, the entity, and every participant.
           </p>
           <p className="text-[11px] text-gray-600 font-mono">
-            Ronald Antonio Cadet · aka Ron3C · CUXTOMCANDYCLUB LLC · Managing Member
+            RAC3C · CUXTOMCANDYCLUB LLC · Managing Member
           </p>
 
           {/* Tier count */}
