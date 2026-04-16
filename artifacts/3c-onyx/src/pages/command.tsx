@@ -46,6 +46,51 @@ interface Alert {
 
 interface KTrend { day: string; value: number; referrals: number; conversions: number }
 
+interface HectocornTransaction {
+  txnId: string;
+  index: number;
+  timestamp: string;
+  amount: number;
+  splits: {
+    dealer: number;
+    transport: number;
+    platformFee: number;
+    referrerSlice: number;
+    netPlatform: number;
+  };
+  status: string;
+  vehicle: string;
+  region: string;
+  latencyMs: number;
+}
+
+interface HectocornData {
+  title: string;
+  transactions: HectocornTransaction[];
+  allTransactions: HectocornTransaction[];
+  summary: {
+    total: number;
+    settled: number;
+    processing: number;
+    pending: number;
+    totalGMV: number;
+    totalPlatformFee: number;
+    totalReferrerSlice: number;
+    netPlatformRevenue: number;
+    avgDealSize: number;
+    avgLatencyMs: number;
+    successRate: string;
+    projectedAnnualGMV: number;
+    projectedAnnualProfit: number;
+  };
+  velocity: {
+    txnsPerDay: number;
+    gmvPerDay: number;
+    peakRegion: string;
+    peakDay: string;
+  };
+}
+
 interface AgentDirective {
   id: string;
   category: string;
@@ -434,6 +479,7 @@ export default function CommandCenter() {
   const [loading, setLoading] = useState(true);
   const [lastRefresh, setLastRefresh] = useState(Date.now());
   const [storySearch, setStorySearch] = useState("");
+  const [storyFilter, setStoryFilter] = useState<"all" | "featured" | "verified" | "high-earner" | "deep-chain">("all");
   const { toast } = useToast();
 
   const fetchAll = useCallback(async () => {
@@ -489,7 +535,7 @@ export default function CommandCenter() {
   const unresolvedFlagged = flagged.filter((t) => !t.resolvedAt);
   const unackedAlerts = alerts.filter((a) => !a.acked);
 
-  const { data: hectocornData } = useQuery({
+  const { data: hectocornData } = useQuery<HectocornData>({
     queryKey: ["hectocorn"],
     queryFn: () => fetch("/api/command/hectocorn").then(r => r.json()),
     enabled: tab === "hectocorn",
@@ -1569,7 +1615,7 @@ export default function CommandCenter() {
                 {/* Recent transactions */}
                 <p className="text-[9px] font-bold text-white/25 tracking-wider mb-3">RECENT TRANSACTIONS</p>
                 <div className="flex flex-col gap-2">
-                  {(hectocornData.transactions as any[]).map((txn: any) => (
+                  {hectocornData.transactions.map((txn) => (
                     <div key={txn.txnId} className="flex items-center justify-between rounded-xl border border-white/6 bg-white/[0.02] px-4 py-3">
                       <div className="flex items-center gap-3">
                         <span className="text-[9px] font-black text-white/20">{txn.txnId}</span>
@@ -2053,15 +2099,21 @@ export default function CommandCenter() {
         {tab === "success-stories" && (() => {
           const allStories: SuccessStoryCard[] = successStoriesData?.stories ?? [];
           const searchLower = storySearch.toLowerCase();
+          const categoryFiltered = storyFilter === "all" ? allStories
+            : storyFilter === "featured" ? allStories.filter((s) => s.isFeatured)
+            : storyFilter === "verified" ? allStories.filter((s) => s.isVerified)
+            : storyFilter === "high-earner" ? allStories.filter((s) => (s.totalEarnings ?? 0) >= 50000)
+            : storyFilter === "deep-chain" ? allStories.filter((s) => (s.referralChainDepth ?? 0) >= 3)
+            : allStories;
           const filteredStories = searchLower
-            ? allStories.filter((s) =>
+            ? categoryFiltered.filter((s) =>
                 (s.displayName || "").toLowerCase().includes(searchLower) ||
                 (s.currentRole || "").toLowerCase().includes(searchLower) ||
                 (s.location || "").toLowerCase().includes(searchLower) ||
                 (s.headline || "").toLowerCase().includes(searchLower) ||
                 (s.previousJob || "").toLowerCase().includes(searchLower)
               )
-            : allStories;
+            : categoryFiltered;
           return (
           <div className="space-y-5">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -2075,6 +2127,29 @@ export default function CommandCenter() {
                   <p className="text-[9px] font-bold tracking-wider mb-1" style={{ color: `${s.color}99` }}>{s.label}</p>
                   <p className="text-xl font-black" style={{ color: s.color }}>{s.value}</p>
                 </div>
+              ))}
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {([
+                { key: "all" as const, label: "All Stories" },
+                { key: "featured" as const, label: "Featured" },
+                { key: "verified" as const, label: "Verified" },
+                { key: "high-earner" as const, label: "$50K+ Earners" },
+                { key: "deep-chain" as const, label: "Deep Chain (3+)" },
+              ]).map((f) => (
+                <button
+                  key={f.key}
+                  onClick={() => setStoryFilter(f.key)}
+                  className="px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all min-h-[36px]"
+                  style={{
+                    background: storyFilter === f.key ? "#FF2D9A" : "rgba(255,255,255,0.04)",
+                    color: storyFilter === f.key ? "#fff" : "rgba(255,255,255,0.4)",
+                    border: storyFilter === f.key ? "1px solid #FF2D9A" : "1px solid rgba(255,255,255,0.08)",
+                  }}
+                >
+                  {f.label}
+                </button>
               ))}
             </div>
 
@@ -2191,10 +2266,10 @@ export default function CommandCenter() {
 
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
                 {[
-                  { label: "NETWORK NODES",      value: pulse?.missions.active ?? 0,                                                                  icon: "🌐", color: "#C9A85D" },
+                  { label: "NETWORK NODES",      value: pulse ? Object.values(pulse.meshRegions).reduce((s, v) => s + v, 0) : 0,                        icon: "🌐", color: "#C9A85D" },
                   { label: "PLATFORM GMV",        value: pulse ? fmt(pulse.revenue.weekGmv) : "—",                                                    icon: "💰", color: "#10B981" },
                   { label: "K-FACTOR",            value: pulse?.kFactor.current.toFixed(2) ?? "—",                                                    icon: "📈", color: "#FF2D9A" },
-                  { label: "REV / NODE",          value: pulse && pulse.missions.active > 0 ? fmt(Math.round(pulse.revenue.weekGmv * 0.03 / pulse.missions.active)) : "—", icon: "⚡", color: "#7B61FF" },
+                  { label: "REV / NODE",          value: (() => { if (!pulse) return "—"; const nodeCount = Object.values(pulse.meshRegions).reduce((s, v) => s + v, 0); return nodeCount > 0 ? fmt(Math.round(pulse.revenue.weekGmv * 0.03 / nodeCount)) : "—"; })(), icon: "⚡", color: "#7B61FF" },
                   { label: "KILL-SWITCH",         value: unresolvedFlagged.length,                                                                     icon: "🛡️", color: unresolvedFlagged.length > 0 ? "#EF4444" : "#10B981" },
                 ].map((s) => (
                   <div key={s.label} className="rounded-xl border border-white/8 bg-white/[0.02] p-3 min-h-[48px]">
