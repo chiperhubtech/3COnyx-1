@@ -148,6 +148,106 @@ interface SuccessStatsData {
   topEarner: number;
 }
 
+interface InfraMeshService {
+  name: string;
+  status: string;
+  replicas: number;
+  cpu: number;
+  memory: number;
+  rps: number;
+  circuitBreaker: string;
+}
+
+interface InfraMeshData {
+  cluster: { totalNodes: number; totalServices: number; healthyServices: number; totalReplicas: number; totalCPU: number } | null;
+  services: InfraMeshService[];
+}
+
+interface InfraMetricsData {
+  summary: { totalRequests: number; requestRate: number; p95Latency: number; errorRate: number } | null;
+}
+
+interface InfraLogsData {
+  totalLogs: number;
+  aggregation: { logsPerMinute: number; errorRate: number } | null;
+  services: { name: string }[];
+}
+
+interface InfraVaultData {
+  storage: { totalObjects: number; totalSizeFormatted: string; bucketCount: number; cacheHitRate: number } | null;
+}
+
+interface InfraPipelineData {
+  status: string;
+  totalRuns: number;
+  passRate: number;
+  stages: string[];
+  deploymentChecks: { name: string; status: string; details: string }[] | null;
+}
+
+interface LearningAgentProfile {
+  agentId: string;
+  maturityLevel: string;
+}
+
+interface LearningDashboardData {
+  totalCorrections: number;
+  totalInsights: number;
+  networkLearningScore: number;
+  agentProfiles: LearningAgentProfile[];
+}
+
+interface NbaDashboardData {
+  totalActionsGenerated: number;
+  totalActionsAccepted: number;
+  acceptanceRate: number;
+  activeRules: number;
+  actionCategories: string[];
+}
+
+interface CSuiteAgent {
+  id: string;
+  name: string;
+  title: string;
+  color: string;
+  maturity: string;
+  domain: string;
+  totalDirectives: number;
+  acceptanceRate: number;
+  confidenceCalibration: string;
+  kpis: string[];
+  recentDirectives: AgentDirective[];
+}
+
+interface CSuiteDashboardData {
+  status: string;
+  totalDirectivesIssued: number;
+  totalDirectivesAccepted: number;
+  overallAcceptanceRate: number;
+  activeRules: number;
+  agents: CSuiteAgent[];
+}
+
+interface FintechAuditEntry {
+  ts: string;
+  action: string;
+  result: string;
+}
+
+interface FintechDashboardData {
+  totalValidations: number;
+  totalBlocked: number;
+  totalReleased: number;
+  totalHeldAmountUsd: number;
+  status: string;
+  allowedPayoutMethods: string[];
+  blockRate: number;
+  totalHeldEarnings: number;
+  forbiddenPatterns: string[];
+  heldByReason: Record<string, number>;
+  recentAudit: FintechAuditEntry[];
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const fmt = (n: number) => n >= 1_000_000
   ? `$${(n / 1_000_000).toFixed(2)}M`
@@ -591,56 +691,56 @@ export default function CommandCenter() {
     refetchInterval: 60_000,
   });
 
-  const { data: infraMeshData } = useQuery<any>({
+  const { data: infraMeshData } = useQuery<InfraMeshData | null>({
     queryKey: ["infra-mesh"],
     queryFn: () => fetch("/api/infrastructure/mesh", { headers: { "Content-Type": "application/json" } }).then(r => r.ok ? r.json() : null).catch(() => null),
     enabled: tab === "intelligence",
     refetchInterval: 15_000,
   });
 
-  const { data: infraMetricsData } = useQuery<any>({
+  const { data: infraMetricsData } = useQuery<InfraMetricsData | null>({
     queryKey: ["infra-metrics"],
     queryFn: () => fetch("/api/infrastructure/metrics", { headers: { "Content-Type": "application/json" } }).then(r => r.ok ? r.json() : null).catch(() => null),
     enabled: tab === "intelligence",
     refetchInterval: 10_000,
   });
 
-  const { data: infraLogsData } = useQuery<any>({
+  const { data: infraLogsData } = useQuery<InfraLogsData | null>({
     queryKey: ["infra-logs-dashboard"],
     queryFn: () => fetch("/api/infrastructure/logs/dashboard", { headers: { "Content-Type": "application/json" } }).then(r => r.ok ? r.json() : null).catch(() => null),
     enabled: tab === "intelligence",
     refetchInterval: 15_000,
   });
 
-  const { data: infraVaultData } = useQuery<any>({
+  const { data: infraVaultData } = useQuery<InfraVaultData | null>({
     queryKey: ["infra-vault"],
     queryFn: () => fetch("/api/infrastructure/vault", { headers: { "Content-Type": "application/json" } }).then(r => r.ok ? r.json() : null).catch(() => null),
     enabled: tab === "intelligence",
     refetchInterval: 30_000,
   });
 
-  const { data: infraPipelineData } = useQuery<any>({
+  const { data: infraPipelineData } = useQuery<InfraPipelineData | null>({
     queryKey: ["infra-pipeline"],
     queryFn: () => fetch("/api/infrastructure/pipeline", { headers: { "Content-Type": "application/json" } }).then(r => r.ok ? r.json() : null).catch(() => null),
     enabled: tab === "intelligence",
     refetchInterval: 30_000,
   });
 
-  const { data: learningData } = useQuery<any>({
+  const { data: learningData } = useQuery<LearningDashboardData | null>({
     queryKey: ["self-learning"],
     queryFn: () => fetch("/api/learning/dashboard", { headers: { "Content-Type": "application/json" } }).then(r => r.ok ? r.json() : null).catch(() => null),
     enabled: tab === "intelligence",
     refetchInterval: 15_000,
   });
 
-  const { data: nbaData } = useQuery<any>({
+  const { data: nbaData } = useQuery<NbaDashboardData | null>({
     queryKey: ["nba-dashboard"],
     queryFn: () => fetch("/api/nba/dashboard", { headers: { "Content-Type": "application/json" } }).then(r => r.ok ? r.json() : null).catch(() => null),
     enabled: tab === "intelligence",
     refetchInterval: 15_000,
   });
 
-  const { data: cSuiteData } = useQuery<any>({
+  const { data: cSuiteData } = useQuery<CSuiteDashboardData | null>({
     queryKey: ["c-suite-dashboard"],
     queryFn: () => fetch("/api/c-suite/dashboard", { headers: { "Content-Type": "application/json" } }).then(r => r.ok ? r.json() : null).catch(() => null),
     enabled: tab === "c-suite" || tab === "book-doctrine",
@@ -654,7 +754,7 @@ export default function CommandCenter() {
     refetchInterval: 10_000,
   });
 
-  const { data: fintechData } = useQuery<any>({
+  const { data: fintechData } = useQuery<FintechDashboardData | null>({
     queryKey: ["fintech-dashboard"],
     queryFn: () => fetch("/api/fintech/dashboard", { headers: { "Content-Type": "application/json" } }).then(r => r.ok ? r.json() : null).catch(() => null),
     enabled: tab === "fintech",
@@ -1287,9 +1387,9 @@ export default function CommandCenter() {
                       <span className="text-white/50 font-bold">{learningData?.agentProfiles?.length ?? 0}</span>
                     </div>
                   </div>
-                  {learningData?.agentProfiles?.length > 0 && (
+                  {(learningData?.agentProfiles?.length ?? 0) > 0 && (
                     <div className="mt-3 space-y-1">
-                      {learningData.agentProfiles.slice(0, 4).map((ap: any) => (
+                      {learningData!.agentProfiles.slice(0, 4).map((ap) => (
                         <div key={ap.agentId} className="flex items-center justify-between text-[9px] py-0.5">
                           <span className="text-white/25">{ap.agentId}</span>
                           <span className={`font-bold ${ap.maturityLevel === "MASTER" ? "text-yellow-400" : ap.maturityLevel === "EXPERT" ? "text-emerald-400" : ap.maturityLevel === "COMPETENT" ? "text-cyan-400" : "text-white/30"}`}>{ap.maturityLevel}</span>
@@ -1479,7 +1579,7 @@ export default function CommandCenter() {
                       </tr>
                     </thead>
                     <tbody>
-                      {infraMeshData.services.map((svc: any) => (
+                      {infraMeshData.services.map((svc: { name: string; status: string; replicas: number; cpu: number; memory: number; rps: number; circuitBreaker: string }) => (
                         <tr key={svc.name} className="border-b border-white/[0.03] hover:bg-white/[0.02]">
                           <td className="p-3 text-white/60 font-medium">{svc.name}</td>
                           <td className="p-3 text-center">
@@ -1515,7 +1615,7 @@ export default function CommandCenter() {
                   <p className="text-sm font-semibold text-white">Deployment Readiness</p>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4">
-                  {infraPipelineData.deploymentChecks.map((check: any) => (
+                  {infraPipelineData.deploymentChecks.map((check: { name: string; status: string; details: string }) => (
                     <div key={check.name} className="flex items-start gap-2 p-2 rounded-lg bg-white/[0.02]">
                       <span className={`mt-0.5 w-2 h-2 rounded-full flex-shrink-0 ${check.status === "PASS" ? "bg-emerald-400" : check.status === "WARN" ? "bg-amber-400" : "bg-red-400"}`} />
                       <div>
@@ -1673,7 +1773,7 @@ export default function CommandCenter() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-              {(cSuiteData?.agents || []).map((agent: any) => (
+              {(cSuiteData?.agents || []).map((agent) => (
                 <div
                   key={agent.id}
                   className="rounded-xl border bg-white/[0.02] p-4 transition-all hover:bg-white/[0.04]"
@@ -1856,7 +1956,7 @@ export default function CommandCenter() {
                   <p className="text-sm font-bold text-white">Audit Trail</p>
                 </div>
                 <div className="space-y-1">
-                  {fintechData.recentAudit.slice(0, 10).map((a: any, i: number) => (
+                  {fintechData.recentAudit.slice(0, 10).map((a: { ts: string; action: string; result: string }, i: number) => (
                     <div key={i} className="flex items-center gap-3 px-3 py-1.5 rounded-lg bg-white/[0.02]">
                       <span className="text-[9px] text-white/20 font-mono w-20 shrink-0">{new Date(a.ts).toLocaleTimeString()}</span>
                       <span className="text-[10px] text-white/50 font-mono">{a.action}</span>
@@ -2054,9 +2154,10 @@ export default function CommandCenter() {
               </div>
 
               <div className="divide-y divide-white/5">
-                {liveAgents.map((a: any) => {
+                {liveAgents.map((a) => {
                   const healthColor = a.totalDirectives > 0 ? "#4CAF50" : a.maturity === "INITIALIZING" ? "#FF9800" : a.acceptanceRate < 50 ? "#F44336" : "#4CAF50";
                   const healthLabel = a.totalDirectives > 0 ? "HEALTHY" : a.maturity === "INITIALIZING" ? "INITIALIZING" : a.acceptanceRate < 50 ? "DEGRADED" : "HEALTHY";
+                  const queueDepth = (a.recentDirectives || []).length;
                   const lastRunAgo = a.lastActive ? Math.round((Date.now() - a.lastActive) / 1000) : null;
                   const lastRunLabel = lastRunAgo === null ? "Never" : lastRunAgo < 60 ? `${lastRunAgo}s ago` : lastRunAgo < 3600 ? `${Math.round(lastRunAgo/60)}m ago` : `${Math.round(lastRunAgo/3600)}h ago`;
                   const delegatesTo = CSUITE_IDS.includes(a.id) ? "Sovereign" : a.id === "blitzscale" || a.id === "art-of-war" ? "CEO → Sovereign" : a.id === "lean-startup" ? "CTO → Sovereign" : a.id === "intelligent-investor" ? "CFO → Sovereign" : "COO → Sovereign";
@@ -2069,7 +2170,7 @@ export default function CommandCenter() {
                     </div>
                     <div className="hidden sm:block text-[8px] text-white/20 w-24 truncate">{a.domain?.split(" ").slice(0,2).join(" ") || "—"}</div>
                     <div className="text-[8px] text-white/25 w-20 text-center">{delegatesTo}</div>
-                    <div className="text-[8px] text-white/30 font-mono w-12 text-center">{a.totalDirectives || 0}</div>
+                    <div className="text-[8px] text-white/30 font-mono w-12 text-center" title={`Queue: ${queueDepth} | Total: ${a.totalDirectives || 0}`}>{queueDepth}</div>
                     <div className="text-[8px] text-white/20 w-14 text-right">{lastRunLabel}</div>
                     <div className="text-[7px] font-bold w-16 text-right" style={{ color: healthColor }}>{healthLabel}</div>
                   </div>
