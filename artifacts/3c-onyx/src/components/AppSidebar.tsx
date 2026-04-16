@@ -238,7 +238,7 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
     { label: "Safety Shield",          path: "/safety-shield",  icon: ShieldAlert, description: "Crash detection · SOS · Drive score · Hazard feed", accent: "#EF4444" },
     { label: "Sovereign Ops",          path: "/sovereign-ops",  icon: Infinity,    description: "2 people · 100M members · ONYX runs the rest",      accent: "#C9A227" },
     { label: "WhatsApp Business",      path: "/whatsapp",       icon: MessagesSquare, description: "Platform main number · member confirmations · concierge", accent: "#25D366" },
-    { label: "Dynasty Foundation",     path: "/dynasty-foundation", icon: Crown,      description: "The immutable constitutional layer · Ron3C · CUXTOMCANDYCLUB", accent: "#C9A227" },
+    { label: "Dynasty Foundation",     path: "/dynasty-foundation", icon: Crown,      description: "The immutable constitutional layer · RAC3C · CUXTOMCANDYCLUB", accent: "#C9A227" },
     { label: "Legal Fortress",         path: "/legal/armor",        icon: Scale,      description: "IP · corporate · contractual · regulatory armor — Big Law standard", accent: "#60A5FA" },
     { label: "IP Declaration",         path: "/legal/declaration",  icon: FileText,   description: "Print-ready · attorney-grade · GitHub-ready ownership declaration", accent: "#34D399" },
     { label: t("sidebar.command"),     path: "/command",     icon: Radio,        description: t("sidebar.commandDesc"),     accent: "#EF4444" },

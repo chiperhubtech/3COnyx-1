@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/context/AuthContext";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Pulse {
@@ -362,7 +363,11 @@ interface IntegrationStatus {
 }
 
 
+const SOVEREIGN_USER_ID = 6;
+
 export default function CommandCenter() {
+  const { user } = useAuth();
+  const isSovereign = user?.id === SOVEREIGN_USER_ID;
   const [pulse, setPulse] = useState<Pulse | null>(null);
   const [missions, setMissions] = useState<Mission[]>([]);
   const [flagged, setFlagged] = useState<FlaggedTxn[]>([]);
@@ -371,6 +376,7 @@ export default function CommandCenter() {
   const [tab, setTab] = useState<Tab>("overview");
   const [loading, setLoading] = useState(true);
   const [lastRefresh, setLastRefresh] = useState(Date.now());
+  const [storySearch, setStorySearch] = useState("");
   const { toast } = useToast();
 
   const fetchAll = useCallback(async () => {
@@ -534,7 +540,14 @@ export default function CommandCenter() {
   const { data: cSuiteData } = useQuery<any>({
     queryKey: ["c-suite-dashboard"],
     queryFn: () => fetch("/api/c-suite/dashboard", { headers: { "Content-Type": "application/json" } }).then(r => r.ok ? r.json() : null).catch(() => null),
-    enabled: tab === "c-suite",
+    enabled: tab === "c-suite" || tab === "book-doctrine",
+    refetchInterval: 10_000,
+  });
+
+  const { data: agentStatusData } = useQuery<any>({
+    queryKey: ["c-suite-status"],
+    queryFn: () => fetch("/api/c-suite/status").then(r => r.ok ? r.json() : null).catch(() => null),
+    enabled: tab === "book-doctrine" || tab === "c-suite",
     refetchInterval: 10_000,
   });
 
@@ -568,7 +581,7 @@ export default function CommandCenter() {
     { id: "book-doctrine",     label: "Book Doctrine" },
     { id: "success-stories",   label: "Success Stories" },
     { id: "fintech",           label: "Fintech Guard" },
-    { id: "founder-dashboard", label: "Founder HQ" },
+    ...(isSovereign ? [{ id: "founder-dashboard" as Tab, label: "Founder HQ" }] : []),
   ];
 
   const kColor = pulse
@@ -971,7 +984,7 @@ export default function CommandCenter() {
                   <p className="text-[9px] text-white/20 mb-2">Grant access to staff members from the Staff Management panel. Intelligence data is restricted to Sovereign and authorized personnel only.</p>
                   <div className="flex items-center gap-1.5">
                     <UserCheck className="w-3 h-3 text-emerald-400" />
-                    <span className="text-[10px] text-emerald-400 font-bold">Ron Cadet — Full Access</span>
+                    <span className="text-[10px] text-emerald-400 font-bold">RAC3C — Full Access</span>
                   </div>
                 </div>
               </div>
@@ -1772,8 +1785,28 @@ export default function CommandCenter() {
           </div>
         )}
 
-        {/* ── BOOK DOCTRINE TAB ─────────────────────────────────────── */}
-        {tab === "book-doctrine" && (
+        {/* ── BOOK DOCTRINE TAB (Live Data from C-Suite Engine) ──── */}
+        {tab === "book-doctrine" && (() => {
+          const DOCTRINE_BOOK_MAP: Record<string, { book: string; icon: string }> = {
+            "blitzscale":          { book: "Blitzscaling — Reid Hoffman",               icon: "🚀" },
+            "lean-startup":        { book: "The Lean Startup — Eric Ries",              icon: "🔬" },
+            "greatest-salesman":   { book: "Greatest Salesman — Og Mandino",            icon: "📜" },
+            "trillion-coach":      { book: "Trillion Dollar Coach — Schmidt/Eagle",     icon: "🏆" },
+            "twelve-week":         { book: "The 12 Week Year — Moran/Lennington",       icon: "⏱️" },
+            "katamari":            { book: "Katamari Philosophy — Compound Growth",     icon: "🔮" },
+            "intelligent-investor":{ book: "The Intelligent Investor — Ben Graham",     icon: "📊" },
+            "blue-ocean":          { book: "Blue Ocean Strategy — Kim/Mauborgne",       icon: "🌊" },
+            "art-of-war":          { book: "The Art of War — Sun Tzu",                  icon: "⚔️" },
+            "rich-dad":            { book: "Rich Dad Poor Dad — Kiyosaki",              icon: "💎" },
+            "think-grow-rich":     { book: "Think and Grow Rich — Napoleon Hill",       icon: "🔥" },
+          };
+          const CSUITE_IDS = ["ceo","cto","cfo","coo","content-social","business-dev","legal-compliance"];
+          const liveAgents = (agentStatusData?.agents || []) as any[];
+          const doctrineAgents = liveAgents.filter((a: any) => !CSUITE_IDS.includes(a.id));
+          const totalDirectives = doctrineAgents.reduce((s: number, a: any) => s + (a.totalDirectives || 0), 0);
+          const avgAcceptance = doctrineAgents.length > 0 ? doctrineAgents.reduce((s: number, a: any) => s + (a.acceptanceRate || 0), 0) / doctrineAgents.length : 0;
+
+          return (
           <div className="space-y-5">
             <div className="rounded-2xl border border-[#FF8F00]/20 bg-[#FF8F00]/[0.03] p-5">
               <div className="flex items-center gap-3 mb-4">
@@ -1782,46 +1815,50 @@ export default function CommandCenter() {
                 </div>
                 <div>
                   <p className="text-sm font-bold text-white">Book Doctrine AI Engine</p>
-                  <p className="text-[9px] text-white/30">11 Doctrine Agents — Strategic Intelligence from History's Greatest Builders</p>
+                  <p className="text-[9px] text-white/30">{doctrineAgents.length} Doctrine Agents — Live from Sovereign Mesh</p>
                 </div>
-                <span className="ml-auto text-[9px] font-black px-2.5 py-1 rounded-full bg-[#FF8F00]/20 text-[#FF8F00]">ARMED</span>
+                <span className="ml-auto text-[9px] font-black px-2.5 py-1 rounded-full bg-[#FF8F00]/20 text-[#FF8F00]">{agentStatusData?.status || "LOADING"}</span>
               </div>
-              <p className="text-[11px] text-white/35 leading-5">
-                Each agent embodies the core principles of a business classic. They analyze platform context
-                and issue directives — from Blitzscaling velocity to Art of War competitive positioning.
-                Together with the 7 C-Suite agents, they form the 18-Agent Sovereign Mesh.
-              </p>
+              <div className="grid grid-cols-3 gap-3">
+                <div className="rounded-lg bg-white/[0.03] p-3 text-center">
+                  <p className="text-lg font-black text-[#FF8F00]">{doctrineAgents.length}</p>
+                  <p className="text-[8px] text-white/25">Doctrine Agents</p>
+                </div>
+                <div className="rounded-lg bg-white/[0.03] p-3 text-center">
+                  <p className="text-lg font-black text-emerald-400">{totalDirectives}</p>
+                  <p className="text-[8px] text-white/25">Directives Issued</p>
+                </div>
+                <div className="rounded-lg bg-white/[0.03] p-3 text-center">
+                  <p className="text-lg font-black text-cyan-400">{avgAcceptance.toFixed(0)}%</p>
+                  <p className="text-[8px] text-white/25">Avg Acceptance</p>
+                </div>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {[
-                { id: "blitzscale",          name: "BLITZSCALE-1",  title: "Blitzscaling Strategist",       domain: "Hypergrowth Velocity",            book: "Blitzscaling — Reid Hoffman",               color: "#FF6B00", icon: "🚀", kpis: ["Growth Rate", "Time to Market", "Network Lock-in %"] },
-                { id: "lean-startup",        name: "LEAN-1",        title: "Lean Innovation Officer",       domain: "Build-Measure-Learn",             book: "The Lean Startup — Eric Ries",              color: "#2196F3", icon: "🔬", kpis: ["Experiment Velocity", "Learning Rate", "Pivot Signals"] },
-                { id: "greatest-salesman",   name: "SCROLLS-1",     title: "Sales Doctrine Commander",      domain: "Persistence & Emotional Mastery", book: "Greatest Salesman — Og Mandino",            color: "#FFD700", icon: "📜", kpis: ["Daily Actions", "Follow-up Streak", "Persistence Score"] },
-                { id: "trillion-coach",      name: "COACH-1",       title: "Team Excellence Coach",         domain: "Team-First Leadership",           book: "Trillion Dollar Coach — Schmidt/Eagle",     color: "#9C27B0", icon: "🏆", kpis: ["Team Trust", "Coaching Frequency", "Candor Index"] },
-                { id: "twelve-week",         name: "SPRINT-1",      title: "Execution Sprint Commander",    domain: "12-Week Execution Cycles",        book: "The 12 Week Year — Moran/Lennington",       color: "#00BCD4", icon: "⏱️", kpis: ["Execution Score", "Sprint %", "Leading Indicators"] },
-                { id: "katamari",            name: "KATAMARI-1",    title: "Compound Absorption Engine",    domain: "Exponential Mass Accumulation",   book: "Katamari Philosophy — Compound Growth",     color: "#E91E63", icon: "🔮", kpis: ["Ball Mass", "Absorption Rate", "Momentum Velocity"] },
-                { id: "intelligent-investor",name: "GRAHAM-1",      title: "Value Intelligence Analyst",    domain: "Margin of Safety & Intrinsic Value", book: "The Intelligent Investor — Ben Graham",  color: "#1B5E20", icon: "📊", kpis: ["Margin of Safety %", "Risk-Adjusted Return", "Value Score"] },
-                { id: "blue-ocean",          name: "OCEAN-1",       title: "Blue Ocean Strategist",         domain: "Uncontested Market Creation",     book: "Blue Ocean Strategy — Kim/Mauborgne",       color: "#0277BD", icon: "🌊", kpis: ["Blue Ocean Index", "Value Innovation", "New Demand"] },
-                { id: "art-of-war",          name: "SUNZI-1",       title: "Strategic Warfare Commander",   domain: "Competitive Terrain Mastery",     book: "The Art of War — Sun Tzu",                  color: "#B71C1C", icon: "⚔️", kpis: ["Terrain Awareness", "Competitive Position", "Strategic Tempo"] },
-                { id: "rich-dad",            name: "KIYOSAKI-1",    title: "Asset Intelligence Officer",    domain: "Blue-Collar Wealth Building",     book: "Rich Dad Poor Dad — Kiyosaki",              color: "#6A1B9A", icon: "💎", kpis: ["Asset Builders %", "Passive Income Ratio", "Quadrant Migration"] },
-                { id: "think-grow-rich",     name: "HILL-1",        title: "Mastermind & Desire Engine",    domain: "Definite Purpose & Mastermind",   book: "Think and Grow Rich — Napoleon Hill",       color: "#FF8F00", icon: "🔥", kpis: ["Purpose Clarity", "Burning Desire", "Persistence Score"] },
-              ].map((agent) => (
+              {doctrineAgents.map((agent: any) => {
+                const bookInfo = DOCTRINE_BOOK_MAP[agent.id] || { book: agent.domain, icon: "📖" };
+                const healthColor = agent.maturity === "AUTONOMOUS" ? "#4CAF50" : agent.maturity === "SCALING" ? "#00BCD4" : agent.maturity === "CALIBRATING" ? "#FF9800" : "#FFD700";
+                return (
                 <div
                   key={agent.id}
                   className="rounded-xl border bg-white/[0.02] p-4 transition-all hover:bg-white/[0.04]"
-                  style={{ borderColor: `${agent.color}22` }}
+                  style={{ borderColor: `${healthColor}22` }}
                 >
                   <div className="flex items-center gap-2 mb-3">
                     <div
                       className="w-7 h-7 rounded-md flex items-center justify-center text-sm"
-                      style={{ backgroundColor: `${agent.color}20` }}
+                      style={{ backgroundColor: `${healthColor}20` }}
                     >
-                      {agent.icon}
+                      {bookInfo.icon}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-[10px] font-bold text-white truncate">{agent.name}</p>
                       <p className="text-[8px] text-white/25 truncate">{agent.title}</p>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: healthColor }} />
+                      <span className="text-[7px] font-bold" style={{ color: healthColor }}>{agent.maturity}</span>
                     </div>
                   </div>
 
@@ -1832,63 +1869,55 @@ export default function CommandCenter() {
                     </div>
                     <div className="flex justify-between text-[9px]">
                       <span className="text-white/25">Source</span>
-                      <span className="font-bold truncate ml-2 text-right" style={{ color: agent.color, maxWidth: "65%" }}>{agent.book}</span>
+                      <span className="font-bold truncate ml-2 text-right" style={{ color: healthColor, maxWidth: "65%" }}>{bookInfo.book}</span>
+                    </div>
+                    <div className="flex justify-between text-[9px]">
+                      <span className="text-white/25">Directives</span>
+                      <span className="font-bold text-white/60">{agent.totalDirectives || 0}</span>
+                    </div>
+                    <div className="flex justify-between text-[9px]">
+                      <span className="text-white/25">Acceptance</span>
+                      <span className="font-bold text-emerald-400">{(agent.acceptanceRate || 0).toFixed(0)}%</span>
                     </div>
                     <div className="flex justify-between text-[9px]">
                       <span className="text-white/25">Status</span>
-                      <span className="font-bold text-emerald-400">ARMED</span>
+                      <span className="font-bold" style={{ color: healthColor }}>{agent.status}</span>
                     </div>
                   </div>
 
                   <div className="border-t border-white/5 pt-2">
                     <p className="text-[8px] text-white/20 font-bold tracking-wider mb-1">KPIs</p>
                     <div className="flex flex-wrap gap-1">
-                      {agent.kpis.map((kpi) => (
+                      {(agent.kpis || []).map((kpi: string) => (
                         <span
                           key={kpi}
                           className="text-[7px] px-1 py-0.5 rounded"
-                          style={{ backgroundColor: `${agent.color}15`, color: `${agent.color}AA` }}
+                          style={{ backgroundColor: `${healthColor}15`, color: `${healthColor}AA` }}
                         >{kpi}</span>
                       ))}
                     </div>
                   </div>
                 </div>
-              ))}
+              )})}
             </div>
 
             <div className="rounded-2xl border border-white/8 bg-white/[0.02] overflow-hidden">
               <div className="p-4 border-b border-white/6 flex items-center gap-2">
                 <Activity className="w-4 h-4 text-[#FF8F00]" />
-                <p className="text-sm font-semibold text-white">18-Agent Sovereign Mesh</p>
-                <span className="ml-auto text-[9px] text-white/25">7 C-Suite + 11 Doctrine = Full Autonomous Engine</span>
+                <p className="text-sm font-semibold text-white">18-Agent Sovereign Mesh — Live Health</p>
+                <span className="ml-auto text-[9px] text-white/25">{agentStatusData?.totalAgents || 0} agents · {agentStatusData?.activeRules || 0} rules</span>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-px bg-white/5">
-                {[
-                  { name: "SOVEREIGN-1",  role: "CEO",        color: "#C9A85D" },
-                  { name: "ARCHITECT-1",  role: "CTO",        color: "#00E5FF" },
-                  { name: "TREASURY-1",   role: "CFO",        color: "#4CAF50" },
-                  { name: "OPERATIONS-1", role: "COO",        color: "#FF9800" },
-                  { name: "SIGNAL-1",     role: "Content",    color: "#FF2D9A" },
-                  { name: "EXPANSION-1",  role: "BD",         color: "#7B61FF" },
-                  { name: "GUARDIAN-1",    role: "Legal",      color: "#F44336" },
-                  { name: "BLITZSCALE-1", role: "Velocity",   color: "#FF6B00" },
-                  { name: "LEAN-1",       role: "Innovation", color: "#2196F3" },
-                  { name: "SCROLLS-1",    role: "Sales",      color: "#FFD700" },
-                  { name: "COACH-1",      role: "Coaching",   color: "#9C27B0" },
-                  { name: "SPRINT-1",     role: "Execution",  color: "#00BCD4" },
-                  { name: "KATAMARI-1",   role: "Compound",   color: "#E91E63" },
-                  { name: "GRAHAM-1",     role: "Value",      color: "#1B5E20" },
-                  { name: "OCEAN-1",      role: "Blue Ocean", color: "#0277BD" },
-                  { name: "SUNZI-1",      role: "Strategy",   color: "#B71C1C" },
-                  { name: "KIYOSAKI-1",   role: "Assets",     color: "#6A1B9A" },
-                  { name: "HILL-1",       role: "Mastermind", color: "#FF8F00" },
-                ].map((a) => (
+                {liveAgents.map((a: any) => {
+                  const hc = a.maturity === "AUTONOMOUS" ? "#4CAF50" : a.maturity === "SCALING" ? "#00BCD4" : a.maturity === "CALIBRATING" ? "#FF9800" : "#FFD700";
+                  return (
                   <div key={a.name} className="p-3 text-center bg-[#0d0d10]">
-                    <div className="w-2 h-2 rounded-full mx-auto mb-1.5 animate-pulse" style={{ backgroundColor: a.color }} />
+                    <div className="w-2 h-2 rounded-full mx-auto mb-1.5 animate-pulse" style={{ backgroundColor: hc }} />
                     <p className="text-[9px] font-bold text-white truncate">{a.name}</p>
-                    <p className="text-[8px] text-white/20">{a.role}</p>
+                    <p className="text-[8px] text-white/20">{a.domain?.split(" ")[0] || a.title?.split(" ")[0]}</p>
+                    <p className="text-[7px] mt-0.5" style={{ color: hc }}>{a.maturity}</p>
                   </div>
-                ))}
+                )})}
               </div>
             </div>
 
@@ -1908,10 +1937,22 @@ export default function CommandCenter() {
               </p>
             </div>
           </div>
-        )}
+        );})()}
 
         {/* ── SUCCESS STORIES TAB ───────────────────────────────────── */}
-        {tab === "success-stories" && (
+        {tab === "success-stories" && (() => {
+          const allStories = (successStoriesData?.stories ?? []) as any[];
+          const searchLower = storySearch.toLowerCase();
+          const filteredStories = searchLower
+            ? allStories.filter((s: any) =>
+                (s.displayName || "").toLowerCase().includes(searchLower) ||
+                (s.currentRole || "").toLowerCase().includes(searchLower) ||
+                (s.location || "").toLowerCase().includes(searchLower) ||
+                (s.headline || "").toLowerCase().includes(searchLower) ||
+                (s.previousJob || "").toLowerCase().includes(searchLower)
+              )
+            : allStories;
+          return (
           <div className="space-y-5">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {[
@@ -1927,9 +1968,24 @@ export default function CommandCenter() {
               ))}
             </div>
 
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search stories by name, role, location..."
+                value={storySearch}
+                onChange={(e) => setStorySearch(e.target.value)}
+                className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-white placeholder-white/20 outline-none focus:border-[#FF2D9A]/40 transition-colors"
+              />
+              {storySearch && (
+                <button onClick={() => setStorySearch("")} className="absolute right-3 top-1/2 -translate-y-1/2">
+                  <X className="w-3.5 h-3.5 text-white/30 hover:text-white/60" />
+                </button>
+              )}
+            </div>
+
             <div className="space-y-3">
-              {(successStoriesData?.stories ?? []).length > 0 ? (
-                successStoriesData!.stories.map((story: any) => (
+              {filteredStories.length > 0 ? (
+                filteredStories.map((story: any) => (
                   <div
                     key={story.id}
                     className="rounded-xl border border-white/8 bg-white/[0.02] p-4 hover:bg-white/[0.04] transition-all"
@@ -1995,10 +2051,10 @@ export default function CommandCenter() {
               </p>
             </div>
           </div>
-        )}
+        );})()}
 
-        {/* ── FOUNDER DASHBOARD TAB ─────────────────────────────────── */}
-        {tab === "founder-dashboard" && (
+        {/* ── FOUNDER DASHBOARD TAB (Sovereign-only: userId 6) ─────── */}
+        {tab === "founder-dashboard" && isSovereign && (
           <div className="space-y-5">
             <div className="rounded-2xl border border-[#C9A85D]/30 bg-gradient-to-br from-[#C9A85D]/[0.06] to-transparent p-5">
               <div className="flex items-center gap-3 mb-5">

@@ -8,21 +8,27 @@ const router = Router();
 const VALID_AGENTS: CSuiteAgentId[] = ["ceo", "cto", "cfo", "coo", "content-social", "business-dev", "legal-compliance"];
 
 router.get("/c-suite/status", (_req: Request, res: Response) => {
+  const dashboard = cSuiteEngine.getDashboard();
   res.json({
     architect: "Ronald Antonio Cadet",
     entity: "CUXTOMCANDYCLUB LLC",
     protocol: "C-Suite AI Agent Engine",
     version: "1.0.0",
     status: "ARMED",
-    agents: [
-      { id: "ceo", title: "Chief Executive Officer", name: "SOVEREIGN-1", status: "ARMED" },
-      { id: "cto", title: "Chief Technology Officer", name: "ARCHITECT-1", status: "ARMED" },
-      { id: "cfo", title: "Chief Financial Officer", name: "TREASURY-1", status: "ARMED" },
-      { id: "coo", title: "Chief Operations Officer", name: "OPERATIONS-1", status: "ARMED" },
-      { id: "content-social", title: "Content & Social Media Director", name: "SIGNAL-1", status: "ARMED" },
-      { id: "business-dev", title: "Business Development Director", name: "EXPANSION-1", status: "ARMED" },
-      { id: "legal-compliance", title: "Legal & Compliance Officer", name: "GUARDIAN-1", status: "ARMED" },
-    ],
+    totalAgents: dashboard.agents.length,
+    activeRules: dashboard.activeRules,
+    agents: dashboard.agents.map(a => ({
+      id: a.id,
+      title: a.title,
+      name: a.name,
+      domain: a.domain,
+      status: "ARMED",
+      maturity: a.maturity,
+      totalDirectives: a.totalDirectives,
+      acceptanceRate: a.acceptanceRate,
+      lastActive: a.lastActive,
+      kpis: a.kpis,
+    })),
     timestamp: new Date().toISOString(),
   });
 });

@@ -554,23 +554,37 @@ export default function DynastyFoundation() {
             <p className="text-xs font-black tracking-widest text-gray-500 uppercase">Platform DNA — The Sovereign Blueprint</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-3">
             <div className="rounded-xl border border-[#FF2D9A]/10 bg-[#FF2D9A]/[0.03] p-4">
-              <p className="text-[10px] font-black uppercase tracking-wider text-[#FF2D9A] mb-2">RAM-1500 Infotainment Command</p>
+              <p className="text-[10px] font-black uppercase tracking-wider text-[#FF2D9A] mb-2">1. RAM-1500 Infotainment Command</p>
               <p className="text-[11px] text-gray-400 leading-relaxed">
                 The platform was born on a Uconnect 12" display. Every ONYX function — deals, network, earnings, AI agents — runs natively from the dashboard. The truck IS the command center. Voice-first. Hands-free. Sovereign.
               </p>
             </div>
             <div className="rounded-xl border border-[#7B61FF]/10 bg-[#7B61FF]/[0.03] p-4">
-              <p className="text-[10px] font-black uppercase tracking-wider text-[#7B61FF] mb-2">18-Agent Sovereign Mesh</p>
+              <p className="text-[10px] font-black uppercase tracking-wider text-[#7B61FF] mb-2">2. 18-Agent Sovereign Mesh</p>
               <p className="text-[11px] text-gray-400 leading-relaxed">
                 7 C-Suite AI executives (CEO, CTO, CFO, COO, Content, BD, Legal) + 11 Book Doctrine agents (Blitzscaling, Lean Startup, Art of War, Rich Dad, and more). The AI runs the company.
               </p>
             </div>
             <div className="rounded-xl border border-[#C9A227]/10 bg-[#C9A227]/[0.03] p-4">
-              <p className="text-[10px] font-black uppercase tracking-wider text-[#C9A227] mb-2">Sovereign Transactional Grid</p>
+              <p className="text-[10px] font-black uppercase tracking-wider text-[#C9A227] mb-2">3. Sovereign Transactional Grid</p>
               <p className="text-[11px] text-gray-400 leading-relaxed">
                 3% platform commission on every transaction. Every vehicle type. Every service. Forever. At 100M members transacting $20K/year — $60B annual recurring revenue. The toll never stops.
+              </p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+            <div className="rounded-xl border border-[#00E5FF]/10 bg-[#00E5FF]/[0.03] p-4">
+              <p className="text-[10px] font-black uppercase tracking-wider text-[#00E5FF] mb-2">4. Elastic Infrastructure</p>
+              <p className="text-[11px] text-gray-400 leading-relaxed">
+                Auto-scaling architecture designed for billion-node throughput. Edge-distributed compute, sharded databases, and event-driven microservices. 2-person ops team scales to 100M+ members. The infrastructure grows with the network — zero bottlenecks, infinite ceiling.
+              </p>
+            </div>
+            <div className="rounded-xl border border-[#EF4444]/10 bg-[#EF4444]/[0.03] p-4">
+              <p className="text-[10px] font-black uppercase tracking-wider text-[#EF4444] mb-2">5. Forensic IP Armor</p>
+              <p className="text-[11px] text-gray-400 leading-relaxed">
+                Every algorithm, agent profile, directive rule, and business method is timestamped, hashed, and sealed. USPTO-ready IP declarations. Trade secret protection. Common law trademark enforcement. Ghost Gate kill-switch for platform integrity. Attorney-grade legal fortress.
               </p>
             </div>
           </div>
@@ -611,8 +625,9 @@ export default function DynastyFoundation() {
 
           <p className="text-[10px] text-gray-600 mt-3 leading-relaxed">
             The Sovereign Blueprint is not a feature — it is the platform's constitutional DNA.
-            RAM-1500 Infotainment → 18-Agent Mesh → Transactional Grid. This is how one person
-            bootstraps a trillion-dollar network with under 10 people. The AI runs the company.
+            5 pillars: Infotainment Command → Agent Mesh → Transactional Grid → Elastic Infrastructure → Forensic IP.
+            This is how one person bootstraps a trillion-dollar network with under 10 people.
+            The AI runs the company. The infrastructure scales itself. The IP is bulletproof.
             RAC3C architects the vision.
           </p>
         </div>
@@ -625,7 +640,7 @@ export default function DynastyFoundation() {
           <Crown className="w-8 h-8 text-[#C9A227] mx-auto mb-4 opacity-80" />
           <p className="text-xs font-black tracking-[0.25em] text-[#C9A227]/60 uppercase mb-2">Founded & Sealed</p>
           <p className="text-xl font-black text-white mb-1">RAC3C</p>
-          <p className="text-xs text-gray-500 mb-4">aka Ron3C · Founder & Chief Visionary Officer · CUXTOMCANDYCLUB LLC</p>
+          <p className="text-xs text-gray-500 mb-4">aka RAC3C · Founder & Chief Visionary Officer · CUXTOMCANDYCLUB LLC</p>
           <div className="w-24 h-px bg-gradient-to-r from-transparent via-[#C9A227]/40 to-transparent mx-auto mb-4" />
           <p className="text-[11px] text-gray-500 leading-relaxed max-w-md mx-auto">
             This foundation is not a document. It is an institution. Its principles are not aspirational — they are operational. Every line of code, every agent, every covenant, every revenue stream was calculated through the combined intelligence of history's most consequential builders and executed with absolute integrity.

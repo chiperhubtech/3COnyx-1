@@ -223,7 +223,7 @@ const ACTION_RULES: ActionRule[] = [
   },
   {
     id: "referral-opportunity",
-    condition: (d) => d.customerEngagementState === "CLOSED" && d.customerSentiment && d.customerSentiment > 70,
+    condition: (d) => d.customerEngagementState === "CLOSED" && !!d.customerSentiment && d.customerSentiment > 70,
     category: "REFERRAL",
     action: "Ask for referral — customer is highly satisfied post-deal",
     suggestedResponse: "So glad everything worked out! Quick question — do you know anyone else who might be looking for a vehicle? I'd love to give them the same experience you had.",

@@ -54,7 +54,7 @@ router.get("/stats", async (_req: Request, res: Response) => {
 });
 
 router.get("/:id", async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(String(req.params.id), 10);
   if (isNaN(id)) { res.status(400).json({ error: "Invalid ID" }); return; }
   const [story] = await db
     .select()
@@ -73,7 +73,7 @@ router.post("/", requireAuth, requireSovereign, async (req: Request, res: Respon
 });
 
 router.patch("/:id", requireAuth, requireSovereign, async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(String(req.params.id), 10);
   if (isNaN(id)) { res.status(400).json({ error: "Invalid ID" }); return; }
   const [story] = await db
     .update(successStoriesTable)
@@ -85,7 +85,7 @@ router.patch("/:id", requireAuth, requireSovereign, async (req: Request, res: Re
 });
 
 router.delete("/:id", requireAuth, requireSovereign, async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(String(req.params.id), 10);
   if (isNaN(id)) { res.status(400).json({ error: "Invalid ID" }); return; }
   await db.delete(successStoriesTable).where(eq(successStoriesTable.id, id));
   res.json({ deleted: true });

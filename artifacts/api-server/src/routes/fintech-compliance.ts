@@ -71,7 +71,7 @@ router.get("/fintech/held-earnings/me", requireAuth, (req: Request, res: Respons
 });
 
 router.get("/fintech/held-earnings/:userId", requireAuth, requireSovereign, (req: Request, res: Response) => {
-  const userId = parseInt(req.params.userId);
+  const userId = parseInt(String(req.params.userId));
   if (isNaN(userId)) {
     res.status(400).json({ error: "Invalid userId" });
     return;

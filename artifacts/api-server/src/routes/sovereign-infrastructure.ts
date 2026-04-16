@@ -32,7 +32,7 @@ router.get("/infrastructure/mesh", requireAuth, (_req: Request, res: Response) =
 });
 
 router.get("/infrastructure/mesh/service/:name", requireAuth, (req: Request, res: Response) => {
-  const service = serviceMesh.getService(req.params.name);
+  const service = serviceMesh.getService(String(req.params.name));
   if (!service) {
     res.status(404).json({ error: "Service not found" });
     return;
@@ -67,8 +67,8 @@ router.get("/infrastructure/logs/dashboard", requireAuth, (_req: Request, res: R
 });
 
 router.get("/infrastructure/logs/trace/:correlationId", requireAuth, (req: Request, res: Response) => {
-  const trace = logAggregator.getTrace(req.params.correlationId);
-  res.json({ correlationId: req.params.correlationId, entries: trace, count: trace.length });
+  const trace = logAggregator.getTrace(String(req.params.correlationId));
+  res.json({ correlationId: String(req.params.correlationId), entries: trace, count: trace.length });
 });
 
 router.get("/infrastructure/logs/aggregate", requireAuth, (req: Request, res: Response) => {
@@ -85,7 +85,7 @@ router.get("/infrastructure/vault/:bucket", requireAuth, (req: Request, res: Res
   const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : undefined;
   const offset = req.query.offset ? parseInt(req.query.offset as string, 10) : undefined;
   const sortBy = req.query.sortBy as "key" | "size" | "date" | undefined;
-  res.json(objectVault.listObjects(req.params.bucket, { prefix, limit, offset, sortBy }));
+  res.json(objectVault.listObjects(String(req.params.bucket), { prefix, limit, offset, sortBy }));
 });
 
 router.post("/infrastructure/vault/:bucket/upload", requireAuth, (req: Request, res: Response) => {
@@ -96,7 +96,7 @@ router.post("/infrastructure/vault/:bucket/upload", requireAuth, (req: Request, 
       return;
     }
     const buf = Buffer.from(data, "base64");
-    const obj = objectVault.putObject(req.params.bucket, key, buf, {
+    const obj = objectVault.putObject(String(req.params.bucket), key, buf, {
       contentType,
       metadata,
       isPublic,
@@ -110,7 +110,7 @@ router.post("/infrastructure/vault/:bucket/upload", requireAuth, (req: Request, 
 });
 
 router.get("/infrastructure/vault/:bucket/object/:key", requireAuth, (req: Request, res: Response) => {
-  const obj = objectVault.getObject(req.params.bucket, req.params.key);
+  const obj = objectVault.getObject(String(req.params.bucket), String(req.params.key));
   if (!obj) {
     res.status(404).json({ error: "Object not found" });
     return;
@@ -136,7 +136,7 @@ router.post("/infrastructure/vault/:bucket/signed-url", requireAuth, (req: Reque
     res.status(400).json({ error: "key is required" });
     return;
   }
-  const result = objectVault.generateSignedUrl(req.params.bucket, key, {
+  const result = objectVault.generateSignedUrl(String(req.params.bucket), key, {
     expiresIn: typeof expiresIn === "number" ? expiresIn : 3600,
     method: method === "PUT" ? "PUT" : "GET",
   });
@@ -144,7 +144,7 @@ router.post("/infrastructure/vault/:bucket/signed-url", requireAuth, (req: Reque
 });
 
 router.get("/vault/signed/:token", (req: Request, res: Response) => {
-  const validation = objectVault.validateSignedUrl(req.params.token, "GET");
+  const validation = objectVault.validateSignedUrl(String(req.params.token), "GET");
   if (!validation.valid || !validation.objectId) {
     res.status(403).json({ error: validation.reason || "Invalid signed URL" });
     return;
@@ -164,8 +164,8 @@ router.get("/vault/signed/:token", (req: Request, res: Response) => {
 });
 
 router.delete("/infrastructure/vault/:bucket/object/:key", requireAuth, (req: Request, res: Response) => {
-  const deleted = objectVault.deleteObject(req.params.bucket, req.params.key);
-  res.json({ deleted, bucket: req.params.bucket, key: req.params.key });
+  const deleted = objectVault.deleteObject(String(req.params.bucket), String(req.params.key));
+  res.json({ deleted, bucket: String(req.params.bucket), key: String(req.params.key) });
 });
 
 router.get("/infrastructure/pipeline", requireAuth, (_req: Request, res: Response) => {

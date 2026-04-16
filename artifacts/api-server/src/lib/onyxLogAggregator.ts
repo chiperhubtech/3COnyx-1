@@ -141,7 +141,7 @@ class OnyxLogAggregator {
     if (q.correlationId) filtered = filtered.filter(l => l.correlationId === q.correlationId);
     if (q.userId) filtered = filtered.filter(l => l.userId === q.userId);
     if (q.method) filtered = filtered.filter(l => l.method === q.method);
-    if (q.path) filtered = filtered.filter(l => l.path && l.path.includes(q.path));
+    if (q.path) filtered = filtered.filter(l => l.path && l.path.includes(q.path!));
     if (q.from) filtered = filtered.filter(l => l.timestamp >= q.from!);
     if (q.to) filtered = filtered.filter(l => l.timestamp <= q.to!);
     if (q.minDuration) filtered = filtered.filter(l => l.duration && l.duration >= q.minDuration!);
