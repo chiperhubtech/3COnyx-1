@@ -14,27 +14,43 @@ The UI/UX adopts a "Apple × GTA" cinematic visual language with a multi-theme s
 
 The core architecture is AI-first, featuring an Enterprise AI Stack v4.0 with multi-model routing, a WebSocket Real-Time Hub, and an Agent Orchestration Engine powering a 12-agent UACL mesh. It includes a Blockchain Chain-of-Custody for tamper-proof ledgering, a JWT-based authentication system with WebAuthn and OAuth, and a Fortress Governor for AI safety with a three-tier confidence classification.
 
-Key features and architectural layers include:
--   **Security Middleware**: Helmet for headers, rate limiting, and secure webhook handling.
--   **Database Layer**: Drizzle ORM with PostgreSQL, ensuring SOC2 audit-trail compliance.
--   **API Performance Stack**: Pagination, async logging, TTL caching, compression, and tuned connection pools.
--   **Sovereign Infrastructure Layer (UACL)**: Comprehensive request processing including classification, authentication, execution, verification, logging, auditing, and a 12-Intent Neural Classifier.
--   **DealerFlow OS v2.0**: An industrial infrastructure layer for automotive professionals with smart routing, SLA auto-escalation, and Zero-Trust Delegation.
--   **Deal Command Center**: A single-screen autonomous deal pipeline with a Text-to-Deal parser, Mobile Desking, and cryptographic Deal Verify timeline.
--   **ONYX AI Mode**: A conversational automotive intelligence interface with a full-page cinematic spatial UI and multi-turn capabilities.
--   **Auto Pulse**: A Perplexity-style automotive intelligence feed aggregating real-time content.
--   **Vehicle Customization Hub**: A full-service platform for vehicle customization with fleet mode and volume pricing.
--   **Autonomous Execution Protocol**: AI confidence scoring with auto-escalation and retry mechanisms.
--   **Omni-Node Open Intake**: A public submission portal with AI-powered smart routing and a Global Trust Score Engine.
--   **Invisible Funnel Protocol**: A headless API orchestration layer for growth and commerce.
--   **Universal Commission Engine**: Automates referral commissions.
--   **Autonomous Execution Engine**: Implements a "Scan → Diagnose → Execute" workflow with blockchain proof stamping.
--   **Universal Attribution Engine**: 5-level deep referral attribution.
--   **Street-Level Distribution Network**: Captures QR scans at physical nodes for referral tracking.
--   **ONYX Proof Engine**: Cryptographic SHA-256 hash-chain recording state changes.
--   **Event Bus + Proof Integration**: Integrates with WebSocket Hub and Proof Engine.
--   **Node Attribution Engine**: Auto-populates participant arrays and calculates tech fees.
--   **NLP Intent Classifier v2**: Enhanced intent classification with confidence scores and guardrails.
+The system is designed for AWS, leveraging Route 53, CloudFront, S3, ALB, ECS Fargate for API containers, and RDS PostgreSQL 16 for lightweight containers and zero-downtime deployments.
+
+## UI/UX Design (3C Onyx Visual Language)
+
+The platform features a cinematic "Apple × GTA" visual language with a multi-theme system (dark default, warm ivory light mode, seasonal themes). Typography uses Barlow Condensed for headings and Inter for body text. Design elements include an "THE AUTOMOTIVE INTELLIGENCE LAYER" hero, amber accents, translucent glassmorphism, and a custom AI-Native Design System with futuristic components and dynamic animations. The UI incorporates a "Google Search Bar" pivot for a consumer-first assistant experience and is designed with a mobile-first, Zero-Thought Assistant-First approach.
+
+## Core Platform Features
+
+The architecture is AI-first, encompassing:
+
+-   **Enterprise AI Stack v4.0**: An AI router using OpenAI primarily, with Gemini, Bedrock, and Anthropic fallbacks.
+-   **WebSocket Real-Time Hub**: Provides real-time communication across distinct rooms.
+-   **Agent Orchestration Engine**: A 12-agent UACL mesh with a state machine.
+-   **Blockchain Chain-of-Custody**: Ensures tamper-proof ledgering with SHA-256 hash chains, HMAC-SHA-256 signing, PostgreSQL persistence, and optional Ethereum Sepolia anchoring.
+-   **Authentication System**: JWT-based (HS256) with `jose`, supporting full authentication flows, role-based access control, bcrypt-hashed passwords, WebAuthn biometric authentication (Face ID/fingerprint), and social OAuth login (Google, Apple).
+-   **Fortress Governor (AI Safety & Control Layer)**: A three-tier confidence classification system for AI decisions (AUTO_EXECUTE, SUGGEST, HALT) with an Explainability Layer.
+-   **Security Middleware**: Uses Helmet for security headers, `express-rate-limit` for API rate limiting, and secure Stripe webhook handling.
+-   **Database Layer**: Drizzle ORM with PostgreSQL (optimized connection pool), ensuring all tables are SOC2 audit-trail compliance.
+-   **API Performance Stack (ByteByteGo 5)**: Implements standardized pagination, async logging, TTL in-memory caching, gzip/brotli compression, and tuned connection pools.
+-   **Sovereign Infrastructure Layer (UACL)**: Ensures every request passes through classification, authentication, execution, verification, logging, and auditing stages, including a 12-Intent Neural Classifier and the Genesis Protocol.
+-   **DealerFlow OS v2.0**: An industrial infrastructure layer for automotive professionals, featuring a Smart Routing Engine, SLA Auto-Escalation, Bank-Ready Vault, AI Vision OCR Intake, Dependency-Aware DAG Execution, and Zero-Trust Delegation Architecture.
+-   **Deal Command Center**: Single-screen autonomous deal pipeline replacing the entire dealership workflow, featuring a Text-to-Deal parser, Mobile Desking calculator, One-Tap Insurance binding, cryptographic Deal Verify timeline, Live Deal Thread, and 6-button command grid, with a spatial UI.
+-   **ONYX AI Mode**: Google AI Mode-style conversational automotive intelligence interface with a full-page cinematic spatial UI, suggested prompts, 12-agent mesh routing, multi-turn conversation with session persistence, formatted responses, related topics chips, SHA-256 proof hashes, and typing indicators.
+-   **Auto Pulse**: Perplexity-style automotive intelligence feed aggregating real-time content from Google News RSS, Reddit, NHTSA API, and automotive publications.
+-   **Vehicle Customization Hub**: Full-service vehicle customization platform with fleet mode, volume pricing, instant quotes, and a product selection builder.
+-   **Autonomous Execution Protocol**: AI confidence scoring per task with auto-escalation and a retry mechanism.
+-   **Automated Test Suite (Vitest)**: Comprehensive unit and integration test suite in `artifacts/api-server/src/__tests__/` covering commission engine (15 categories), circuit breaker, idempotency guard, sanitization middleware, cache (with LRU eviction), JWT lifecycle, token blacklist, login guard, webhooks (all Stripe event types), checkout flow (DB-mocked), and auth integration. Run with `pnpm --filter @workspace/api-server test` or `pnpm --filter @workspace/api-server test:coverage`. 188 tests across 11 test files.
+-   **Omni-Node Open Intake**: A public submission portal with AI-powered smart routing, duplicate detection, and a Global Trust Score Engine.
+-   **Invisible Funnel Protocol**: A headless API orchestration layer for growth, communication, and commerce.
+-   **Universal Commission Engine**: Automates referral commissions on platform transactions.
+-   **Autonomous Execution Engine**: Implements a "Scan → Diagnose → Execute" one-tap workflow, normalizing vehicle input, running AI-powered vehicle analysis, and autonomously triggering cascading workflows with blockchain proof stamping.
+-   **Universal Attribution Engine**: 5-level depth referral attribution with diminishing commission rates and blockchain proof stamping.
+-   **Street-Level Distribution Network**: Entry layer for the "Global Automotive Liquidity Network," capturing QR scans at physical nodes and tracking referrers.
+-   **ONYX Proof Engine**: Cryptographic SHA-256 hash-chain recording every state change across the network for 25 event types.
+-   **Event Bus + Proof Integration**: Enhanced EventBus integrates with WebSocket Hub for real-time broadcast and Proof Engine for cryptographic recording. Supports AWS EventBridge in production.
+-   **Node Attribution Engine**: Every deal auto-populates a participants array with roles and calculates a 3% Global Tech Fee split.
+-   **NLP Intent Classifier v2**: Enhanced `routeToAgentWithConfidence()` returns confidence scores, matched keywords, and escalation flags, with 90% AI Confidence Guardrails for financial/critical actions.
 -   **Sovereign Behavioral Execution Engine**: Psychological intelligence layer over the 12-Agent Mesh.
 -   **Conversion Intelligence Engine**: Tracks behavioral patterns for conversion optimization.
 -   **Multi-Channel Referral Sharing**: Integrated sharing across various social platforms.
@@ -108,3 +124,20 @@ A theme engine offers 20 culture-driven themes. Key API Endpoints include Text-t
 -   **CRM**: HubSpot
 -   **Advertising**: TikTok Ads
 -   **Email Marketing**: Constant Contact
+
+## Testing
+
+The API server has a comprehensive Vitest test suite covering critical business logic. Run tests with:
+- `pnpm --filter @workspace/api-server test` — run all tests
+- `pnpm --filter @workspace/api-server test:coverage` — run with V8 coverage report
+
+Test files live in `artifacts/api-server/src/__tests__/` and cover:
+- Commission engine (all 15 categories, rate calculations, self-referral blocking, validation)
+- Circuit breaker (state transitions, timeout behavior, recovery)
+- Idempotency guard (cache hit/miss, key conflict, concurrent requests)
+- Input sanitization (XSS, SQL injection, null bytes)
+- In-memory cache (TTL expiry, LRU eviction, stats)
+- JWT (sign/verify, token uniqueness, tamper detection)
+- Token blacklist (revocation, cache behavior, DB pruning)
+- Login guard (brute-force lockout, threshold, recovery)
+- Webhook handler (route structure, event shape verification)

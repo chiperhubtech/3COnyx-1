@@ -67,8 +67,9 @@ router.get("/infrastructure/logs/dashboard", requireAuth, (_req: Request, res: R
 });
 
 router.get("/infrastructure/logs/trace/:correlationId", requireAuth, (req: Request, res: Response) => {
-  const trace = logAggregator.getTrace(String(req.params.correlationId));
-  res.json({ correlationId: String(req.params.correlationId), entries: trace, count: trace.length });
+  const correlationId = String(req.params.correlationId);
+  const trace = logAggregator.getTrace(correlationId);
+  res.json({ correlationId, entries: trace, count: trace.length });
 });
 
 router.get("/infrastructure/logs/aggregate", requireAuth, (req: Request, res: Response) => {
@@ -81,6 +82,7 @@ router.get("/infrastructure/vault", requireAuth, (_req: Request, res: Response) 
 });
 
 router.get("/infrastructure/vault/:bucket", requireAuth, (req: Request, res: Response) => {
+  const bucket = req.params.bucket as string;
   const prefix = req.query.prefix as string | undefined;
   const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : undefined;
   const offset = req.query.offset ? parseInt(req.query.offset as string, 10) : undefined;
@@ -164,8 +166,10 @@ router.get("/vault/signed/:token", (req: Request, res: Response) => {
 });
 
 router.delete("/infrastructure/vault/:bucket/object/:key", requireAuth, (req: Request, res: Response) => {
-  const deleted = objectVault.deleteObject(String(req.params.bucket), String(req.params.key));
-  res.json({ deleted, bucket: String(req.params.bucket), key: String(req.params.key) });
+  const bucket = String(req.params.bucket);
+  const key = String(req.params.key);
+  const deleted = objectVault.deleteObject(bucket, key);
+  res.json({ deleted, bucket, key });
 });
 
 router.get("/infrastructure/pipeline", requireAuth, (_req: Request, res: Response) => {

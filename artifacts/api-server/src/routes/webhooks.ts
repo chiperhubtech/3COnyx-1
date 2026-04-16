@@ -84,7 +84,7 @@ router.post(
   },
 );
 
-async function handleEvent(event: Stripe.Event) {
+export async function handleEvent(event: Stripe.Event) {
   const obj = event.data.object as unknown as Record<string, unknown>;
 
   await db.transaction(async (trx) => {

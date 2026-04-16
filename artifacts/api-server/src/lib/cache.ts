@@ -69,6 +69,7 @@ class MemoryCache {
   }
 }
 
+export { MemoryCache };
 export const cache = new MemoryCache(500);
 
 export const TTL = {
