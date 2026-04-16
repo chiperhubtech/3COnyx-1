@@ -547,6 +547,76 @@ export default function DynastyFoundation() {
           </div>
         </div>
 
+        {/* ── Platform DNA — Sovereign Blueprint ── */}
+        <div className="rounded-2xl border border-[#FF2D9A]/15 bg-[#FF2D9A]/[0.02] p-5">
+          <div className="flex items-center gap-2 mb-5">
+            <Cpu className="w-4 h-4 text-[#FF2D9A]" />
+            <p className="text-xs font-black tracking-widest text-gray-500 uppercase">Platform DNA — The Sovereign Blueprint</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
+            <div className="rounded-xl border border-[#FF2D9A]/10 bg-[#FF2D9A]/[0.03] p-4">
+              <p className="text-[10px] font-black uppercase tracking-wider text-[#FF2D9A] mb-2">RAM-1500 Infotainment Command</p>
+              <p className="text-[11px] text-gray-400 leading-relaxed">
+                The platform was born on a Uconnect 12" display. Every ONYX function — deals, network, earnings, AI agents — runs natively from the dashboard. The truck IS the command center. Voice-first. Hands-free. Sovereign.
+              </p>
+            </div>
+            <div className="rounded-xl border border-[#7B61FF]/10 bg-[#7B61FF]/[0.03] p-4">
+              <p className="text-[10px] font-black uppercase tracking-wider text-[#7B61FF] mb-2">18-Agent Sovereign Mesh</p>
+              <p className="text-[11px] text-gray-400 leading-relaxed">
+                7 C-Suite AI executives (CEO, CTO, CFO, COO, Content, BD, Legal) + 11 Book Doctrine agents (Blitzscaling, Lean Startup, Art of War, Rich Dad, and more). The AI runs the company.
+              </p>
+            </div>
+            <div className="rounded-xl border border-[#C9A227]/10 bg-[#C9A227]/[0.03] p-4">
+              <p className="text-[10px] font-black uppercase tracking-wider text-[#C9A227] mb-2">Sovereign Transactional Grid</p>
+              <p className="text-[11px] text-gray-400 leading-relaxed">
+                3% platform commission on every transaction. Every vehicle type. Every service. Forever. At 100M members transacting $20K/year — $60B annual recurring revenue. The toll never stops.
+              </p>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-white/5 bg-white/[0.02] overflow-hidden">
+            <div className="p-3 border-b border-white/5">
+              <p className="text-[9px] text-white/20 font-bold tracking-wider">AGENT MESH STATUS — 18 AUTONOMOUS AGENTS</p>
+            </div>
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-px bg-white/5">
+              {[
+                { name: "SOVEREIGN-1",  role: "CEO",        color: "#C9A227" },
+                { name: "ARCHITECT-1",  role: "CTO",        color: "#00E5FF" },
+                { name: "TREASURY-1",   role: "CFO",        color: "#4CAF50" },
+                { name: "OPERATIONS-1", role: "COO",        color: "#FF9800" },
+                { name: "SIGNAL-1",     role: "Content",    color: "#FF2D9A" },
+                { name: "EXPANSION-1",  role: "BD",         color: "#7B61FF" },
+                { name: "GUARDIAN-1",    role: "Legal",      color: "#F44336" },
+                { name: "BLITZSCALE-1", role: "Velocity",   color: "#FF6B00" },
+                { name: "LEAN-1",       role: "Innovation", color: "#2196F3" },
+                { name: "SCROLLS-1",    role: "Sales",      color: "#FFD700" },
+                { name: "COACH-1",      role: "Coaching",   color: "#9C27B0" },
+                { name: "SPRINT-1",     role: "Execution",  color: "#00BCD4" },
+                { name: "KATAMARI-1",   role: "Compound",   color: "#E91E63" },
+                { name: "GRAHAM-1",     role: "Value",      color: "#1B5E20" },
+                { name: "OCEAN-1",      role: "Blue Ocean", color: "#0277BD" },
+                { name: "SUNZI-1",      role: "Strategy",   color: "#B71C1C" },
+                { name: "KIYOSAKI-1",   role: "Assets",     color: "#6A1B9A" },
+                { name: "HILL-1",       role: "Mastermind", color: "#FF8F00" },
+              ].map(a => (
+                <div key={a.name} className="p-2 text-center" style={{ background: "#0d0d10" }}>
+                  <div className="w-1.5 h-1.5 rounded-full mx-auto mb-1" style={{ backgroundColor: a.color, boxShadow: `0 0 6px ${a.color}40` }} />
+                  <p className="text-[8px] font-bold text-white/60 truncate">{a.name}</p>
+                  <p className="text-[7px] text-white/20">{a.role}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <p className="text-[10px] text-gray-600 mt-3 leading-relaxed">
+            The Sovereign Blueprint is not a feature — it is the platform's constitutional DNA.
+            RAM-1500 Infotainment → 18-Agent Mesh → Transactional Grid. This is how one person
+            bootstraps a trillion-dollar network with under 10 people. The AI runs the company.
+            RAC3C architects the vision.
+          </p>
+        </div>
+
         {/* ── The Seal ── */}
         <div
           className="rounded-2xl p-6 text-center border"

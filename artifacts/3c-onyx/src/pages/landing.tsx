@@ -397,7 +397,7 @@ function FounderQuote() {
           Whoever opens the door eats first."
         </blockquote>
         <div style={{ fontSize: 13, color: "rgba(255,255,255,0.3)" }}>
-          — <strong style={{ color: "rgba(255,255,255,0.6)" }}>Ron</strong> · Founder ·{" "}
+          — <strong style={{ color: "rgba(255,255,255,0.6)" }}>RAC3C</strong> · Founder ·{" "}
           <span style={{ color: GOLD }}>CUXTOMCANDYCLUB LLC</span>
         </div>
       </div>

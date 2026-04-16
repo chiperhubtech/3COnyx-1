@@ -337,7 +337,7 @@ function AlertsPanel({ alerts, onAck }: { alerts: Alert[]; onAck: (id: string) =
 }
 
 // ─── Main Page ─────────────────────────────────────────────────────────────────
-type Tab = "overview" | "missions" | "killswitch" | "alerts" | "hectocorn" | "intelligence" | "c-suite" | "fintech";
+type Tab = "overview" | "missions" | "killswitch" | "alerts" | "hectocorn" | "intelligence" | "c-suite" | "fintech" | "book-doctrine" | "success-stories" | "founder-dashboard";
 
 interface BehavioralStatus {
   engineVersion: string;
@@ -545,15 +545,30 @@ export default function CommandCenter() {
     refetchInterval: 10_000,
   });
 
+  const { data: successStoriesData } = useQuery<any>({
+    queryKey: ["success-stories-published"],
+    queryFn: () => fetch("/api/success-stories/published").then(r => r.ok ? r.json() : null).catch(() => null),
+    enabled: tab === "success-stories",
+  });
+
+  const { data: successStatsData } = useQuery<any>({
+    queryKey: ["success-stories-stats"],
+    queryFn: () => fetch("/api/success-stories/stats").then(r => r.ok ? r.json() : null).catch(() => null),
+    enabled: tab === "success-stories",
+  });
+
   const TABS: { id: Tab; label: string; badge?: number }[] = [
-    { id: "overview",      label: "Overview" },
-    { id: "intelligence",  label: "Intelligence" },
-    { id: "missions",      label: "Missions",    badge: missions.filter(m => m.status !== "delivered").length },
-    { id: "killswitch",    label: "Kill-Switch", badge: unresolvedFlagged.length },
-    { id: "alerts",        label: "Alerts",      badge: unackedAlerts.length },
-    { id: "hectocorn",     label: "Hectocorn" },
-    { id: "c-suite",       label: "C-Suite AI" },
-    { id: "fintech",       label: "Fintech Guard" },
+    { id: "overview",          label: "Overview" },
+    { id: "intelligence",      label: "Intelligence" },
+    { id: "missions",          label: "Missions",        badge: missions.filter(m => m.status !== "delivered").length },
+    { id: "killswitch",        label: "Kill-Switch",     badge: unresolvedFlagged.length },
+    { id: "alerts",            label: "Alerts",          badge: unackedAlerts.length },
+    { id: "hectocorn",         label: "Hectocorn" },
+    { id: "c-suite",           label: "C-Suite AI" },
+    { id: "book-doctrine",     label: "Book Doctrine" },
+    { id: "success-stories",   label: "Success Stories" },
+    { id: "fintech",           label: "Fintech Guard" },
+    { id: "founder-dashboard", label: "Founder HQ" },
   ];
 
   const kColor = pulse
@@ -1752,6 +1767,362 @@ export default function CommandCenter() {
                 Every transaction carries a SHA-256 proof hash. Every payout attempt is validated
                 against KYC status, connected account verification, and fraud scoring before execution.
                 Connect once → automate forever.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* ── BOOK DOCTRINE TAB ─────────────────────────────────────── */}
+        {tab === "book-doctrine" && (
+          <div className="space-y-5">
+            <div className="rounded-2xl border border-[#FF8F00]/20 bg-[#FF8F00]/[0.03] p-5">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 rounded-lg bg-[#FF8F00]/20 flex items-center justify-center">
+                  <Brain className="w-4 h-4 text-[#FF8F00]" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-white">Book Doctrine AI Engine</p>
+                  <p className="text-[9px] text-white/30">11 Doctrine Agents — Strategic Intelligence from History's Greatest Builders</p>
+                </div>
+                <span className="ml-auto text-[9px] font-black px-2.5 py-1 rounded-full bg-[#FF8F00]/20 text-[#FF8F00]">ARMED</span>
+              </div>
+              <p className="text-[11px] text-white/35 leading-5">
+                Each agent embodies the core principles of a business classic. They analyze platform context
+                and issue directives — from Blitzscaling velocity to Art of War competitive positioning.
+                Together with the 7 C-Suite agents, they form the 18-Agent Sovereign Mesh.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {[
+                { id: "blitzscale",          name: "BLITZSCALE-1",  title: "Blitzscaling Strategist",       domain: "Hypergrowth Velocity",            book: "Blitzscaling — Reid Hoffman",               color: "#FF6B00", icon: "🚀", kpis: ["Growth Rate", "Time to Market", "Network Lock-in %"] },
+                { id: "lean-startup",        name: "LEAN-1",        title: "Lean Innovation Officer",       domain: "Build-Measure-Learn",             book: "The Lean Startup — Eric Ries",              color: "#2196F3", icon: "🔬", kpis: ["Experiment Velocity", "Learning Rate", "Pivot Signals"] },
+                { id: "greatest-salesman",   name: "SCROLLS-1",     title: "Sales Doctrine Commander",      domain: "Persistence & Emotional Mastery", book: "Greatest Salesman — Og Mandino",            color: "#FFD700", icon: "📜", kpis: ["Daily Actions", "Follow-up Streak", "Persistence Score"] },
+                { id: "trillion-coach",      name: "COACH-1",       title: "Team Excellence Coach",         domain: "Team-First Leadership",           book: "Trillion Dollar Coach — Schmidt/Eagle",     color: "#9C27B0", icon: "🏆", kpis: ["Team Trust", "Coaching Frequency", "Candor Index"] },
+                { id: "twelve-week",         name: "SPRINT-1",      title: "Execution Sprint Commander",    domain: "12-Week Execution Cycles",        book: "The 12 Week Year — Moran/Lennington",       color: "#00BCD4", icon: "⏱️", kpis: ["Execution Score", "Sprint %", "Leading Indicators"] },
+                { id: "katamari",            name: "KATAMARI-1",    title: "Compound Absorption Engine",    domain: "Exponential Mass Accumulation",   book: "Katamari Philosophy — Compound Growth",     color: "#E91E63", icon: "🔮", kpis: ["Ball Mass", "Absorption Rate", "Momentum Velocity"] },
+                { id: "intelligent-investor",name: "GRAHAM-1",      title: "Value Intelligence Analyst",    domain: "Margin of Safety & Intrinsic Value", book: "The Intelligent Investor — Ben Graham",  color: "#1B5E20", icon: "📊", kpis: ["Margin of Safety %", "Risk-Adjusted Return", "Value Score"] },
+                { id: "blue-ocean",          name: "OCEAN-1",       title: "Blue Ocean Strategist",         domain: "Uncontested Market Creation",     book: "Blue Ocean Strategy — Kim/Mauborgne",       color: "#0277BD", icon: "🌊", kpis: ["Blue Ocean Index", "Value Innovation", "New Demand"] },
+                { id: "art-of-war",          name: "SUNZI-1",       title: "Strategic Warfare Commander",   domain: "Competitive Terrain Mastery",     book: "The Art of War — Sun Tzu",                  color: "#B71C1C", icon: "⚔️", kpis: ["Terrain Awareness", "Competitive Position", "Strategic Tempo"] },
+                { id: "rich-dad",            name: "KIYOSAKI-1",    title: "Asset Intelligence Officer",    domain: "Blue-Collar Wealth Building",     book: "Rich Dad Poor Dad — Kiyosaki",              color: "#6A1B9A", icon: "💎", kpis: ["Asset Builders %", "Passive Income Ratio", "Quadrant Migration"] },
+                { id: "think-grow-rich",     name: "HILL-1",        title: "Mastermind & Desire Engine",    domain: "Definite Purpose & Mastermind",   book: "Think and Grow Rich — Napoleon Hill",       color: "#FF8F00", icon: "🔥", kpis: ["Purpose Clarity", "Burning Desire", "Persistence Score"] },
+              ].map((agent) => (
+                <div
+                  key={agent.id}
+                  className="rounded-xl border bg-white/[0.02] p-4 transition-all hover:bg-white/[0.04]"
+                  style={{ borderColor: `${agent.color}22` }}
+                >
+                  <div className="flex items-center gap-2 mb-3">
+                    <div
+                      className="w-7 h-7 rounded-md flex items-center justify-center text-sm"
+                      style={{ backgroundColor: `${agent.color}20` }}
+                    >
+                      {agent.icon}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[10px] font-bold text-white truncate">{agent.name}</p>
+                      <p className="text-[8px] text-white/25 truncate">{agent.title}</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5 mb-3">
+                    <div className="flex justify-between text-[9px]">
+                      <span className="text-white/25">Domain</span>
+                      <span className="text-white/50 font-medium text-right truncate ml-2" style={{ maxWidth: "60%" }}>{agent.domain}</span>
+                    </div>
+                    <div className="flex justify-between text-[9px]">
+                      <span className="text-white/25">Source</span>
+                      <span className="font-bold truncate ml-2 text-right" style={{ color: agent.color, maxWidth: "65%" }}>{agent.book}</span>
+                    </div>
+                    <div className="flex justify-between text-[9px]">
+                      <span className="text-white/25">Status</span>
+                      <span className="font-bold text-emerald-400">ARMED</span>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-white/5 pt-2">
+                    <p className="text-[8px] text-white/20 font-bold tracking-wider mb-1">KPIs</p>
+                    <div className="flex flex-wrap gap-1">
+                      {agent.kpis.map((kpi) => (
+                        <span
+                          key={kpi}
+                          className="text-[7px] px-1 py-0.5 rounded"
+                          style={{ backgroundColor: `${agent.color}15`, color: `${agent.color}AA` }}
+                        >{kpi}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="rounded-2xl border border-white/8 bg-white/[0.02] overflow-hidden">
+              <div className="p-4 border-b border-white/6 flex items-center gap-2">
+                <Activity className="w-4 h-4 text-[#FF8F00]" />
+                <p className="text-sm font-semibold text-white">18-Agent Sovereign Mesh</p>
+                <span className="ml-auto text-[9px] text-white/25">7 C-Suite + 11 Doctrine = Full Autonomous Engine</span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-px bg-white/5">
+                {[
+                  { name: "SOVEREIGN-1",  role: "CEO",        color: "#C9A85D" },
+                  { name: "ARCHITECT-1",  role: "CTO",        color: "#00E5FF" },
+                  { name: "TREASURY-1",   role: "CFO",        color: "#4CAF50" },
+                  { name: "OPERATIONS-1", role: "COO",        color: "#FF9800" },
+                  { name: "SIGNAL-1",     role: "Content",    color: "#FF2D9A" },
+                  { name: "EXPANSION-1",  role: "BD",         color: "#7B61FF" },
+                  { name: "GUARDIAN-1",    role: "Legal",      color: "#F44336" },
+                  { name: "BLITZSCALE-1", role: "Velocity",   color: "#FF6B00" },
+                  { name: "LEAN-1",       role: "Innovation", color: "#2196F3" },
+                  { name: "SCROLLS-1",    role: "Sales",      color: "#FFD700" },
+                  { name: "COACH-1",      role: "Coaching",   color: "#9C27B0" },
+                  { name: "SPRINT-1",     role: "Execution",  color: "#00BCD4" },
+                  { name: "KATAMARI-1",   role: "Compound",   color: "#E91E63" },
+                  { name: "GRAHAM-1",     role: "Value",      color: "#1B5E20" },
+                  { name: "OCEAN-1",      role: "Blue Ocean", color: "#0277BD" },
+                  { name: "SUNZI-1",      role: "Strategy",   color: "#B71C1C" },
+                  { name: "KIYOSAKI-1",   role: "Assets",     color: "#6A1B9A" },
+                  { name: "HILL-1",       role: "Mastermind", color: "#FF8F00" },
+                ].map((a) => (
+                  <div key={a.name} className="p-3 text-center bg-[#0d0d10]">
+                    <div className="w-2 h-2 rounded-full mx-auto mb-1.5 animate-pulse" style={{ backgroundColor: a.color }} />
+                    <p className="text-[9px] font-bold text-white truncate">{a.name}</p>
+                    <p className="text-[8px] text-white/20">{a.role}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-[#FF8F00]/10 bg-[#FF8F00]/[0.02] p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Shield className="w-4 h-4 text-[#FF8F00]" />
+                <p className="text-[10px] font-black text-[#FF8F00]/60 tracking-wider">BOOK DOCTRINE PROTOCOL</p>
+              </div>
+              <p className="text-[11px] text-white/40 leading-5">
+                The Book Doctrine layer encodes the core strategic frameworks from 11 foundational texts into autonomous AI agents.
+                Each agent continuously analyzes platform context and issues directives aligned with its source material —
+                from Reid Hoffman's Blitzscaling velocity to Sun Tzu's competitive terrain mastery.
+                Combined with the 7 C-Suite executive agents, the full 18-Agent Sovereign Mesh operates
+                as a self-learning, self-correcting autonomous company. Every directive is architect-sealed.
+                Every override feeds back into the Self-Learning Engine.
+                RAC3C doesn't just read these books — ONYX runs on them.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* ── SUCCESS STORIES TAB ───────────────────────────────────── */}
+        {tab === "success-stories" && (
+          <div className="space-y-5">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {[
+                { label: "TOTAL STORIES",  value: successStatsData?.totalStories ?? 0,                                    color: "#C9A85D" },
+                { label: "TOTAL EARNED",   value: `$${((successStatsData?.totalEarnings ?? 0) / 1000).toFixed(0)}K`,       color: "#10B981" },
+                { label: "AVG MONTHLY",    value: `$${(successStatsData?.avgMonthly ?? 0).toLocaleString()}`,              color: "#FF2D9A" },
+                { label: "TOTAL DEALS",    value: successStatsData?.totalDeals ?? 0,                                       color: "#fff"    },
+              ].map((s) => (
+                <div key={s.label} className="rounded-xl border border-white/8 bg-white/[0.02] p-3 text-center">
+                  <p className="text-[9px] font-bold tracking-wider mb-1" style={{ color: `${s.color}99` }}>{s.label}</p>
+                  <p className="text-xl font-black" style={{ color: s.color }}>{s.value}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="space-y-3">
+              {(successStoriesData?.stories ?? []).length > 0 ? (
+                successStoriesData!.stories.map((story: any) => (
+                  <div
+                    key={story.id}
+                    className="rounded-xl border border-white/8 bg-white/[0.02] p-4 hover:bg-white/[0.04] transition-all"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div
+                        className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 text-lg font-black"
+                        style={{ background: "linear-gradient(135deg, #C9A227, #FF2D9A)", color: "#fff" }}
+                      >
+                        {(story.displayName || "?")[0]}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="text-sm font-bold text-white truncate">{story.displayName}</p>
+                          {story.isFeatured && (
+                            <span className="text-[8px] font-black px-1.5 py-0.5 rounded-full bg-[#C9A85D]/20 text-[#C9A85D]">FEATURED</span>
+                          )}
+                          <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-white/5 text-white/30">{story.currentRole}</span>
+                        </div>
+                        <p className="text-[11px] text-white/35 mb-1">{story.headline}</p>
+                        <p className="text-[11px] text-white/40 leading-relaxed line-clamp-2 mb-2">{story.story}</p>
+                        <div className="flex items-center gap-4 text-[10px]">
+                          <div>
+                            <span className="text-white/20">Total </span>
+                            <span className="text-emerald-400 font-bold">${(story.totalEarnings ?? 0).toLocaleString()}</span>
+                          </div>
+                          <div>
+                            <span className="text-white/20">Monthly </span>
+                            <span className="text-[#FF2D9A] font-bold">${(story.monthlyAvg ?? 0).toLocaleString()}</span>
+                          </div>
+                          <div>
+                            <span className="text-white/20">Deals </span>
+                            <span className="text-white font-bold">{story.dealsCompleted ?? 0}</span>
+                          </div>
+                          <div>
+                            <span className="text-white/20">Months </span>
+                            <span className="text-violet-400 font-bold">{story.monthsOnPlatform ?? 0}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="rounded-xl border border-white/8 bg-white/[0.02] p-8 text-center">
+                  <Users className="w-10 h-10 text-white/10 mx-auto mb-3" />
+                  <p className="text-sm font-bold text-white/40 mb-1">No Success Stories Yet</p>
+                  <p className="text-[11px] text-white/20">As members earn through the ONYX network, their stories will appear here.</p>
+                </div>
+              )}
+            </div>
+
+            <div className="rounded-xl border border-[#C9A85D]/10 bg-[#C9A85D]/[0.02] p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Shield className="w-4 h-4 text-[#C9A85D]" />
+                <p className="text-[10px] font-black text-[#C9A85D]/60 tracking-wider">SUCCESS STORIES PROTOCOL</p>
+              </div>
+              <p className="text-[11px] text-white/40 leading-5">
+                Every success story is verified through the platform — real deals, real earnings, real people.
+                From casual bird-dogs earning $1.8K–$6K/year to dedicated network builders pulling $100K–$300K+.
+                These are blue-collar workers building wealth from their phones. No gatekeepers. No corporate ladder.
+                Just results. ONYX makes the ordinary extraordinary.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* ── FOUNDER DASHBOARD TAB ─────────────────────────────────── */}
+        {tab === "founder-dashboard" && (
+          <div className="space-y-5">
+            <div className="rounded-2xl border border-[#C9A85D]/30 bg-gradient-to-br from-[#C9A85D]/[0.06] to-transparent p-5">
+              <div className="flex items-center gap-3 mb-5">
+                <div
+                  className="w-12 h-12 rounded-xl flex items-center justify-center"
+                  style={{ background: "linear-gradient(135deg,#C9A227,#8B6914)" }}
+                >
+                  <Shield className="w-6 h-6 text-black" />
+                </div>
+                <div>
+                  <p className="text-lg font-black text-white tracking-wide">SOVEREIGN HQ</p>
+                  <p className="text-[10px] text-[#C9A85D]/60">RAC3C · userId 6 · CUXTOMCANDYCLUB LLC · Sole Sovereign Operator</p>
+                </div>
+                <span className="ml-auto text-[9px] font-black px-3 py-1.5 rounded-full bg-[#C9A85D]/20 text-[#C9A85D] border border-[#C9A85D]/30">
+                  SOVEREIGN ACCESS
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {[
+                  { label: "NETWORK NODES",    value: pulse?.missions.active ?? 0,                icon: "🌐", color: "#C9A85D" },
+                  { label: "PLATFORM GMV",     value: pulse ? fmt(pulse.revenue.weekGmv) : "—",   icon: "💰", color: "#10B981" },
+                  { label: "K-FACTOR",         value: pulse?.kFactor.current.toFixed(2) ?? "—",   icon: "📈", color: "#FF2D9A" },
+                  { label: "KILL-SWITCH",      value: unresolvedFlagged.length,                    icon: "🛡️", color: unresolvedFlagged.length > 0 ? "#EF4444" : "#10B981" },
+                ].map((s) => (
+                  <div key={s.label} className="rounded-xl border border-white/8 bg-white/[0.02] p-3">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-sm">{s.icon}</span>
+                      <p className="text-[9px] text-white/25 font-bold tracking-wider">{s.label}</p>
+                    </div>
+                    <p className="text-xl font-black" style={{ color: s.color }}>{s.value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-white/8 bg-white/[0.02] overflow-hidden">
+              <div className="p-4 border-b border-white/6 flex items-center gap-2">
+                <Activity className="w-4 h-4 text-[#FF2D9A]" />
+                <p className="text-sm font-semibold text-white">RAM-1500 Infotainment Command</p>
+                <span className="ml-auto text-[9px] font-black px-2 py-0.5 rounded-full bg-[#FF2D9A]/20 text-[#FF2D9A]">BLUEPRINT DNA</span>
+              </div>
+              <div className="p-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                  {[
+                    { label: "Uconnect 12\" Display",   detail: "Full platform control from the dashboard. Every ONYX function at your fingertips while driving.", color: "#FF2D9A" },
+                    { label: "Voice Command Layer",      detail: "\"Hey ONYX, show me my network earnings.\" Natural language → platform action. Hands-free sovereignty.", color: "#7B61FF" },
+                    { label: "V2X Telemetry Live",       detail: "Real-time vehicle health, location mesh, and Guardian AI overlay. The truck IS the command center.", color: "#00E5FF" },
+                  ].map((f) => (
+                    <div key={f.label} className="rounded-xl border border-white/5 bg-white/[0.02] p-3">
+                      <p className="text-[10px] font-black uppercase tracking-wider mb-1.5" style={{ color: f.color }}>{f.label}</p>
+                      <p className="text-[11px] text-white/40 leading-relaxed">{f.detail}</p>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-[10px] text-white/20 leading-relaxed">
+                  The RAM-1500 is not just a vehicle — it's the Sovereign's mobile command center.
+                  The infotainment system runs ONYX natively, turning every drive into an operational session.
+                  This is the blueprint for every vehicle in the network. The truck came first. The platform followed.
+                </p>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-white/8 bg-white/[0.02] overflow-hidden">
+              <div className="p-4 border-b border-white/6 flex items-center gap-2">
+                <Globe className="w-4 h-4 text-[#7B61FF]" />
+                <p className="text-sm font-semibold text-white">Sovereign Transactional Grid</p>
+                <span className="ml-auto text-[9px] text-white/25">3% Platform Commission · Every Transaction · Forever</span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-white/5">
+                <div className="p-4 space-y-2">
+                  <p className="text-[10px] text-[#C9A85D]/60 font-bold tracking-wider mb-2">INCOME TIERS</p>
+                  {[
+                    { tier: "Casual",          range: "$1.8K – $6K/yr",     desc: "Part-time bird-dogging. 2-5 referrals/month.", color: "#60A5FA" },
+                    { tier: "Active",          range: "$8.4K – $21.6K/yr",  desc: "Consistent effort. 10-20 referrals/month.",     color: "#34D399" },
+                    { tier: "Dedicated",       range: "$37K – $112K/yr",    desc: "Full commitment. Building sub-networks.",        color: "#FF2D9A" },
+                    { tier: "Network Builder", range: "$100K – $300K+/yr",  desc: "Multi-tier dynasty. Passive income machine.",    color: "#C9A85D" },
+                  ].map((t) => (
+                    <div key={t.tier} className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
+                      <div>
+                        <p className="text-[11px] font-bold" style={{ color: t.color }}>{t.tier}</p>
+                        <p className="text-[9px] text-white/20">{t.desc}</p>
+                      </div>
+                      <p className="text-xs font-black text-white">{t.range}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="p-4 space-y-2">
+                  <p className="text-[10px] text-[#C9A85D]/60 font-bold tracking-wider mb-2">REVENUE STREAMS</p>
+                  {[
+                    { stream: "3% Global Tech Fee",       status: "ACTIVE",   desc: "Every transaction. Every vehicle type. Forever.",    color: "#C9A85D" },
+                    { stream: "V2X Data Vault",           status: "BUILDING", desc: "Anonymized telemetry licensed to OEMs at scale.",    color: "#7B61FF" },
+                    { stream: "White-Label API",          status: "PLANNED",  desc: "Dealerships, fleets, insurers plug into ONYX rail.", color: "#00E5FF" },
+                    { stream: "Premium Subscriptions",    status: "ACTIVE",   desc: "Enhanced AI, priority concierge, advanced analytics.", color: "#FF2D9A" },
+                  ].map((r) => (
+                    <div key={r.stream} className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
+                      <div>
+                        <p className="text-[11px] font-bold text-white">{r.stream}</p>
+                        <p className="text-[9px] text-white/20">{r.desc}</p>
+                      </div>
+                      <span
+                        className="text-[8px] font-black px-1.5 py-0.5 rounded"
+                        style={{
+                          backgroundColor: r.status === "ACTIVE" ? "rgba(16,185,129,0.15)" : r.status === "BUILDING" ? "rgba(251,191,36,0.15)" : "rgba(255,255,255,0.05)",
+                          color: r.status === "ACTIVE" ? "#10B981" : r.status === "BUILDING" ? "#FBBF24" : "rgba(255,255,255,0.3)",
+                        }}
+                      >{r.status}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-[#C9A85D]/15 bg-[#C9A85D]/[0.02] p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Shield className="w-4 h-4 text-[#C9A85D]" />
+                <p className="text-[10px] font-black text-[#C9A85D]/60 tracking-wider">SOVEREIGN MANDATE</p>
+              </div>
+              <p className="text-[11px] text-white/40 leading-5">
+                This dashboard exists for one person: RAC3C. UserId 6. The Sovereign Operator.
+                Every metric, every agent, every directive flows through this single point of authority.
+                The platform was designed to be run by under 10 people — because the AI runs the company.
+                18 agents. 3% commission. Billion-node scale. From a RAM-1500 in Connecticut.
+                The distance is invisible to the customer. ONYX acts; member confirms.
               </p>
             </div>
           </div>

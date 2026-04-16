@@ -8,120 +8,64 @@ I prefer detailed explanations and iterative development. Ask before making majo
 
 # System Architecture
 
-## Monorepo Structure and Tooling
+The project uses a pnpm workspace monorepo with Node.js 24 and TypeScript 5, leveraging Express 5, PostgreSQL with Drizzle ORM, and Zod for validation. It is designed for AWS deployment, utilizing Route 53, CloudFront, S3, ALB, ECS Fargate, and RDS PostgreSQL 16.
 
-The project utilizes a pnpm workspace monorepo with Node.js 24 and TypeScript 5. The backend uses Express 5, PostgreSQL with Drizzle ORM, and Zod for validation. API codegen is handled by Orval from an OpenAPI spec, and `esbuild` is used for CJS bundling.
+The UI/UX adopts a "Apple × GTA" cinematic visual language with a multi-theme system, Barlow Condensed and Inter typography, amber accents, glassmorphism, and a custom AI-Native Design System with futuristic components. It prioritizes a mobile-first, Zero-Thought Assistant-First approach with a "Google Search Bar" pivot for a consumer-first assistant experience.
 
-## AWS Deployment Architecture
+The core architecture is AI-first, featuring an Enterprise AI Stack v4.0 with multi-model routing, a WebSocket Real-Time Hub, and an Agent Orchestration Engine powering a 12-agent UACL mesh. It includes a Blockchain Chain-of-Custody for tamper-proof ledgering, a JWT-based authentication system with WebAuthn and OAuth, and a Fortress Governor for AI safety with a three-tier confidence classification.
 
-The system is designed for AWS, leveraging Route 53, CloudFront, S3, ALB, ECS Fargate for API containers, and RDS PostgreSQL 16 for lightweight containers and zero-downtime deployments.
-
-## UI/UX Design (3C Onyx Visual Language)
-
-The platform features a cinematic "Apple × GTA" visual language with a multi-theme system (dark default, warm ivory light mode, seasonal themes). Typography uses Barlow Condensed for headings and Inter for body text. Design elements include an "THE AUTOMOTIVE INTELLIGENCE LAYER" hero, amber accents, translucent glassmorphism, and a custom AI-Native Design System with futuristic components and dynamic animations. The UI incorporates a "Google Search Bar" pivot for a consumer-first assistant experience and is designed with a mobile-first, Zero-Thought Assistant-First approach.
-
-## Core Platform Features
-
-The architecture is AI-first, encompassing:
-
--   **Enterprise AI Stack v4.0**: An AI router using OpenAI primarily, with Gemini, Bedrock, and Anthropic fallbacks.
--   **WebSocket Real-Time Hub**: Provides real-time communication across distinct rooms.
--   **Agent Orchestration Engine**: A 12-agent UACL mesh with a state machine.
--   **Blockchain Chain-of-Custody**: Ensures tamper-proof ledgering with SHA-256 hash chains, HMAC-SHA-256 signing, PostgreSQL persistence, and optional Ethereum Sepolia anchoring.
--   **Authentication System**: JWT-based (HS256) with `jose`, supporting full authentication flows, role-based access control, bcrypt-hashed passwords, WebAuthn biometric authentication (Face ID/fingerprint), and social OAuth login (Google, Apple).
--   **Fortress Governor (AI Safety & Control Layer)**: A three-tier confidence classification system for AI decisions (AUTO_EXECUTE, SUGGEST, HALT) with an Explainability Layer.
--   **Security Middleware**: Uses Helmet for security headers, `express-rate-limit` for API rate limiting, and secure Stripe webhook handling.
--   **Database Layer**: Drizzle ORM with PostgreSQL (optimized connection pool), ensuring all tables are SOC2 audit-trail compliant.
--   **API Performance Stack (ByteByteGo 5)**: Implements standardized pagination, async logging, TTL in-memory caching, gzip/brotli compression, and tuned connection pools.
--   **Sovereign Infrastructure Layer (UACL)**: Ensures every request passes through classification, authentication, execution, verification, logging, and auditing stages, including a 12-Intent Neural Classifier and the Genesis Protocol.
--   **DealerFlow OS v2.0**: An industrial infrastructure layer for automotive professionals, featuring a Smart Routing Engine, SLA Auto-Escalation, Bank-Ready Vault, AI Vision OCR Intake, Dependency-Aware DAG Execution, and Zero-Trust Delegation Architecture.
--   **Deal Command Center**: Single-screen autonomous deal pipeline replacing the entire dealership workflow, featuring a Text-to-Deal parser, Mobile Desking calculator, One-Tap Insurance binding, cryptographic Deal Verify timeline, Live Deal Thread, and 6-button command grid, with a spatial UI.
--   **ONYX AI Mode**: Google AI Mode-style conversational automotive intelligence interface with a full-page cinematic spatial UI, suggested prompts, 12-agent mesh routing, multi-turn conversation with session persistence, formatted responses, related topics chips, SHA-256 proof hashes, and typing indicators.
--   **Auto Pulse**: Perplexity-style automotive intelligence feed aggregating real-time content from Google News RSS, Reddit, NHTSA API, and automotive publications.
--   **Vehicle Customization Hub**: Full-service vehicle customization platform with fleet mode, volume pricing, instant quotes, and a product selection builder.
--   **Autonomous Execution Protocol**: AI confidence scoring per task with auto-escalation and a retry mechanism.
--   **Omni-Node Open Intake**: A public submission portal with AI-powered smart routing, duplicate detection, and a Global Trust Score Engine.
--   **Invisible Funnel Protocol**: A headless API orchestration layer for growth, communication, and commerce.
--   **Universal Commission Engine**: Automates referral commissions on platform transactions.
--   **Autonomous Execution Engine**: Implements a "Scan → Diagnose → Execute" one-tap workflow, normalizing vehicle input, running AI-powered vehicle analysis, and autonomously triggering cascading workflows with blockchain proof stamping.
--   **Universal Attribution Engine**: 5-level depth referral attribution with diminishing commission rates and blockchain proof stamping.
--   **Street-Level Distribution Network**: Entry layer for the "Global Automotive Liquidity Network," capturing QR scans at physical nodes and tracking referrers.
--   **ONYX Proof Engine**: Cryptographic SHA-256 hash-chain recording every state change across the network for 25 event types.
--   **Event Bus + Proof Integration**: Enhanced EventBus integrates with WebSocket Hub for real-time broadcast and Proof Engine for cryptographic recording. Supports AWS EventBridge in production.
--   **Node Attribution Engine**: Every deal auto-populates a participants array with roles and calculates a 3% Global Tech Fee split.
--   **NLP Intent Classifier v2**: Enhanced `routeToAgentWithConfidence()` returns confidence scores, matched keywords, and escalation flags, with 90% AI Confidence Guardrails for financial/critical actions.
+Key features and architectural layers include:
+-   **Security Middleware**: Helmet for headers, rate limiting, and secure webhook handling.
+-   **Database Layer**: Drizzle ORM with PostgreSQL, ensuring SOC2 audit-trail compliance.
+-   **API Performance Stack**: Pagination, async logging, TTL caching, compression, and tuned connection pools.
+-   **Sovereign Infrastructure Layer (UACL)**: Comprehensive request processing including classification, authentication, execution, verification, logging, auditing, and a 12-Intent Neural Classifier.
+-   **DealerFlow OS v2.0**: An industrial infrastructure layer for automotive professionals with smart routing, SLA auto-escalation, and Zero-Trust Delegation.
+-   **Deal Command Center**: A single-screen autonomous deal pipeline with a Text-to-Deal parser, Mobile Desking, and cryptographic Deal Verify timeline.
+-   **ONYX AI Mode**: A conversational automotive intelligence interface with a full-page cinematic spatial UI and multi-turn capabilities.
+-   **Auto Pulse**: A Perplexity-style automotive intelligence feed aggregating real-time content.
+-   **Vehicle Customization Hub**: A full-service platform for vehicle customization with fleet mode and volume pricing.
+-   **Autonomous Execution Protocol**: AI confidence scoring with auto-escalation and retry mechanisms.
+-   **Omni-Node Open Intake**: A public submission portal with AI-powered smart routing and a Global Trust Score Engine.
+-   **Invisible Funnel Protocol**: A headless API orchestration layer for growth and commerce.
+-   **Universal Commission Engine**: Automates referral commissions.
+-   **Autonomous Execution Engine**: Implements a "Scan → Diagnose → Execute" workflow with blockchain proof stamping.
+-   **Universal Attribution Engine**: 5-level deep referral attribution.
+-   **Street-Level Distribution Network**: Captures QR scans at physical nodes for referral tracking.
+-   **ONYX Proof Engine**: Cryptographic SHA-256 hash-chain recording state changes.
+-   **Event Bus + Proof Integration**: Integrates with WebSocket Hub and Proof Engine.
+-   **Node Attribution Engine**: Auto-populates participant arrays and calculates tech fees.
+-   **NLP Intent Classifier v2**: Enhanced intent classification with confidence scores and guardrails.
 -   **Sovereign Behavioral Execution Engine**: Psychological intelligence layer over the 12-Agent Mesh.
--   **Conversion Intelligence Engine**: Global Learning Brain that tracks which behavioral patterns lead to conversions, records behavioral signals, attributes conversions, and calculates effectiveness scores.
--   **Multi-Channel Referral Sharing**: SMS, TikTok, Instagram, WhatsApp, Telegram, Copy Link, QR sharing in AltruisticShare modal and My QR page.
--   **Idempotency Guard**: API-level duplicate prevention middleware with HMAC-signed response caching, concurrent lock management, and 24h TTL. Applied to `/auto-settle`, `/splits`, `/bank-payoff`, `/text-to-deal`, and Stripe webhooks (event ID dedup). Prevents zero-duplicate deals/payments.
--   **Escrow Orders (PostgreSQL-persisted)**: All vehicle escrow orders are stored in `escrow_orders` table — no in-memory loss on restart. Includes `stripe_transfer_id`, `payout_status`, retry tracking with exponential backoff, and Stripe Connect transfer execution for seller/runner payouts.
--   **Webhook Transaction Safety**: Stripe webhook handler wraps all DB operations in a Drizzle transaction (atomic all-or-nothing). Idempotency guard on event IDs prevents double-processing on Stripe retries.
--   **Commission Auto-Trigger**: The Universal Commission Engine (`processUniversalCommission`) is automatically invoked on `payment_intent.succeeded` webhook events for vehicle escrow purchases.
--   **Reconciliation Endpoint**: `GET /api/admin/reconciliation?days=N` (admin+sovereign) compares Stripe PaymentIntents against internal transaction records and flags discrepancies (missing records, amount mismatches, status mismatches, orphaned records). Also surfaces failed escrow payouts.
--   **State Transition Hardener**: Strict state transition validation across 7 domains (deal, agent_task, engagement, kyc, transaction, runner_mission, logistics) with 49 states and 79 validated transitions. Architect-signed transition hashes. Integrated into Agent Orchestrator.
--   **Michelin Demand Engine**: Converts 15 friction event types (accident, breakdown, recall, lease expiry, etc.) into demand scores with 5 tiers (LOW→EMERGENCY), 6 upgrade path types, compound multipliers for multiple friction events, and auto-triggers via EventBus `friction.detected` listener. Routes at `/hardened/michelin`.
--   **Distribution Hub Auto-Upgrade Engine**: Katamari Growth Model — 5 node tiers (MEMBER→DISTRIBUTION_CENTER), 8 hub categories (Attorney, Rideshare, Shop, Dealer, Fleet, Influencer, Community, General) with category-specific fast-track thresholds and special features. Routes at `/hardened/hub`.
--   **C-Suite + Book Doctrine Agent Engine**: 18 autonomous AI agents — 7 C-Suite executives (CEO SOVEREIGN-1, CTO ARCHITECT-1, CFO TREASURY-1, COO OPERATIONS-1, Content/Social SIGNAL-1, BD EXPANSION-1, Legal GUARDIAN-1) + 11 Book Doctrine agents (BLITZSCALE-1 Blitzscaling, LEAN-1 Lean Startup, SCROLLS-1 Greatest Salesman, COACH-1 Trillion Dollar Coach, SPRINT-1 12 Week Year, KATAMARI-1 Compound Growth, GRAHAM-1 Intelligent Investor, OCEAN-1 Blue Ocean Strategy, SUNZI-1 Art of War, KIYOSAKI-1 Rich Dad Poor Dad, HILL-1 Think and Grow Rich). 69 directive rules across 58 categories. Each agent has profiles, confidence scoring, urgency levels (LOW→SOVEREIGN), maturity tracking (INITIALIZING→SOVEREIGN), self-learning integration, and KPI monitoring. Autonomous compute loop every 120 seconds. Routes at `/c-suite`.
--   **Success Stories Engine**: Tracks and showcases blue-collar success stories — regular people making $100K+ through the platform. Database-backed with featured/published status, verified badges, earnings tracking, and stats aggregation. Routes at `/success-stories`.
--   **Fintech Compliance Guard**: Production-grade fintech enforcement layer — validates every payout against KYC status and Stripe Connect account linkage, blocks 5 forbidden payout patterns (raw_bank_transfer, direct_ach_bypass, plaid_payout, manual_wire, unverified_account_payout), holds earnings with "Earnings Ready" notifications when accounts aren't connected, one-tap release after connection, SHA-256 proof hashes on all held earnings, full audit trail. Integrated into Auto-Settle Engine as pre-check gate. Routes at `/fintech`.
--   **Self-Learning Feedback Loop**: Correction event system — captures every AI override, detects recurring patterns, adjusts confidence thresholds, tracks agent maturity (INFANT→LEARNING→COMPETENT→EXPERT→MASTER), and generates learning insights. Routes at `/learning`.
--   **Next Best Action Engine**: Zero-blindness operator guidance — 11 action rules across 11 categories analyze deal state, engagement temperature, objections, timing, and sentiment to generate confidence-scored action suggestions with pre-written responses. Batch computation for operator dashboards. Routes at `/nba`.
--   **Sovereign Service Mesh**: Kubernetes-equivalent service registry with 13 microservices, health probes (15s interval), circuit breakers (CLOSED→OPEN→HALF_OPEN), horizontal pod autoscaling simulation, network policies, and cluster-wide metrics. Routes at `/infrastructure/mesh`.
--   **ONYX Metrics Engine**: Prometheus+Grafana-equivalent with 8 counters, 6 gauges, 4 histograms, 5 time series. Prometheus-compatible `/metrics` endpoint, HTTP middleware auto-collects request rates, latency percentiles (P50/P95/P99), error rates. Routes at `/infrastructure/metrics`.
--   **ONYX Log Aggregator**: ELK Stack-equivalent centralized structured logging with 50K-entry ring buffer, 24h retention, correlation ID tracing, full-text search, log level filtering, per-service aggregation, error pattern tracking, slow endpoint detection. Routes at `/infrastructure/logs`.
--   **ONYX Object Vault**: S3+CloudFront-equivalent document storage with AES-256-CBC encryption, 5 default buckets (documents, media, contracts, exports, system), CDN cache layer (100MB), ETag support, signed URL generation, content-type detection. Routes at `/infrastructure/vault`.
--   **ONYX CI/CD Pipeline**: GitHub Actions-equivalent with 5-stage pipeline (typecheck → build-api → build-web → security-audit → deployment-readiness), parallel stage execution, retry logic, deployment readiness checks, Sovereign-only trigger. Routes at `/infrastructure/pipeline`.
--   **Architectural Upgrades**: Includes CarPlay/Android Auto integration, a tRPC Type-Safe API Layer, an Admin API, and a Beta Waitlist system.
+-   **Conversion Intelligence Engine**: Tracks behavioral patterns for conversion optimization.
+-   **Multi-Channel Referral Sharing**: Integrated sharing across various social platforms.
+-   **Idempotency Guard**: API-level duplicate prevention for critical transactions.
+-   **Escrow Orders**: PostgreSQL-persisted for vehicle escrow, with Stripe Connect integration.
+-   **Webhook Transaction Safety**: Atomic DB operations and idempotency for Stripe webhooks.
+-   **Commission Auto-Trigger**: Automatic commission processing on `payment_intent.succeeded` events.
+-   **Reconciliation Endpoint**: Compares Stripe PaymentIntents against internal records for discrepancies.
+-   **State Transition Hardener**: Strict validation across multiple domains and states.
+-   **Michelin Demand Engine**: Converts friction events into demand scores and auto-triggers.
+-   **Distribution Hub Auto-Upgrade Engine**: Katamari Growth Model for node tier progression.
+-   **C-Suite + Book Doctrine Agent Engine**: 18 autonomous AI agents with directives, self-learning, and KPI monitoring.
+-   **Success Stories Engine**: Tracks and showcases user achievements.
+-   **Command Center Sovereign Blueprint DNA**: New Founder's Command Center tabs for doctrine agents, success stories, and sovereign HQ.
+-   **Fintech Compliance Guard**: Production-grade enforcement for payouts, KYC, and Stripe Connect.
+-   **Self-Learning Feedback Loop**: Captures AI overrides, adjusts confidence, and tracks agent maturity.
+-   **Next Best Action Engine**: Operator guidance with confidence-scored action suggestions.
+-   **Sovereign Service Mesh**: Kubernetes-equivalent service registry with health probes, circuit breakers, and autoscaling simulation.
+-   **ONYX Metrics Engine**: Prometheus+Grafana-equivalent with various counters, gauges, histograms, and time series.
+-   **ONYX Log Aggregator**: ELK Stack-equivalent centralized structured logging with correlation ID tracing.
+-   **ONYX Object Vault**: S3+CloudFront-equivalent document storage with encryption and CDN caching.
+-   **ONYX CI/CD Pipeline**: GitHub Actions-equivalent 5-stage pipeline.
+-   **Architectural Upgrades**: CarPlay/Android Auto integration, tRPC Type-Safe API Layer, Admin API, Beta Waitlist.
 
-## Kilocorn Infrastructure Layers ($1T+ Architecture)
+Kilocorn Infrastructure Layers include a Developer Platform/API Gateway, Federation/Multi-Region Architecture, Global Settlement Engine, Plugin/Extension System, IoT/Vehicle Telemetry Pipeline, Governance & Compliance Engine, and Data Intelligence Platform.
 
-Seven protocol-level infrastructure layers:
-1.  **Developer Platform / API Gateway**: For third-party developer registration, API key issuance, tiered rate limiting, and a webhook delivery system.
-2.  **Federation / Multi-Region Architecture**: A 9-region global node topology with event-sourced incremental sync, jurisdiction-aware data sharding, mTLS, and automatic regional failover.
-3.  **Global Settlement Engine**: Supports 20 currencies and 8 payment rails, with real-time FX conversion and a 2% platform fee.
-4.  **Plugin / Extension System**: An "App Store for automotive" where third parties can build modules.
-5.  **IoT / Vehicle Telemetry Pipeline**: Data ingestion from OBD-II, telematics, connected car APIs, AR headsets, and robotics, with a predictive maintenance engine.
-6.  **Governance & Compliance Engine**: Manages compliance across 10 default jurisdictions and 8 frameworks, with automated reporting and consent management.
-7.  **Data Intelligence Platform**: Provides market pricing intelligence, demand forecasting, regional trend analysis, competitive intelligence, predictive maintenance models, and fleet analytics.
+The Unified Sovereign Nexus integrates gig-economy logistics, warranty management, and a 7-Agent Mesh into a Distributed Node Economy with invite-only architecture, real-time task matching, an Ask ONYX Command Router, Instant Split-Payment Engine, Bank Payoff Protocol, and Warranty Intelligence Engine.
 
-## Unified Sovereign Nexus — The Living Money Network
+The Global Automotive Economic Network includes an ONYX Wallet System, Location Node Network, Social Proof Engine, Global Remittance System, and Global Inclusion & Localization Engine.
 
-Six systems integrating gig-economy logistics, warranty management, and a 7-Agent Mesh into a Distributed Node Economy:
-1.  **Invite-Only Node Architecture**: Gated entry with cryptographic invites for lifetime attribution and role assignment.
-2.  **Real-Time Task Matching Engine**: Uber/DoorDash-grade distributed task matching with a state machine and geo-hash nearest-node dispatching.
-3.  **Ask ONYX Command Router**: Single NLP-ready input routing intents to the 7-Agent Mesh with high-confidence auto-routing.
-4.  **Instant Split-Payment Engine**: Automatic multi-party split on every transaction with proof-of-completion gating and blockchain-stamped distribution.
-5.  **Bank Payoff Protocol**: Automates bank payoffs for 18 lenders.
-6.  **Warranty Intelligence Engine**: Integrates factory warranty verification with VIN decoding and recall information.
-
-## Global Automotive Economic Network — The Living Money Network
-
-Five systems completing the zero-friction global economy:
-1.  **ONYX Wallet System**: A financial system for real-time balances, earnings tracking, and instant credit/debit.
-2.  **Location Node Network**: Transforms physical locations into high-conversion points-of-sale with QR code generation and tracking.
-3.  **Social Proof Engine**: Provides real-time social proof and gamification elements for user engagement.
-4.  **Global Remittance System**: Facilitates cross-border payments with multi-currency support and blockchain proof stamps.
-5.  **Global Inclusion & Localization Engine**: Optimizes the platform for diverse users, devices, and networks with multi-language and multi-currency support, offline-first sync, and emerging market readiness.
-
-## ONYX Theme Engine — Culture-Driven Visual Identity
-
-A theme engine offering 20 culture-driven themes across 10 categories, each with full color palettes, dark mode overrides, typography, and visual effect flags.
-
-## Key API Endpoints
-
--   **Text-to-Deal Engine**: Converts raw text messages into structured deals via NLP entity extraction.
--   **Universal Auto-Settle Engine**: Core payment infrastructure for transaction settlement with auto-splitting and platform fees.
--   **Dealer 20 Group Protocol**: Viral growth engine for dealer groups with benchmarking and leaderboards.
--   **OEM Incentives Engine**: Matches VIN, ZIP, and customer profiles to exact OEM discounts and rebates.
--   **Club / Event / Venue System**: Full social infrastructure for creating/managing clubs, events, and venues.
--   **Social Amplifier**: Auto-posts campaigns and content across 9 social platforms.
--   **Marketplace Hub**: Multichannel product distribution across 18+ marketplace channels.
--   **Marketing Hub**: Email, SMS campaigns, landing pages, and marketing automations.
--   **Apparel & Powersport Catalog**: 40-product motorsport/powersport dropship catalog (66 categories) covering motorcycle jackets, helmets, riding boots, leather vests/chaps, motocross gear, ATV helmets, jet ski life vests, snowmobile jackets, Bluetooth communicators, LED kits, saddlebags, tool rolls, and accessories. Entertainment subscriptions.
--   **Smart Promotions & Cultural Engine**: Proactive maintenance/upgrade alerts and cultural personalization based on user data.
--   **eCommerce Bridge**: Unifies 40+ eCommerce platforms for B2B and B2C dropship.
--   **Survey Shield & OEM Bridge Protocol**: Income protection for salespeople via sentiment checkpoints and automatic OEM app registration.
--   **Paramount Access & Sovereign Credential**: Sovereign credential system with role-based access.
+A theme engine offers 20 culture-driven themes. Key API Endpoints include Text-to-Deal Engine, Universal Auto-Settle Engine, Dealer 20 Group Protocol, OEM Incentives Engine, Club / Event / Venue System, Social Amplifier, Marketplace Hub, Marketing Hub, Apparel & Powersport Catalog, Smart Promotions & Cultural Engine, eCommerce Bridge, Survey Shield & OEM Bridge Protocol, and Paramount Access & Sovereign Credential.
 
 # External Dependencies
 
