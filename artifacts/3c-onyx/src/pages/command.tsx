@@ -547,7 +547,7 @@ export default function CommandCenter() {
   const { data: agentStatusData } = useQuery<any>({
     queryKey: ["c-suite-status"],
     queryFn: () => fetch("/api/c-suite/status").then(r => r.ok ? r.json() : null).catch(() => null),
-    enabled: tab === "book-doctrine" || tab === "c-suite",
+    enabled: tab === "book-doctrine" || tab === "c-suite" || tab === "founder-dashboard",
     refetchInterval: 10_000,
   });
 
@@ -747,7 +747,7 @@ export default function CommandCenter() {
                 </div>
                 <button
                   onClick={() => setTab("killswitch")}
-                  className="w-full mt-2 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] font-bold hover:bg-red-500/20 transition-colors"
+                  className="w-full mt-2 min-h-[48px] rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] font-bold hover:bg-red-500/20 transition-colors"
                 >
                   REVIEW & OVERRIDE →
                 </button>
@@ -767,7 +767,7 @@ export default function CommandCenter() {
             <button
               key={id}
               onClick={() => setTab(id)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+              className={`flex items-center gap-2 px-4 min-h-[48px] rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                 tab === id ? "bg-white/8 text-white" : "text-white/30 hover:text-white/50"
               }`}
             >
@@ -808,7 +808,7 @@ export default function CommandCenter() {
                   <Truck className="w-4 h-4 text-blue-400" />
                   <p className="text-sm font-semibold text-white">Active Missions</p>
                 </div>
-                <button onClick={() => setTab("missions")} className="text-[10px] text-white/25 hover:text-white/50">View all →</button>
+                <button onClick={() => setTab("missions")} className="text-[10px] text-white/25 hover:text-white/50 min-h-[48px] px-2">View all →</button>
               </div>
               <div>
                 {missions.filter(m => m.status !== "delivered").slice(0, 4).map((m) => (
@@ -827,7 +827,7 @@ export default function CommandCenter() {
                     <span className="w-5 h-5 rounded-full bg-red-500 text-white text-[9px] font-black flex items-center justify-center">{unackedAlerts.length}</span>
                   )}
                 </div>
-                <button onClick={() => setTab("alerts")} className="text-[10px] text-white/25 hover:text-white/50">View all →</button>
+                <button onClick={() => setTab("alerts")} className="text-[10px] text-white/25 hover:text-white/50 min-h-[48px] px-2">View all →</button>
               </div>
               <div className="p-3">
                 <AlertsPanel alerts={alerts.slice(0, 4)} onAck={ackAlert} />
@@ -1907,15 +1907,32 @@ export default function CommandCenter() {
                 <p className="text-sm font-semibold text-white">18-Agent Sovereign Mesh — Live Health</p>
                 <span className="ml-auto text-[9px] text-white/25">{agentStatusData?.totalAgents || 0} agents · {agentStatusData?.activeRules || 0} rules</span>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-px bg-white/5">
+
+              <div className="p-3 border-b border-white/5 flex items-center gap-4 text-[9px]">
+                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-[#4CAF50]" /><span className="text-white/40">Healthy</span></div>
+                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-[#FF9800]" /><span className="text-white/40">Initializing</span></div>
+                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-[#F44336]" /><span className="text-white/40">Degraded</span></div>
+              </div>
+
+              <div className="divide-y divide-white/5">
                 {liveAgents.map((a: any) => {
-                  const hc = a.maturity === "AUTONOMOUS" ? "#4CAF50" : a.maturity === "SCALING" ? "#00BCD4" : a.maturity === "CALIBRATING" ? "#FF9800" : "#FFD700";
+                  const healthColor = a.totalDirectives > 0 ? "#4CAF50" : a.maturity === "INITIALIZING" ? "#FF9800" : a.acceptanceRate < 50 ? "#F44336" : "#4CAF50";
+                  const healthLabel = a.totalDirectives > 0 ? "HEALTHY" : a.maturity === "INITIALIZING" ? "INITIALIZING" : a.acceptanceRate < 50 ? "DEGRADED" : "HEALTHY";
+                  const lastRunAgo = a.lastActive ? Math.round((Date.now() - a.lastActive) / 1000) : null;
+                  const lastRunLabel = lastRunAgo === null ? "Never" : lastRunAgo < 60 ? `${lastRunAgo}s ago` : lastRunAgo < 3600 ? `${Math.round(lastRunAgo/60)}m ago` : `${Math.round(lastRunAgo/3600)}h ago`;
+                  const delegatesTo = CSUITE_IDS.includes(a.id) ? "Sovereign" : a.id === "blitzscale" || a.id === "art-of-war" ? "CEO → Sovereign" : a.id === "lean-startup" ? "CTO → Sovereign" : a.id === "intelligent-investor" ? "CFO → Sovereign" : "COO → Sovereign";
+
                   return (
-                  <div key={a.name} className="p-3 text-center bg-[#0d0d10]">
-                    <div className="w-2 h-2 rounded-full mx-auto mb-1.5 animate-pulse" style={{ backgroundColor: hc }} />
-                    <p className="text-[9px] font-bold text-white truncate">{a.name}</p>
-                    <p className="text-[8px] text-white/20">{a.domain?.split(" ")[0] || a.title?.split(" ")[0]}</p>
-                    <p className="text-[7px] mt-0.5" style={{ color: hc }}>{a.maturity}</p>
+                  <div key={a.name} className="flex items-center gap-3 px-4 min-h-[48px]">
+                    <div className="w-2.5 h-2.5 rounded-full shrink-0 animate-pulse" style={{ backgroundColor: healthColor, boxShadow: `0 0 6px ${healthColor}40` }} />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[10px] font-bold text-white truncate">{a.name}</p>
+                    </div>
+                    <div className="hidden sm:block text-[8px] text-white/20 w-24 truncate">{a.domain?.split(" ").slice(0,2).join(" ") || "—"}</div>
+                    <div className="text-[8px] text-white/25 w-20 text-center">{delegatesTo}</div>
+                    <div className="text-[8px] text-white/30 font-mono w-12 text-center">{a.totalDirectives || 0}</div>
+                    <div className="text-[8px] text-white/20 w-14 text-right">{lastRunLabel}</div>
+                    <div className="text-[7px] font-bold w-16 text-right" style={{ color: healthColor }}>{healthLabel}</div>
                   </div>
                 )})}
               </div>
@@ -2073,14 +2090,15 @@ export default function CommandCenter() {
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
                 {[
-                  { label: "NETWORK NODES",    value: pulse?.missions.active ?? 0,                icon: "🌐", color: "#C9A85D" },
-                  { label: "PLATFORM GMV",     value: pulse ? fmt(pulse.revenue.weekGmv) : "—",   icon: "💰", color: "#10B981" },
-                  { label: "K-FACTOR",         value: pulse?.kFactor.current.toFixed(2) ?? "—",   icon: "📈", color: "#FF2D9A" },
-                  { label: "KILL-SWITCH",      value: unresolvedFlagged.length,                    icon: "🛡️", color: unresolvedFlagged.length > 0 ? "#EF4444" : "#10B981" },
+                  { label: "NETWORK NODES",      value: pulse?.missions.active ?? 0,                                                                  icon: "🌐", color: "#C9A85D" },
+                  { label: "PLATFORM GMV",        value: pulse ? fmt(pulse.revenue.weekGmv) : "—",                                                    icon: "💰", color: "#10B981" },
+                  { label: "K-FACTOR",            value: pulse?.kFactor.current.toFixed(2) ?? "—",                                                    icon: "📈", color: "#FF2D9A" },
+                  { label: "REV / NODE",          value: pulse && pulse.missions.active > 0 ? fmt(Math.round(pulse.revenue.weekGmv * 0.03 / pulse.missions.active)) : "—", icon: "⚡", color: "#7B61FF" },
+                  { label: "KILL-SWITCH",         value: unresolvedFlagged.length,                                                                     icon: "🛡️", color: unresolvedFlagged.length > 0 ? "#EF4444" : "#10B981" },
                 ].map((s) => (
-                  <div key={s.label} className="rounded-xl border border-white/8 bg-white/[0.02] p-3">
+                  <div key={s.label} className="rounded-xl border border-white/8 bg-white/[0.02] p-3 min-h-[48px]">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-sm">{s.icon}</span>
                       <p className="text-[9px] text-white/25 font-bold tracking-wider">{s.label}</p>
@@ -2088,6 +2106,36 @@ export default function CommandCenter() {
                     <p className="text-xl font-black" style={{ color: s.color }}>{s.value}</p>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-[#00E5FF]/15 bg-[#00E5FF]/[0.02] overflow-hidden">
+              <div className="p-4 border-b border-white/6 flex items-center gap-2">
+                <Brain className="w-4 h-4 text-[#00E5FF]" />
+                <p className="text-sm font-semibold text-white">AI Execution Health</p>
+                <span className="ml-auto text-[9px] font-black px-2 py-0.5 rounded-full bg-[#00E5FF]/20 text-[#00E5FF]">LIVE</span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-white/5">
+                <div className="p-3 bg-[#0d0d10]">
+                  <p className="text-[9px] text-white/25 font-bold tracking-wider mb-1">AGENTS ONLINE</p>
+                  <p className="text-xl font-black text-[#4CAF50]">{agentStatusData?.totalAgents || 0}</p>
+                  <p className="text-[8px] text-white/20">/ 18 target</p>
+                </div>
+                <div className="p-3 bg-[#0d0d10]">
+                  <p className="text-[9px] text-white/25 font-bold tracking-wider mb-1">DIRECTIVE RULES</p>
+                  <p className="text-xl font-black text-[#FF8F00]">{agentStatusData?.activeRules || 0}</p>
+                  <p className="text-[8px] text-white/20">Active rules</p>
+                </div>
+                <div className="p-3 bg-[#0d0d10]">
+                  <p className="text-[9px] text-white/25 font-bold tracking-wider mb-1">LOOP STATUS</p>
+                  <p className="text-xl font-black text-[#4CAF50]">{agentStatusData?.status || "—"}</p>
+                  <p className="text-[8px] text-white/20">Engine state</p>
+                </div>
+                <div className="p-3 bg-[#0d0d10]">
+                  <p className="text-[9px] text-white/25 font-bold tracking-wider mb-1">ERROR RATE</p>
+                  <p className="text-xl font-black text-[#4CAF50]">{pulse ? ((pulse.killSwitch.flaggedCount / Math.max(pulse.missions.active, 1)) * 100).toFixed(1) : "0.0"}%</p>
+                  <p className="text-[8px] text-white/20">Platform errors</p>
+                </div>
               </div>
             </div>
 
