@@ -1,1 +1,1 @@
-ALTER TABLE "success_stories" ADD COLUMN IF NOT EXISTS "referral_chain_depth" integer DEFAULT 1 NOT NULL;
+ALTER TABLE "success_stories" ADD COLUMN IF NOT EXISTS "referral_chain_depth" integer DEFAULT 0 NOT NULL;
