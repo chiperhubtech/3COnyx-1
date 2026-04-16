@@ -28,6 +28,8 @@ router.get("/c-suite/status", (_req: Request, res: Response) => {
       acceptanceRate: a.acceptanceRate,
       lastActive: a.lastActive,
       kpis: a.kpis,
+      responsibilities: a.responsibilities,
+      recentDirectives: a.recentDirectives.slice(0, 3),
     })),
     timestamp: new Date().toISOString(),
   });

@@ -46,6 +46,63 @@ interface Alert {
 
 interface KTrend { day: string; value: number; referrals: number; conversions: number }
 
+interface AgentDirective {
+  id: string;
+  category: string;
+  urgency: string;
+  confidence: number;
+  directive: string;
+  timestamp: number;
+}
+
+interface AgentStatusEntry {
+  id: string;
+  title: string;
+  name: string;
+  domain: string;
+  status: string;
+  maturity: string;
+  totalDirectives: number;
+  acceptanceRate: number;
+  lastActive: number;
+  kpis: string[];
+  responsibilities: string[];
+  recentDirectives: AgentDirective[];
+}
+
+interface AgentStatusResponse {
+  status: string;
+  totalAgents: number;
+  activeRules: number;
+  agents: AgentStatusEntry[];
+  timestamp: string;
+}
+
+interface SuccessStoryCard {
+  id: number;
+  displayName: string;
+  location: string;
+  previousJob: string;
+  currentRole: string;
+  totalEarnings: number;
+  monthlyAvg: number;
+  monthsOnPlatform: number;
+  dealsCompleted: number;
+  referralChainDepth: number;
+  headline: string;
+  story: string;
+  isFeatured: boolean;
+  isVerified: boolean;
+}
+
+interface SuccessStatsData {
+  totalStories: number;
+  totalEarnings: number;
+  avgMonthly: number;
+  totalDeals: number;
+  topEarner: number;
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const fmt = (n: number) => n >= 1_000_000
   ? `$${(n / 1_000_000).toFixed(2)}M`
@@ -544,7 +601,7 @@ export default function CommandCenter() {
     refetchInterval: 10_000,
   });
 
-  const { data: agentStatusData } = useQuery<any>({
+  const { data: agentStatusData } = useQuery<AgentStatusResponse | null>({
     queryKey: ["c-suite-status"],
     queryFn: () => fetch("/api/c-suite/status").then(r => r.ok ? r.json() : null).catch(() => null),
     enabled: tab === "book-doctrine" || tab === "c-suite" || tab === "founder-dashboard",
@@ -558,13 +615,13 @@ export default function CommandCenter() {
     refetchInterval: 10_000,
   });
 
-  const { data: successStoriesData } = useQuery<any>({
+  const { data: successStoriesData } = useQuery<{ stories: SuccessStoryCard[] } | null>({
     queryKey: ["success-stories-published"],
     queryFn: () => fetch("/api/success-stories/published").then(r => r.ok ? r.json() : null).catch(() => null),
     enabled: tab === "success-stories",
   });
 
-  const { data: successStatsData } = useQuery<any>({
+  const { data: successStatsData } = useQuery<SuccessStatsData | null>({
     queryKey: ["success-stories-stats"],
     queryFn: () => fetch("/api/success-stories/stats").then(r => r.ok ? r.json() : null).catch(() => null),
     enabled: tab === "success-stories",
@@ -1801,10 +1858,10 @@ export default function CommandCenter() {
             "think-grow-rich":     { book: "Think and Grow Rich — Napoleon Hill",       icon: "🔥" },
           };
           const CSUITE_IDS = ["ceo","cto","cfo","coo","content-social","business-dev","legal-compliance"];
-          const liveAgents = (agentStatusData?.agents || []) as any[];
-          const doctrineAgents = liveAgents.filter((a: any) => !CSUITE_IDS.includes(a.id));
-          const totalDirectives = doctrineAgents.reduce((s: number, a: any) => s + (a.totalDirectives || 0), 0);
-          const avgAcceptance = doctrineAgents.length > 0 ? doctrineAgents.reduce((s: number, a: any) => s + (a.acceptanceRate || 0), 0) / doctrineAgents.length : 0;
+          const liveAgents: AgentStatusEntry[] = agentStatusData?.agents || [];
+          const doctrineAgents = liveAgents.filter((a) => !CSUITE_IDS.includes(a.id));
+          const totalDirectives = doctrineAgents.reduce((s, a) => s + (a.totalDirectives || 0), 0);
+          const avgAcceptance = doctrineAgents.length > 0 ? doctrineAgents.reduce((s, a) => s + (a.acceptanceRate || 0), 0) / doctrineAgents.length : 0;
 
           return (
           <div className="space-y-5">
@@ -1836,9 +1893,11 @@ export default function CommandCenter() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {doctrineAgents.map((agent: any) => {
+              {doctrineAgents.map((agent) => {
                 const bookInfo = DOCTRINE_BOOK_MAP[agent.id] || { book: agent.domain, icon: "📖" };
                 const healthColor = agent.maturity === "AUTONOMOUS" ? "#4CAF50" : agent.maturity === "SCALING" ? "#00BCD4" : agent.maturity === "CALIBRATING" ? "#FF9800" : "#FFD700";
+                const responsibilities = agent.responsibilities || [];
+                const recentDirectives = agent.recentDirectives || [];
                 return (
                 <div
                   key={agent.id}
@@ -1884,6 +1943,40 @@ export default function CommandCenter() {
                       <span className="font-bold" style={{ color: healthColor }}>{agent.status}</span>
                     </div>
                   </div>
+
+                  {responsibilities.length > 0 && (
+                    <div className="border-t border-white/5 pt-2 mb-2">
+                      <p className="text-[8px] text-white/20 font-bold tracking-wider mb-1">PHILOSOPHY</p>
+                      <ul className="space-y-0.5">
+                        {responsibilities.map((r: string, i: number) => (
+                          <li key={i} className="text-[9px] text-white/40 leading-tight flex items-start gap-1">
+                            <span className="text-[7px] mt-0.5" style={{ color: healthColor }}>&#9670;</span>
+                            <span>{r}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {recentDirectives.length > 0 && (
+                    <div className="border-t border-white/5 pt-2 mb-2">
+                      <p className="text-[8px] text-white/20 font-bold tracking-wider mb-1">RECENT DIRECTIVES</p>
+                      <div className="space-y-1">
+                        {recentDirectives.map((d: AgentDirective) => (
+                          <div key={d.id} className="rounded px-1.5 py-1 bg-white/[0.02]">
+                            <p className="text-[8px] text-white/50 leading-tight">{d.directive}</p>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <span className="text-[7px] font-bold" style={{ color: d.urgency === "high" ? "#FF2D9A" : d.urgency === "medium" ? "#FF9800" : "#4CAF50" }}>
+                                {d.urgency.toUpperCase()}
+                              </span>
+                              <span className="text-[7px] text-white/20">{d.category}</span>
+                              <span className="text-[7px] text-white/15">{Math.round(d.confidence * 100)}%</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                   <div className="border-t border-white/5 pt-2">
                     <p className="text-[8px] text-white/20 font-bold tracking-wider mb-1">KPIs</p>
@@ -1958,10 +2051,10 @@ export default function CommandCenter() {
 
         {/* ── SUCCESS STORIES TAB ───────────────────────────────────── */}
         {tab === "success-stories" && (() => {
-          const allStories = (successStoriesData?.stories ?? []) as any[];
+          const allStories: SuccessStoryCard[] = successStoriesData?.stories ?? [];
           const searchLower = storySearch.toLowerCase();
           const filteredStories = searchLower
-            ? allStories.filter((s: any) =>
+            ? allStories.filter((s) =>
                 (s.displayName || "").toLowerCase().includes(searchLower) ||
                 (s.currentRole || "").toLowerCase().includes(searchLower) ||
                 (s.location || "").toLowerCase().includes(searchLower) ||
@@ -2002,7 +2095,7 @@ export default function CommandCenter() {
 
             <div className="space-y-3">
               {filteredStories.length > 0 ? (
-                filteredStories.map((story: any) => (
+                filteredStories.map((story) => (
                   <div
                     key={story.id}
                     className="rounded-xl border border-white/8 bg-white/[0.02] p-4 hover:bg-white/[0.04] transition-all"
@@ -2041,6 +2134,12 @@ export default function CommandCenter() {
                             <span className="text-white/20">Months </span>
                             <span className="text-violet-400 font-bold">{story.monthsOnPlatform ?? 0}</span>
                           </div>
+                          {(story.referralChainDepth ?? 0) > 0 && (
+                            <div>
+                              <span className="text-white/20">Chain </span>
+                              <span className="text-[#7B61FF] font-bold">{story.referralChainDepth} deep</span>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>

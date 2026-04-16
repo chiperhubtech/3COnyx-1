@@ -49,6 +49,7 @@ Key features and architectural layers include:
 -   **C-Suite + Book Doctrine Agent Engine**: 18 autonomous AI agents with directives, self-learning, and KPI monitoring.
 -   **Success Stories Engine**: Tracks and showcases user achievements.
 -   **Command Center Sovereign Blueprint DNA**: New Founder's Command Center tabs for doctrine agents, success stories, and sovereign HQ.
+-   **ONYX Automotive OS (v3.0.0-PROD)**: AI-Callable, Node-Based Transaction Network with Force-Action UI, Live Node Registry (ELMWOOD_CDJR, ROUTE_44, CUXTOMCANDY_HUB), Transaction Ledger with payout tracking, 3% platform commission engine, and full REST API layer for inventory search, leads, deals, service requests, vehicle verification, and messaging. Mounted at `/api/platform/`.
 -   **Fintech Compliance Guard**: Production-grade enforcement for payouts, KYC, and Stripe Connect.
 -   **Self-Learning Feedback Loop**: Captures AI overrides, adjusts confidence, and tracks agent maturity.
 -   **Next Best Action Engine**: Operator guidance with confidence-scored action suggestions.

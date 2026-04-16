@@ -1,0 +1,89 @@
+from fastapi import FastAPI, HTTPException, Depends, Header, Request
+from pydantic import BaseModel, Field
+from typing import List, Optional
+import uuid
+import time
+
+app = FastAPI(title="3C ONYX Automotive Platform", version="2.0.0")
+
+# --- Security & Middleware ---
+API_KEY_HEADER = Header(None, alias="X-API-KEY")
+
+async def verify_token(x_api_key: str = API_KEY_HEADER):
+    if x_api_key != "onyx_secret_key_2026": # In prod, use DB lookup
+        raise HTTPException(status_code=401, detail="Invalid API Key")
+    return True
+
+# --- Models ---
+class Vehicle(BaseModel):
+    vin: str
+    make: str
+    model: str
+    price: float
+    payment_estimate: float
+    availability: bool
+
+class LeadRequest(BaseModel):
+    name: str
+    phone: str
+    email: str
+    intent_type: str # buy, trade, service
+    budget: float
+    payment_target: float
+
+class DealRequest(BaseModel):
+    lead_id: str
+    vehicle_id: str
+    node_id: str
+
+# --- Endpoints ---
+
+@app.get("/api/inventory/search", response_model=List[Vehicle])
+async def search_inventory(make: str, model: Optional[str] = None, max_price: Optional[float] = None, zip_code: str = "90210"):
+    """AI uses this to find cars matching customer criteria."""
+    # Logic: Query existing 3C ONYX DB
+    return [
+        {"vin": "123XYZ", "make": make, "model": model or "Model S", "price": 45000, "payment_estimate": 599.00, "availability": True}
+    ]
+
+@app.post("/api/leads/create")
+async def create_lead(lead: LeadRequest, authorized: bool = Depends(verify_token)):
+    """Capture lead data from AI conversation."""
+    lead_id = str(uuid.uuid4())
+    # Audit Logging: Log lead creation for compliance
+    print(f"Audit: Lead {lead_id} created for {lead.email}")
+    return {"success": True, "data": {"lead_id": lead_id, "status": "active"}, "error": None}
+
+@app.post("/api/deals/create")
+async def create_deal(deal: DealRequest, request: Request, authorized: bool = Depends(verify_token)):
+    """Start a transaction. Uses Header 'X-Idempotency-Key' to prevent duplicates."""
+    idempotency_key = request.headers.get("X-Idempotency-Key")
+    deal_id = str(uuid.uuid4())
+    return {"success": True, "data": {"deal_id": deal_id, "status": "pending_signature"}, "error": None}
+
+@app.get("/api/deals/{deal_id}")
+async def get_deal(deal_id: str):
+    """Track transaction progress for the user."""
+    return {
+        "success": True, 
+        "data": {
+            "status": "In Finance", 
+            "timeline": ["Lead Created", "Vehicle Selected", "Credit App Submitted"],
+            "next_steps": "Wait for lender approval"
+        },
+        "error": None
+    }
+
+@app.post("/api/service/request")
+async def service_request(customer: str, vin: str, issue: str):
+    case_id = f"SRV-{int(time.time())}"
+    return {"success": True, "data": {"case_id": case_id, "status": "scheduled"}, "error": None}
+
+@app.get("/api/vehicle/{vin}/verify")
+async def verify_vehicle(vin: str):
+    return {"success": True, "data": {"vin": vin, "history": "Clean", "status": "Verified by ONYX"}, "error": None}
+
+@app.post("/api/messages/send")
+async def send_message(to: str, channel: str, message: str):
+    """AI sends SMS/Email updates via this endpoint."""
+    return {"success": True, "data": {"delivery_status": "sent"}, "error": None}

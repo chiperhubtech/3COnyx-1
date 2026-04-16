@@ -22,6 +22,7 @@ export const successStoriesTable = pgTable("success_stories", {
   monthlyAvg:       integer("monthly_avg").notNull().default(0),
   monthsOnPlatform: integer("months_on_platform").notNull().default(1),
   dealsCompleted:   integer("deals_completed").notNull().default(0),
+  referralChainDepth: integer("referral_chain_depth").notNull().default(0),
   headline:         text("headline").notNull(),
   story:            text("story").notNull(),
   quote:            text("quote"),
