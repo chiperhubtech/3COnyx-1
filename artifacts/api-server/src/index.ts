@@ -42,6 +42,9 @@ async function startServer() {
     logger.info("WebSocket hub active at /ws");
     startPriceAlertJob();
     startMaintenanceScheduler();
+    import("./routes/checkout").then(m => {
+      if (typeof m.startPayoutRetryPoller === "function") m.startPayoutRetryPoller();
+    }).catch(err => logger.warn({ err }, "[startup] Payout retry poller init skipped"));
     initChains().catch((err) => logger.warn({ err }, "initChains failed"));
 
     import("./lib/proofEngine").then(({ ensureGenesis, getChainStats }) => {

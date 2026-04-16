@@ -37,6 +37,8 @@ function hashEntry(entry: Omit<AuditLogInsert, "sha256Hash">): string {
 
 // ─── Write one audit record ────────────────────────────────────────────────────
 
+type DbWriter = Pick<typeof db, "insert">;
+
 export interface AuditParams {
   eventType: EventType;
   action: string;
@@ -50,10 +52,12 @@ export interface AuditParams {
   severity?: Severity;
   metadata?: Record<string, unknown>;
   ip?: string;
+  dbClient?: DbWriter;
 }
 
 export async function writeAudit(params: AuditParams): Promise<void> {
   try {
+    const conn = params.dbClient ?? db;
     const entry: Omit<AuditLogInsert, "sha256Hash"> = {
       eventType: params.eventType,
       action: params.action,
@@ -70,7 +74,7 @@ export async function writeAudit(params: AuditParams): Promise<void> {
     };
 
     const sha256Hash = hashEntry(entry);
-    await db.insert(auditLogsTable).values({ ...entry, sha256Hash });
+    await conn.insert(auditLogsTable).values({ ...entry, sha256Hash });
   } catch (_err) {
     // Never crash the request — audit logging is fire-and-forget
   }

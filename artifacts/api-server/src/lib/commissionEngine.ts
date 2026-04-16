@@ -43,6 +43,8 @@ const COMMISSION_RATES: Record<TransactionCategory, number> = {
   custom:           0.05,
 };
 
+type DbClient = Pick<typeof db, "select" | "insert" | "update" | "delete" | "execute" | "transaction">;
+
 interface CommissionInput {
   buyerUserId: number;
   transactionAmountCents: number;
@@ -51,6 +53,7 @@ interface CommissionInput {
   stripePaymentId?: string | null;
   vehicleVin?: string | null;
   metadata?: Record<string, unknown>;
+  dbClient?: DbClient;
 }
 
 interface CommissionResult {
@@ -76,7 +79,9 @@ export async function processUniversalCommission(input: CommissionInput): Promis
     description,
     stripePaymentId = null,
     vehicleVin = null,
+    dbClient,
   } = input;
+  const conn = dbClient ?? db;
 
   const noResult: CommissionResult = {
     commissionCreated: false,
@@ -101,7 +106,7 @@ export async function processUniversalCommission(input: CommissionInput): Promis
     return { ...noResult, error: "description is required and must be ≤500 chars" };
   }
 
-  const [buyer] = await db.select({
+  const [buyer] = await conn.select({
     id: usersTable.id,
     name: usersTable.name,
     referralCode: usersTable.referralCode,
@@ -112,7 +117,7 @@ export async function processUniversalCommission(input: CommissionInput): Promis
     return { ...noResult, error: "Buyer not found" };
   }
 
-  const referrer = await findReferrer(buyerUserId);
+  const referrer = await findReferrer(buyerUserId, conn);
 
   if (referrer && referrer.id === buyerUserId) {
     logger.warn({ buyerUserId }, "[CommissionEngine] Self-referral blocked");
@@ -122,7 +127,7 @@ export async function processUniversalCommission(input: CommissionInput): Promis
   if (!referrer) {
     logger.info({ buyerUserId, category }, "[CommissionEngine] No referrer found — no commission owed");
 
-    const [tx] = await db.insert(transactionsTable).values({
+    const [tx] = await conn.insert(transactionsTable).values({
       type: "PURCHASE",
       status: "COMPLETED",
       amountCents: transactionAmountCents,
@@ -142,8 +147,8 @@ export async function processUniversalCommission(input: CommissionInput): Promis
   const commissionCents = Math.round(transactionAmountCents * rate);
   const commissionUsd = (commissionCents / 100).toFixed(2);
 
-  const result = await db.transaction(async (trx) => {
-    const [tx] = await trx.insert(transactionsTable).values({
+  const executeCommissionWrites = async (writer: DbClient) => {
+    const [tx] = await writer.insert(transactionsTable).values({
       type: "PURCHASE",
       status: "COMPLETED",
       amountCents: transactionAmountCents,
@@ -156,7 +161,7 @@ export async function processUniversalCommission(input: CommissionInput): Promis
       completedAt: new Date(),
     }).returning({ id: transactionsTable.id });
 
-    const [commission] = await trx.insert(commissionLedgerTable).values({
+    const [commission] = await writer.insert(commissionLedgerTable).values({
       entryType: "Referral",
       status: "Pending",
       recipientId: referrer.id,
@@ -165,7 +170,7 @@ export async function processUniversalCommission(input: CommissionInput): Promis
       note: `${(rate * 100).toFixed(0)}% commission on ${category.replace(/_/g, " ")} — ${description} (Buyer: ${buyer.name})`,
     }).returning({ id: commissionLedgerTable.id });
 
-    await trx.insert(transactionsTable).values({
+    await writer.insert(transactionsTable).values({
       type: "REFERRAL",
       status: "PENDING",
       amountCents: commissionCents,
@@ -176,13 +181,17 @@ export async function processUniversalCommission(input: CommissionInput): Promis
     });
 
     const pointsEarned = Math.max(1, Math.round(commissionCents / 100));
-    await trx.execute(sql`
+    await writer.execute(sql`
       UPDATE users SET points = points + ${pointsEarned}, updated_at = NOW()
       WHERE id = ${referrer.id}
     `);
 
     return { txId: tx?.id ?? null, commissionId: commission?.id ?? null };
-  });
+  };
+
+  const result = dbClient
+    ? await executeCommissionWrites(dbClient)
+    : await db.transaction(async (trx) => executeCommissionWrites(trx));
 
   logger.info({
     buyerUserId,
@@ -205,8 +214,8 @@ export async function processUniversalCommission(input: CommissionInput): Promis
   };
 }
 
-async function findReferrer(buyerUserId: number): Promise<{ id: number; name: string } | null> {
-  const result = await db.execute(sql`
+async function findReferrer(buyerUserId: number, conn: DbClient = db): Promise<{ id: number; name: string } | null> {
+  const result = await conn.execute(sql`
     SELECT u2.id, u2.name
     FROM users u1
     JOIN referral_ledger rl ON rl.buyer_member_id = u1.id
@@ -221,7 +230,7 @@ async function findReferrer(buyerUserId: number): Promise<{ id: number; name: st
     return { id: row.id, name: row.name };
   }
 
-  const fallbackResult = await db.execute(sql`
+  const fallbackResult = await conn.execute(sql`
     SELECT u2.id, u2.name
     FROM users u1
     JOIN referral_ledger rl ON rl.buyer_name = u1.name

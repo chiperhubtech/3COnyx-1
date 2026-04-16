@@ -84,13 +84,21 @@ function enforceCacheLimit(): void {
   for (const [key] of toEvict) responseCache.delete(key);
 }
 
-export function idempotencyGuard() {
+interface IdempotencyGuardOptions {
+  cacheErrors?: boolean;
+  keyExtractor?: (req: Request) => string | undefined;
+}
+
+export function idempotencyGuard(options: IdempotencyGuardOptions = {}) {
+  const { cacheErrors = true, keyExtractor } = options;
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (req.method === "GET" || req.method === "HEAD" || req.method === "OPTIONS") {
       return next();
     }
 
-    const idempotencyKey = req.headers["idempotency-key"] as string | undefined;
+    const idempotencyKey = keyExtractor
+      ? keyExtractor(req)
+      : (req.headers["idempotency-key"] as string | undefined);
     if (!idempotencyKey) {
       return next();
     }
@@ -142,28 +150,38 @@ export function idempotencyGuard() {
 
     const originalJson = res.json.bind(res);
     res.json = function (body: unknown) {
-      const entry: CachedResponse = {
-        statusCode: res.statusCode,
-        body,
-        headers: {},
-        createdAt: Date.now(),
-        fingerprint,
-      };
+      const isSuccess = res.statusCode >= 200 && res.statusCode < 300;
 
-      const outHeaders = res.getHeaders();
-      for (const [h, v] of Object.entries(outHeaders)) {
-        if (typeof v === "string" && h.toLowerCase().startsWith("x-")) {
-          entry.headers[h] = v;
+      if (isSuccess || cacheErrors) {
+        const entry: CachedResponse = {
+          statusCode: res.statusCode,
+          body,
+          headers: {},
+          createdAt: Date.now(),
+          fingerprint,
+        };
+
+        const outHeaders = res.getHeaders();
+        for (const [h, v] of Object.entries(outHeaders)) {
+          if (typeof v === "string" && h.toLowerCase().startsWith("x-")) {
+            entry.headers[h] = v;
+          }
         }
-      }
 
-      enforceCacheLimit();
-      responseCache.set(normalizedKey, entry);
+        enforceCacheLimit();
+        responseCache.set(normalizedKey, entry);
 
-      const lock = pendingLocks.get(normalizedKey);
-      if (lock) {
-        for (const r of lock.resolvers) r.resolve(entry);
-        pendingLocks.delete(normalizedKey);
+        const lock = pendingLocks.get(normalizedKey);
+        if (lock) {
+          for (const r of lock.resolvers) r.resolve(entry);
+          pendingLocks.delete(normalizedKey);
+        }
+      } else {
+        const lock = pendingLocks.get(normalizedKey);
+        if (lock) {
+          for (const r of lock.resolvers) r.reject(new Error("Handler returned error — not cached"));
+          pendingLocks.delete(normalizedKey);
+        }
       }
 
       res.setHeader("X-Idempotency-Key", idempotencyKey);
