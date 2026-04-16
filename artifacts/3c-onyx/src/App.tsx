@@ -11,6 +11,7 @@ import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { ProtectedRoute, PublicRoute } from "@/components/ProtectedRoute";
 import { OnboardingModal, useOnboarding } from "@/components/OnboardingModal";
 import { useSeasonalTheme } from "@/context/SeasonalThemeContext";
+import { useAxonPageview } from "@/hooks/useAxonPixel";
 
 import Home from "@/pages/home";
 import LandingPage from "@/pages/landing";
@@ -156,6 +157,7 @@ function OnboardingGate({ children }: { children: React.ReactNode }) {
 /* ─── All Routes ─────────────────────────────────────────────────────────── */
 function AppRoutes() {
   const [location] = useLocation();
+  useAxonPageview();
 
   // Public pages — no sidebar, no auth required
   const PUBLIC_PATHS = ["/landing", "/login", "/register", "/waitlist", "/legal/terms", "/legal/privacy", "/join", "/m/", "/technology", "/sdv", "/oa", "/flow", "/assist"];

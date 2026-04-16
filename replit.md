@@ -122,7 +122,7 @@ A theme engine offers 20 culture-driven themes. Key API Endpoints include Text-t
 -   **Data Intelligence**: Fullpath
 -   **Push Notifications**: Expo
 -   **CRM**: HubSpot
--   **Advertising**: TikTok Ads
+-   **Advertising**: TikTok Ads, Axon Pixel (via `VITE_AXON_PIXEL_ID` env var)
 -   **Email Marketing**: Constant Contact
 
 ## Testing

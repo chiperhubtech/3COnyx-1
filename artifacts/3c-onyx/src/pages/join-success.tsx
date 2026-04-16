@@ -6,6 +6,7 @@
  */
 import { useState, useEffect } from "react";
 import { CheckCircle, Copy, Share2, Star, Users, ArrowRight, Zap } from "lucide-react";
+import { fireAxonConversion } from "@/hooks/useAxonPixel";
 
 const API = import.meta.env.BASE_URL.replace(/\/$/, "") + "/api";
 
@@ -37,6 +38,11 @@ export default function JoinSuccess() {
       .then((d) => {
         if (d.error) { setError(d.error); return; }
         setMember(d);
+        fireAxonConversion("Lead", {
+          memberNumber: d.memberNumber,
+          value: 99,
+          currency: "USD",
+        });
       })
       .catch(() => setError("Could not verify your payment. Please contact support."))
       .finally(() => setLoading(false));

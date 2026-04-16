@@ -52,5 +52,17 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      (function() {
+        var id = '%VITE_AXON_PIXEL_ID%';
+        if (!id || id.indexOf('VITE_AXON') !== -1) return;
+        var s = document.createElement('script');
+        s.async = true;
+        s.src = 'https://js.axon.ai/pixel.js';
+        s.dataset.id = id;
+        document.head.appendChild(s);
+        window.axon = window.axon || { pageview: function(){}, track: function(){} };
+      })();
+    </script>
   </body>
 </html>
