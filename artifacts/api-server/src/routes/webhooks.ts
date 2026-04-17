@@ -29,6 +29,7 @@ import { writeAudit } from "../lib/auditService";
 import { logger } from "../lib/logger";
 import { processUniversalCommission, type TransactionCategory } from "../lib/commissionEngine";
 import { idempotencyGuard } from "../middlewares/idempotencyGuard";
+import { cacheInvalidate } from "../lib/apiCache";
 
 const router = Router();
 
@@ -107,6 +108,8 @@ export async function handleEvent(event: Stripe.Event) {
             stripePaymentId: obj.id as string,
           });
           await writeAudit({ eventType: "PAYOUT", severity: "INFO", action: `Stripe subscription ${status} for user ${user.id}`, metadata: { customerId, status }, dbClient: trx });
+          cacheInvalidate.subscription(user.id);
+          cacheInvalidate.transaction(user.id);
         }
         break;
       }
@@ -114,6 +117,9 @@ export async function handleEvent(event: Stripe.Event) {
       case "customer.subscription.deleted": {
         const customerId = obj.customer as string;
         logger.info({ customerId }, "Subscription cancelled");
+        const [user] = await trx.select().from(usersTable)
+          .where(eq(usersTable.stripeCustomerId, customerId)).limit(1);
+        if (user) cacheInvalidate.subscription(user.id);
         await writeAudit({ eventType: "PAYOUT", severity: "WARN", action: `Subscription cancelled for customer ${customerId}`, metadata: { customerId }, dbClient: trx });
         break;
       }
@@ -134,6 +140,8 @@ export async function handleEvent(event: Stripe.Event) {
             stripePaymentId: obj.payment_intent as string,
             completedAt:     new Date(),
           });
+          cacheInvalidate.transaction(user.id);
+          cacheInvalidate.subscription(user.id);
         }
         break;
       }
@@ -141,6 +149,12 @@ export async function handleEvent(event: Stripe.Event) {
       case "invoice.payment_failed": {
         const customerId = obj.customer as string;
         logger.warn({ customerId }, "Invoice payment FAILED");
+        const [user] = await trx.select().from(usersTable)
+          .where(eq(usersTable.stripeCustomerId, customerId)).limit(1);
+        if (user) {
+          cacheInvalidate.transaction(user.id);
+          cacheInvalidate.subscription(user.id);
+        }
         await writeAudit({ eventType: "PAYOUT", severity: "WARN", action: `Invoice payment failed for customer ${customerId}`, metadata: { customerId }, dbClient: trx });
         break;
       }
@@ -204,6 +218,12 @@ export async function handleEvent(event: Stripe.Event) {
         }
 
         await writeAudit({ eventType: "PAYOUT", severity: "INFO", action: `Purchase PaymentIntent succeeded: ${obj.id as string}`, metadata: { amount }, dbClient: trx });
+        if (isVehicleEscrow && metadata?.buyerEmail) {
+          const [buyer2] = await trx.select({ id: usersTable.id }).from(usersTable)
+            .where(eq(usersTable.email, metadata.buyerEmail)).limit(1);
+          if (buyer2) cacheInvalidate.transaction(buyer2.id);
+        }
+        cacheInvalidate.vehicle();
         break;
       }
 

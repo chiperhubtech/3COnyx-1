@@ -4,7 +4,7 @@ import { eq, and, sql, desc, or } from "drizzle-orm";
 import { requireAuth } from "../middlewares/requireAuth";
 import { logger } from "../lib/logger";
 import { parsePagination, paginatedResponse } from "../lib/pagination";
-import { apiCache } from "../lib/apiCache";
+import { apiCache, cacheKeys } from "../lib/apiCache";
 
 const router = Router();
 
@@ -31,6 +31,24 @@ router.get("/community/profile", requireAuth, async (req: Request, res: Response
   try {
     const userId = parseInt(req.user!.sub, 10);
 
+    const payload = await apiCache.get(
+      cacheKeys.communityProfile(userId),
+      () => buildCommunityProfile(userId),
+      30_000,   // fresh window
+      60_000,   // stale-while-revalidate window
+    );
+    if (!payload) {
+      res.status(404).json({ error: "Member not found" });
+      return;
+    }
+    res.json(payload);
+  } catch (err) {
+    logger.error({ err: (err as Error).message }, "[Community] Profile fetch failed");
+    res.status(500).json({ error: "Failed to load profile" });
+  }
+});
+
+async function buildCommunityProfile(userId: number) {
     const [user] = await db.select({
       id: usersTable.id,
       name: usersTable.name,
@@ -41,8 +59,7 @@ router.get("/community/profile", requireAuth, async (req: Request, res: Response
     }).from(usersTable).where(eq(usersTable.id, userId));
 
     if (!user) {
-      res.status(404).json({ error: "Member not found" });
-      return;
+      return null;
     }
 
     const [connectionCount] = await db
@@ -86,7 +103,7 @@ router.get("/community/profile", requireAuth, async (req: Request, res: Response
     else if (connections >= 10) networkTier = "Silver";
     else if (connections >= 3) networkTier = "Bronze";
 
-    res.json({
+    return {
       memberId: user.id,
       name: user.name,
       communityRole: user.communityRole,
@@ -101,22 +118,32 @@ router.get("/community/profile", requireAuth, async (req: Request, res: Response
         networkTier,
       },
       mission: "We handle everything automotive so people don't have to.",
-    });
-  } catch (err) {
-    logger.error({ err: (err as Error).message }, "[Community] Profile fetch failed");
-    res.status(500).json({ error: "Failed to load profile" });
-  }
-});
+    };
+}
 
 router.get("/community/network-feed", requireAuth, async (req: Request, res: Response) => {
   try {
     const userId = parseInt(req.user!.sub, 10);
+    const pgQuery = `${req.query.limit ?? ""}:${req.query.offset ?? ""}:${req.query.page ?? ""}`;
 
+    const payload = await apiCache.get(
+      `${cacheKeys.communityStats(userId)}:feed:${pgQuery}`,
+      () => buildNetworkFeed(userId, req),
+      30_000,
+      60_000,
+    );
+    res.json(payload);
+  } catch (err) {
+    logger.error({ err: (err as Error).message }, "[Community] Network feed failed");
+    res.status(500).json({ error: "Failed to load network feed" });
+  }
+});
+
+async function buildNetworkFeed(userId: number, req: Request) {
     const [user] = await db.select({ communityRole: usersTable.communityRole })
       .from(usersTable).where(eq(usersTable.id, userId));
     if (!user || (user.communityRole !== "Connector" && user.communityRole !== "Operator")) {
-      res.json({ feed: [], gated: true, message: "Become a Connector to see your network. Help someone get started." });
-      return;
+      return { feed: [], gated: true, message: "Become a Connector to see your network. Help someone get started." };
     }
 
     const referredUsers = await db.select({ id: usersTable.id, name: usersTable.name })
@@ -126,8 +153,7 @@ router.get("/community/network-feed", requireAuth, async (req: Request, res: Res
     const referredIds = referredUsers.map(u => u.id);
 
     if (referredIds.length === 0) {
-      res.json({ feed: [], message: "Help someone get started — share your connection link." });
-      return;
+      return { feed: [], message: "Help someone get started — share your connection link." };
     }
 
     const pg = parsePagination(req, { limit: 20, maxLimit: 50 });
@@ -169,12 +195,8 @@ router.get("/community/network-feed", requireAuth, async (req: Request, res: Res
 
     const total = totalResult[0]?.count ?? 0;
     const paginated = paginatedResponse(feed, total, pg);
-    res.json({ feed: paginated.data, pagination: paginated.pagination });
-  } catch (err) {
-    logger.error({ err: (err as Error).message }, "[Community] Network feed failed");
-    res.status(500).json({ error: "Failed to load network feed" });
-  }
-});
+    return { feed: paginated.data, pagination: paginated.pagination };
+}
 
 router.get("/community/celebration-check", requireAuth, async (req: Request, res: Response) => {
   try {

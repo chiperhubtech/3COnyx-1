@@ -14,6 +14,8 @@
  */
 import { Router, type Request, type Response } from "express";
 import { getUncachableStripeClient } from "../lib/stripeClient";
+import { apiCache, cacheKeys } from "../lib/apiCache";
+import { requireAuth } from "../middlewares/requireAuth";
 
 const router = Router();
 
@@ -117,37 +119,50 @@ const HECTOCORN_VEHICLES = [
 // ─── Routes ───────────────────────────────────────────────────────────────────
 
 // GET /api/subscription/status
-router.get("/status", async (req: Request, res: Response) => {
-  const bypass = process.env.SUBSCRIPTION_BYPASS === "true" || process.env.NODE_ENV !== "production";
-  const sub = MEMBER_SUBS[DEFAULT_MEMBER_ID];
-
-  if (bypass && !sub) {
-    return res.json({
-      active: true,
-      bypass: true,
-      plan: "3C Onyx — Dev Access",
-      amount: 9900,
-      currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-      stripeSubId: null,
-      cancelAtPeriodEnd: false,
-      features: ALL_FEATURES,
-    });
+// Cached per real authenticated user id so webhook-driven
+// `cacheInvalidate.subscription(user.id)` evicts exactly this key.
+router.get("/status", requireAuth, async (req: Request, res: Response) => {
+  const userId = parseInt(req.user!.sub, 10);
+  if (!Number.isFinite(userId) || userId <= 0) {
+    res.status(401).json({ error: "Invalid auth principal" });
+    return;
   }
+  const payload = await apiCache.get(
+    cacheKeys.subscriptionState(userId),
+    async () => {
+      const bypass = process.env.SUBSCRIPTION_BYPASS === "true" || process.env.NODE_ENV !== "production";
+      const sub = MEMBER_SUBS[DEFAULT_MEMBER_ID];
 
-  if (!sub) {
-    return res.json({ active: false, plan: null, features: [] });
-  }
+      if (bypass && !sub) {
+        return {
+          active: true,
+          bypass: true,
+          plan: "3C Onyx — Dev Access",
+          amount: 9900,
+          currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+          stripeSubId: null,
+          cancelAtPeriodEnd: false,
+          features: ALL_FEATURES,
+        };
+      }
 
-  return res.json({
-    active: sub.status === "active" || sub.status === "trialing",
-    bypass,
-    plan: sub.plan,
-    amount: sub.amount,
-    currentPeriodEnd: sub.currentPeriodEnd,
-    stripeSubId: sub.stripeSubId,
-    cancelAtPeriodEnd: sub.cancelAtPeriodEnd,
-    features: ALL_FEATURES,
-  });
+      if (!sub) return { active: false, plan: null, features: [] as string[] };
+
+      return {
+        active: sub.status === "active" || sub.status === "trialing",
+        bypass,
+        plan: sub.plan,
+        amount: sub.amount,
+        currentPeriodEnd: sub.currentPeriodEnd,
+        stripeSubId: sub.stripeSubId,
+        cancelAtPeriodEnd: sub.cancelAtPeriodEnd,
+        features: ALL_FEATURES,
+      };
+    },
+    30_000,
+    60_000,
+  );
+  return res.json(payload);
 });
 
 const ALL_FEATURES = [

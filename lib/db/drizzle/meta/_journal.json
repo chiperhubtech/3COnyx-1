@@ -15,6 +15,13 @@
       "when": 1776321700000,
       "tag": "0001_add_referral_chain_depth",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1776380000000,
+      "tag": "0002_perf_hardening_indexes",
+      "breakpoints": true
     }
   ]
 }

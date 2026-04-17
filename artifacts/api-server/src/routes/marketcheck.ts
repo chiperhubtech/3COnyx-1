@@ -1,4 +1,5 @@
 import { Router, type IRouter, type Request, type Response } from "express";
+import { apiCache, cacheKeys } from "../lib/apiCache";
 
 const router: IRouter = Router();
 
@@ -392,56 +393,65 @@ function filterListings(
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
 
-// Main search — returns enriched listings
+function stableQueryKey(q: Record<string, unknown>): string {
+  const keys = Object.keys(q).sort();
+  return keys.map((k) => `${k}=${String(q[k] ?? "")}`).join("&");
+}
+
+// Main search — returns enriched listings (SWR-cached, keyed by query)
 router.get("/marketcheck/search", async (req: Request, res: Response) => {
-  const apiKey = process.env.MARKETCHECK_API_KEY;
-
-  if (!apiKey) {
-    const query = req.query as Record<string, string>;
-    const filtered = filterListings(ENRICHED_MOCKS, query);
-    res.json({ listings: filtered, totalCount: filtered.length, source: "3c-curated" });
-    return;
-  }
-
-  const {
-    make, model, year, price_min, price_max,
-    miles_max, zip, radius, rows = "20", start = "0",
-    sort_by = "price", sort_order = "asc",
-  } = req.query;
-
-  const params = new URLSearchParams();
-  params.set("api_key", apiKey);
-  params.set("rows", String(rows));
-  params.set("start", String(start));
-  params.set("sort_by", String(sort_by));
-  params.set("sort_order", String(sort_order));
-  params.set("car_type", "used");
-
-  if (make) params.set("make", String(make));
-  if (model) params.set("model", String(model));
-  if (year) params.set("year", String(year));
-  if (price_min) params.set("price_min", String(price_min));
-  if (price_max) params.set("price_max", String(price_max));
-  if (miles_max) params.set("miles_max", String(miles_max));
-  if (zip) params.set("zip", String(zip));
-  if (radius) params.set("radius", String(radius));
+  const apiKey  = process.env.MARKETCHECK_API_KEY;
+  const cacheKey = cacheKeys.marketplaceSearch(stableQueryKey(req.query as Record<string, unknown>));
 
   try {
-    const url = `${MARKETCHECK_BASE}/search/car/active?${params.toString()}`;
-    const response = await fetch(url);
+    const payload = await apiCache.get(
+      cacheKey,
+      async () => {
+        if (!apiKey) {
+          const query = req.query as Record<string, string>;
+          const filtered = filterListings(ENRICHED_MOCKS, query);
+          return { listings: filtered, totalCount: filtered.length, source: "3c-curated" as const };
+        }
 
-    if (!response.ok) {
-      req.log.error({ status: response.status }, "MarketCheck API error — falling back to curated data");
-      const query = req.query as Record<string, string>;
-      const filtered = filterListings(ENRICHED_MOCKS, query);
-      res.json({ listings: filtered, totalCount: filtered.length, source: "3c-curated" });
-      return;
-    }
+        const {
+          make, model, year, price_min, price_max,
+          miles_max, zip, radius, rows = "20", start = "0",
+          sort_by = "price", sort_order = "asc",
+        } = req.query;
 
-    const data = await response.json() as Record<string, unknown>;
-    // Enrich live listings too
-    const enriched = ((data.listings as BaseListing[]) ?? []).map((l: BaseListing) => enrichListing(l));
-    res.json({ ...data, listings: enriched });
+        const params = new URLSearchParams();
+        params.set("api_key", apiKey);
+        params.set("rows", String(rows));
+        params.set("start", String(start));
+        params.set("sort_by", String(sort_by));
+        params.set("sort_order", String(sort_order));
+        params.set("car_type", "used");
+
+        if (make) params.set("make", String(make));
+        if (model) params.set("model", String(model));
+        if (year) params.set("year", String(year));
+        if (price_min) params.set("price_min", String(price_min));
+        if (price_max) params.set("price_max", String(price_max));
+        if (miles_max) params.set("miles_max", String(miles_max));
+        if (zip) params.set("zip", String(zip));
+        if (radius) params.set("radius", String(radius));
+
+        const url = `${MARKETCHECK_BASE}/search/car/active?${params.toString()}`;
+        const response = await fetch(url);
+        if (!response.ok) {
+          req.log.error({ status: response.status }, "MarketCheck API error — falling back to curated data");
+          const query = req.query as Record<string, string>;
+          const filtered = filterListings(ENRICHED_MOCKS, query);
+          return { listings: filtered, totalCount: filtered.length, source: "3c-curated" as const };
+        }
+        const data = await response.json() as Record<string, unknown>;
+        const enriched = ((data.listings as BaseListing[]) ?? []).map((l: BaseListing) => enrichListing(l));
+        return { ...data, listings: enriched } as Record<string, unknown>;
+      },
+      60_000,
+      5 * 60_000,
+    );
+    res.json(payload);
   } catch (err) {
     req.log.error({ err }, "MarketCheck fetch failed — falling back to curated data");
     const query = req.query as Record<string, string>;
@@ -452,21 +462,28 @@ router.get("/marketcheck/search", async (req: Request, res: Response) => {
 
 // Wholesale engine — only returns listings where price < market_avg
 router.get("/marketcheck/wholesale", async (_req: Request, res: Response) => {
-  const wholesale = ENRICHED_MOCKS.filter((l) => l.wholesale_potential);
-  const totalSavings = wholesale.reduce((s, l) => s + l.savings_vs_retail, 0);
-  const avgSavings   = wholesale.length ? Math.round(totalSavings / wholesale.length) : 0;
-  const avgScore     = wholesale.length
-    ? Math.round(wholesale.reduce((s, l) => s + l.guardian_health_score, 0) / wholesale.length)
-    : 0;
-
-  res.json({
-    listings: wholesale,
-    totalCount: wholesale.length,
-    totalSavings,
-    avgSavings,
-    avgGuardianScore: avgScore,
-    source: "3c-curated",
-  });
+  const payload = await apiCache.get(
+    cacheKeys.marketplaceWholesale(),
+    async () => {
+      const wholesale = ENRICHED_MOCKS.filter((l) => l.wholesale_potential);
+      const totalSavings = wholesale.reduce((s, l) => s + l.savings_vs_retail, 0);
+      const avgSavings   = wholesale.length ? Math.round(totalSavings / wholesale.length) : 0;
+      const avgScore     = wholesale.length
+        ? Math.round(wholesale.reduce((s, l) => s + l.guardian_health_score, 0) / wholesale.length)
+        : 0;
+      return {
+        listings: wholesale,
+        totalCount: wholesale.length,
+        totalSavings,
+        avgSavings,
+        avgGuardianScore: avgScore,
+        source: "3c-curated" as const,
+      };
+    },
+    60_000,
+    5 * 60_000,
+  );
+  res.json(payload);
 });
 
 // NHTSA VIN Decode — free US government database, no API key required

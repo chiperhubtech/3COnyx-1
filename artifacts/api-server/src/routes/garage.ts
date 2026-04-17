@@ -1,6 +1,7 @@
 import { Router, type IRouter, type Request, type Response } from "express";
 import crypto from "crypto";
 import { indexVehicle } from "../lib/vehicleSearch";
+import { apiCache, cacheKeys, cacheInvalidate } from "../lib/apiCache";
 
 const router: IRouter = Router();
 
@@ -65,9 +66,15 @@ function getVehicles(sessionId: string): LinkedVehicle[] {
 }
 
 // GET /api/garage/vehicles
-router.get("/garage/vehicles", (req: Request, res: Response) => {
-  const vehicles = getVehicles(getSession(req));
-  res.json({ vehicles });
+router.get("/garage/vehicles", async (req: Request, res: Response) => {
+  const sessionId = getSession(req);
+  const payload = await apiCache.get(
+    cacheKeys.vehicleListings(`session:${sessionId}`),
+    async () => ({ vehicles: getVehicles(sessionId) }),
+    15_000,
+    30_000,
+  );
+  res.json(payload);
 });
 
 // GET /api/garage/vehicles/:id/telemetry
@@ -206,6 +213,7 @@ router.post("/garage/connect", (req: Request, res: Response) => {
     createdAt: newVehicle.lastSync,
   }).catch(() => {});
 
+  apiCache.invalidate(cacheKeys.vehicleListings(`session:${sessionId}`));
   res.json({ vehicle: newVehicle, mode: "live" });
 });
 
@@ -215,6 +223,7 @@ router.delete("/garage/vehicles/:id", (req: Request, res: Response) => {
   const vehicles = getVehicles(sessionId);
   const filtered = vehicles.filter((v) => v.id !== req.params.id);
   garageStore.set(sessionId, filtered);
+  apiCache.invalidate(cacheKeys.vehicleListings(`session:${sessionId}`));
   res.json({ success: true });
 });
 

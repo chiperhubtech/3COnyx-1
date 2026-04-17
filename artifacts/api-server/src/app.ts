@@ -18,6 +18,8 @@ import { sovereigntyMiddleware } from "./middlewares/sovereignty";
 import { logSovereigntyDeclaration } from "./lib/honeyToken";
 import { ipGuard } from "./middlewares/ipGuard";
 import { tracing } from "./middlewares/tracing";
+import { slowQueryTracker } from "./middlewares/slowQuery";
+import { warmCaches } from "./lib/cacheWarmup";
 
 // ── Sovereignty Declaration — logged at every boot ────────────────────────────
 logSovereigntyDeclaration();
@@ -83,6 +85,9 @@ app.use(tracing);
 // ── ONYX Metrics Engine — Prometheus-compatible request telemetry ─────────────
 import { metricsEngine } from "./lib/onyxMetricsEngine";
 app.use(metricsEngine.httpMiddleware());
+
+// ── Slow Request Tracker — logs structured warnings for any request >500ms ───
+app.use(slowQueryTracker());
 
 // ── ONYX Log Aggregator — ELK-equivalent structured logging ──────────────────
 import { logAggregator } from "./lib/onyxLogAggregator";
@@ -217,5 +222,10 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 
 // ── Startup cleanup: prune expired blacklist entries ─────────────────────────
 void pruneExpiredBlacklistEntries().catch(() => { /* non-fatal */ });
+
+// ── Cache warm-up: pre-load frequently accessed config/aggregates ────────────
+void warmCaches().catch((err) => {
+  logger.warn({ err: (err as Error).message }, "[cache-warmup] failed");
+});
 
 export default app;

@@ -6,6 +6,7 @@ import { requireAuth } from "../middlewares/requireAuth";
 import { parsePagination, paginatedResponse } from "../lib/pagination";
 import { autoSettle } from "../lib/autoSettle";
 import { logger } from "../lib/logger";
+import { apiCache, cacheKeys, cacheInvalidate } from "../lib/apiCache";
 
 function calculateTaskAiConfidence(task: any): number {
   const routingConf = parseFloat(task.routingConfidence) || 0;
@@ -135,6 +136,8 @@ router.post("/deals", requireAuth, async (req: Request, res: Response) => {
       createdTasks.push(task);
     }
 
+    cacheInvalidate.deal(deal.id, userId);
+
     res.status(201).json({
       deal,
       tasks: createdTasks,
@@ -192,10 +195,24 @@ router.get("/deals/:id", requireAuth, async (req: Request, res: Response) => {
     const id = safeParseInt(req.params.id, 0);
     if (id <= 0) { res.status(400).json({ error: "Invalid deal ID" }); return; }
 
+    const cached = await apiCache.get(
+      `${cacheKeys.dealStatus(id)}:owner:${userId}`,
+      () => buildDealStatus(id, userId),
+      15_000,
+      30_000,
+    );
+    if (cached === "NOT_FOUND") { res.status(404).json({ error: "Deal not found" }); return; }
+    res.json(cached);
+  } catch {
+    res.status(500).json({ error: sanitizeError() });
+  }
+});
+
+async function buildDealStatus(id: number, userId: number) {
     const [deal] = await db.select().from(dealsTable)
       .where(and(eq(dealsTable.id, id), eq(dealsTable.dealershipId, userId)));
 
-    if (!deal) { res.status(404).json({ error: "Deal not found" }); return; }
+    if (!deal) return "NOT_FOUND" as const;
 
     const tasks = await db.select().from(dealerflowTasksTable)
       .where(and(eq(dealerflowTasksTable.dealId, id), eq(dealerflowTasksTable.dealershipId, userId)))
@@ -224,7 +241,7 @@ router.get("/deals/:id", requireAuth, async (req: Request, res: Response) => {
 
     const nextAction = enrichedTasks.find((t) => !["Completed", "Cancelled", "Blocked"].includes(t.status));
 
-    res.json({
+    return {
       deal,
       tasks: enrichedTasks,
       progress: {
@@ -234,11 +251,8 @@ router.get("/deals/:id", requireAuth, async (req: Request, res: Response) => {
         blockers: blockers.map((b) => ({ id: b.id, title: b.title, status: b.status, department: b.department })),
         nextActionTaskId: nextAction?.id ?? null,
       },
-    });
-  } catch {
-    res.status(500).json({ error: sanitizeError() });
-  }
-});
+    };
+}
 
 router.patch("/deals/:id", requireAuth, async (req: Request, res: Response) => {
   try {
@@ -298,6 +312,9 @@ router.patch("/deals/:id", requireAuth, async (req: Request, res: Response) => {
       }
     }
 
+    cacheInvalidate.deal(id, userId);
+    if (settlement) cacheInvalidate.transaction(userId);
+
     res.json({ deal: updated, settlement });
   } catch {
     res.status(500).json({ error: sanitizeError() });
@@ -309,7 +326,20 @@ router.get("/deals/dashboard/my-deals", requireAuth, async (req: Request, res: R
     const userId = requireUserId(req, res);
     if (!userId) return;
 
-    const [stats] = await db
+    const payload = await apiCache.get(
+      cacheKeys.dashboard(userId),
+      () => buildMyDealsDashboard(userId),
+      30_000,
+      60_000,
+    );
+    res.json(payload);
+  } catch {
+    res.status(500).json({ error: sanitizeError() });
+  }
+});
+
+async function buildMyDealsDashboard(userId: number) {
+  const [stats] = await db
       .select({
         totalDeals: count(),
         openDeals: sql<number>`count(*) filter (where ${dealsTable.status} not in ('Delivered', 'Cancelled', 'Unwound'))`,
@@ -411,25 +441,34 @@ router.get("/deals/dashboard/my-deals", requireAuth, async (req: Request, res: R
       }
     }
 
-    res.json({
+    return {
       salesperson: stats,
       recentDeals,
       blockedDeals,
       platform: "3C ONYX — DealerFlow OS",
       architect: "Ronald Antonio Cadet",
-    });
-  } catch {
-    res.status(500).json({ error: sanitizeError() });
-  }
-});
+    };
+}
 
 router.get("/deals/dashboard/store-performance", requireAuth, async (req: Request, res: Response) => {
   try {
     const userId = requireUserId(req, res);
     if (!userId) return;
 
+    const payload = await apiCache.get(
+      cacheKeys.dashboardStore(userId),
+      () => buildStorePerformance(userId),
+      30_000,
+      60_000,
+    );
+    res.json(payload);
+  } catch {
+    res.status(500).json({ error: sanitizeError() });
+  }
+});
+
+async function buildStorePerformance(userId: number) {
     const now = new Date();
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
     const [stats] = await db
@@ -471,17 +510,14 @@ router.get("/deals/dashboard/store-performance", requireAuth, async (req: Reques
       .where(eq(dealsTable.dealershipId, userId))
       .groupBy(dealsTable.dealType);
 
-    res.json({
+    return {
       store: stats,
       dealsByStatus,
       dealsByType,
       platform: "3C ONYX — DealerFlow OS",
       architect: "Ronald Antonio Cadet",
-    });
-  } catch {
-    res.status(500).json({ error: sanitizeError() });
-  }
-});
+    };
+}
 
 router.get("/deals/search/global", requireAuth, async (req: Request, res: Response) => {
   try {

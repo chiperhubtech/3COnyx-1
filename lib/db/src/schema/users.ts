@@ -1,4 +1,4 @@
-import { pgTable, text, serial, timestamp, pgEnum, boolean, integer, date } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, timestamp, pgEnum, boolean, integer, date, index } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -39,7 +39,13 @@ export const usersTable = pgTable("users", {
   lastLoginAt:        timestamp("last_login_at", { withTimezone: true }),
   createdAt:          timestamp("created_at",  { withTimezone: true }).notNull().defaultNow(),
   updatedAt:          timestamp("updated_at",  { withTimezone: true }).notNull().defaultNow(),
-});
+}, (t) => [
+  index("users_stripe_customer_id_idx").on(t.stripeCustomerId),
+  index("users_referral_code_idx").on(t.referralCode),
+  index("users_referred_by_idx").on(t.referredBy),
+  index("users_role_idx").on(t.role),
+  index("users_subscription_status_idx").on(t.subscriptionStatus),
+]);
 
 export const insertUserSchema = createInsertSchema(usersTable).omit({
   id: true,

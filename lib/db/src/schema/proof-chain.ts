@@ -68,6 +68,7 @@ export const proofChainTable = pgTable("proof_chain", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
   index("proof_chain_entity_idx").on(t.entityType, t.entityId),
+  index("proof_chain_entity_id_idx").on(t.entityId),
   index("proof_chain_event_type_idx").on(t.eventType),
   index("proof_chain_actor_idx").on(t.actorId),
   index("proof_chain_created_idx").on(t.createdAt),

@@ -3,6 +3,7 @@ import { db, onyxWalletsTable, walletTransactionsTable } from "@workspace/db";
 import { eq, desc, sql, and } from "drizzle-orm";
 import crypto from "crypto";
 import { isSovereign, SOVEREIGN_USER_ID } from "../middlewares/requireSovereign";
+import { apiCache, cacheKeys, cacheInvalidate } from "../lib/apiCache";
 
 const router = Router();
 
@@ -46,6 +47,7 @@ router.post("/create", async (req: Request, res: Response) => {
       currency: currency || "USD",
     }).returning();
 
+    cacheInvalidate.wallet(Number(userId));
     res.status(201).json({ message: "ONYX Wallet created — start earning", wallet });
   } catch (error) {
     res.status(500).json({ error: "Wallet creation failed", detail: String(error) });
@@ -63,24 +65,31 @@ router.get("/:userId", async (req: Request, res: Response) => {
       return;
     }
 
-    const [wallet] = await db.select().from(onyxWalletsTable).where(eq(onyxWalletsTable.userId, targetUserId)).limit(1);
-    if (!wallet) { res.status(404).json({ error: "No wallet found — create one first" }); return; }
-
-    const recentTx = await db.select().from(walletTransactionsTable)
-      .where(eq(walletTransactionsTable.userId, targetUserId))
-      .orderBy(desc(walletTransactionsTable.createdAt))
-      .limit(20);
-
-    res.json({
-      wallet,
-      recentTransactions: recentTx,
-      summary: {
-        available: wallet.balanceUsd,
-        pending: wallet.pendingUsd,
-        lifetimeEarned: wallet.lifetimeEarnedUsd,
-        lifetimeWithdrawn: wallet.lifetimeWithdrawnUsd,
+    const payload = await apiCache.get(
+      cacheKeys.walletBalance(targetUserId),
+      async () => {
+        const [wallet] = await db.select().from(onyxWalletsTable).where(eq(onyxWalletsTable.userId, targetUserId)).limit(1);
+        if (!wallet) return null;
+        const recentTx = await db.select().from(walletTransactionsTable)
+          .where(eq(walletTransactionsTable.userId, targetUserId))
+          .orderBy(desc(walletTransactionsTable.createdAt))
+          .limit(20);
+        return {
+          wallet,
+          recentTransactions: recentTx,
+          summary: {
+            available: wallet.balanceUsd,
+            pending: wallet.pendingUsd,
+            lifetimeEarned: wallet.lifetimeEarnedUsd,
+            lifetimeWithdrawn: wallet.lifetimeWithdrawnUsd,
+          },
+        };
       },
-    });
+      15_000,
+      30_000,
+    );
+    if (!payload) { res.status(404).json({ error: "No wallet found — create one first" }); return; }
+    res.json(payload);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch wallet", detail: String(error) });
   }
@@ -127,6 +136,9 @@ router.post("/credit", async (req: Request, res: Response) => {
       counterpartyUserId: counterpartyUserId || null,
       proofHash: hash,
     }).returning();
+
+    cacheInvalidate.wallet(userId);
+    cacheInvalidate.transaction(userId);
 
     res.json({
       message: `+$${amountNum.toFixed(2)} credited to your ONYX Wallet`,
@@ -177,6 +189,9 @@ router.post("/withdraw", async (req: Request, res: Response) => {
         ref, userId, amount: amountNum, ts: Date.now(), architect: "Ronald Antonio Cadet",
       })).digest("hex"),
     }).returning();
+
+    cacheInvalidate.wallet(userId);
+    cacheInvalidate.transaction(userId);
 
     res.json({
       message: `$${amountNum.toFixed(2)} withdrawal processed`,
