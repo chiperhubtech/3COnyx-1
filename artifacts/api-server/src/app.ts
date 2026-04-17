@@ -88,6 +88,15 @@ app.use(metricsEngine.httpMiddleware());
 import { logAggregator } from "./lib/onyxLogAggregator";
 app.use(logAggregator.httpMiddleware());
 
+// ── Alert Engine — rolling request window for error-rate alerting ─────────────
+import { alertEngine } from "./lib/alertEngine";
+app.use((_req: Request, res: Response, next: NextFunction) => {
+  res.on("finish", () => {
+    alertEngine.recordRequest(res.statusCode >= 500);
+  });
+  next();
+});
+
 // ── Sovereignty — stamp every response with owner fingerprint ─────────────────
 app.use(sovereigntyMiddleware);
 

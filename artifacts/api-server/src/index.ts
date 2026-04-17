@@ -144,6 +144,15 @@ async function startServer() {
       }, "[genesis] Fintech Compliance Guard — PAYOUT VALIDATION ARMED");
     }).catch(err => logger.warn({ err: (err as Error).message }, "[genesis] Fintech Compliance Guard init deferred"));
 
+    import("./lib/alertEngine").then(mod => {
+      mod.alertEngine.genesis();
+      logger.info({
+        protocol: "ONYX Alert Engine",
+        checkInterval: "configurable",
+        channels: ["structured-log", "webhook", "websocket"],
+      }, "[genesis] Alert Engine — PRODUCTION OBSERVABILITY ARMED");
+    }).catch(err => logger.warn({ err: (err as Error).message }, "[genesis] Alert Engine init deferred"));
+
     warmSecrets([...CRITICAL_SECRETS]).catch(err =>
       logger.warn({ err: (err as Error).message }, "[startup] Secrets warm skipped")
     );
@@ -191,7 +200,8 @@ function gracefulShutdown(signal: string): void {
 
   logger.info({ signal }, "Shutdown signal received — draining connections");
 
-  // Stop accepting new HTTP connections
+  import("./lib/alertEngine").then(mod => mod.alertEngine.shutdown()).catch(() => {});
+
   server.close((err) => {
     if (err) {
       logger.error({ err }, "Error during server.close()");

@@ -17,6 +17,7 @@ import { blockedIpCount } from "../middlewares/scannerDetector";
 import { allCircuitStatuses } from "../lib/circuitBreaker";
 import { apiCache } from "../lib/apiCache";
 import { getGovernorStatus } from "../lib/governor";
+import { alertEngine } from "../lib/alertEngine";
 import os from "os";
 
 const router: IRouter = Router();
@@ -113,6 +114,10 @@ router.get("/healthz", async (_req, res) => {
       compression:    "gzip/brotli level-6 (threshold 1KB)",
       pagination:     "standardized (page/limit/offset)",
       asyncLogging:   "fire-and-forget (res.on finish)",
+    },
+    alerts: {
+      active: alertEngine.getActiveAlerts(),
+      count: alertEngine.getActiveAlerts().length,
     },
     metrics,
     ts: new Date().toISOString(),

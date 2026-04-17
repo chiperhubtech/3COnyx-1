@@ -170,6 +170,7 @@ import cSuiteAgentsRouter from "./c-suite-agents";
 import fintechComplianceRouter from "./fintech-compliance";
 import successStoriesRouter from "./success-stories";
 import automotivePlatformRouter from "./automotive-platform";
+import alertsRouter from "./alerts";
 import { idempotencyGuard } from "../middlewares/idempotencyGuard";
 
 const router: IRouter = Router();
@@ -363,5 +364,6 @@ router.use(cSuiteAgentsRouter);
 router.use(fintechComplianceRouter);
 router.use("/success-stories", successStoriesRouter);
 router.use("/platform", automotivePlatformRouter);
+router.use(alertsRouter);
 
 export default router;
