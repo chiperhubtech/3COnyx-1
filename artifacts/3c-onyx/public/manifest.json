@@ -1,0 +1,52 @@
+{
+  "name": "3C ONYX — Sovereign Automotive OS",
+  "short_name": "3C ONYX",
+  "description": "Global Automotive Liquidity Network. Buy, sell, finance, insure, and own — all from one app. By RAC3C / CUXTOMCANDYCLUB LLC.",
+  "id": "3c-onyx-sovereign",
+  "start_url": "/landing",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
+  "background_color": "#050508",
+  "theme_color": "#C9A227",
+  "categories": ["business", "finance", "productivity", "shopping"],
+  "lang": "en-US",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Command Center",
+      "short_name": "Command",
+      "description": "Open the Sovereign Command Center",
+      "url": "/command",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Marketplace",
+      "short_name": "Market",
+      "description": "Browse vehicles & parts",
+      "url": "/inventory",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Wallet",
+      "short_name": "Wallet",
+      "description": "Open ONYX Wallet",
+      "url": "/garage",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/opengraph.jpg",
+      "sizes": "1200x630",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "3C ONYX Sovereign Command"
+    }
+  ]
+}
