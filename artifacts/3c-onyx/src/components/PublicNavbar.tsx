@@ -47,6 +47,7 @@ export function PublicNavbar() {
       borderBottom: `1px solid ${borderColor}`,
       transition: "all 0.3s ease",
     }}>
+      <div className={`sovereign-topbar-rule${scrolled ? " visible" : ""}`} />
       <div style={{
         maxWidth: 1100, margin: "0 auto",
         padding: "0 24px",
@@ -81,7 +82,7 @@ export function PublicNavbar() {
             { key: "nav.join", href: "/join" },
           ].map((link) => (
             <Link key={link.href} href={link.href}>
-              <div style={{
+              <div className="sovereign-link" style={{
                 padding: "6px 14px", borderRadius: 8, cursor: "pointer",
                 fontSize: 13, fontWeight: 600, color: textColor,
                 letterSpacing: "0.03em", transition: "all 0.15s",
@@ -106,13 +107,12 @@ export function PublicNavbar() {
           <LanguageSelector compact />
           <ThemeSelector size="sm" />
           <Link href="/join">
-            <div style={{
-              padding: "7px 16px", borderRadius: 9,
-              background: "linear-gradient(135deg, #C9A227 0%, #A07B1A 100%)",
-              color: "#000", fontSize: 12, fontWeight: 800,
-              letterSpacing: "0.06em", cursor: "pointer",
-              boxShadow: "0 2px 12px rgba(201,162,39,0.25)",
+            <div className="sovereign-cta" style={{
+              padding: "7px 16px",
+              fontSize: 12,
+              letterSpacing: "0.06em",
               whiteSpace: "nowrap",
+              borderRadius: 9,
             }}>
               {t("nav.joinNow")}
             </div>

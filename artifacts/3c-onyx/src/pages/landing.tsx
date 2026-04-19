@@ -128,11 +128,12 @@ function TrustStrip() {
   ];
   return (
     <div style={{
-      padding: "28px 24px",
+      padding: "20px 24px 28px",
       borderTop: "1px solid rgba(255,255,255,0.04)",
       borderBottom: "1px solid rgba(255,255,255,0.04)",
       background: "rgba(255,255,255,0.01)",
     }}>
+      <div className="sovereign-divider-animated" style={{ maxWidth: 900, margin: "0 auto 16px" }} />
       <div style={{
         display: "flex", flexWrap: "wrap", gap: 20,
         justifyContent: "center", alignItems: "center",
@@ -428,21 +429,17 @@ function FeatureShowcase() {
             const Icon = f.icon;
             return (
               <Link key={f.title} href={f.href}>
-                <div style={{
+                <div className="sovereign-card sovereign-corner-frame" style={{
                   padding: 28, borderRadius: 20,
-                  background: "rgba(255,255,255,0.02)",
-                  border: "1px solid rgba(255,255,255,0.06)",
-                  cursor: "pointer", transition: "all 0.2s",
+                  cursor: "pointer",
                   minHeight: 160,
                   display: "flex", flexDirection: "column", gap: 12,
                 }}
                   onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLDivElement).style.borderColor = `${f.color}40`;
                     (e.currentTarget as HTMLDivElement).style.background = `${f.color}08`;
                   }}
                   onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,0.06)";
-                    (e.currentTarget as HTMLDivElement).style.background = "rgba(255,255,255,0.02)";
+                    (e.currentTarget as HTMLDivElement).style.background = "";
                   }}
                 >
                   <div style={{
@@ -516,28 +513,35 @@ function HowItWorks() {
         </h2>
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         {STEPS.map((s, i) => (
-          <div key={s.num} style={{
-            display: "flex", gap: 24, alignItems: "flex-start",
-            padding: "32px 0",
-            borderBottom: i < STEPS.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none",
-            minHeight: 100,
-          }}>
-            <div style={{
-              fontFamily: "'Barlow Condensed', sans-serif",
-              fontSize: 48, fontWeight: 900, color: `${s.color}20`,
-              lineHeight: 1, minWidth: 60,
+          <div
+            key={s.num}
+            className={`sovereign-card sovereign-reveal${i === 1 ? "-2" : i === 2 ? "-3" : ""}`}
+            style={{
+              display: "flex", gap: 24, alignItems: "flex-start",
+              padding: "28px 28px 28px 32px",
+              minHeight: 100,
+            }}
+          >
+            <div className="sovereign-stat" style={{
+              fontSize: 56, color: s.color, lineHeight: 1, minWidth: 80,
+              opacity: 0.95,
             }}>
               {s.num}
             </div>
-            <div>
-              <p style={{ fontSize: 20, fontWeight: 800, color: "#fff", marginBottom: 10 }}>{s.title}</p>
-              <p style={{ fontSize: 15, color: "rgba(255,255,255,0.45)", lineHeight: 1.7 }}>{s.desc}</p>
+            <div style={{ flex: 1 }}>
+              <p style={{
+                fontSize: 20, fontWeight: 800, color: "#fff", marginBottom: 10,
+                fontFamily: "'Barlow Condensed', sans-serif",
+                letterSpacing: "0.01em",
+              }}>{s.title}</p>
+              <p style={{ fontSize: 15, color: "rgba(255,255,255,0.55)", lineHeight: 1.7 }}>{s.desc}</p>
             </div>
           </div>
         ))}
       </div>
+      <div className="sovereign-divider" style={{ marginTop: 32 }} />
     </div>
   );
 }
@@ -548,20 +552,32 @@ function FounderQuote() {
       padding: "80px 24px",
       background: "linear-gradient(180deg, #0a0a0f 0%, #050508 100%)",
     }}>
-      <div style={{ maxWidth: 640, margin: "0 auto", textAlign: "center" }}>
-        <Crown size={28} style={{ color: GOLD, marginBottom: 20 }} />
+      <div className="sovereign-frame sovereign-corner-frame" style={{
+        maxWidth: 720, margin: "0 auto", textAlign: "center",
+        padding: "48px 40px",
+      }}>
+        <span className="sovereign-ring" style={{ display: "inline-flex", marginBottom: 24 }}>
+          <Crown size={28} style={{ color: GOLD }} />
+        </span>
+        <div className="sovereign-eyebrow" style={{ marginBottom: 20 }}>
+          <span className="sovereign-glyph" style={{ marginRight: 8 }} />
+          Founder's Word
+        </div>
         <blockquote style={{
-          fontSize: "clamp(17px, 3vw, 22px)", fontWeight: 600,
-          color: "rgba(255,255,255,0.7)", lineHeight: 1.8,
-          margin: "0 0 24px", fontStyle: "italic",
+          fontSize: "clamp(18px, 3vw, 24px)", fontWeight: 600,
+          color: "rgba(255,255,255,0.85)", lineHeight: 1.7,
+          margin: "0 0 28px", fontStyle: "italic",
+          letterSpacing: "-0.005em",
         }}>
           "I built this for the person on the floor. The one who opens the door,
           shakes the hand, stays late, and gets paid last. That ends here.
           Whoever opens the door eats first."
         </blockquote>
-        <div style={{ fontSize: 14, color: "rgba(255,255,255,0.3)" }}>
-          — <strong style={{ color: "rgba(255,255,255,0.6)" }}>RAC3C</strong> · Founder ·{" "}
-          <span style={{ color: GOLD }}>CUXTOMCANDYCLUB LLC</span>
+        <div className="sovereign-divider" style={{ margin: "0 auto 16px", maxWidth: 240 }} />
+        <div style={{ fontSize: 14, color: "rgba(255,255,255,0.45)", letterSpacing: "0.05em" }}>
+          — <strong className="sovereign-text-gradient" style={{ fontWeight: 900 }}>RAC3C</strong>
+          {" "}· Founder ·{" "}
+          <span style={{ color: GOLD, fontWeight: 700 }}>CUXTOMCANDYCLUB LLC</span>
         </div>
       </div>
     </div>
@@ -570,57 +586,53 @@ function FounderQuote() {
 
 function FinalCTA() {
   return (
-    <div style={{
-      padding: "80px 24px 100px", textAlign: "center",
-      maxWidth: 600, margin: "0 auto",
+    <div className="sovereign-bg" style={{
+      padding: "100px 24px 120px", textAlign: "center",
+      position: "relative", overflow: "hidden",
     }}>
-      <p style={{
-        fontSize: 11, letterSpacing: "0.3em", color: GOLD,
-        fontWeight: 700, marginBottom: 16, textTransform: "uppercase",
-      }}>
-        Ready?
-      </p>
-      <h2 style={{
-        fontFamily: "'Barlow Condensed', sans-serif",
-        fontSize: "clamp(32px, 6vw, 52px)", fontWeight: 900,
-        textTransform: "uppercase", lineHeight: 1,
-        marginBottom: 12, color: "#fff",
-      }}>
-        Your Move.
-      </h2>
-      <p style={{
-        fontSize: 15, color: "rgba(255,255,255,0.4)",
-        marginBottom: 36, lineHeight: 1.7,
-      }}>
-        No credit card. No contract. Founding member pricing locked forever.
-      </p>
-      <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-        <Link href="/join">
-          <button style={{
-            padding: "18px 40px", borderRadius: 16,
-            background: `linear-gradient(135deg, ${GOLD}, #8B6914)`,
-            border: "none", color: "#000", fontWeight: 900, fontSize: 16,
-            cursor: "pointer", display: "flex", alignItems: "center", gap: 8,
-            letterSpacing: "0.06em",
-            boxShadow: `0 8px 40px rgba(201,162,39,0.25)`,
-            fontFamily: "'Barlow Condensed', sans-serif",
-            minHeight: 52,
-          }}>
-            Get Started <ArrowRight size={16} />
-          </button>
-        </Link>
-        <Link href="/login">
-          <button style={{
-            padding: "18px 32px", borderRadius: 16,
-            background: "transparent",
-            border: "1px solid rgba(255,255,255,0.1)",
-            color: "rgba(255,255,255,0.5)", fontWeight: 700, fontSize: 16,
-            cursor: "pointer", fontFamily: "'Barlow Condensed', sans-serif",
-            minHeight: 52,
-          }}>
-            Sign In
-          </button>
-        </Link>
+      <div className="sovereign-orb" style={{ width: 500, height: 500, top: "-10%", left: "50%", transform: "translateX(-50%)" }} />
+      <div style={{ maxWidth: 600, margin: "0 auto", position: "relative" }}>
+        <div className="sovereign-eyebrow sovereign-reveal" style={{ marginBottom: 16 }}>
+          <span className="sovereign-glyph" style={{ marginRight: 8 }} />
+          Ready When You Are
+        </div>
+        <h2 className="sovereign-headline sovereign-reveal-2" style={{
+          fontSize: "clamp(32px, 6vw, 52px)",
+          marginBottom: 14, color: "#fff",
+        }}>
+          Your <span className="sovereign-text-gradient">Move.</span>
+        </h2>
+        <p className="sovereign-reveal-3" style={{
+          fontSize: 15, color: "rgba(255,255,255,0.55)",
+          marginBottom: 36, lineHeight: 1.7,
+        }}>
+          No credit card. No contract. Founding member pricing locked forever.
+        </p>
+        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+          <Link href="/join">
+            <button className="sovereign-cta sovereign-pulse" style={{
+              padding: "18px 40px",
+              fontSize: 16,
+              display: "flex", alignItems: "center", gap: 8,
+              minHeight: 52,
+            }}>
+              Get Started <ArrowRight size={16} />
+            </button>
+          </Link>
+          <Link href="/login">
+            <button className="sovereign-link" style={{
+              padding: "18px 32px", borderRadius: 14,
+              background: "transparent",
+              border: "1px solid rgba(255,255,255,0.12)",
+              color: "rgba(255,255,255,0.7)", fontWeight: 700, fontSize: 16,
+              cursor: "pointer", fontFamily: "'Barlow Condensed', sans-serif",
+              letterSpacing: "0.04em", textTransform: "uppercase",
+              minHeight: 52,
+            }}>
+              Sign In
+            </button>
+          </Link>
+        </div>
       </div>
     </div>
   );
