@@ -22,7 +22,7 @@ function SplashHero() {
   useEffect(() => { setTimeout(() => setVisible(true), 100); }, []);
 
   return (
-    <div style={{
+    <div className="sovereign-bg" style={{
       minHeight: "100vh", display: "flex", flexDirection: "column",
       alignItems: "center", justifyContent: "center",
       background: "#050508", position: "relative", overflow: "hidden",
@@ -59,11 +59,14 @@ function SplashHero() {
           <OnyxLogo size={72} />
         </div>
 
-        <h1 style={{
-          fontFamily: "'Barlow Condensed', sans-serif",
+        <div className="sovereign-eyebrow sovereign-reveal" style={{ marginBottom: 14 }}>
+          <span className="sovereign-glyph" style={{ marginRight: 8 }} />
+          Sovereign Command · Automotive OS
+        </div>
+
+        <h1 className="sovereign-headline sovereign-reveal-2" style={{
           fontSize: "clamp(36px, 8vw, 72px)",
-          fontWeight: 900, lineHeight: 0.95, letterSpacing: "-0.01em",
-          textTransform: "uppercase", color: "#fff",
+          color: "#fff",
           margin: "0 0 24px",
         }}>
           We Handle<br />
@@ -80,12 +83,12 @@ function SplashHero() {
 
         <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
           <Link href="/join">
-            <button style={{
+            <button className="sovereign-pulse" style={{
               padding: "18px 40px", borderRadius: 16,
               background: `linear-gradient(135deg, ${GOLD}, #8B6914)`,
               border: "none", color: "#000", fontWeight: 900, fontSize: 17,
               cursor: "pointer", display: "flex", alignItems: "center", gap: 10,
-              letterSpacing: "0.04em", boxShadow: `0 8px 40px rgba(201,162,39,0.3)`,
+              letterSpacing: "0.04em",
               fontFamily: "'Barlow Condensed', sans-serif", textTransform: "uppercase",
               minHeight: 52,
             }}>
