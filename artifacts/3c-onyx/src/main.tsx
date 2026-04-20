@@ -12,3 +12,13 @@ createRoot(document.getElementById("root")!).render(
     </SeasonalThemeProvider>
   </ThemeProvider>
 );
+
+// ── PWA Service Worker Registration (production only) ──
+// Architect: Ronald Antonio Cadet — enables "Add to Home Screen" + offline shell.
+if ("serviceWorker" in navigator && import.meta.env.PROD) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("/sw.js", { scope: "/" })
+      .catch(() => { /* swallow registration errors in field — don't break app */ });
+  });
+}

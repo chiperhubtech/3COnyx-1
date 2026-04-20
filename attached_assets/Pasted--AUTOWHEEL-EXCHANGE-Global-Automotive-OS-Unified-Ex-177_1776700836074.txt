@@ -1,0 +1,213 @@
+# ==========================================
+# AUTOWHEEL EXCHANGE: Global Automotive OS
+# Unified Execution Engine (FastAPI)
+# ==========================================
+# Tech Stack: FastAPI (Python), Uvicorn, Pydantic, JWT Auth
+# Features: 7-Agent Mesh, Node-Based Sourcing, Force-Action UX
+# 
+# For Replit: Paste into main.py and add 'fastapi' and 'uvicorn' to requirements.txt
+# ==========================================
+
+from fastapi import FastAPI, HTTPException, Depends, Header, Request
+from fastapi.responses import JSONResponse
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from pydantic import BaseModel, Field, EmailStr
+from datetime import datetime, timedelta
+from typing import List, Optional, Literal, Dict, Any
+import uuid
+import secrets
+
+# --- 1. CONFIGURATION & IDENTITY ---
+# Inspired by ONYX Black (#000000) and Metallic Gold (#C9A85D)
+app = FastAPI(
+    title="AUTOWHEEL EXCHANGE",
+    description="Sovereign Automotive Operating System & Global Sourcing Hub",
+    version="2.0.0",
+    docs_url="/docs", # Auto-generated OpenAPI spec for AI/Gemini integration
+)
+
+security = HTTPBearer()
+
+# Seed Data: Starting with Elmwood CDJR and global hubs
+DEMO_DATA = {
+    "hubs": {
+        "elmwood_hub": {"name": "Elmwood CDJR (Primary Node)", "location": "USA", "type": "Dealership"},
+        "canton_hub": {"name": "Canton Fair Auto Sourcing", "location": "China", "type": "Global Sourcing"}
+    },
+    "agents": ["Sales", "Finance", "Logistics", "Manager", "Service", "Network", "Support"],
+    "currencies": ["USD", "CNY", "EUR", "GBP"],
+    "languages": ["en", "zh", "es", "ar", "fr"] # Globally scalable
+}
+
+# --- 2. FINTECH & COMPLIANCE SCHEMAS ---
+class NodeContribution(BaseModel):
+    node_id: str # Assigned to every participant (broker, clerk, supplier)
+    role: str
+    contribution_type: str
+    payout_share: float = 0.0 # Tracks attribution for the payout pool
+
+class TransactionCase(BaseModel):
+    case_id: str = Field(default_factory=lambda: f"AW-{uuid.uuid4().hex[:8].upper()}")
+    case_type: Literal["vehicle_purchase", "trade_in", "service_repair", "global_sourcing", "accident_workflow"]
+    hub_id: str
+    status: Literal["new", "match_generated", "action_taken", "payout_pending", "closed"]
+    participants: List[NodeContribution] = []
+    data_payload: Dict[str, Any]
+    timeline: List[Dict[str, Any]] = []
+    is_compliant: bool = True # Modular compliance status (by region/law)
+
+class ExecuteIntent(BaseModel):
+    intent: Literal["I_HAVE_BUYER", "I_NEED_VEHICLE", "I_NEED_SERVICE", "GLOBAL_SOURCING_PARTS"]
+    user_id: str
+    hub_id: str = "elmwood_hub"
+    details: Dict[str, Any] = {
+        "make": Optional[str],
+        "model": Optional[str],
+        "budget": Optional[float],
+        "location": Optional[str],
+        "sourcing_need": Optional[str] # e.g., 'OEM parts', 'wholesale inventory'
+    }
+
+# --- 3. SECURITY & IDEMPOTENCY ---
+def create_access_token(data: dict):
+    # Simplified JWT for demo; add robust expiration in production
+    return secrets.token_urlsafe(32)
+
+def validate_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    if credentials.credentials != "elmwood_onyx_secure_key":
+        raise HTTPException(status_code=403, detail="Invalid Security Token")
+    return credentials.credentials
+
+async def check_idempotency(x_idempotency_key: str = Header(None)):
+    if not x_idempotency_key:
+        raise HTTPException(status_code=400, detail="X-Idempotency-Key header missing")
+    # In production, check Redis/DB if key exists to prevent duplicate deals
+    return x_idempotency_key
+
+# --- 4. THE 7-AGENT MESH (AI BEHAVIOR ENGINE) ---
+class AgentMesh:
+    """Simulates internal AI evaluation for strategy, matching, and logistics"""
+    @staticmethod
+    def evaluate_strategy(intent: ExecuteIntent) -> Dict[str, Any]:
+        # Agents: Sales, Finance, Logistics handle the request
+        decision = {
+            "primary_agent": "SalesAgent",
+            "strategy": f"Execute fast path for {intent.intent}",
+            "actions": [
+                "Generate top 3 inventory matches",
+                "Pre-qualify financing options",
+                "Logistics check for global sourcing"
+            ],
+            "behavior_mode": "short, confident, action-oriented"
+        }
+        if intent.intent == "GLOBAL_SOURCING_PARTS":
+            decision["primary_agent"] = "LogisticsAgent"
+            decision["strategy"] = "Route query to Canton Hub"
+        return decision
+
+# --- 5. HIGH-CONVERSION CORE API ENDPOINTS ---
+
+@app.get("/", tags=["General"])
+async def root():
+    return {
+        "platform": "AUTOWHEEL EXCHANGE",
+        "status": "OPERATIONAL",
+        "active_hubs": DEMO_DATA["hubs"]
+    }
+
+@app.post("/api/v1/auth/token", tags=["Security"])
+async def login(username: str, node_id: str):
+    # Simple admin/node login
+    token = create_access_token({"sub": username, "node": node_id})
+    return {"access_token": token, "token_type": "bearer"}
+
+@app.post("/api/v1/execute", tags=["Action Engine"], dependencies=[Depends(validate_token)])
+async def execute_action(
+    intent: ExecuteIntent, 
+    idempotency_key: str = Depends(check_idempotency)
+):
+    """
+    Operator-First Action Interface (Input -> Match -> Action)
+    Replaces passive browsing with high-conversion intent capture.
+    """
+    start_time = datetime.utcnow()
+    
+    # 1. AI Mesh Strategy Evaluation
+    strategy = AgentMesh.evaluate_strategy(intent)
+    
+    # 2. Case Creation (Live Transaction Object)
+    new_case = TransactionCase(
+        case_type="vehicle_purchase" if intent.intent != "GLOBAL_SOURCING_PARTS" else "global_sourcing",
+        hub_id=intent.hub_id,
+        status="match_generated",
+        participants=[NodeContribution(node_id=intent.user_id, role="initiator", contribution_type="intent_capture")],
+        data_payload={**intent.details, "idempotency_key": idempotency_key},
+        timeline=[{"status": "created", "timestamp": start_time, "by": "SystemAgent"}]
+    )
+    
+    # 3. Action Generation (Matches & Ready-to-Send Text)
+    # Seeding demo results for immediate execution
+    match_results = {
+        "matches": [
+            {"id": "V001", "name": "2023 Jeep Grand Cherokee", "price": 45000, "payment_est": 650},
+            {"id": "V002", "name": "2022 Ram 1500", "price": 52000, "payment_est": 780},
+            {"id": "P001", "name": "OEM Brakepads (Canton Hub)", "moq": 100, "price_each": 15}
+        ],
+        "finance_precheck": "Approved (Finance Agent)",
+        "ready_to_send_text": f"Hi! I found 3 options for the {intent.details.get('make','')} you're looking for. Tap to view: http://autowheel.exchange/c/{new_case.case_id}"
+    }
+    
+    # 4. Audit Logging & Telemetry
+    processing_time = (datetime.utcnow() - start_time).total_seconds()
+    
+    return JSONResponse(
+        status_code=201,
+        content={
+            "success": True,
+            "case_id": new_case.case_id,
+            "strategy_eval": strategy,
+            "execution_results": match_results,
+            "metrics": {"processing_time_sec": processing_time}
+        }
+    )
+
+@app.get("/api/v1/cases/{case_id}", tags=["Transaction Track"], dependencies=[Depends(validate_token)])
+async def get_case_status(case_id: str):
+    """View the live object, timeline, participants, and payouts"""
+    # Simplified return; replace with DB call
+    return {
+        "case_id": case_id,
+        "status": "match_generated",
+        "timeline": [
+            {"status": "created", "timestamp": datetime.utcnow() - timedelta(minutes=5)},
+            {"status": "match_generated", "timestamp": datetime.utcnow() - timedelta(minutes=4)}
+        ],
+        "payout_status": "PENDING (Holds until verified)"
+    }
+
+@app.post("/api/v1/payouts/onboard", tags=["Fintech"])
+async def node_onboarding(node_id: str, business_name: str, email: EmailStr):
+    """
+    Compliant Payout Onboarding (Stripe Connect logic placeholder)
+    Holds funds until node connects once to receive payout.
+    """
+    return {
+        "node_id": node_id,
+        "onboarding_url": f"https://connect.stripe.com/express/onboard/{secrets.token_urlsafe(16)}",
+        "status": "pending_connection",
+        "message": "Funds will be held until onboarding is complete. No MLM/spam incentives."
+    }
+
+# ==========================================
+# CTO DEPLOYMENT & SCALING NOTES
+# ==========================================
+# 1. Tech Stack for Production:
+#    - Frontend: React / Next.js (Mobile-first UI/UX)
+#    - Database: PostgreSQL (Transactions) & Redis (Idempotency/Caching)
+#    - Payouts: Stripe Connect
+# 2. AI Implementation (Gemini/ChatGPT):
+#    - Use the /docs endpoint to grab the auto-generated OpenAPI spec.
+#    - Paste the spec into Gemini Extensions console to allow AI to 'execute' automotive transactions.
+# 3. Global Scaling:
+#    - Update the modular compliance engine and node registry to add Route 44 and international corridors.
+# ==========================================

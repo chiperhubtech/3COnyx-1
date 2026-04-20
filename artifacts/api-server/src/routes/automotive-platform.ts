@@ -155,6 +155,69 @@ function shortId(prefix: string): string {
   return `${prefix}-${crypto.randomUUID().split("-")[0].toUpperCase()}`;
 }
 
+// ── Hub Registry (discoverable by ChatGPT / Gemini / AI assistants) ──
+const HUB_REGISTRY: Record<NodeHub, {
+  id: NodeHub;
+  name: string;
+  role: string;
+  region: string;
+  country: string;
+  capabilities: string[];
+  status: "ACTIVE" | "STANDBY";
+}> = {
+  ELMWOOD_CDJR: {
+    id: "ELMWOOD_CDJR",
+    name: "Elmwood CDJR — Primary Node",
+    role: "Flagship Dealership / Retail Origination",
+    region: "Northeast US",
+    country: "USA",
+    capabilities: ["vehicle_sales", "trade_in", "finance", "service", "parts", "concierge"],
+    status: "ACTIVE",
+  },
+  ROUTE_44: {
+    id: "ROUTE_44",
+    name: "Route 44 — Regional Corridor Hub",
+    role: "Regional Aggregation / Route Distribution",
+    region: "Northeast Corridor",
+    country: "USA",
+    capabilities: ["vehicle_sourcing", "logistics", "inter_hub_transfer", "wholesale"],
+    status: "ACTIVE",
+  },
+  CUXTOMCANDY_HUB: {
+    id: "CUXTOMCANDY_HUB",
+    name: "CUXTOMCANDYCLUB — Sovereign Operations Hub",
+    role: "Global Sovereign Command / Protocol Governance",
+    region: "Global",
+    country: "USA",
+    capabilities: ["protocol_governance", "payout_orchestration", "compliance", "ai_mesh_control", "international_corridor"],
+    status: "ACTIVE",
+  },
+};
+
+router.get("/v1/hubs", (_req: Request, res: Response) => {
+  res.json({
+    success: true,
+    data: {
+      hubs: Object.values(HUB_REGISTRY),
+      count: Object.keys(HUB_REGISTRY).length,
+      primaryHub: "ELMWOOD_CDJR",
+      sovereignHub: "CUXTOMCANDY_HUB",
+      timestamp: new Date().toISOString(),
+    },
+    error: null,
+  });
+});
+
+router.get("/v1/hubs/:hubId", (req: Request, res: Response) => {
+  const hubId = String(req.params.hubId).toUpperCase() as NodeHub;
+  const hub = HUB_REGISTRY[hubId];
+  if (!hub) {
+    res.status(404).json({ success: false, data: null, error: `Hub '${hubId}' not found. Available: ${LIVE_NODES.join(", ")}` });
+    return;
+  }
+  res.json({ success: true, data: hub, error: null });
+});
+
 router.get("/v1/status", (_req: Request, res: Response) => {
   res.json({
     success: true,
@@ -188,7 +251,19 @@ router.get("/v1/status", (_req: Request, res: Response) => {
   });
 });
 
-router.post("/v1/execute", requireAuth, (req: Request, res: Response) => {
+router.post("/v1/execute", requireAuth, idempotencyGuard(), (req: Request, res: Response) => {
+  // ── Mandatory Idempotency-Key (fintech-grade duplicate prevention) ──
+  const idempotencyKey = req.headers["idempotency-key"];
+  if (!idempotencyKey || typeof idempotencyKey !== "string" || idempotencyKey.trim().length < 8) {
+    res.status(400).json({
+      success: false,
+      data: null,
+      error: "Idempotency-Key header is required (min 8 chars). Use a UUID v4 per unique action.",
+      code: "IDEMPOTENCY_KEY_REQUIRED",
+    });
+    return;
+  }
+
   const body = req.body as ActionBody;
 
   if (!body.intent || !body.payload) {
@@ -396,8 +471,19 @@ router.get("/openapi.json", (_req: Request, res: Response) => {
       "/v1/execute": {
         post: {
           operationId: "executeAction", summary: "Force-Action Engine — primary AI-callable entry point", tags: ["Action Engine"],
+          parameters: [{ name: "Idempotency-Key", in: "header", required: true, schema: { type: "string", minLength: 8 }, description: "Unique key (UUID v4) to prevent duplicate action execution on retries. Required." }],
           requestBody: JSON_BODY("Action execution payload with intent and customer context", ["intent", "payload"]),
           responses: { "201": JSON_RESPONSE, "400": ERROR_RESPONSE },
+        },
+      },
+      "/v1/hubs": {
+        get: { operationId: "listHubs", summary: "List all network hubs (ELMWOOD_CDJR, ROUTE_44, CUXTOMCANDY_HUB) with capabilities", tags: ["Network Hubs"], security: [], responses: { "200": JSON_RESPONSE } },
+      },
+      "/v1/hubs/{hubId}": {
+        get: {
+          operationId: "getHub", summary: "Get detailed information for a specific hub", tags: ["Network Hubs"], security: [],
+          parameters: [{ name: "hubId", in: "path", required: true, schema: { type: "string", enum: ["ELMWOOD_CDJR", "ROUTE_44", "CUXTOMCANDY_HUB"] }, description: "Hub identifier" }],
+          responses: { "200": JSON_RESPONSE, "404": ERROR_RESPONSE },
         },
       },
       "/v1/cases/{caseId}": {
