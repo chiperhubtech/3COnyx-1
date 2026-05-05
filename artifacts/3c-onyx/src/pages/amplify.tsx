@@ -74,7 +74,9 @@ const TONES: Array<{ key: ToneKey; label: string; emoji: string }> = [
 ];
 
 // ── Sovereign Template Library (no external AI required) ─────────────
-const HOOKS: Record<ToneKey, string[]> = {
+type Locale = "en" | "es";
+
+const HOOKS_EN: Record<ToneKey, string[]> = {
   authority: [
     "The global standard for {vertical} just changed.",
     "Every dealer in 50 nations now uses this for {vertical}.",
@@ -119,7 +121,57 @@ const HOOKS: Record<ToneKey, string[]> = {
   ],
 };
 
-const VERTICAL_NOUNS: Record<Vertical, string> = {
+const HOOKS_ES: Record<ToneKey, string[]> = {
+  authority: [
+    "El estándar global para {vertical} acaba de cambiar.",
+    "Cada concesionario en 50 naciones ya usa esto para {vertical}.",
+    "El DOT del Planeta Tierra acaba de abrir {vertical} para todos.",
+    "Construido para los lobos. Probado contra ellos. Ahora tu {vertical} también lo está.",
+    "Cuando el mundo adoptó el correo electrónico, era gratis. {vertical} acaba de volverse gratis, también.",
+  ],
+  hustle: [
+    "De un teléfono de $30 a tu primer pago por {vertical} en 60 segundos.",
+    "Lagos. Newark. Manila. La misma puerta de {vertical}. Las mismas ganancias. Sin guardianes.",
+    "Deja de alquilar tu futuro. Posee tu {vertical} desde cualquier rincón de la Tierra.",
+    "Cada conexión que hagas en {vertical} te paga para siempre.",
+    "$0 para empezar. $0 para siempre. Tu único costo es el tiempo que esperas.",
+  ],
+  compassion: [
+    "No necesitas saber leer para usar {vertical}. Solo necesitas un teléfono.",
+    "Construido para la persona que nadie más está construyendo. {vertical}, para todos.",
+    "Tu abuela puede usar esta puerta de {vertical}. Tu sobrino también.",
+    "Si tienes un teléfono, tienes {vertical}. Esa es toda la regla.",
+    "El mundo dijo que necesitabas crédito, dirección, papeleo. {vertical} dijo que no.",
+  ],
+  urgency: [
+    "{vertical} cierra su puerta de acceso anticipado esta semana. Entra ahora.",
+    "Cada hora que esperas, alguien en tu código postal ganó lo que tú podrías haber ganado.",
+    "Los primeros 1,000 en tu ciudad obtienen tarifas de fundador en {vertical}. Para siempre.",
+    "El protocolo está vivo. La puerta está abierta. {vertical} no te esperará.",
+    "Hoy es el día más barato que {vertical} jamás será.",
+  ],
+  scripture: [
+    "\"Echa tu cubo donde estás.\" Tu {vertical} comienza en el teléfono que tienes en la mano.",
+    "\"La piedra que desecharon los constructores se convirtió en piedra angular.\" {vertical}, para los que el sistema rechazó.",
+    "\"El que es fiel en lo poco, también en lo mucho lo será.\" Empieza tu {vertical} pequeño. Crece para siempre.",
+    "\"A todo el que tiene, le será dado más.\" {vertical} paga al conector antes que al conectado.",
+    "\"Dejen que los niños vengan.\" Un niño puede usar esta puerta de {vertical}. Un rey también.",
+  ],
+  comedy: [
+    "POV: Tu concesionario quiere $4,000 sobre el MSRP. {vertical} se ríe en 50 idiomas. 🚪",
+    "Yo: Solo quiero {vertical} un coche sin llenar 47 formularios. 3C ONYX: hecho.",
+    "Otras apps: \"Por favor verifica tu número de fax.\" 3C ONYX {vertical}: toca la foto. listo.",
+    "Cuando tu primo dice \"Conozco a un tipo.\" Ese tipo era 3C ONYX {vertical} todo el tiempo.",
+    "Banco: $300 de cargo por solicitud. 3C ONYX {vertical}: gratis. Banco: 😶",
+  ],
+};
+
+const HOOKS_BY_LOCALE: Record<Locale, Record<ToneKey, string[]>> = {
+  en: HOOKS_EN,
+  es: HOOKS_ES,
+};
+
+const VERTICAL_NOUNS_EN: Record<Vertical, string> = {
   buy:      "buying a car",
   rent:     "renting a car",
   sell:     "selling your car",
@@ -132,13 +184,71 @@ const VERTICAL_NOUNS: Record<Vertical, string> = {
   refer:    "earning from your network",
 };
 
-const CTAS = [
+const VERTICAL_NOUNS_ES: Record<Vertical, string> = {
+  buy:      "comprar un coche",
+  rent:     "alquilar un coche",
+  sell:     "vender tu coche",
+  service:  "reparar tu coche",
+  insure:   "asegurar tu coche",
+  finance:  "financiar un coche",
+  appraise: "saber el valor de tu coche",
+  warranty: "proteger tu coche",
+  accident: "manejar un accidente",
+  refer:    "ganar con tu red",
+};
+
+const VERTICAL_NOUNS_BY_LOCALE: Record<Locale, Record<Vertical, string>> = {
+  en: VERTICAL_NOUNS_EN,
+  es: VERTICAL_NOUNS_ES,
+};
+
+const CTAS_EN = [
   "Walk through the door → 3conyx.com/door",
   "Tap the picture. No reading required → /door",
   "Earn from any corner globally → /door",
   "The People's Choice Worldwide → 3conyx.com",
   "Free forever. Open for everyone → /start",
 ];
+
+const CTAS_ES = [
+  "Cruza la puerta → 3conyx.com/door",
+  "Toca la foto. No hace falta leer → /door",
+  "Gana desde cualquier rincón del mundo → /door",
+  "La Elección del Pueblo en Todo el Mundo → 3conyx.com",
+  "Gratis para siempre. Abierto para todos → /start",
+];
+
+const CTAS_BY_LOCALE: Record<Locale, string[]> = {
+  en: CTAS_EN,
+  es: CTAS_ES,
+};
+
+const SCENE_LABELS: Record<Locale, { hook: string; scene1: string; scene2: string; scene3: string; voiceover: string; threadNote: (n: string) => string; pinNote: (n: string) => string; broadcastNote: (n: string) => string; profWhy: (n: string) => string; profClose: string }> = {
+  en: {
+    hook: "🎬 Hook",
+    scene1: "[Scene 1] Phone screen — tap the door icon",
+    scene2: "[Scene 2] Voice command in any language",
+    scene3: "[Scene 3] Result lands in 60 seconds",
+    voiceover: "Voiceover",
+    threadNote: (n) => `↓ A thread on why this changes everything for ${n}.`,
+    pinNote: (n) => `Save this. Share it with someone who needs ${n} done differently.`,
+    broadcastNote: (n) => `Forward this to anyone who handles ${n}. They will thank you.`,
+    profWhy: (n) => `Why this matters: ${n} has been gated by paperwork, credit, and geography for 100 years. 3C ONYX collapses that wall.`,
+    profClose: "The protocol is open. The door is free. The standard is global.",
+  },
+  es: {
+    hook: "🎬 Gancho",
+    scene1: "[Escena 1] Pantalla del teléfono — toca el ícono de la puerta",
+    scene2: "[Escena 2] Comando de voz en cualquier idioma",
+    scene3: "[Escena 3] El resultado llega en 60 segundos",
+    voiceover: "Voz en off",
+    threadNote: (n) => `↓ Un hilo sobre por qué esto cambia todo para ${n}.`,
+    pinNote: (n) => `Guarda esto. Compártelo con alguien que necesite ${n} de forma diferente.`,
+    broadcastNote: (n) => `Reenvía esto a cualquiera que maneje ${n}. Te lo agradecerán.`,
+    profWhy: (n) => `Por qué importa: ${n} ha estado bloqueado por papeleo, crédito y geografía durante 100 años. 3C ONYX derriba ese muro.`,
+    profClose: "El protocolo está abierto. La puerta es gratis. El estándar es global.",
+  },
+};
 
 // Deterministic pick — given a seed, always returns the same item.
 function pick<T>(arr: T[], seed: number): T {
@@ -158,26 +268,27 @@ interface Post {
   charCount: number;
 }
 
-function generatePost(v: Vertical, p: Platform, tone: ToneKey, seed: number): Post {
-  const noun = VERTICAL_NOUNS[v];
+function generatePost(v: Vertical, p: Platform, tone: ToneKey, seed: number, locale: Locale): Post {
+  const noun = VERTICAL_NOUNS_BY_LOCALE[locale][v];
   const verticalMeta = VERTICALS.find((x) => x.key === v)!;
-  const hook = pick(HOOKS[tone], seed).replace(/{vertical}/g, noun);
-  const cta = pick(CTAS, seed + 7);
+  const hook = pick(HOOKS_BY_LOCALE[locale][tone], seed).replace(/{vertical}/g, noun);
+  const cta = pick(CTAS_BY_LOCALE[locale], seed + 7);
+  const sl = SCENE_LABELS[locale];
   const baseTags = ["#3CONYX", "#PeoplesChoiceWorldwide", "#KilocornEra", verticalMeta.hashtag];
 
   let body = hook;
   if (p.format === "professional") {
-    body = `${hook}\n\nWhy this matters: ${noun} has been gated by paperwork, credit, and geography for 100 years. 3C ONYX collapses that wall.\n\nThe protocol is open. The door is free. The standard is global.`;
+    body = `${hook}\n\n${sl.profWhy(noun)}\n\n${sl.profClose}`;
   } else if (p.format === "video" || p.format === "reel") {
-    body = `🎬 Hook: ${hook}\n\n[Scene 1] Phone screen — tap the door icon\n[Scene 2] Voice command in any language\n[Scene 3] Result lands in 60 seconds\n\nVoiceover: ${cta}`;
+    body = `${sl.hook}: ${hook}\n\n${sl.scene1}\n${sl.scene2}\n${sl.scene3}\n\n${sl.voiceover}: ${cta}`;
   } else if (p.format === "thread") {
-    body = `${hook}\n\n↓ A thread on why this changes everything for ${noun}.`;
+    body = `${hook}\n\n${sl.threadNote(noun)}`;
   } else if (p.format === "pin") {
-    body = `${hook}\n\nSave this. Share it with someone who needs ${noun} done differently.`;
+    body = `${hook}\n\n${sl.pinNote(noun)}`;
   } else if (p.format === "snap") {
     body = hook.length > 200 ? hook.slice(0, 197) + "..." : hook;
   } else if (p.format === "broadcast") {
-    body = `${hook}\n\n${cta}\n\nForward this to anyone who handles ${noun}. They will thank you.`;
+    body = `${hook}\n\n${cta}\n\n${sl.broadcastNote(noun)}`;
   } else if (p.format === "tweet") {
     const max = 280 - 30 - baseTags.join(" ").length;
     body = hook.length > max ? hook.slice(0, max - 3) + "..." : hook;
@@ -204,16 +315,17 @@ function generatePost(v: Vertical, p: Platform, tone: ToneKey, seed: number): Po
 export default function AmplifyEngine() {
   const [vertical, setVertical] = useState<Vertical>("buy");
   const [tone, setTone] = useState<ToneKey>("authority");
+  const [locale, setLocale] = useState<Locale>("en");
   const [seed, setSeed] = useState(1);
   const [batchMode, setBatchMode] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
 
-  // Generate one post per platform for the chosen vertical+tone
+  // Generate one post per platform for the chosen vertical+tone+locale
   const posts = useMemo<Post[]>(() => {
-    return PLATFORMS.map((p, i) => generatePost(vertical, p, tone, seed + i));
-  }, [vertical, tone, seed]);
+    return PLATFORMS.map((p, i) => generatePost(vertical, p, tone, seed + i, locale));
+  }, [vertical, tone, seed, locale]);
 
-  // Batch: generate one post for EVERY combo (10 v × 12 p × 6 t = 720 posts)
+  // Batch: every combo × current locale (10 v × 12 p × 6 t = 720 posts)
   const batch = useMemo<Post[]>(() => {
     if (!batchMode) return [];
     const all: Post[] = [];
@@ -221,12 +333,12 @@ export default function AmplifyEngine() {
     for (const v of VERTICALS) {
       for (const p of PLATFORMS) {
         for (const t of TONES) {
-          all.push(generatePost(v.key, p, t.key, s++));
+          all.push(generatePost(v.key, p, t.key, s++, locale));
         }
       }
     }
     return all;
-  }, [batchMode, seed]);
+  }, [batchMode, seed, locale]);
 
   function copy(text: string, id: string) {
     if (typeof navigator !== "undefined" && navigator.clipboard) {
@@ -353,6 +465,30 @@ export default function AmplifyEngine() {
                   }`}
                 >
                   {t.emoji} {t.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Language picker */}
+          <div>
+            <div className="text-xs tracking-widest text-amber-400 mb-2">CHOOSE A LANGUAGE · ELIGE UN IDIOMA</div>
+            <div className="flex flex-wrap gap-2">
+              {([
+                { key: "en" as Locale, label: "English",  emoji: "🇺🇸" },
+                { key: "es" as Locale, label: "Español",  emoji: "🌎" },
+              ]).map((l) => (
+                <button
+                  key={l.key}
+                  onClick={() => setLocale(l.key)}
+                  data-testid={`locale-${l.key}`}
+                  className={`px-4 py-2 rounded-full border text-sm font-bold transition ${
+                    locale === l.key
+                      ? "bg-amber-400 text-black border-amber-400"
+                      : "border-amber-400/30 text-stone-300 hover:border-amber-400"
+                  }`}
+                >
+                  {l.emoji} {l.label}
                 </button>
               ))}
             </div>
