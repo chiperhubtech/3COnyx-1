@@ -5,8 +5,21 @@ const ACCESS_KEY = import.meta.env.VITE_PREVIEW_KEY || "ONYX3C";
 const STORAGE_KEY = "3c_access_granted";
 const BASE = import.meta.env.BASE_URL?.replace(/\/$/, "") || "";
 
+// ── Public Door Allowlist ────────────────────────────────────────────────
+// Routes that bypass the access gate entirely — anyone on Earth can walk
+// through these doors, no code, no reading, no friction. (RAC3C vision:
+// "a person who cannot read can join.") Add new public paths here.
+const PUBLIC_DOOR_PATHS = ["/door", "/start", "/begin", "/manifest.json", "/sw.js", "/favicon.svg", "/opengraph.jpg"];
+
+function isPublicDoor(): boolean {
+  if (typeof window === "undefined") return false;
+  const p = window.location.pathname.replace(BASE, "") || "/";
+  return PUBLIC_DOOR_PATHS.some((d) => p === d || p.startsWith(d + "/"));
+}
+
 export function AccessGate({ children }: { children: React.ReactNode }) {
   const [granted, setGranted]   = useState<boolean>(() => {
+    if (isPublicDoor()) return true;
     try { return sessionStorage.getItem(STORAGE_KEY) === ACCESS_KEY; } catch { return false; }
   });
   const [input, setInput]       = useState("");
