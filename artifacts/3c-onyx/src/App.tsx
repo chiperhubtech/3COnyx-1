@@ -16,6 +16,7 @@ import { useAxonPageview } from "@/hooks/useAxonPixel";
 import Home from "@/pages/home";
 import LandingPage from "@/pages/landing";
 import UniversalDoor from "@/pages/universal-door";
+import KilocornManifesto from "@/pages/kilocorn";
 import JoinPage from "@/pages/join";
 import JoinSuccess from "@/pages/join-success";
 import MemberProfilePage from "@/pages/member-profile";
@@ -161,7 +162,7 @@ function AppRoutes() {
   useAxonPageview();
 
   // Public pages — no sidebar, no auth required
-  const PUBLIC_PATHS = ["/landing", "/door", "/start", "/begin", "/login", "/register", "/waitlist", "/legal/terms", "/legal/privacy", "/join", "/m/", "/technology", "/sdv", "/oa", "/flow", "/assist"];
+  const PUBLIC_PATHS = ["/landing", "/door", "/start", "/begin", "/kilocorn", "/manifesto", "/trillion", "/login", "/register", "/waitlist", "/legal/terms", "/legal/privacy", "/join", "/m/", "/technology", "/sdv", "/oa", "/flow", "/assist"];
   const isPublic = PUBLIC_PATHS.some((p) => location === p || location.startsWith(p));
   const isHome = location === "/" || location === "";
 
@@ -175,6 +176,9 @@ function AppRoutes() {
         <Route path="/door"            component={UniversalDoor} />
         <Route path="/start"           component={UniversalDoor} />
         <Route path="/begin"           component={UniversalDoor} />
+        <Route path="/kilocorn"        component={KilocornManifesto} />
+        <Route path="/manifesto"       component={KilocornManifesto} />
+        <Route path="/trillion"        component={KilocornManifesto} />
         <Route path="/join/success"    component={JoinSuccess} />
         <Route path="/join"            component={JoinPage} />
         <Route path="/technology"      component={TechnologyPage} />
