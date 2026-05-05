@@ -9,7 +9,7 @@ const BASE = import.meta.env.BASE_URL?.replace(/\/$/, "") || "";
 // Routes that bypass the access gate entirely — anyone on Earth can walk
 // through these doors, no code, no reading, no friction. (RAC3C vision:
 // "a person who cannot read can join.") Add new public paths here.
-const PUBLIC_DOOR_PATHS = ["/door", "/start", "/begin", "/kilocorn", "/manifesto", "/trillion", "/manifest.json", "/sw.js", "/favicon.svg", "/opengraph.jpg"];
+const PUBLIC_DOOR_PATHS = ["/door", "/start", "/begin", "/kilocorn", "/manifesto", "/trillion", "/standard", "/protocol", "/3cx", "/dot", "/cvo", "/ops", "/status", "/manifest.json", "/sw.js", "/favicon.svg", "/opengraph.jpg"];
 
 function isPublicDoor(): boolean {
   if (typeof window === "undefined") return false;
