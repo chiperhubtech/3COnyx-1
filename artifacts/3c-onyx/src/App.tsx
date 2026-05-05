@@ -19,6 +19,7 @@ import UniversalDoor from "@/pages/universal-door";
 import KilocornManifesto from "@/pages/kilocorn";
 import GlobalStandardPage from "@/pages/standard";
 import CVOConsole from "@/pages/cvo";
+import AmplifyEngine from "@/pages/amplify";
 import JoinPage from "@/pages/join";
 import JoinSuccess from "@/pages/join-success";
 import MemberProfilePage from "@/pages/member-profile";
@@ -164,7 +165,7 @@ function AppRoutes() {
   useAxonPageview();
 
   // Public pages — no sidebar, no auth required
-  const PUBLIC_PATHS = ["/landing", "/door", "/start", "/begin", "/kilocorn", "/manifesto", "/trillion", "/standard", "/protocol", "/3cx", "/dot", "/cvo", "/ops", "/status", "/login", "/register", "/waitlist", "/legal/terms", "/legal/privacy", "/join", "/m/", "/technology", "/sdv", "/oa", "/flow", "/assist"];
+  const PUBLIC_PATHS = ["/landing", "/door", "/start", "/begin", "/kilocorn", "/manifesto", "/trillion", "/standard", "/protocol", "/3cx", "/dot", "/cvo", "/ops", "/status", "/amplify", "/marketing", "/axon", "/people", "/choice", "/login", "/register", "/waitlist", "/legal/terms", "/legal/privacy", "/join", "/m/", "/technology", "/sdv", "/oa", "/flow", "/assist"];
   const isPublic = PUBLIC_PATHS.some((p) => location === p || location.startsWith(p));
   const isHome = location === "/" || location === "";
 
@@ -188,6 +189,11 @@ function AppRoutes() {
         <Route path="/cvo"             component={CVOConsole} />
         <Route path="/ops"             component={CVOConsole} />
         <Route path="/status"          component={CVOConsole} />
+        <Route path="/amplify"         component={AmplifyEngine} />
+        <Route path="/marketing"       component={AmplifyEngine} />
+        <Route path="/axon"            component={AmplifyEngine} />
+        <Route path="/people"          component={AmplifyEngine} />
+        <Route path="/choice"          component={AmplifyEngine} />
         <Route path="/join/success"    component={JoinSuccess} />
         <Route path="/join"            component={JoinPage} />
         <Route path="/technology"      component={TechnologyPage} />
