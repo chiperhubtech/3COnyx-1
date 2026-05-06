@@ -68,6 +68,7 @@ const PORTALS = [
   { href: "/standard", emoji: "📜", title: "3CX-1.0 STANDARD",sub: "Global protocol · 16-nation regulator map"   },
   { href: "/amplify",  emoji: "🎙️", title: "AXON · AMPLIFY",  sub: "720 posts/click · 12 platforms · 6 voices"   },
   { href: "/revenue",  emoji: "💰", title: "24 REVENUE LINES",sub: "$200B–$800B/yr · Kilocorn confirmed"          },
+  { href: "/government", emoji: "🏛️", title: "SOVEREIGN FLEET", sub: "8 government tracks · 16M vehicles · ~$200B/yr" },
   { href: "/kilocorn", emoji: "👑", title: "KILOCORN CREED",  sub: "Solo-owner · $1T mission · the manifesto"     },
 ];
 
@@ -276,6 +277,58 @@ export default function EverythingPage() {
               </tbody>
             </table>
           </div>
+        </div>
+      </section>
+
+      {/* ─── The Third Pillar: Government ───────────────────────── */}
+      <section className="px-6 md:px-12 py-20 border-t border-amber-400/20 bg-gradient-to-b from-emerald-950/20 via-black to-black">
+        <div className="max-w-6xl">
+          <div className="text-xs tracking-widest text-emerald-300 mb-4">🏛️ THE THIRD PILLAR · NEW</div>
+          <h2 className="text-4xl md:text-6xl font-black leading-tight mb-6">
+            Every government. Every fleet. <br />
+            <span className="text-emerald-400">Every continent.</span>
+          </h2>
+          <p className="text-stone-300 leading-relaxed text-lg max-w-4xl mb-8">
+            The same protocol that serves <strong className="text-white">4 billion consumers</strong> and <strong className="text-white">every industry professional</strong> also
+            serves the <strong className="text-white">institutions that move public life</strong> — sanitation trucks, school buses, ambulances,
+            postal vans, vaccine cold-chain rigs, disaster-relief fleets. <strong className="text-emerald-300">Not by mandate. By choice.</strong>
+            Because it's free at the bottom, transparent at the top, and better than what they have today.
+          </p>
+
+          <div className="grid md:grid-cols-4 gap-3 mb-8">
+            {[
+              { e: "🚛", t: "Sanitation",   v: "1.5M trucks · $30B/yr" },
+              { e: "🚌", t: "School Buses", v: "3M buses · $25B/yr" },
+              { e: "🚓", t: "First Responder", v: "1M+ vehicles · $20B/yr" },
+              { e: "📮", t: "Postal",        v: "2M vans · $40B/yr" },
+              { e: "🌍", t: "UN / NGO",      v: "2M vehicles · $15B/yr" },
+              { e: "🛡️", t: "Military Light",v: "3M vehicles · $40B/yr" },
+              { e: "🪪", t: "DMV / Title",   v: "1.4B titles · zero state cost" },
+              { e: "🌪️", t: "Disaster Relief",v: "500K + civilian surge" },
+            ].map((c) => (
+              <div key={c.t} className="border border-emerald-400/30 rounded-2xl p-4 bg-black/40">
+                <div className="text-2xl mb-1">{c.e}</div>
+                <div className="font-bold text-emerald-300">{c.t}</div>
+                <div className="text-xs text-stone-400 mt-1">{c.v}</div>
+              </div>
+            ))}
+          </div>
+
+          <div className="rounded-2xl border border-emerald-400/40 bg-emerald-500/5 p-6 mb-8">
+            <div className="text-emerald-300 text-xs tracking-widest mb-2">⚖️ DEFAULT, NOT MANDATE</div>
+            <p className="text-stone-200">
+              No nation forces its citizens onto this platform. <strong className="text-white">Every nation may run its own fleets on it</strong>{" "}
+              — voluntarily, sovereignly, on the same rails. <strong className="text-emerald-300">~16 million government vehicles. ~$200B/year.</strong>{" "}
+              Capturing 0.5% = $1B/year — one of the 24 revenue lines, on its own.
+            </p>
+          </div>
+
+          <Link
+            href="/government"
+            className="inline-flex items-center bg-emerald-500 hover:bg-emerald-400 text-black font-black uppercase tracking-wider px-6 py-3 rounded-2xl"
+          >
+            → ENTER /government — 8 PARTNERSHIP TRACKS
+          </Link>
         </div>
       </section>
 

@@ -22,6 +22,7 @@ import CVOConsole from "@/pages/cvo";
 import AmplifyEngine from "@/pages/amplify";
 import RevenuePage from "@/pages/revenue";
 import EverythingPage from "@/pages/everything";
+import GovernmentPage from "@/pages/government";
 import JoinPage from "@/pages/join";
 import JoinSuccess from "@/pages/join-success";
 import MemberProfilePage from "@/pages/member-profile";
@@ -167,7 +168,7 @@ function AppRoutes() {
   useAxonPageview();
 
   // Public pages — no sidebar, no auth required
-  const PUBLIC_PATHS = ["/landing", "/door", "/start", "/begin", "/kilocorn", "/manifesto", "/trillion", "/standard", "/protocol", "/3cx", "/dot", "/cvo", "/ops", "/status", "/amplify", "/marketing", "/axon", "/people", "/choice", "/revenue", "/streams", "/money", "/lines", "/everything", "/onyx", "/infinity", "/omnia", "/one", "/forever", "/login", "/register", "/waitlist", "/legal/terms", "/legal/privacy", "/join", "/m/", "/technology", "/sdv", "/oa", "/flow", "/assist"];
+  const PUBLIC_PATHS = ["/landing", "/door", "/start", "/begin", "/kilocorn", "/manifesto", "/trillion", "/standard", "/protocol", "/3cx", "/dot", "/cvo", "/ops", "/status", "/amplify", "/marketing", "/axon", "/people", "/choice", "/revenue", "/streams", "/money", "/lines", "/everything", "/onyx", "/infinity", "/omnia", "/one", "/forever", "/government", "/fleet", "/public", "/sovereign-fleet", "/municipal", "/b2g", "/login", "/register", "/waitlist", "/legal/terms", "/legal/privacy", "/join", "/m/", "/technology", "/sdv", "/oa", "/flow", "/assist"];
   const isPublic = PUBLIC_PATHS.some((p) => location === p || location.startsWith(p));
   const isHome = location === "/" || location === "";
 
@@ -206,6 +207,12 @@ function AppRoutes() {
         <Route path="/omnia"           component={EverythingPage} />
         <Route path="/one"             component={EverythingPage} />
         <Route path="/forever"         component={EverythingPage} />
+        <Route path="/government"      component={GovernmentPage} />
+        <Route path="/fleet"           component={GovernmentPage} />
+        <Route path="/public"          component={GovernmentPage} />
+        <Route path="/sovereign-fleet" component={GovernmentPage} />
+        <Route path="/municipal"       component={GovernmentPage} />
+        <Route path="/b2g"             component={GovernmentPage} />
         <Route path="/join/success"    component={JoinSuccess} />
         <Route path="/join"            component={JoinPage} />
         <Route path="/technology"      component={TechnologyPage} />
