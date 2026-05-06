@@ -90,7 +90,7 @@ const TRACKS: Track[] = [
   {
     key: "military",
     emoji: "🛡️",
-    title: "Military Non-Combat Light Vehicle Fleets",
+    title: "Every Army Globally — 100% (Non-Combat Light Fleets)",
     audience: "NATO base operations, logistics, transport, MWR (non-combat)",
     fleetSize: "~3M non-combat light vehicles globally",
     annualSpend: "~$40B/yr",

@@ -69,6 +69,8 @@ const PORTALS = [
   { href: "/amplify",  emoji: "🎙️", title: "AXON · AMPLIFY",  sub: "720 posts/click · 12 platforms · 6 voices"   },
   { href: "/revenue",  emoji: "💰", title: "24 REVENUE LINES",sub: "$200B–$800B/yr · Kilocorn confirmed"          },
   { href: "/government", emoji: "🏛️", title: "SOVEREIGN FLEET", sub: "8 government tracks · 16M vehicles · ~$200B/yr" },
+  { href: "/access",     emoji: "🌐", title: "UNIVERSAL ACCESS", sub: "1·2·3 · A·B·C · any valid ID · every army globally" },
+  { href: "/velocity",   emoji: "⚡", title: "VELOCITY DOCTRINE", sub: "Faster than Uber · AAA · Amazon · Google — head-to-head" },
   { href: "/kilocorn", emoji: "👑", title: "KILOCORN CREED",  sub: "Solo-owner · $1T mission · the manifesto"     },
 ];
 

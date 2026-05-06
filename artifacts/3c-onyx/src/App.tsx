@@ -23,6 +23,8 @@ import AmplifyEngine from "@/pages/amplify";
 import RevenuePage from "@/pages/revenue";
 import EverythingPage from "@/pages/everything";
 import GovernmentPage from "@/pages/government";
+import AccessPage from "@/pages/access";
+import VelocityPage from "@/pages/velocity";
 import JoinPage from "@/pages/join";
 import JoinSuccess from "@/pages/join-success";
 import MemberProfilePage from "@/pages/member-profile";
@@ -168,7 +170,7 @@ function AppRoutes() {
   useAxonPageview();
 
   // Public pages — no sidebar, no auth required
-  const PUBLIC_PATHS = ["/landing", "/door", "/start", "/begin", "/kilocorn", "/manifesto", "/trillion", "/standard", "/protocol", "/3cx", "/dot", "/cvo", "/ops", "/status", "/amplify", "/marketing", "/axon", "/people", "/choice", "/revenue", "/streams", "/money", "/lines", "/everything", "/onyx", "/infinity", "/omnia", "/one", "/forever", "/government", "/fleet", "/public", "/sovereign-fleet", "/municipal", "/b2g", "/login", "/register", "/waitlist", "/legal/terms", "/legal/privacy", "/join", "/m/", "/technology", "/sdv", "/oa", "/flow", "/assist"];
+  const PUBLIC_PATHS = ["/landing", "/door", "/start", "/begin", "/kilocorn", "/manifesto", "/trillion", "/standard", "/protocol", "/3cx", "/dot", "/cvo", "/ops", "/status", "/amplify", "/marketing", "/axon", "/people", "/choice", "/revenue", "/streams", "/money", "/lines", "/everything", "/onyx", "/infinity", "/omnia", "/one", "/forever", "/government", "/fleet", "/public", "/sovereign-fleet", "/municipal", "/b2g", "/access", "/everyone", "/universal", "/all", "/123", "/abc", "/easy", "/welcome", "/velocity", "/faster", "/speed", "/clock", "/seconds", "/vs", "/login", "/register", "/waitlist", "/legal/terms", "/legal/privacy", "/join", "/m/", "/technology", "/sdv", "/oa", "/flow", "/assist"];
   const isPublic = PUBLIC_PATHS.some((p) => location === p || location.startsWith(p));
   const isHome = location === "/" || location === "";
 
@@ -208,6 +210,20 @@ function AppRoutes() {
         <Route path="/one"             component={EverythingPage} />
         <Route path="/forever"         component={EverythingPage} />
         <Route path="/government"      component={GovernmentPage} />
+        <Route path="/access"          component={AccessPage} />
+        <Route path="/everyone"        component={AccessPage} />
+        <Route path="/universal"       component={AccessPage} />
+        <Route path="/all"             component={AccessPage} />
+        <Route path="/123"             component={AccessPage} />
+        <Route path="/abc"             component={AccessPage} />
+        <Route path="/easy"            component={AccessPage} />
+        <Route path="/welcome"         component={AccessPage} />
+        <Route path="/velocity"        component={VelocityPage} />
+        <Route path="/faster"          component={VelocityPage} />
+        <Route path="/speed"           component={VelocityPage} />
+        <Route path="/clock"           component={VelocityPage} />
+        <Route path="/seconds"         component={VelocityPage} />
+        <Route path="/vs"              component={VelocityPage} />
         <Route path="/fleet"           component={GovernmentPage} />
         <Route path="/public"          component={GovernmentPage} />
         <Route path="/sovereign-fleet" component={GovernmentPage} />
