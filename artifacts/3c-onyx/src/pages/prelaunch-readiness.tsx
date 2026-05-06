@@ -66,11 +66,11 @@ const SECTIONS: Section[] = [
         linkLabel: "Enroll Google →",
       },
       {
-        title: "Business Domain & Email — 3conyx.ai",
-        detail: "Register the domain 3conyx.ai (canonical brand) through NameCheap (.ai supported, ~$70+/yr, 2-yr min). Then set up business email addresses: legal@3conyx.ai, privacy@3conyx.ai, gdpr@3conyx.ai, and support@3conyx.ai. These are referenced in the Terms of Service and Privacy Policy and must be active before launch.",
-        status: "pending-you",
-        link: "https://www.cloudflare.com/products/registrar/",
-        linkLabel: "Cloudflare Registrar →",
+        title: "Business Domains — OWNED via NameCheap ✓",
+        detail: "All three brand domains are registered and held through NameCheap by CUXTOMCANDYCLUB LLC: (1) 3conyx.ai — canonical product domain for the 3C ONYX platform; (2) cuxtomcandyclub.ai — parent-company AI-era domain; (3) cuxtomcandyclub.com — parent-company legacy domain. Next steps: point DNS A/CNAME records at the Replit deployment after publish, then provision business email — legal@3conyx.ai, privacy@3conyx.ai, gdpr@3conyx.ai, support@3conyx.ai (these are referenced in Terms and Privacy and must be active before launch).",
+        status: "done",
+        link: "https://ap.www.namecheap.com/domains/list/",
+        linkLabel: "Open NameCheap →",
       },
       {
         title: "Twilio Account — SMS & WhatsApp Business",
