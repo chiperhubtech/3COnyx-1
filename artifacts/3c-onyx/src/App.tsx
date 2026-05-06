@@ -25,6 +25,7 @@ import EverythingPage from "@/pages/everything";
 import GovernmentPage from "@/pages/government";
 import AccessPage from "@/pages/access";
 import VelocityPage from "@/pages/velocity";
+import IconsPage from "@/pages/icons";
 import JoinPage from "@/pages/join";
 import JoinSuccess from "@/pages/join-success";
 import MemberProfilePage from "@/pages/member-profile";
@@ -170,7 +171,7 @@ function AppRoutes() {
   useAxonPageview();
 
   // Public pages — no sidebar, no auth required
-  const PUBLIC_PATHS = ["/landing", "/door", "/start", "/begin", "/kilocorn", "/manifesto", "/trillion", "/standard", "/protocol", "/3cx", "/dot", "/cvo", "/ops", "/status", "/amplify", "/marketing", "/axon", "/people", "/choice", "/revenue", "/streams", "/money", "/lines", "/everything", "/onyx", "/infinity", "/omnia", "/one", "/forever", "/government", "/fleet", "/public", "/sovereign-fleet", "/municipal", "/b2g", "/access", "/everyone", "/universal", "/all", "/123", "/abc", "/easy", "/welcome", "/velocity", "/faster", "/speed", "/clock", "/seconds", "/vs", "/login", "/register", "/waitlist", "/legal/terms", "/legal/privacy", "/join", "/m/", "/technology", "/sdv", "/oa", "/flow", "/assist"];
+  const PUBLIC_PATHS = ["/landing", "/door", "/start", "/begin", "/kilocorn", "/manifesto", "/trillion", "/standard", "/protocol", "/3cx", "/dot", "/cvo", "/ops", "/status", "/amplify", "/marketing", "/axon", "/people", "/choice", "/revenue", "/streams", "/money", "/lines", "/everything", "/onyx", "/infinity", "/omnia", "/one", "/forever", "/government", "/fleet", "/public", "/sovereign-fleet", "/municipal", "/b2g", "/access", "/everyone", "/universal", "/all", "/123", "/abc", "/easy", "/welcome", "/velocity", "/faster", "/speed", "/clock", "/seconds", "/vs", "/icons", "/athletes", "/celebrities", "/celebs", "/stars", "/teams", "/agents", "/concierge", "/vip", "/login", "/register", "/waitlist", "/legal/terms", "/legal/privacy", "/join", "/m/", "/technology", "/sdv", "/oa", "/flow", "/assist"];
   const isPublic = PUBLIC_PATHS.some((p) => location === p || location.startsWith(p));
   const isHome = location === "/" || location === "";
 
@@ -224,6 +225,15 @@ function AppRoutes() {
         <Route path="/clock"           component={VelocityPage} />
         <Route path="/seconds"         component={VelocityPage} />
         <Route path="/vs"              component={VelocityPage} />
+        <Route path="/icons"           component={IconsPage} />
+        <Route path="/athletes"        component={IconsPage} />
+        <Route path="/celebrities"     component={IconsPage} />
+        <Route path="/celebs"          component={IconsPage} />
+        <Route path="/stars"           component={IconsPage} />
+        <Route path="/teams"           component={IconsPage} />
+        <Route path="/agents"          component={IconsPage} />
+        <Route path="/concierge"       component={IconsPage} />
+        <Route path="/vip"             component={IconsPage} />
         <Route path="/fleet"           component={GovernmentPage} />
         <Route path="/public"          component={GovernmentPage} />
         <Route path="/sovereign-fleet" component={GovernmentPage} />
