@@ -165,12 +165,29 @@ const TOTAL_MARKET = [
 ];
 
 const API_INTEGRATIONS = [
-  { name: "Stripe",       role: "Payments + Connect (referrer payouts) + Identity",            status: "INSTALLED",           secret: "STRIPE_SECRET_KEY (when you're ready)" },
-  { name: "Plaid",        role: "Bank verification, ACH funding, lender connections",          status: "READY TO WIRE",       secret: "PLAID_CLIENT_ID + PLAID_SECRET" },
-  { name: "Marketcheck",  role: "Live US vehicle inventory feed (200M+ listings)",             status: "SECRET REQUESTED",    secret: "MARKETCHECK_API_KEY" },
-  { name: "Twilio",       role: "SMS + WhatsApp Business notifications",                       status: "READY TO WIRE",       secret: "TWILIO_ACCOUNT_SID + TWILIO_AUTH_TOKEN + TWILIO_WHATSAPP_FROM" },
-  { name: "NameCheap",    role: "DNS for 3conyx.ai + cuxtomcandyclub.ai/.com",                 status: "OWNED ✓",             secret: "NAMECHEAP_API_KEY ✓ (set)" },
-  { name: "JWT + Crypto", role: "Auth tokens + at-rest encryption",                            status: "READY TO WIRE",       secret: "JWT_SECRET + ENCRYPTION_KEY (paste 64+ random chars)" },
+  { name: "Stripe",       role: "Payments + Connect (referrer payouts) + Identity (KYC/license verify)", status: "INSTALLED",           secret: "STRIPE_SECRET_KEY · STRIPE_PUBLISHABLE_KEY · STRIPE_WEBHOOK_SECRET" },
+  { name: "Plaid",        role: "Bank verification · ACH funding · lender connections (12K+ banks)",     status: "READY TO WIRE",       secret: "PLAID_CLIENT_ID + PLAID_SECRET" },
+  { name: "Marketcheck",  role: "Live US vehicle inventory feed (200M+ listings · sale + rental)",       status: "SECRET REQUESTED",    secret: "MARKETCHECK_API_KEY" },
+  { name: "Crawler · Rentals", role: "Aggregator across Turo · Getaround · Hertz · Avis · Enterprise · Sixt + global peer-to-peer", status: "READY TO WIRE", secret: "CRAWLER_API_KEY (pick provider: Bright Data / Apify / ScrapingBee)" },
+  { name: "InsureMO",     role: "Global insurance middleware — auto, gap, warranty, rideshare, fleet (300+ carriers, 70+ countries)", status: "READY TO WIRE", secret: "INSUREMO_TENANT_ID + INSUREMO_API_KEY" },
+  { name: "Twilio",       role: "SMS + WhatsApp Business notifications (4B+ users worldwide)",          status: "READY TO WIRE",       secret: "TWILIO_ACCOUNT_SID + TWILIO_AUTH_TOKEN + TWILIO_WHATSAPP_FROM" },
+  { name: "NameCheap",    role: "DNS for 3conyx.ai + cuxtomcandyclub.ai/.com",                          status: "OWNED ✓",             secret: "NAMECHEAP_API_KEY ✓ (set)" },
+  { name: "JWT + Crypto", role: "Auth tokens + at-rest encryption (every transaction signed + sealed)",  status: "READY TO WIRE",       secret: "JWT_SECRET + ENCRYPTION_KEY (paste 64+ random chars)" },
+];
+
+const ECOSYSTEM_CIRCLES = [
+  { e: "🚪", t: "Buy",       v: "Marketcheck inventory · 200M+ listings"   },
+  { e: "🔄", t: "Rent",      v: "Crawler aggregator · Turo · Hertz · P2P"  },
+  { e: "🛡️", t: "Insure",    v: "InsureMO · 300+ carriers · 70+ countries" },
+  { e: "🏦", t: "Finance",   v: "Plaid · 12K+ banks · ACH + lender match"  },
+  { e: "💳", t: "Pay",       v: "Stripe · 195 countries · Connect payouts" },
+  { e: "🪪", t: "Verify",    v: "Stripe Identity · scan license at home"   },
+  { e: "🔧", t: "Service",   v: "Bay-shop network · parts marketplace"     },
+  { e: "📤", t: "Sell",      v: "P2P · dealer · auction lanes"             },
+  { e: "📦", t: "Ship",      v: "Logistics rails · cross-border FX"        },
+  { e: "🤝", t: "Refer",     v: "Connector tier · referral wallet payouts" },
+  { e: "🏛️", t: "Govern",    v: "Sovereign Fleet Protocol · 8 tracks"      },
+  { e: "📲", t: "Reach",     v: "Twilio SMS + WhatsApp · AXON · 720 posts" },
 ];
 
 export default function GovernmentPage() {
@@ -439,6 +456,40 @@ export default function GovernmentPage() {
           <p className="mt-4 text-xs text-zinc-400">
             Plaid, Marketcheck, Twilio can be added later — none of them block launch. The site, payments, referrals, license-scan
             onboarding, and government tracks are all live the moment Stripe is connected.
+          </p>
+        </div>
+      </section>
+
+      {/* ─── Full Economy Ecosystem ───────────────────────────────────── */}
+      <section className="mx-auto max-w-7xl px-6 py-16">
+        <div className="text-amber-400 text-xs uppercase tracking-widest mb-2">🌐 Full Economy Ecosystem</div>
+        <h2 className="text-4xl md:text-5xl font-bold leading-tight">
+          By the people. For the people.{" "}
+          <span className="text-amber-400">Globally.</span>
+        </h2>
+        <p className="mt-4 max-w-3xl text-zinc-300">
+          Twelve circles. One protocol. Each circle is a complete sub-economy on its own — buy, rent, insure, finance, pay,
+          verify, service, sell, ship, refer, govern, reach. Connect them and you have a <strong className="text-amber-300">full
+          mobility economy that any human, any pro, any government on Earth can plug into in their language, on their device,
+          at their tier.</strong>
+        </p>
+
+        <div className="mt-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          {ECOSYSTEM_CIRCLES.map((c) => (
+            <div key={c.t} className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-4 hover:border-amber-500/40 transition">
+              <div className="text-2xl">{c.e}</div>
+              <div className="mt-1 font-bold text-amber-300">{c.t}</div>
+              <div className="text-xs text-zinc-400 mt-1">{c.v}</div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-8 rounded-xl border border-amber-500/40 bg-gradient-to-br from-amber-500/5 to-emerald-500/5 p-6">
+          <p className="text-zinc-200">
+            <strong className="text-amber-300">No middleman extracts the value. No corner of Earth is excluded. No language is locked out.</strong>{" "}
+            The protocol takes a small fair share at each circle — the rest stays with the people who did the work, drove the car,
+            scanned the license, made the referral, ran the shop, served the city. <strong className="text-emerald-300">That is the
+            difference between an extractive platform and a sovereign economy.</strong> 3C ONYX is the second.
           </p>
         </div>
       </section>
