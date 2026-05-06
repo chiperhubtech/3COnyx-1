@@ -113,7 +113,7 @@ function KycModal({
     const res = await fetch("/api/dynasty/kyc/initiate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ buyerName, buyerEmail: "buyer@3conyx.com", vehiclePrice }),
+      body: JSON.stringify({ buyerName, buyerEmail: "buyer@3conyx.ai", vehiclePrice }),
     });
     const data = await res.json();
     setSessionId(data.sessionId ?? null);

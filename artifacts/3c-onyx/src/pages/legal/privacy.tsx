@@ -26,7 +26,7 @@ export default function PrivacyPage() {
       </p>
 
       <S title="1. Who We Are">
-        <p>CUXTOMCANDYCLUB LLC ("Company," "we," "our," "us"), operator of the 3C ONYX platform, is the data controller for all personal information processed under this Privacy Policy. We are headquartered in the State of Florida, USA. For all privacy inquiries: <a href="mailto:privacy@3conyx.com" style={{ color: "#C9A227" }}>privacy@3conyx.com</a>.</p>
+        <p>CUXTOMCANDYCLUB LLC ("Company," "we," "our," "us"), operator of the 3C ONYX platform, is the data controller for all personal information processed under this Privacy Policy. We are headquartered in the State of Florida, USA. For all privacy inquiries: <a href="mailto:privacy@3conyx.ai" style={{ color: "#C9A227" }}>privacy@3conyx.ai</a>.</p>
       </S>
 
       <S title="2. Information We Collect">
@@ -82,22 +82,22 @@ export default function PrivacyPage() {
       </S>
 
       <S title="10. Your Rights — All Members">
-        <p>Depending on your jurisdiction, you may have the right to: (a) access your personal data; (b) correct inaccurate data; (c) request deletion ("right to be forgotten") — except for data we are legally required to retain; (d) port your data to another service in a machine-readable format; (e) opt out of marketing communications; (f) object to automated decision-making. To exercise any right, email <a href="mailto:privacy@3conyx.com" style={{ color: "#C9A227" }}>privacy@3conyx.com</a>. We respond within 30 days.</p>
+        <p>Depending on your jurisdiction, you may have the right to: (a) access your personal data; (b) correct inaccurate data; (c) request deletion ("right to be forgotten") — except for data we are legally required to retain; (d) port your data to another service in a machine-readable format; (e) opt out of marketing communications; (f) object to automated decision-making. To exercise any right, email <a href="mailto:privacy@3conyx.ai" style={{ color: "#C9A227" }}>privacy@3conyx.ai</a>. We respond within 30 days.</p>
       </S>
 
       <S title="11. California Residents (CCPA/CPRA)">
         <p>California residents have the right to: know what personal information is collected and how it is used; request deletion; correct inaccurate information; opt out of sale or sharing (we do not sell or share your data); limit use of sensitive personal information; and not be discriminated against for exercising these rights.</p>
-        <p style={{ marginTop: 8 }}>To submit a verifiable consumer request: email <a href="mailto:privacy@3conyx.com" style={{ color: "#C9A227" }}>privacy@3conyx.com</a> with subject line "CCPA Request." We will verify your identity before processing. Authorized agents may submit requests with written permission.</p>
+        <p style={{ marginTop: 8 }}>To submit a verifiable consumer request: email <a href="mailto:privacy@3conyx.ai" style={{ color: "#C9A227" }}>privacy@3conyx.ai</a> with subject line "CCPA Request." We will verify your identity before processing. Authorized agents may submit requests with written permission.</p>
       </S>
 
       <S title="12. EEA, UK & GDPR Rights">
         <p>If you are located in the European Economic Area or the United Kingdom, you have the following additional rights under GDPR/UK GDPR: right to be informed; right to access; right to rectification; right to erasure; right to restrict processing; right to data portability; right to object; and rights related to automated decision-making and profiling.</p>
-        <p style={{ marginTop: 8 }}>You also have the right to lodge a complaint with your national data protection authority (e.g., ICO in the UK, CNIL in France). Our EU/UK representative for GDPR purposes: <a href="mailto:gdpr@3conyx.com" style={{ color: "#C9A227" }}>gdpr@3conyx.com</a>.</p>
+        <p style={{ marginTop: 8 }}>You also have the right to lodge a complaint with your national data protection authority (e.g., ICO in the UK, CNIL in France). Our EU/UK representative for GDPR purposes: <a href="mailto:gdpr@3conyx.ai" style={{ color: "#C9A227" }}>gdpr@3conyx.ai</a>.</p>
         <p style={{ marginTop: 8 }}>Data transfers outside the EEA/UK are conducted using EU Standard Contractual Clauses or equivalent safeguards.</p>
       </S>
 
       <S title="13. Children's Privacy">
-        <p>The Platform is not directed at individuals under 18. We do not knowingly collect personal data from minors. If you believe we have collected data from a minor, contact <a href="mailto:privacy@3conyx.com" style={{ color: "#C9A227" }}>privacy@3conyx.com</a> immediately and we will delete it promptly.</p>
+        <p>The Platform is not directed at individuals under 18. We do not knowingly collect personal data from minors. If you believe we have collected data from a minor, contact <a href="mailto:privacy@3conyx.ai" style={{ color: "#C9A227" }}>privacy@3conyx.ai</a> immediately and we will delete it promptly.</p>
       </S>
 
       <S title="14. Cookies & Tracking">
@@ -110,9 +110,9 @@ export default function PrivacyPage() {
 
       <S title="16. Contact & Data Controller">
         <p>CUXTOMCANDYCLUB LLC is the data controller for all personal information processed under this Policy.<br />
-          Privacy inquiries: <a href="mailto:privacy@3conyx.com" style={{ color: "#C9A227" }}>privacy@3conyx.com</a><br />
-          GDPR/UK inquiries: <a href="mailto:gdpr@3conyx.com" style={{ color: "#C9A227" }}>gdpr@3conyx.com</a><br />
-          Legal inquiries: <a href="mailto:legal@3conyx.com" style={{ color: "#C9A227" }}>legal@3conyx.com</a><br />
+          Privacy inquiries: <a href="mailto:privacy@3conyx.ai" style={{ color: "#C9A227" }}>privacy@3conyx.ai</a><br />
+          GDPR/UK inquiries: <a href="mailto:gdpr@3conyx.ai" style={{ color: "#C9A227" }}>gdpr@3conyx.ai</a><br />
+          Legal inquiries: <a href="mailto:legal@3conyx.ai" style={{ color: "#C9A227" }}>legal@3conyx.ai</a><br />
           State of Florida, USA
         </p>
       </S>

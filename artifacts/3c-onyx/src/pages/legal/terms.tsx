@@ -120,7 +120,7 @@ export default function TermsPage() {
       </S>
 
       <S title="20. Contact">
-        <p>For legal inquiries: <a href="mailto:legal@3conyx.com" style={{ color: "#C9A227" }}>legal@3conyx.com</a><br />
+        <p>For legal inquiries: <a href="mailto:legal@3conyx.ai" style={{ color: "#C9A227" }}>legal@3conyx.ai</a><br />
         CUXTOMCANDYCLUB LLC — 3C ONYX Platform<br />
         State of Florida, USA</p>
       </S>

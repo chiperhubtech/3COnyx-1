@@ -203,18 +203,18 @@ const VERTICAL_NOUNS_BY_LOCALE: Record<Locale, Record<Vertical, string>> = {
 };
 
 const CTAS_EN = [
-  "Walk through the door → 3conyx.com/door",
+  "Walk through the door → 3conyx.ai/door",
   "Tap the picture. No reading required → /door",
   "Earn from any corner globally → /door",
-  "The People's Choice Worldwide → 3conyx.com",
+  "The People's Choice Worldwide → 3conyx.ai",
   "Free forever. Open for everyone → /start",
 ];
 
 const CTAS_ES = [
-  "Cruza la puerta → 3conyx.com/door",
+  "Cruza la puerta → 3conyx.ai/door",
   "Toca la foto. No hace falta leer → /door",
   "Gana desde cualquier rincón del mundo → /door",
-  "La Elección del Pueblo en Todo el Mundo → 3conyx.com",
+  "La Elección del Pueblo en Todo el Mundo → 3conyx.ai",
   "Gratis para siempre. Abierto para todos → /start",
 ];
 

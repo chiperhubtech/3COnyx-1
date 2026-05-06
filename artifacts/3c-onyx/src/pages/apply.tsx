@@ -45,7 +45,7 @@ Effective Date: March 21, 2026
 6. DATA RETENTION
    Your application record (name, status, Checkr ID) is retained for 7 years
    per FCRA requirements. You may request deletion of non-FCRA-required data
-   by emailing privacy@3conyx.com.
+   by emailing privacy@3conyx.ai.
 
 7. THIRD-PARTY SHARING
    Your data is shared only with Checkr Inc. for background screening. It is

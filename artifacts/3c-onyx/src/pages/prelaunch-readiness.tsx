@@ -66,8 +66,8 @@ const SECTIONS: Section[] = [
         linkLabel: "Enroll Google →",
       },
       {
-        title: "Business Domain & Email — 3conyx.com",
-        detail: "Register the domain 3conyx.com (or your preferred domain) through a registrar like Cloudflare, Google Domains, or GoDaddy. Then set up business email addresses: legal@3conyx.com, privacy@3conyx.com, gdpr@3conyx.com, and support@3conyx.com. These are referenced in the Terms of Service and Privacy Policy and must be active before launch.",
+        title: "Business Domain & Email — 3conyx.ai",
+        detail: "Register the domain 3conyx.ai (canonical brand) through NameCheap (.ai supported, ~$70+/yr, 2-yr min). Then set up business email addresses: legal@3conyx.ai, privacy@3conyx.ai, gdpr@3conyx.ai, and support@3conyx.ai. These are referenced in the Terms of Service and Privacy Policy and must be active before launch.",
         status: "pending-you",
         link: "https://www.cloudflare.com/products/registrar/",
         linkLabel: "Cloudflare Registrar →",

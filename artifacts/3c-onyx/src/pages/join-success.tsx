@@ -109,7 +109,7 @@ export default function JoinSuccess() {
             <p style={{ fontSize: 16, color: "#F87171", fontWeight: 600, marginBottom: 8 }}>Verification issue</p>
             <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", lineHeight: 1.6, marginBottom: 20 }}>{error}</p>
             <p style={{ fontSize: 12, color: "rgba(255,255,255,0.25)" }}>
-              If your card was charged, you are a founding member. Email support@3conyx.com with your receipt and we'll confirm manually.
+              If your card was charged, you are a founding member. Email support@3conyx.ai with your receipt and we'll confirm manually.
             </p>
           </div>
         </div>
