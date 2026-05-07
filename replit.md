@@ -6,6 +6,8 @@
 
 I prefer detailed explanations and iterative development. Ask before making major changes. Do not make changes to folder `Z` and file `Y`.
 
+**DON'T CHANGE — ONLY UPGRADE.** Never replace, rename, remove, or rewrite existing pages, routes, brand names, copy, components, or features. Only add to them or extend them. The cathedral is sacred — every brick stays. New work goes alongside, never on top of. This applies to: brand (3C ONYX stays), domains (3conyx.ai stays), stack (Node/TypeScript/tRPC/Drizzle stays), all existing pages and routes, all manifesto copy, all integrations already wired. If something genuinely needs improvement, ADD a better version next to the existing one — don't overwrite. Ask before any deletion of any kind.
+
 # System Architecture
 
 The project uses a pnpm workspace monorepo with Node.js 24 and TypeScript 5, leveraging Express 5, PostgreSQL with Drizzle ORM, and Zod for validation. It is designed for AWS deployment, utilizing Route 53, CloudFront, S3, ALB, ECS Fargate, and RDS PostgreSQL 16.
