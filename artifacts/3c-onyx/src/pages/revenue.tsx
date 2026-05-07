@@ -63,6 +63,7 @@ const STREAMS: Stream[] = [
   { id: 22, cat: "network",     name: "Verified / sponsored slots", payer: "Dealers, OEMs, lenders",unit: "Per impression / mo",rate: "$2K–$200K",     yearOne: 3,   kilocorn: 2_100,  note: "Top-of-funnel placement — surfaced to relevant intent." },
   { id: 23, cat: "network",     name: "KYC / verification fees",    payer: "Counterparty",          unit: "Per check",          rate: "$1.50–$8.00",   yearOne: 2,   kilocorn: 1_700,  note: "Identity, title, lien, VIN, history — instant pass-through." },
   { id: 24, cat: "network",     name: "FX spread on cross-border",  payer: "Buyer / seller",        unit: "Per transaction",    rate: "0.4–1.2%",      yearOne: 0,   kilocorn: 1_100,  note: "Exporting cars across the 16-nation map earns a clean spread." },
+  { id: 25, cat: "marketplace", name: "Global Sourcing Hub take-rate", payer: "Manufacturer / wholesaler", unit: "% of factory-direct GMV", rate: "3–5%", yearOne: 4, kilocorn: 14_500, note: "Canton Fair × Alibaba for auto — OEM parts, EV chargers, fleet wholesale, MOQ deals across 60+ source countries." },
 ];
 
 function fmtUsd(m: number): string {
@@ -90,7 +91,7 @@ export default function RevenuePage() {
       <header className="border-b border-amber-400/20 px-6 md:px-12 py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3 text-amber-400 font-black tracking-widest text-sm">
           <span>◆</span> 3C ONYX · REVENUE
-          <span className="text-stone-400 font-normal ml-2 hidden md:inline">· 24 STREAMS</span>
+          <span className="text-stone-400 font-normal ml-2 hidden md:inline">· 25 STREAMS</span>
         </Link>
         <div className="text-xs tracking-widest text-stone-400 flex items-center gap-3">
           <span className="text-emerald-400">●</span> SOVEREIGN
@@ -102,7 +103,7 @@ export default function RevenuePage() {
       {/* Hero */}
       <section className="px-6 md:px-12 py-12 md:py-16 max-w-7xl">
         <div className="inline-block px-3 py-1 rounded-full border border-amber-400/40 text-amber-400 text-xs tracking-widest mb-6">
-          💰 24 REVENUE STREAMS · 6 CATEGORIES · 1 PROTOCOL
+          💰 25 REVENUE STREAMS · 6 CATEGORIES · 1 PROTOCOL
         </div>
         <h1 className="text-5xl md:text-7xl font-black leading-[0.95] mb-6">
           The app stays free.<br />

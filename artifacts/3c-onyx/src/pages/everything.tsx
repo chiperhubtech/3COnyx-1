@@ -72,6 +72,7 @@ const PORTALS = [
   { href: "/access",     emoji: "🌐", title: "UNIVERSAL ACCESS", sub: "1·2·3 · A·B·C · any valid ID · every army globally" },
   { href: "/velocity",   emoji: "⚡", title: "VELOCITY DOCTRINE", sub: "Faster than Uber · AAA · Amazon · Google — head-to-head" },
   { href: "/icons",      emoji: "⭐", title: "ICONS TIER",         sub: "Every athlete · celebrity · team — use it or demand it" },
+  { href: "/sourcing",   emoji: "🌐", title: "GLOBAL SOURCING HUB", sub: "Canton × Alibaba × Stripe escrow · 60+ countries · factory-direct" },
   { href: "/kilocorn", emoji: "👑", title: "KILOCORN CREED",  sub: "Solo-owner · $1T mission · the manifesto"     },
 ];
 
