@@ -1,0 +1,21 @@
+Build a Python web application using Streamlit that simulates a global, asset-light Mobility-as-a-Service (MaaS) data-coordinating platform utility. The system acts as a neutral orchestrator that optimizes transit logistics, saves government expenditure, and controls city traffic flow without owning any vehicles.
+
+Implement the following backend simulation logic and interactive frontend tabs:
+
+1. Dashboard & KPI Overview:
+   - Visual counter showing "Global Government Savings" accumulating in real-time (simulating a baseline of $1,200 saved per second).
+   - Metrics cards showing: Total Commute Delay Reduced (%), Carbon Emissions Avoided (Metric Tons), and Infrastructure Maintenance Costs Deflected ($).
+
+2. Civil Utility Control Simulators:
+   - "Absolute Congestion Elimination" Module: A toggleable city grid simulator. When "Platform Coordination" is turned ON, show a simulated live graph mapping Traffic Flow Rate vs Peak Hours, demonstrating a flattened, optimized curve compared to the volatile uncoordinated baseline.
+   - "Predictive Infrastructure Maintenance" Map: A simulated interactive grid/map marking mock coordinates of "Potholes & Road Degradation Detected" gathered via continuous, simulated vehicle telemetry. Include an actionable "Deploy Micro-Targeted Repair Team" action button.
+
+3. Government Budget & Subsidies Calculator:
+   - An interactive calculator for municipal transit authorities. Inputs: Total City Population, Fleet Right-Sizing Toggle (On/Off), and Subsidies Allocation Method (Dropdown: "Traditional Mass Transit Subsidies" vs "Platform Micro-Targeted Digital Travel Credits").
+   - Output: A direct comparative cost-benefit breakdown showing total estimated monthly taxpayer savings and percentage efficiency improvements.
+
+4. Cybersecurity & Sovereignty Resiliency Panel:
+   - A security dashboard simulating stress tests against the "Single Point of Failure" risk. 
+   - Feature a "Simulate Cyber Attack" interactive button. When triggered, show how a "Federated Open-Source Protocol" architecture successfully isolates the breach to a single localized node without collapsing the global transit routing grid.
+
+Ensure the UI is clean, modern, uses scannable visual anchors, and operates completely locally without requiring external database setups or API keys.
