@@ -28,6 +28,7 @@ import VelocityPage from "@/pages/velocity";
 import IconsPage from "@/pages/icons";
 import SourcingPage from "@/pages/sourcing";
 import UtilityPage from "@/pages/utility";
+import BlitzPage from "@/pages/blitz";
 import JoinPage from "@/pages/join";
 import JoinSuccess from "@/pages/join-success";
 import MemberProfilePage from "@/pages/member-profile";
@@ -173,7 +174,7 @@ function AppRoutes() {
   useAxonPageview();
 
   // Public pages — no sidebar, no auth required
-  const PUBLIC_PATHS = ["/landing", "/door", "/start", "/begin", "/kilocorn", "/manifesto", "/trillion", "/standard", "/protocol", "/3cx", "/dot", "/cvo", "/ops", "/status", "/amplify", "/marketing", "/axon", "/people", "/choice", "/revenue", "/streams", "/money", "/lines", "/everything", "/onyx", "/infinity", "/omnia", "/one", "/forever", "/government", "/fleet", "/public", "/sovereign-fleet", "/municipal", "/b2g", "/access", "/everyone", "/universal", "/all", "/123", "/abc", "/easy", "/welcome", "/velocity", "/faster", "/speed", "/clock", "/seconds", "/vs", "/icons", "/athletes", "/celebrities", "/celebs", "/stars", "/teams", "/agents", "/concierge", "/vip", "/sourcing", "/source", "/wholesale", "/factory", "/canton", "/oem", "/parts", "/manufacturers", "/utility", "/maas", "/coordination", "/civil", "/grid", "/congestion", "/savings", "/sovereignty", "/login", "/register", "/waitlist", "/legal/terms", "/legal/privacy", "/join", "/m/", "/technology", "/sdv", "/oa", "/flow", "/assist"];
+  const PUBLIC_PATHS = ["/landing", "/door", "/start", "/begin", "/kilocorn", "/manifesto", "/trillion", "/standard", "/protocol", "/3cx", "/dot", "/cvo", "/ops", "/status", "/amplify", "/marketing", "/axon", "/people", "/choice", "/revenue", "/streams", "/money", "/lines", "/everything", "/onyx", "/infinity", "/omnia", "/one", "/forever", "/government", "/fleet", "/public", "/sovereign-fleet", "/municipal", "/b2g", "/access", "/everyone", "/universal", "/all", "/123", "/abc", "/easy", "/welcome", "/velocity", "/faster", "/speed", "/clock", "/seconds", "/vs", "/icons", "/athletes", "/celebrities", "/celebs", "/stars", "/teams", "/agents", "/concierge", "/vip", "/sourcing", "/source", "/wholesale", "/factory", "/canton", "/oem", "/parts", "/manufacturers", "/utility", "/maas", "/coordination", "/civil", "/grid", "/congestion", "/savings", "/sovereignty", "/blitz", "/ignition", "/launch", "/wildfire", "/growth-doctrine", "/lean", "/scale", "/gtm", "/login", "/register", "/waitlist", "/legal/terms", "/legal/privacy", "/join", "/m/", "/technology", "/sdv", "/oa", "/flow", "/assist"];
   const isPublic = PUBLIC_PATHS.some((p) => location === p || location.startsWith(p));
   const isHome = location === "/" || location === "";
 
@@ -252,6 +253,14 @@ function AppRoutes() {
         <Route path="/congestion"      component={UtilityPage} />
         <Route path="/savings"         component={UtilityPage} />
         <Route path="/sovereignty"     component={UtilityPage} />
+        <Route path="/blitz"           component={BlitzPage} />
+        <Route path="/ignition"        component={BlitzPage} />
+        <Route path="/launch"          component={BlitzPage} />
+        <Route path="/wildfire"        component={BlitzPage} />
+        <Route path="/growth-doctrine" component={BlitzPage} />
+        <Route path="/lean"            component={BlitzPage} />
+        <Route path="/scale"           component={BlitzPage} />
+        <Route path="/gtm"             component={BlitzPage} />
         <Route path="/fleet"           component={GovernmentPage} />
         <Route path="/public"          component={GovernmentPage} />
         <Route path="/sovereign-fleet" component={GovernmentPage} />

@@ -74,6 +74,7 @@ const PORTALS = [
   { href: "/icons",      emoji: "⭐", title: "ICONS TIER",         sub: "Every athlete · celebrity · team — use it or demand it" },
   { href: "/sourcing",   emoji: "🌐", title: "GLOBAL SOURCING HUB", sub: "Canton × Alibaba × Stripe escrow · 60+ countries · factory-direct" },
   { href: "/utility",    emoji: "⚖️", title: "CIVIL UTILITY LAYER", sub: "Asset-light MaaS · live savings · congestion · maintenance · sovereignty" },
+  { href: "/blitz",      emoji: "🚀", title: "BLITZ DOCTRINE",      sub: "Lean × Blitz × Graham · 8 channels parallel · 90-day ignition · margin-of-safety" },
   { href: "/kilocorn", emoji: "👑", title: "KILOCORN CREED",  sub: "Solo-owner · $1T mission · the manifesto"     },
 ];
 
