@@ -1,0 +1,254 @@
+Act as a senior full-stack AI platform engineer. Upgrade my automotive platform / 3C ONYX / AUTOWHEEL system into a global AI-powered automotive, motorsport, tuning, transit, fleet, smart-contract, and street-culture operating system.
+
+Build the platform so it connects consumers, dealerships, repair shops, custom builders, performance tuners, suspension companies, insurers, lenders, fleet operators, transit agencies, DOT infrastructure partners, creators, and motorsport communities into one intelligent ecosystem.
+
+Core mission:
+Turn every vehicle into a high-value mobile node for commerce, service, events, data, financing, verification, referrals, and culture.
+
+The platform must include:
+- vehicle marketplace
+- AI vehicle pricing
+- vehicle history
+- smart-contract verification
+- custom build tracking
+- performance tuning database
+- suspension and off-road upgrade marketplace
+- repair/service scheduling
+- financing and insurance integrations
+- fleet management
+- transit/DOT infrastructure modules
+- motorsport event system
+- QR-based referral system
+- creator/influencer marketing engine
+- AI customer support
+- multilingual support
+- ONYX Wallet with split payouts
+- 3% global tech fee engine
+- immutable proof ledger for builds, services, sales, claims, and ownership history
+
+Use this tech stack:
+- Next.js / React frontend
+- Node.js / Fastify backend
+- PostgreSQL database
+- Redis event/state bus
+- AI agent architecture
+- secure APIs
+- mobile-first PWA design
+- black/gold ONYX luxury motorsport UI
+- scalable cloud-ready architecture
+
+Create a database table or configuration file called automotive_build_partners with these fields:
+- company_name
+- origin_country
+- core_focus
+- official_website
+- category
+- platform_use_case
+
+Parse and insert the following companies into the system, mapping:
+name → company_name
+origin → origin_country
+focus → core_focus
+website → official_website
+
+[
+  {
+    "company_name": "Fox Factory",
+    "origin_country": "USA",
+    "core_focus": "Extreme Off-Road Trucks & Suspension Shocks",
+    "official_website": "https://www.foxfactory.com",
+    "category": "Suspension / Off-Road",
+    "platform_use_case": "Off-road truck upgrades, suspension marketplace, premium build recommendations"
+  },
+  {
+    "company_name": "PaxPower",
+    "origin_country": "USA",
+    "core_focus": "Turnkey Off-Road Truck Conversions (Jackal)",
+    "official_website": "https://www.paxpower.com",
+    "category": "Turnkey Truck Builds",
+    "platform_use_case": "High-end truck conversion listings and custom build inspiration"
+  },
+  {
+    "company_name": "Hennessey Performance",
+    "origin_country": "USA",
+    "core_focus": "High-Horsepower Hypercars & Tuned Trucks",
+    "official_website": "https://www.hennesseyperformance.com",
+    "category": "Performance Tuning",
+    "platform_use_case": "High-performance vehicle upgrades, hypercar marketplace, tuner verification"
+  },
+  {
+    "company_name": "Blacklake Research",
+    "origin_country": "USA",
+    "core_focus": "Premium Luxury Prerunner Trucks (XT1)",
+    "official_website": "https://www.blacklake.co",
+    "category": "Luxury Off-Road Builds",
+    "platform_use_case": "Premium off-road truck build database and aspirational marketplace content"
+  },
+  {
+    "company_name": "Brabus",
+    "origin_country": "Germany",
+    "core_focus": "Bespoke Supercars & Luxury Mercedes Conversions",
+    "official_website": "https://www.brabus.com",
+    "category": "Luxury Performance",
+    "platform_use_case": "Luxury customization, Mercedes upgrade catalog, elite build inspiration"
+  },
+  {
+    "company_name": "TechArt",
+    "origin_country": "Germany",
+    "core_focus": "Premium Porsche Customization & Track Builds",
+    "official_website": "https://www.techart.de",
+    "category": "Porsche Tuning",
+    "platform_use_case": "Porsche customization database and track build marketplace"
+  },
+  {
+    "company_name": "ABT Sportsline",
+    "origin_country": "Germany",
+    "core_focus": "Audi & VW Motorsport & Complete Vehicle Tuning",
+    "official_website": "https://www.abt-sportsline.com",
+    "category": "German Performance Tuning",
+    "platform_use_case": "Audi/VW performance tuning profiles and upgrade recommendations"
+  },
+  {
+    "company_name": "Alpina",
+    "origin_country": "Germany",
+    "core_focus": "Exclusive High-Performance BMW Vehicles",
+    "official_website": "https://www.alpina-automobiles.com",
+    "category": "BMW Performance Luxury",
+    "platform_use_case": "BMW performance reference, valuation intelligence, premium vehicle marketplace"
+  },
+  {
+    "company_name": "Mansory",
+    "origin_country": "Germany",
+    "core_focus": "Ultra-Luxury & Wild Forged Carbon Supercar Builds",
+    "official_website": "https://www.mansory.com",
+    "category": "Ultra-Luxury Customization",
+    "platform_use_case": "Exotic vehicle customization, luxury build showcase, influencer content engine"
+  },
+  {
+    "company_name": "Bilstein",
+    "origin_country": "Germany",
+    "core_focus": "Premium OE & Aftermarket Adaptive Dampening",
+    "official_website": "https://www.bilstein.com",
+    "category": "Suspension",
+    "platform_use_case": "Suspension recommendations, repair marketplace, performance upgrade catalog"
+  },
+  {
+    "company_name": "KW Automotive",
+    "origin_country": "Germany",
+    "core_focus": "Elite Track and Street Adjustable Coilovers",
+    "official_website": "https://www.kwsuspensions.com",
+    "category": "Suspension / Coilovers",
+    "platform_use_case": "Track/street suspension upgrades and tuner marketplace"
+  },
+  {
+    "company_name": "HKS",
+    "origin_country": "Japan",
+    "core_focus": "Hyper-Tuned Engines, Turbo Kits & Hipermax Coilovers",
+    "official_website": "https://www.hks-power.co.jp",
+    "category": "JDM Performance",
+    "platform_use_case": "JDM tuning, turbo kits, engine builds, drift and street culture marketplace"
+  },
+  {
+    "company_name": "Spoon Sports",
+    "origin_country": "Japan",
+    "core_focus": "Blueprint Honda Engine Tuning & Precision Track Parts",
+    "official_website": "https://www.spoonsports.jp",
+    "category": "Honda Performance",
+    "platform_use_case": "Honda tuning catalog, track build verification, JDM community engagement"
+  },
+  {
+    "company_name": "Mugen",
+    "origin_country": "Japan",
+    "core_focus": "Motorsport-Engineered Turnkey Honda Vehicles",
+    "official_website": "https://www.mugen-power.com",
+    "category": "Honda Motorsport",
+    "platform_use_case": "Honda motorsport build database and performance vehicle configuration"
+  },
+  {
+    "company_name": "Tein",
+    "origin_country": "Japan",
+    "core_focus": "Electronic Active Damping Control Coilovers",
+    "official_website": "https://www.tein.com",
+    "category": "Suspension / Coilovers",
+    "platform_use_case": "Coilover marketplace, ride quality tuning, suspension AI recommendation engine"
+  },
+  {
+    "company_name": "Cusco",
+    "origin_country": "Japan",
+    "core_focus": "Chassis Rigidity, Limited-Slip Diffs & Rally Suspension",
+    "official_website": "https://www.cusco.co.jp",
+    "category": "Rally / Chassis Performance",
+    "platform_use_case": "Rally build configuration, chassis tuning, motorsport performance upgrades"
+  },
+  {
+    "company_name": "JAOS",
+    "origin_country": "Japan",
+    "core_focus": "Rally-Inspired SUV Armor & Off-Road Suspension",
+    "official_website": "https://www.jaos.co.jp",
+    "category": "SUV / Off-Road",
+    "platform_use_case": "SUV off-road armor, expedition builds, trail-ready vehicle marketplace"
+  },
+  {
+    "company_name": "Öhlins",
+    "origin_country": "Sweden",
+    "core_focus": "The Gold Standard for Track-Day Valve Suspension Tech",
+    "official_website": "https://www.ohlins.com",
+    "category": "Premium Suspension",
+    "platform_use_case": "Track suspension recommendations, elite tuning catalog, premium build validation"
+  },
+  {
+    "company_name": "Novitec",
+    "origin_country": "Germany",
+    "core_focus": "Exotic Italian Car Tuning (Ferrari, Lamborghini, McLaren)",
+    "official_website": "https://www.novitecgroup.com",
+    "category": "Exotic Performance",
+    "platform_use_case": "Supercar tuning, exotic upgrade marketplace, luxury vehicle content"
+  },
+  {
+    "company_name": "Singer Vehicle Design",
+    "origin_country": "USA",
+    "core_focus": "Restomod Porsche 911 Built on Bespoke Engineering",
+    "official_website": "https://www.singervehicledesign.com",
+    "category": "Restomod / Porsche",
+    "platform_use_case": "Restomod inspiration, collectible valuation, bespoke build verification"
+  },
+  {
+    "company_name": "Gunther Werks",
+    "origin_country": "USA",
+    "core_focus": "Ultra-Exclusive Carbon Fiber Air-Cooled Porsche Restomods",
+    "official_website": "https://www.guntherwerks.com",
+    "category": "Restomod / Porsche",
+    "platform_use_case": "Carbon fiber Porsche restomod database and collector marketplace"
+  },
+  {
+    "company_name": "RWB (Rauh-Welt Begriff)",
+    "origin_country": "Japan",
+    "core_focus": "Hand-Cut Widebody Air-Cooled Porsche Masters",
+    "official_website": "https://rwb.jp",
+    "category": "Street Culture / Porsche Widebody",
+    "platform_use_case": "Street-culture build identity, event content, Porsche widebody community"
+  },
+  {
+    "company_name": "Litchfield Motors",
+    "origin_country": "UK",
+    "core_focus": "Premium European & Nissan GT-R Chassis/Engine Tuners",
+    "official_website": "https://www.litchfieldmotors.com",
+    "category": "European / GT-R Performance",
+    "platform_use_case": "GT-R tuning, European performance upgrades, track build marketplace"
+  }
+]
+
+Build the system so users can:
+- browse these companies
+- filter by country, category, focus, and vehicle type
+- connect companies to vehicles and builds
+- recommend upgrades using AI
+- compare tuning packages
+- create custom build profiles
+- generate smart-contract service records
+- attach invoices, warranties, and proof of work
+- monetize builds through events, referrals, content, and resale value
+
+Make this platform 100x better than a normal car marketplace by combining automotive commerce, street culture, motorsport, AI agents, tuning intelligence, transit infrastructure, smart contracts, and global mobility into one powerful system.
+
+The final product should feel like the operating system for everything with an engine.

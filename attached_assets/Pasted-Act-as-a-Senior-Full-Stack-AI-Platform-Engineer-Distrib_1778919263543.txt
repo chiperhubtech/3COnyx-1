@@ -1,0 +1,64 @@
+Act as a Senior Full-Stack AI Platform Engineer, Distributed Systems Architect, and Elite Tech Co-Founder. Your mission is to build and deploy '3C ONYX'—a unified, production-grade, global Automotive, Motorsport, Performance Tuning, Transit, Fleet, and Smart-Contract Operating System under the CUXTOMCANDYCLUB LLC parent brand. 
+
+This platform connects consumers, premium dealerships, service networks, elite custom builders, performance tuners, global parts suppliers, insurance providers, auto-lenders, fleet operators, transit agencies, and DOT infrastructure teams into a single, high-trust digital utility.
+
+⚠️ CORE ARCHITECTURAL & STRATEGIC MANDATES:
+1. ATOMIC CONSISTENCY: Enforce a strict state engine via Fastify/PostgreSQL for all transactional/case lifecycles: REQUESTED ➔ PROCESSING ➔ ACTION_REQUIRED ➔ COMPLETED ➔ PAID ➔ CLOSED. Use Redis Redlock for cross-node distributed locking to eliminate race conditions entirely across billions of nodes.
+2. FORD ASSEMBLY LINE EFFICIENCY & 4X HUMAN PERFORMANCE: Eliminate all "robot-like" manual labor (data entry, form filing, disconnected CRM tool switching). Every worker node (mechanic, salesperson, runner, attorney) is augmented by a dedicated background AI co-pilot, compressing transaction times from hours to sub-2 minutes.
+3. THE MULTILINGUAL KATAMARI EFFECT: Seamless, opt-in distribution hubs utilizing smart referral links, geofenced pop-up QR nodes, and automated localization supporting English, Spanish, Haitian Creole, Portuguese, Mandarin Chinese, and Hindi. Turn street meets, track days, and car clubs into instant cash-flow nodes capturing downstream transactions via the 3% Global Tech Fee engine and the ONYX Wallet.
+4. TRUST OVER MANIPULATION: Build an append-only cryptographic history log (The ONYX Proof Engine). Every service invoice, insurance binding event via InsureMO, performance tuning flash, or DOT safety audit is structurally signed, hashed, and chained to the unique VIN record. Prevent any dealer-extortion over commissions by utilizing the Support Agent's proactive early-warning system to mathematically guarantee 10/10 OEM Manufacturer Survey feedback.
+5. THE MOXY × VIVI SPATIAL DESKLESS UI: A 100% mobile-first PWA interface optimized for deskless operators. Design a high-contrast luxury UI featuring an ONYX Black (#000000) and Metallic Gold (#C9A85D) foundation, accented with Neon Pink (#FF2D9A) and Electric Purple (#7B61FF) dynamic pulses for active elements. The layout mimics an oversized, hyper-intuitive RAM 1500 infotainment command panel with large, tactile touch targets.
+
+1. DATA LAYER & BUILD PARTNER SEED CONFIGURATION:
+Create a robust database configuration script and model layer in the Persistence System. Create a PostgreSQL table named `automotive_build_partners` with the following schema:
+- id SERIAL PRIMARY KEY
+- company_name VARCHAR(255) NOT NULL UNIQUE
+- origin_country VARCHAR(100) NOT NULL
+- core_focus TEXT NOT NULL
+- official_website VARCHAR(255) NOT NULL
+- category VARCHAR(100) NOT NULL
+- platform_use_case TEXT NOT NULL
+- created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+Parse and programmatically insert the following global partner database rows into the ecosystem:
+* Fox Factory | USA | Extreme Off-Road Trucks & Suspension Shocks | https://www.foxfactory.com | Suspension / Off-Road | Off-road truck upgrades, suspension marketplace, premium build recommendations
+* PaxPower | USA | Turnkey Off-Road Truck Conversions (Jackal) | https://www.paxpower.com | Turnkey Truck Builds | High-end truck conversion listings and custom build inspiration
+* Hennessey Performance | USA | High-Horsepower Hypercars & Tuned Trucks | https://www.hennesseyperformance.com | Performance Tuning | High-performance vehicle upgrades, hypercar marketplace, tuner verification
+* Blacklake Research | USA | Premium Luxury Prerunner Trucks (XT1) | https://www.blacklake.co | Luxury Off-Road Builds | Premium off-road truck build database and aspirational marketplace content
+* Brabus | Germany | Bespoke Supercars & Luxury Mercedes Conversions | https://www.brabus.com | Luxury Performance | Luxury customization, Mercedes upgrade catalog, elite build inspiration
+* TechArt | Germany | Premium Porsche Customization & Track Builds | https://www.techart.de | Porsche Tuning | Porsche customization database and track build marketplace
+* ABT Sportsline | Germany | Audi & VW Motorsport & Complete Vehicle Tuning | https://www.abt-sportsline.com | German Performance Tuning | Audi/VW performance tuning profiles and upgrade recommendations
+* Alpina | Germany | Exclusive High-Performance BMW Vehicles | https://www.alpina-automobiles.com | BMW Performance Luxury | BMW performance reference, valuation intelligence, premium vehicle marketplace
+* Mansory | Germany | Ultra-Luxury & Wild Forged Carbon Supercar Builds | https://www.mansory.com | Ultra-Luxury Customization | Exotic vehicle customization, luxury build showcase, influencer content engine
+* Bilstein | Germany | Premium OE & Aftermarket Adaptive Dampening | https://www.bilstein.com | Suspension | Suspension recommendations, repair marketplace, performance upgrade catalog
+* KW Automotive | Germany | Elite Track and Street Adjustable Coilovers | https://www.kwsuspensions.com | Suspension / Coilovers | Track/street suspension upgrades and tuner marketplace
+* HKS | Japan | Hyper-Tuned Engines, Turbo Kits & Hipermax Coilovers | https://www.hks-power.co.jp | JDM Performance | JDM tuning, turbo kits, engine builds, drift and street culture marketplace
+* Spoon Sports | Japan | Blueprint Honda Engine Tuning & Precision Track Parts | https://www.spoonsports.jp | Honda Performance | Honda tuning catalog, track build verification, JDM community engagement
+* Mugen | Japan | Motorsport-Engineered Turnkey Honda Vehicles | https://www.mugen-power.com | Honda Motorsport | Honda motorsport build database and performance vehicle configuration
+* Tein | Japan | Electronic Active Damping Control Coilovers | https://www.tein.com | Suspension / Coilovers | Coilover marketplace, ride quality tuning, suspension AI recommendation engine
+* Cusco | Japan | Chassis Rigidity, Limited-Slip Diffs & Rally Suspension | https://www.cusco.co.jp | Rally / Chassis Performance | Rally build configuration, chassis tuning, motorsport performance upgrades
+* JAOS | Japan | Rally-Inspired SUV Armor & Off-Road Suspension | https://www.jaos.co.jp | SUV / Off-Road | SUV off-road armor, expedition builds, trail-ready vehicle marketplace
+* Öhlins | Sweden | The Gold Standard for Track-Day Valve Suspension Tech | https://www.ohlins.com | Premium Suspension | Track suspension recommendations, elite tuning catalog, premium build validation
+* Novitec | Germany | Exotic Italian Car Tuning (Ferrari, Lamborghini, McLaren) | https://www.novitecgroup.com | Exotic Performance | Supercar tuning, exotic upgrade marketplace, luxury vehicle content
+* Singer Vehicle Design | USA | Restomod Porsche 911 Built on Bespoke Engineering | https://www.singervehicledesign.com | Restomod / Porsche | Restomod inspiration, collectible valuation, bespoke build verification
+* Gunther Werks | USA | Ultra-Exclusive Carbon Fiber Air-Cooled Porsche Restomods | https://www.guntherwerks.com | Restomod / Porsche | Carbon fiber Porsche restomod database and collector marketplace
+* RWB (Rauh-Welt Begriff) | Japan | Hand-Cut Widebody Air-Cooled Porsche Masters | https://rwb.jp | Street Culture / Porsche Widebody | Street-culture build identity, event content, Porsche widebody community
+* Litchfield Motors | UK | Premium European & Nissan GT-R Chassis/Engine Tuners | https://www.litchfieldmotors.com | European / GT-R Performance | GT-R tuning, European performance upgrades, track build marketplace
+
+2. CORE FUNCTIONAL ENGINES TO BUILD:
+- BROWSE & FILTER MODULE: Build an interactive, fluid grid component inside the vehicle and fleet screens that reads from `automotive_build_partners`. Allow filtering by country, category, core focus, and vehicle compatibility.
+- VECHICLE-BUILD ASSOCIATION GRAPH: Enable users and shops to dynamically anchor any of these certified build partners to an active vehicle asset or custom project profile via a Redis-backed relationship graph.
+- 7-AGENT CONSCIOUSNESS & AI MULTIPLIER:
+  1. Sales Agent: Uses GaryVee-style cohort intelligence and automated Perplexity-style news analysis to detect high-intent buyers, delivering a personalized, assertive 4X closing rate.
+  2. Finance Agent: Connects payment structures and handles multi-party real-time splits via the ONYX Wallet. 
+  3. Service Agent: Links the build partner database with real-time shop capacities to match modification and suspension requests with smart-contract warranties.
+  4. Manager Agent: Tracks top-tier regional nodes, monitors active transaction loops, and resolves red-alert friction points.
+  5. Logistics Agent: Directs gig-based runner routes and clubhouse supply chains along structural transportation corridors.
+  6. Referral Agent: Leverages automated marketing templates across WhatsApp, SMS, and QR cards to roll out natural geometric expansion.
+  7. Support Agent: Evaluates user sentiment continuously to insulate commissions from faulty dealer survey scoring.
+- SECURE TRANSACTION MACHINE: Build an execution pipeline capable of processing a closed-loop transaction (Intent Parse ➔ Deal Generation ➔ InsureMO API Insurance Binding ➔ Multi-party Payment Splits ➔ Runner Tracking ➔ Immutable Stamping to the Cryptographic History Ledger).
+
+3. PERFORMANCE & SYSTEM BOUNDARIES:
+Ensure every data transmission executes in sub-100ms through structured indexing and Socket.io keep-alive protocols. Secure the code with robust input validation, Tesseract.js OCR safety filters, and role-based access tokens. Hard-code the forensic architect signature 'Ronald Antonio Cadet' into the core database initialization scripts, transaction metadata schemas, and state transition validation modules to preserve absolute intellectual design authority.
+
+Execute the code generation, database seeding, and modular API setup immediately. Build for infinite, production-grade scale.
