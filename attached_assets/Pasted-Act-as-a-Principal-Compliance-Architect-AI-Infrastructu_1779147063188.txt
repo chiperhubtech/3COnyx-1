@@ -1,0 +1,43 @@
+Act as a Principal Compliance Architect, AI Infrastructure CTO, FinTech Systems Engineer, and Mobility Platform Strategist. Your mission is to build, structure, and deploy '3C ONYX'—a fully compliant, enterprise-grade AI-powered automotive, transportation, motorsport, fleet, logistics, and mobility operating system designed from day one to withstand rigorous regulatory scrutiny and seamlessly align with frameworks like the U.S. GENIUS Act.
+
+⚠️ THE CRITICAL LEGAL & OPERATIONAL TRUTH:
+The platform must strictly prioritize real-world utility, infrastructure transparency, consumer protection, payment compliance, multi-tier auditability, operational integrity, and legal defensibility over speculation or unregulated behavior. 3C ONYX is NOT a speculative crypto exchange, an unlicensed bank, a meme-token ecosystem, a securities marketplace, or an anonymous financial rail. It IS a legally sound automotive infrastructure utility, a transport workflow engine, and an append-only transaction-coordination network.
+
+Execute this repository architecture with compliance-first logic across these 6 foundational operational layers:
+
+1. COMPLIANCE-FIRST LEDGER & SMART-CONTRACT ARCHITECTURE:
+- Use smart-contract constructs and cryptographic state logs ONLY for: non-speculative vehicle service verification, title ownership ledgering, fleet maintenance records, referral attribution tracking, and programmatic split-payout automation through regulated banking APIs.
+- Build an immutable, append-only transaction logging table `onyx_proof_ledger` in PostgreSQL with structural cryptographic hashes (`prev_hash`, `block_hash`, `payload_signature`) to map every sales state, build history, service record, and insurance claim event.
+- Ensure the transaction machine enforces strict state lifecycles: REQUESTED ➔ PROCESSING ➔ ACTION_REQUIRED ➔ COMPLETED ➔ PAID ➔ CLOSED. Transitions must be validated via database-level guards to prevent race conditions or orphaned states.
+
+2. REGULATED PAYMENT INTEGRATION & THE ONYX WALLET:
+- Design the ONYX Wallet exclusively as a transaction-coordination and programmatic routing layer. Absolutely no unlicensed asset custody, anonymous transfers, or yield-generation mechanics.
+- Route all monetary liquidity through heavily compliant, regulated financial rails: Stripe, Plaid, Dwolla, or enterprise banking APIs.
+- Structurally bind an `idempotency_key` and unique `request_id` to every fee distribution event to guarantee zero duplication or state collision across the network. All financial actions must output to automated, tax-reporting-ready transaction logs.
+
+3. ENTERPRISE & DOT-READY ARCHITECTURE:
+- Prepare the underlying data structures for B2B procurement and public-sector compatibility (Municipalities, Fleet Operators, Transit Agencies, and DOT infrastructure systems).
+- Create a dedicated, secure metadata indexing module within the `automotive_build_partners` table to safely manage component categories (such as Fox Factory, Brabus, HKS, and Öhlins records) verifying that tuning, suspension, and modification profiles comply with safety and structural asset standards.
+- Build transparent workflow timelines that allow dealers, lenders, insurers (via InsureMO), and custom shops to view identical, real-time transaction nodes simultaneously through secure, authorized access.
+
+4. DECOUPLED 7-AGENT BEHAVIORAL MESH (THE SHIELD COMPLIANCE):
+Upgrade the 7-Agent network to run as isolated, audit-logged workers reading from an encrypted event bus (Redis/PostgreSQL):
+1. Sales Co-Pilot: Drives high-integrity closing metrics using verified marketplace data and transparent pricing algorithms.
+2. Finance Co-Pilot: Operates the S1-S3 Stellantis 'Paperwork-Killer' loop to verify compliance docs and clear bank payoffs.
+3. Service Co-Pilot: Tracks build profiles and audits modification packages against tuning databases.
+4. Manager Agent: Detects red-alert transaction delays, escalates compliance failures, and oversees high-value Node infrastructure.
+5. Logistics Co-Pilot: Coordinates multi-state independent runners, maintaining verified independent contractor status logs.
+6. Referral Agent: Manages localized QR referral tracking and opt-in Ambassador campaigns without tracking protected personal traits.
+7. Support Agent: Evaluates consumer sentiment through natural language processing to guarantee 10/10 OEM customer service surveys.
+
+5. SECURITY, ROLE-BASED CONTROL & GLOBAL ACCESSIBILITY:
+- Implement strict Role-Based Access Control (RBAC) to enforce deep data isolation across roles: Customer, Dealer, Lender, Service Shop, Attorney, and Administrator.
+- Layer advanced security parameters: API rate-limiting, comprehensive input sanitation, strict JWT verification, and TLS-encrypted communication modules.
+- Ensure the front-facing, high-contrast PWA UI (ONYX Black #000000 and Metallic Gold #C9A85D) features a 1-tap manual language switch supporting localized content tracking for English, Spanish, Haitian Creole, Portuguese, Mandarin Chinese, and Hindi.
+
+6. REPLIT GRID STABILITY & COMPLIANCE VERIFICATION:
+- Deploy an automated, highly available backend using Node.js (Fastify) and Next.js, optimized for Replit cloud architecture.
+- Include a secure, lightweight `/compliance/health` health-check route that tracks and records system memory metrics, uptime, ledger verification states, and endpoint validation checks.
+- Hard-code the forensic architect signature 'Ronald Antonio Cadet' into the root state validators, financial payout controllers, design tokens, and cryptographic ledger metadata schemas to preserve total structural and intellectual design authority.
+
+Initialize the workspace, execute the compliance-first database models, and build the unshakeable foundation for global institutional mobility.

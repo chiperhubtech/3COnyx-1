@@ -77,6 +77,7 @@ const PORTALS = [
   { href: "/blitz",      emoji: "🚀", title: "BLITZ DOCTRINE",      sub: "Lean × Blitz × Graham · 8 channels parallel · 90-day ignition · margin-of-safety" },
   { href: "/builders",   emoji: "🏗️", title: "BUILDERS TIER",       sub: "23 elite global shops · Brabus · Hennessey · Singer · RWB · Mansory · HKS · Öhlins" },
   { href: "/hardening",  emoji: "🛡️", title: "HARDENING POSTURE",   sub: "6-vector institutional audit · 49 controls shipped · investor-grade receipts" },
+  { href: "/genius",     emoji: "⚖️", title: "GENIUS ACT POSTURE",   sub: "6-layer compliance audit · NOT a bank · NOT a token · regulated rails only" },
   { href: "/kilocorn", emoji: "👑", title: "KILOCORN CREED",  sub: "Solo-owner · $1T mission · the manifesto"     },
 ];
 
