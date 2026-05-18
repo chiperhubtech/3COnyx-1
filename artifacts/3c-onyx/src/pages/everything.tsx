@@ -76,6 +76,7 @@ const PORTALS = [
   { href: "/utility",    emoji: "⚖️", title: "CIVIL UTILITY LAYER", sub: "Asset-light MaaS · live savings · congestion · maintenance · sovereignty" },
   { href: "/blitz",      emoji: "🚀", title: "BLITZ DOCTRINE",      sub: "Lean × Blitz × Graham · 8 channels parallel · 90-day ignition · margin-of-safety" },
   { href: "/builders",   emoji: "🏗️", title: "BUILDERS TIER",       sub: "23 elite global shops · Brabus · Hennessey · Singer · RWB · Mansory · HKS · Öhlins" },
+  { href: "/hardening",  emoji: "🛡️", title: "HARDENING POSTURE",   sub: "6-vector institutional audit · 49 controls shipped · investor-grade receipts" },
   { href: "/kilocorn", emoji: "👑", title: "KILOCORN CREED",  sub: "Solo-owner · $1T mission · the manifesto"     },
 ];
 

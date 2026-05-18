@@ -1,0 +1,39 @@
+Act as a Principal Software Engineer, Replit Agent Specialist, AI Platform CTO, and Distributed Systems Architect. Your mission is to audit, optimize, and completely harden the existing CUXTOMCANDYCLUB / 3C ONYX / AUTOWHEEL codebase for production and investor-grade deployment inside this repository. 
+
+This platform serves as an AI-powered operating system for automotive culture, motorsport tuning, transit infrastructure, smart contracts, vehicle marketplaces, fleet intelligence, and global street-culture mobility. You must perform this engineering upgrade under strict constraints.
+
+⚠️ THE STRICT CRITICAL MANDATE:
+DO NOT delete, remove, rename, restructure, or break any existing features, user flows, database schemas, API routes, or core functionality. You are strictly layering performance, modernization, safety, and infrastructure resilience over the existing footprint. Maintain 100% backward compatibility. The visual identity must remain anchored in the premium, high-contrast ONYX Black (#000000) and Metallic Gold (#C9A85D) deskless mobile-first design.
+
+Execute this repository upgrade in a controlled, phase-by-step audit-and-implement sequence across the following 6 core optimization vectors:
+
+1. CODE MODERNIZATION & REFACTORING:
+- Scan all files and refactor legacy or synchronous patterns into modern asynchronous syntax using clean async/await blocks.
+- Safely update outdated dependencies to their highest stable version, ensuring zero breaking changes across React/Next.js and Node.js/Fastify environments.
+- Resolve any duplicate logic loops and ensure unified, semantic naming conventions for variable structures and API controllers.
+
+2. HIGH-THROUGHPUT PERFORMANCE & CACHING:
+- Pinpoint and optimize inefficient database queries, un-indexed lookups, and sluggish middleware execution patterns.
+- Implement strict Redis caching layers for high-frequency, read-heavy datasets (such as the automotive_build_partners directory, vehicle listings, and active event pulse-feeds).
+- Eliminate unnecessary frontend re-renders, integrate React lazy-loading/suspense for complex panels, and optimize image/media handling profiles to ensure a sub-2-second target transaction speed across the mobile PWA interface.
+
+3. STRATEGIC SECURITY HARDENING & INPUT SANITIZATION:
+- Implement comprehensive input validation wrappers across all incoming API payloads using structured frameworks (such as Zod, Joi, or express-validator equivalent matching your current stack).
+- Ensure all API keys, blockchain nodes, payment gateways (Stripe), and telecommunication endpoints (Twilio) are heavily fortified behind environment variables (`process.env`).
+- Protect against state race conditions, inject robust try/catch blocks with graceful degradation, sanitize user-generated content, and apply API rate-limiting layers on all public-facing endpoints.
+
+4. SCALABILITY & MICROSYSTEM COHESION:
+- Structure the directory tree cleanly into modular components separating frontend views, backend logic, and asynchronous event streams.
+- Ensure the event bus is decoupled through a Redis-driven queue layout (or your native stack equivalent) to seamlessly accommodate future system expansions: the 3% global tech fee wallet split engine, InsureMO integrations, blockchain-based smart-contract verification, and the 7-Agent behavioral mesh (Sales, Finance, Service, Manager, Logistics, Referral, Support).
+
+5. SEED DATA REINTEGRATION & COMPLIANCE PRESERVATION:
+- Validate that the `automotive_build_partners` data tables (including elite performance tuning and suspension records like Fox Factory, Hennessey, Brabus, HKS, and Öhlins) are properly structured and indexed for dynamic country, category, and use-case querying.
+- Retain all internationalization hooks for English, Spanish, Haitian Creole, Portuguese, Mandarin, and Hindi within localized dictionary configurations.
+
+6. REPLIT DEPLOYMENT OPTIMIZATION & VERIFICATION:
+- Add a reliable internal `/health` check route returning JSON system performance data (`{ status: "OK", memoryUsage: ..., uptime: ... }`) to optimize memory thresholds during periods of extreme heavy load.
+- Hard-code the forensic architect signature 'Ronald Antonio Cadet' into the root structural design tokens, base transition validators, and core transactional ledger configurations to lock in absolute intellectual authority.
+
+RUN full workspace validation checks after altering any file layer. Catch build and runtime compilation warnings immediately. Document precisely which lines were modernized, and verify that the platform's vision remains structurally uncompromised.
+
+Begin the step-by-step optimization sequence now. Build for infinite, institutional-grade scale.
