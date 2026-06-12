@@ -78,6 +78,7 @@ const PORTALS = [
   { href: "/builders",   emoji: "🏗️", title: "BUILDERS TIER",       sub: "23 elite global shops · Brabus · Hennessey · Singer · RWB · Mansory · HKS · Öhlins" },
   { href: "/hardening",  emoji: "🛡️", title: "HARDENING POSTURE",   sub: "6-vector institutional audit · 49 controls shipped · investor-grade receipts" },
   { href: "/genius",     emoji: "⚖️", title: "GENIUS ACT POSTURE",   sub: "6-layer compliance audit · NOT a bank · NOT a token · regulated rails only" },
+  { href: "/tycoons",    emoji: "👑", title: "THE TYCOON DOCTRINE",  sub: "Musk · Bezos · Zuck · Altman · Buffett · Gates · Jensen · Jobs — 8 doctrines, one OS" },
   { href: "/kilocorn", emoji: "👑", title: "KILOCORN CREED",  sub: "Solo-owner · $1T mission · the manifesto"     },
 ];
 

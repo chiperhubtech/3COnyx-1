@@ -1,0 +1,1 @@
+- [Public manifesto route wiring](public-route-wiring.md) — every new public 3c-onyx page must be wired in 4 places or it 404s / gets gated.

@@ -32,6 +32,7 @@ import BlitzPage from "@/pages/blitz";
 import BuildersPage from "@/pages/builders";
 import HardeningPage from "@/pages/hardening";
 import GeniusPage from "@/pages/genius";
+import TycoonsPage from "@/pages/tycoons";
 import JoinPage from "@/pages/join";
 import JoinSuccess from "@/pages/join-success";
 import MemberProfilePage from "@/pages/member-profile";
@@ -177,7 +178,7 @@ function AppRoutes() {
   useAxonPageview();
 
   // Public pages — no sidebar, no auth required
-  const PUBLIC_PATHS = ["/landing", "/door", "/start", "/begin", "/kilocorn", "/manifesto", "/trillion", "/standard", "/protocol", "/3cx", "/dot", "/cvo", "/ops", "/status", "/amplify", "/marketing", "/axon", "/people", "/choice", "/revenue", "/streams", "/money", "/lines", "/everything", "/onyx", "/infinity", "/omnia", "/one", "/forever", "/government", "/fleet", "/public", "/sovereign-fleet", "/municipal", "/b2g", "/access", "/everyone", "/universal", "/all", "/123", "/abc", "/easy", "/welcome", "/velocity", "/faster", "/speed", "/clock", "/seconds", "/vs", "/icons", "/athletes", "/celebrities", "/celebs", "/stars", "/teams", "/agents", "/concierge", "/vip", "/sourcing", "/source", "/wholesale", "/factory", "/canton", "/oem", "/parts", "/manufacturers", "/utility", "/maas", "/coordination", "/civil", "/grid", "/congestion", "/savings", "/sovereignty", "/blitz", "/ignition", "/launch", "/wildfire", "/growth-doctrine", "/lean", "/scale", "/gtm", "/builders", "/build", "/tuners", "/customs", "/restomod", "/shops", "/garages", "/hardening", "/trust", "/security", "/audit", "/soc2", "/posture", "/grade", "/genius", "/genius-act", "/compliance", "/regulated", "/legal", "/defensible", "/not-a-bank", "/login", "/register", "/waitlist", "/legal/terms", "/legal/privacy", "/join", "/m/", "/technology", "/sdv", "/oa", "/flow", "/assist"];
+  const PUBLIC_PATHS = ["/landing", "/door", "/start", "/begin", "/kilocorn", "/manifesto", "/trillion", "/standard", "/protocol", "/3cx", "/dot", "/cvo", "/ops", "/status", "/amplify", "/marketing", "/axon", "/people", "/choice", "/revenue", "/streams", "/money", "/lines", "/everything", "/onyx", "/infinity", "/omnia", "/one", "/forever", "/government", "/fleet", "/public", "/sovereign-fleet", "/municipal", "/b2g", "/access", "/everyone", "/universal", "/all", "/123", "/abc", "/easy", "/welcome", "/velocity", "/faster", "/speed", "/clock", "/seconds", "/vs", "/icons", "/athletes", "/celebrities", "/celebs", "/stars", "/teams", "/agents", "/concierge", "/vip", "/sourcing", "/source", "/wholesale", "/factory", "/canton", "/oem", "/parts", "/manufacturers", "/utility", "/maas", "/coordination", "/civil", "/grid", "/congestion", "/savings", "/sovereignty", "/blitz", "/ignition", "/launch", "/wildfire", "/growth-doctrine", "/lean", "/scale", "/gtm", "/builders", "/build", "/tuners", "/customs", "/restomod", "/shops", "/garages", "/hardening", "/trust", "/security", "/audit", "/soc2", "/posture", "/grade", "/genius", "/genius-act", "/compliance", "/regulated", "/legal", "/defensible", "/not-a-bank", "/tycoons", "/revolution", "/titans", "/moat", "/flywheel", "/first-principles", "/empire", "/tenx", "/login", "/register", "/waitlist", "/legal/terms", "/legal/privacy", "/join", "/m/", "/technology", "/sdv", "/oa", "/flow", "/assist"];
   const isPublic = PUBLIC_PATHS.some((p) => location === p || location.startsWith(p));
   const isHome = location === "/" || location === "";
 
@@ -285,6 +286,14 @@ function AppRoutes() {
         <Route path="/legal"           component={GeniusPage} />
         <Route path="/defensible"      component={GeniusPage} />
         <Route path="/not-a-bank"      component={GeniusPage} />
+        <Route path="/tycoons"         component={TycoonsPage} />
+        <Route path="/revolution"      component={TycoonsPage} />
+        <Route path="/titans"          component={TycoonsPage} />
+        <Route path="/moat"            component={TycoonsPage} />
+        <Route path="/flywheel"        component={TycoonsPage} />
+        <Route path="/first-principles" component={TycoonsPage} />
+        <Route path="/empire"          component={TycoonsPage} />
+        <Route path="/tenx"            component={TycoonsPage} />
         <Route path="/fleet"           component={GovernmentPage} />
         <Route path="/public"          component={GovernmentPage} />
         <Route path="/sovereign-fleet" component={GovernmentPage} />
