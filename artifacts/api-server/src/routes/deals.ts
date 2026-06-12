@@ -159,29 +159,40 @@ router.get("/deals", requireAuth, async (req: Request, res: Response) => {
 
     const { status, dealType } = req.query;
     const pg = parsePagination(req, { limit: 50, maxLimit: 200 });
-    const conditions: ReturnType<typeof eq>[] = [eq(dealsTable.dealershipId, userId)];
+    const statusFilter = status && typeof status === "string" && (VALID_DEAL_STATUSES as readonly string[]).includes(status)
+      ? status as typeof VALID_DEAL_STATUSES[number]
+      : null;
+    const dealTypeFilter = dealType && typeof dealType === "string" && (VALID_DEAL_TYPES as readonly string[]).includes(dealType)
+      ? dealType as typeof VALID_DEAL_TYPES[number]
+      : null;
 
-    if (status && typeof status === "string" && (VALID_DEAL_STATUSES as readonly string[]).includes(status)) {
-      conditions.push(eq(dealsTable.status, status as typeof VALID_DEAL_STATUSES[number]));
-    }
-    if (dealType && typeof dealType === "string" && (VALID_DEAL_TYPES as readonly string[]).includes(dealType)) {
-      conditions.push(eq(dealsTable.dealType, dealType as typeof VALID_DEAL_TYPES[number]));
-    }
+    const cacheKey = `${cacheKeys.dealsForUser(userId)}:list:${statusFilter ?? "*"}:${dealTypeFilter ?? "*"}:${pg.limit}:${pg.offset}`;
 
-    const where = and(...conditions);
+    const payload = await apiCache.get(
+      cacheKey,
+      async () => {
+        const conditions: ReturnType<typeof eq>[] = [eq(dealsTable.dealershipId, userId)];
+        if (statusFilter) conditions.push(eq(dealsTable.status, statusFilter));
+        if (dealTypeFilter) conditions.push(eq(dealsTable.dealType, dealTypeFilter));
+        const where = and(...conditions);
 
-    const [totalResult, deals] = await Promise.all([
-      db.select({ count: sql<number>`count(*)::int` }).from(dealsTable).where(where),
-      db.select().from(dealsTable)
-        .where(where)
-        .orderBy(desc(dealsTable.createdAt))
-        .limit(pg.limit)
-        .offset(pg.offset),
-    ]);
+        const [totalResult, deals] = await Promise.all([
+          db.select({ count: sql<number>`count(*)::int` }).from(dealsTable).where(where),
+          db.select().from(dealsTable)
+            .where(where)
+            .orderBy(desc(dealsTable.createdAt))
+            .limit(pg.limit)
+            .offset(pg.offset),
+        ]);
 
-    const total = totalResult[0]?.count ?? 0;
-    const paginated = paginatedResponse(deals, total, pg);
-    res.json({ deals: paginated.data, count: total, pagination: paginated.pagination });
+        const total = totalResult[0]?.count ?? 0;
+        const paginated = paginatedResponse(deals, total, pg);
+        return { deals: paginated.data, count: total, pagination: paginated.pagination };
+      },
+      15_000,
+      30_000,
+    );
+    res.json(payload);
   } catch {
     res.status(500).json({ error: sanitizeError() });
   }
