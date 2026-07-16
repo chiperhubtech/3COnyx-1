@@ -1,2 +1,3 @@
 - [Public manifesto route wiring](public-route-wiring.md) — every new public 3c-onyx page must be wired in 4 places or it 404s / gets gated.
 - [Launch readiness](launch-readiness.md) — prod hard-requires JWT_SECRET + ENCRYPTION_KEY (startupGuard refuses boot); Stripe is soft; go-live order + smoke test + EADDRINUSE non-break.
+- [Shared cache backend](shared-cache-backend.md) — apiCache/cache are L1+optional-Redis L2; opt-in via REDIS_URL, falls back to in-memory; don't make MemoryCache.get async.

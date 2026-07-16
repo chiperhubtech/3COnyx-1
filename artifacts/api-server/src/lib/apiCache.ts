@@ -1,3 +1,5 @@
+import { getCacheBackend, INSTANCE_ID, type CacheBackend, type InvalidationMessage } from "./cacheBackend";
+
 interface CacheEntry<T> {
   data: T;
   expiresAt: number;
@@ -6,13 +8,20 @@ interface CacheEntry<T> {
 
 type RefreshFn<T> = () => Promise<T>;
 
+/** Logical namespace for this cache in the shared backend. */
+const NS = "api";
+
 class ApiCache {
   private store = new Map<string, CacheEntry<unknown>>();
   private refreshing = new Set<string>();
   private maxEntries: number;
+  private backend: CacheBackend;
 
-  constructor(maxEntries = 500) {
+  constructor(maxEntries = 500, backend: CacheBackend = getCacheBackend()) {
     this.maxEntries = maxEntries;
+    this.backend = backend;
+    // When another instance invalidates, drop the key from our local L1 too.
+    this.backend.onInvalidation((msg) => this.applyInvalidation(msg));
   }
 
   async get<T>(
@@ -35,29 +44,60 @@ class ApiCache {
       }
     }
 
+    // L1 miss / fully stale — try the shared backend (survives restart + shared
+    // across instances) before paying for a fresh fetch.
+    if (this.backend.ready()) {
+      const shared = await this.backend.get(NS, key);
+      if (shared) {
+        const staleAt = shared.s ?? shared.e;
+        this.storeLocal(key, { data: shared.v as T, staleAt, expiresAt: shared.e });
+        if (now < staleAt) return shared.v as T;
+        if (now < shared.e && staleWhileRevalidateMs > 0) {
+          this.backgroundRefresh(key, fetchFn, ttlMs, staleWhileRevalidateMs);
+          return shared.v as T;
+        }
+      }
+    }
+
     const data = await fetchFn();
     this.set(key, data, ttlMs, staleWhileRevalidateMs);
     return data;
   }
 
   set<T>(key: string, data: T, ttlMs: number, staleWhileRevalidateMs = 0): void {
-    if (this.store.size >= this.maxEntries) {
-      this.evictOldest();
-    }
-
     const now = Date.now();
-    this.store.set(key, {
-      data,
-      staleAt: now + ttlMs,
-      expiresAt: now + ttlMs + staleWhileRevalidateMs,
-    });
+    const staleAt = now + ttlMs;
+    const expiresAt = now + ttlMs + staleWhileRevalidateMs;
+    this.storeLocal(key, { data, staleAt, expiresAt });
+    // Write-through to the shared store so other instances and post-restart
+    // boots can read it. Fire-and-forget; failure just means in-memory only.
+    this.backend.set(NS, key, { v: data, s: staleAt, e: expiresAt }, ttlMs + staleWhileRevalidateMs).catch(() => {});
   }
 
   invalidate(key: string): void {
     this.store.delete(key);
+    this.backend.del(NS, key).catch(() => {});
+    this.backend.publish({ ns: NS, kind: "key", value: key, origin: INSTANCE_ID }).catch(() => {});
   }
 
   invalidatePattern(prefix: string): void {
+    this.deleteLocalPattern(prefix);
+    this.backend.delPattern(NS, prefix).catch(() => {});
+    this.backend.publish({ ns: NS, kind: "pattern", value: prefix, origin: INSTANCE_ID }).catch(() => {});
+  }
+
+  stats(): { size: number; maxEntries: number; shared: boolean } {
+    return { size: this.store.size, maxEntries: this.maxEntries, shared: this.backend.ready() };
+  }
+
+  private storeLocal<T>(key: string, entry: CacheEntry<T>): void {
+    if (this.store.size >= this.maxEntries && !this.store.has(key)) {
+      this.evictOldest();
+    }
+    this.store.set(key, entry);
+  }
+
+  private deleteLocalPattern(prefix: string): void {
     for (const key of this.store.keys()) {
       if (key.startsWith(prefix)) {
         this.store.delete(key);
@@ -65,8 +105,16 @@ class ApiCache {
     }
   }
 
-  stats(): { size: number; maxEntries: number } {
-    return { size: this.store.size, maxEntries: this.maxEntries };
+  /** Apply an invalidation that originated on another instance to local L1. */
+  private applyInvalidation(msg: InvalidationMessage): void {
+    if (msg.ns !== NS) return;
+    if (msg.kind === "key" && msg.value !== undefined) {
+      this.store.delete(msg.value);
+    } else if (msg.kind === "pattern" && msg.value !== undefined) {
+      this.deleteLocalPattern(msg.value);
+    } else if (msg.kind === "flush") {
+      this.store.clear();
+    }
   }
 
   private backgroundRefresh<T>(
