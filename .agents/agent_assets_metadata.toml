@@ -131,3 +131,9 @@ id = "vKDCqb_0nsyQca6XjS_Mj"
 uri = "file://exports/3C_ONYX_Master_Platform_Ledger.pdf"
 type = "pdf"
 title = "3C ONYX — Master Platform Ledger (APIs · Revenue · IP)"
+
+[[outputs]]
+id = "U_BHPcFItrk9cCAB18V8g"
+uri = "file://exports/3C_ONYX_White_Paper.pdf"
+type = "pdf"
+title = "3C ONYX — White Paper v1.0"
