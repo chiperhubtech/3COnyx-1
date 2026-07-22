@@ -125,3 +125,9 @@ id = "YZFL1XS-ePdLwOqx0sY5k"
 uri = "file://3C_ONYX_IP_Portfolio.pdf"
 type = "pdf"
 title = "3C ONYX Intellectual Property Portfolio"
+
+[[outputs]]
+id = "vKDCqb_0nsyQca6XjS_Mj"
+uri = "file://exports/3C_ONYX_Master_Platform_Ledger.pdf"
+type = "pdf"
+title = "3C ONYX — Master Platform Ledger (APIs · Revenue · IP)"
