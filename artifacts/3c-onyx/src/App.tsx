@@ -121,6 +121,7 @@ import MarketplaceChannelsPage from "@/pages/marketplace-channels";
 import MarketingHubPage from "@/pages/marketing-hub";
 import SurveyShieldPage from "@/pages/survey-shield";
 import AiModePage from "@/pages/ai-mode";
+import AdvisorPage from "@/pages/advisor";
 
 // Auth + launch pages
 import LoginPage    from "@/pages/login";
@@ -178,7 +179,7 @@ function AppRoutes() {
   useAxonPageview();
 
   // Public pages — no sidebar, no auth required
-  const PUBLIC_PATHS = ["/landing", "/door", "/start", "/begin", "/kilocorn", "/manifesto", "/trillion", "/standard", "/protocol", "/3cx", "/dot", "/cvo", "/ops", "/status", "/amplify", "/marketing", "/axon", "/people", "/choice", "/revenue", "/streams", "/money", "/lines", "/everything", "/onyx", "/infinity", "/omnia", "/one", "/forever", "/government", "/fleet", "/public", "/sovereign-fleet", "/municipal", "/b2g", "/access", "/everyone", "/universal", "/all", "/123", "/abc", "/easy", "/welcome", "/velocity", "/faster", "/speed", "/clock", "/seconds", "/vs", "/icons", "/athletes", "/celebrities", "/celebs", "/stars", "/teams", "/agents", "/concierge", "/vip", "/sourcing", "/source", "/wholesale", "/factory", "/canton", "/oem", "/parts", "/manufacturers", "/utility", "/maas", "/coordination", "/civil", "/grid", "/congestion", "/savings", "/sovereignty", "/blitz", "/ignition", "/launch", "/wildfire", "/growth-doctrine", "/lean", "/scale", "/gtm", "/builders", "/build", "/tuners", "/customs", "/restomod", "/shops", "/garages", "/hardening", "/trust", "/security", "/audit", "/soc2", "/posture", "/grade", "/genius", "/genius-act", "/compliance", "/regulated", "/legal", "/defensible", "/not-a-bank", "/tycoons", "/revolution", "/titans", "/moat", "/flywheel", "/first-principles", "/empire", "/tenx", "/login", "/register", "/waitlist", "/legal/terms", "/legal/privacy", "/join", "/m/", "/technology", "/sdv", "/oa", "/flow", "/assist"];
+  const PUBLIC_PATHS = ["/landing", "/door", "/start", "/begin", "/kilocorn", "/manifesto", "/trillion", "/standard", "/protocol", "/3cx", "/dot", "/cvo", "/ops", "/status", "/amplify", "/marketing", "/axon", "/people", "/choice", "/revenue", "/streams", "/money", "/lines", "/everything", "/onyx", "/infinity", "/omnia", "/one", "/forever", "/government", "/fleet", "/public", "/sovereign-fleet", "/municipal", "/b2g", "/access", "/everyone", "/universal", "/all", "/123", "/abc", "/easy", "/welcome", "/velocity", "/faster", "/speed", "/clock", "/seconds", "/vs", "/icons", "/athletes", "/celebrities", "/celebs", "/stars", "/teams", "/agents", "/concierge", "/vip", "/sourcing", "/source", "/wholesale", "/factory", "/canton", "/oem", "/parts", "/manufacturers", "/utility", "/maas", "/coordination", "/civil", "/grid", "/congestion", "/savings", "/sovereignty", "/blitz", "/ignition", "/launch", "/wildfire", "/growth-doctrine", "/lean", "/scale", "/gtm", "/builders", "/build", "/tuners", "/customs", "/restomod", "/shops", "/garages", "/hardening", "/trust", "/security", "/audit", "/soc2", "/posture", "/grade", "/genius", "/genius-act", "/compliance", "/regulated", "/legal", "/defensible", "/not-a-bank", "/tycoons", "/revolution", "/titans", "/moat", "/flywheel", "/first-principles", "/empire", "/tenx", "/login", "/register", "/waitlist", "/legal/terms", "/legal/privacy", "/join", "/m/", "/technology", "/sdv", "/oa", "/flow", "/assist", "/advisor"];
   const isPublic = PUBLIC_PATHS.some((p) => location === p || location.startsWith(p));
   const isHome = location === "/" || location === "";
 
@@ -314,6 +315,7 @@ function AppRoutes() {
         <Route path="/legal/terms"     component={TermsPage} />
         <Route path="/legal/privacy"   component={PrivacyPage} />
         <Route path="/oa"              component={OwnerPortal} />
+        <Route path="/advisor"         component={AdvisorPage} />
       </Switch>
     );
   }

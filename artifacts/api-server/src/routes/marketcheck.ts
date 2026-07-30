@@ -350,6 +350,11 @@ const MOCK_LISTINGS: BaseListing[] = [
 // Enrich all mocks once at startup
 const ENRICHED_MOCKS = MOCK_LISTINGS.map(enrichListing);
 
+// Additive export — used by the ONYX Advisor (AI Picks feed). Read-only.
+export function getCuratedEnrichedListings(): EnrichedListing[] {
+  return ENRICHED_MOCKS;
+}
+
 // ─── Filter helper ────────────────────────────────────────────────────────────
 function filterListings(
   listings: EnrichedListing[],
