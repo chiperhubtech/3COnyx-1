@@ -1,0 +1,58 @@
+[
+  {
+    "title": "Golden Key Membership — Annual",
+    "handle": "golden-key-membership-annual",
+    "productId": "gid://shopify/Product/8497558421574",
+    "variantId": "gid://shopify/ProductVariant/46097553752134",
+    "price": "499.00"
+  },
+  {
+    "title": "ONYX Concierge Vehicle Sourcing",
+    "handle": "onyx-concierge-vehicle-sourcing",
+    "productId": "gid://shopify/Product/8497559044166",
+    "variantId": "gid://shopify/ProductVariant/46097558306886",
+    "price": "299.00"
+  },
+  {
+    "title": "Guardian Vehicle Inspection Report",
+    "handle": "guardian-vehicle-inspection-report",
+    "productId": "gid://shopify/Product/8497559076934",
+    "variantId": "gid://shopify/ProductVariant/46097558536262",
+    "price": "199.00"
+  },
+  {
+    "title": "ONYX Quote Audit Pro",
+    "handle": "onyx-quote-audit-pro",
+    "productId": "gid://shopify/Product/8497559175238",
+    "variantId": "gid://shopify/ProductVariant/46097558634566",
+    "price": "49.00"
+  },
+  {
+    "title": "3C ONYX Heavyweight Tee",
+    "handle": "3c-onyx-heavyweight-tee",
+    "productId": "gid://shopify/Product/8497559240774",
+    "variantId": "gid://shopify/ProductVariant/46097558863942",
+    "price": "45.00"
+  },
+  {
+    "title": "3C ONYX Hoodie",
+    "handle": "3c-onyx-hoodie",
+    "productId": "gid://shopify/Product/8497559306310",
+    "variantId": "gid://shopify/ProductVariant/46097558929478",
+    "price": "85.00"
+  },
+  {
+    "title": "3C ONYX Cap",
+    "handle": "3c-onyx-cap",
+    "productId": "gid://shopify/Product/8497559339078",
+    "variantId": "gid://shopify/ProductVariant/46097558962246",
+    "price": "35.00"
+  },
+  {
+    "title": "ONYX Carbon Keytag",
+    "handle": "onyx-carbon-keytag",
+    "productId": "gid://shopify/Product/8497559437382",
+    "variantId": "gid://shopify/ProductVariant/46097559060550",
+    "price": "25.00"
+  }
+]
