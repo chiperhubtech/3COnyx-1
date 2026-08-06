@@ -271,6 +271,65 @@ router.post("/auth/onboarding-complete", requireAuth, async (req: Request, res: 
   }
 });
 
+// ─── POST /api/auth/founder-reset ────────────────────────────────────────────
+// One-time founder recovery: resets the founder Admin password when the
+// caller presents the private FOUNDER_SETUP_TOKEN (set as a Replit Secret).
+// Additive; inert unless the secret is configured.
+const FOUNDER_EMAIL = "ron@cuxtomcandyclub.com";
+
+router.post("/auth/founder-reset", async (req: Request, res: Response) => {
+  const setupToken = process.env.FOUNDER_SETUP_TOKEN;
+  if (!setupToken || setupToken.length < 8) {
+    res.status(404).json({ error: "Not available" });
+    return;
+  }
+
+  const { token, newPassword } = req.body as { token?: string; newPassword?: string };
+  const ip = clientIp(req);
+
+  const lock = await checkLockout("founder-reset", ip);
+  if (lock.locked) {
+    res.status(429).json({ error: "Too many attempts. Try again later." });
+    return;
+  }
+
+  const provided = String(token ?? "");
+  const expected = Buffer.from(setupToken);
+  const got = Buffer.from(provided.padEnd(setupToken.length, "\0").slice(0, setupToken.length));
+  const { timingSafeEqual } = await import("crypto");
+  const match = provided.length === setupToken.length && timingSafeEqual(expected, got);
+
+  if (!match) {
+    await recordAttempt("founder-reset", ip, false);
+    await writeAudit({ eventType: "AUTH", action: `Founder reset: invalid setup key from ${ip}`, severity: "WARN" });
+    res.status(401).json({ error: "Invalid setup key." });
+    return;
+  }
+
+  if (!newPassword || newPassword.length < 8 || !/[A-Z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
+    res.status(400).json({ error: "Password must be at least 8 characters with an uppercase letter and a number." });
+    return;
+  }
+
+  const founder = await db.select().from(usersTable)
+    .where(eq(usersTable.email, FOUNDER_EMAIL))
+    .limit(1);
+  if (!founder[0] || founder[0].role !== "Admin") {
+    res.status(404).json({ error: "Founder account not found." });
+    return;
+  }
+
+  const passwordHash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS);
+  await db.update(usersTable)
+    .set({ passwordHash, isActive: true, isVerified: true, updatedAt: new Date() })
+    .where(eq(usersTable.id, founder[0].id));
+
+  await recordAttempt("founder-reset", ip, true);
+  await writeAudit({ eventType: "AUTH", action: `Founder password reset completed from ${ip}`, actorId: founder[0].id, severity: "WARN" });
+
+  res.json({ ok: true, email: FOUNDER_EMAIL });
+});
+
 // ─── POST /api/auth/social ───────────────────────────────────────────────────
 router.post("/auth/social", async (req: Request, res: Response) => {
   const { provider, token: idToken, name: socialName } = req.body as {
