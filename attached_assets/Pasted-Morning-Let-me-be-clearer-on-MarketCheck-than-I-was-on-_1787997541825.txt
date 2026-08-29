@@ -1,0 +1,17 @@
+Morning. Let me be clearer on MarketCheck than I was on Sunday, so we're reading it the same way.
+
+It's its own piece of work, scoped and priced on its own, separate from this phase. Not part of what's in the contract. That's why it sits in section 2 under what isn't included, with the reason next to it.
+
+And the reason is the important bit. There is no MarketCheck code anywhere in your platform. Not a missing key, not a broken connection like the vehicle one. Nothing at all. No place for listings to live, no screen to show them on, nothing in your database expecting them. So it's building something new rather than finishing something you've already started, and that's a different size of job.
+
+On top of that, buying a vehicle end to end isn't one of the flows we complete in this phase. So even with listings wired in, you'd have cars showing on your site that nobody can actually buy through it. A showroom with no till.
+
+Here's the part that works in your favour though. MarketCheck gets easier after this phase, not harder.
+
+Right now your payment path is broken, the platform won't run anywhere except the tool it was built on, and the design isn't settled. Wiring listings into that means building on ground that's still moving. Once phase one is done, the money side works, the payment rails are live and tested, the notification system is built and the design is locked. Adding listings then is dropping them onto plumbing that already works. Faster, cheaper, and far less likely to need doing twice.
+
+So my recommendation is we start with what's in the scope right now, get the platform solid and earning, then add vehicle buying with MarketCheck feeding it as the next piece straight after.
+
+If you'd rather have it in phase one, that's completely fine. It changes the scope, the price and the timeline, so let me know before we speak and I'll have a revised quote ready to walk you through rather than us going round again.
+
+What time works Monday? Let's get on, sort whichever way you want to go, and get you started this week.
