@@ -25,6 +25,10 @@ import { z } from "zod/v4";
 
 const router = Router();
 
+function authenticatedUserId(req: Request): number {
+  return Number(req.user!.sub);
+}
+
 // ── Category labels for display ──────────────────────────────────────────────
 const CATEGORY_LABELS: Record<string, string> = {
   VEHICLE_PURCHASE:  "Vehicle Purchase",
@@ -62,7 +66,7 @@ function scoreAndRankBids(
 // GET /api/source  —  Member's own requests
 // ─────────────────────────────────────────────────────────────────────────────
 router.get("/", requireAuth, async (req: Request, res: Response) => {
-  const userId = (req as unknown as { user: { id: number } }).user.id;
+  const userId = authenticatedUserId(req);
 
   const requests = await db
     .select()
@@ -85,7 +89,7 @@ router.get("/", requireAuth, async (req: Request, res: Response) => {
 // GET /api/source/:id  —  Full request detail with ranked bids
 // ─────────────────────────────────────────────────────────────────────────────
 router.get("/:id", requireAuth, async (req: Request, res: Response): Promise<void> => {
-  const userId    = (req as unknown as { user: { id: number } }).user.id;
+  const userId    = authenticatedUserId(req);
   const requestId = parseInt(String(req.params.id), 10);
 
   const [request] = await db
@@ -141,7 +145,7 @@ const createSchema = z.object({
 });
 
 router.post("/", requireAuth, async (req: Request, res: Response): Promise<void> => {
-  const userId = (req as unknown as { user: { id: number } }).user.id;
+  const userId = authenticatedUserId(req);
   const body   = createSchema.safeParse(req.body);
   if (!body.success) { res.status(400).json({ error: "Invalid request", issues: body.error.issues }); return; }
 
@@ -180,7 +184,7 @@ const bidSchema = z.object({
 });
 
 router.post("/:id/bid", requireAuth, async (req: Request, res: Response): Promise<void> => {
-  const vendorId  = (req as unknown as { user: { id: number } }).user.id;
+  const vendorId  = authenticatedUserId(req);
   const requestId = parseInt(String(req.params.id), 10);
 
   const [request] = await db
@@ -241,7 +245,7 @@ router.post("/:id/bid", requireAuth, async (req: Request, res: Response): Promis
 // POST /api/source/:id/award/:bidId  —  Member awards a bid (one confirmation)
 // ─────────────────────────────────────────────────────────────────────────────
 router.post("/:id/award/:bidId", requireAuth, async (req: Request, res: Response): Promise<void> => {
-  const userId    = (req as unknown as { user: { id: number } }).user.id;
+  const userId    = authenticatedUserId(req);
   const requestId = parseInt(String(req.params.id), 10);
   const bidId     = parseInt(String(req.params.bidId), 10);
 
@@ -292,7 +296,7 @@ router.post("/:id/award/:bidId", requireAuth, async (req: Request, res: Response
 // POST /api/source/:id/close  —  Member closes a request without awarding
 // ─────────────────────────────────────────────────────────────────────────────
 router.post("/:id/close", requireAuth, async (req: Request, res: Response): Promise<void> => {
-  const userId    = (req as unknown as { user: { id: number } }).user.id;
+  const userId    = authenticatedUserId(req);
   const requestId = parseInt(String(req.params.id), 10);
 
   const [request] = await db

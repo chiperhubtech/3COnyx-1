@@ -1,9 +1,11 @@
 import { Router, type IRouter, type Request, type Response } from "express";
+import { z } from "zod";
 import { apiCache, cacheKeys } from "../lib/apiCache";
+import { circuits } from "../lib/circuitBreaker";
 
 const router: IRouter = Router();
 
-const MARKETCHECK_BASE = "https://mc-api.marketcheck.com/v2";
+const MARKETCHECK_BASE = (process.env.MARKETCHECK_BASE_URL ?? "https://api.marketcheck.com/v2").replace(/\/+$/, "");
 
 // ─── deterministic seed from VIN ─────────────────────────────────────────────
 function vinSeed(vin: string): number {
@@ -66,7 +68,7 @@ function computeClubPrice(price: number): {
 }
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-interface BaseListing {
+export interface BaseListing {
   id: string;
   heading: string;
   price: number;
@@ -83,10 +85,12 @@ interface BaseListing {
   dom?: number;
   vin: string;
   media?: { photo_links?: string[] };
-  seller?: { name?: string };
+  seller?: { name?: string; phone?: string; website?: string };
+  vdp_url?: string;
 }
 
 export interface EnrichedListing extends BaseListing {
+  /** Fixture-only calculations. Never inferred for live provider listings. */
   market_avg: number;
   guardian_health_score: number;
   dealer_discount: number;
@@ -96,7 +100,7 @@ export interface EnrichedListing extends BaseListing {
   wholesale_potential: boolean;
 }
 
-function enrichListing(l: BaseListing): EnrichedListing {
+export function enrichListing(l: BaseListing): EnrichedListing {
   const market_avg            = computeMarketAvg(l);
   const guardian_health_score = computeGuardianScore(l);
   const { dealerDiscount, platformFee, clubPrice } = computeClubPrice(l.price);
@@ -356,7 +360,7 @@ export function getCuratedEnrichedListings(): EnrichedListing[] {
 }
 
 // ─── Filter helper ────────────────────────────────────────────────────────────
-function filterListings(
+export function filterListings(
   listings: EnrichedListing[],
   query: Record<string, string>
 ): EnrichedListing[] {
@@ -392,85 +396,272 @@ function filterListings(
     result = result.filter((l) => l.wholesale_potential);
   }
 
-  const rows = parseInt(query.rows ?? "24");
-  return result.slice(0, rows);
+  const rows = Number(query.rows ?? "24");
+  const start = Number(query.start ?? "0");
+  const sortBy = query.sort_by;
+  if (sortBy === "price" || sortBy === "miles" || sortBy === "year" || sortBy === "dom") {
+    const direction = query.sort_order === "desc" ? -1 : 1;
+    result.sort((a, b) => {
+      const aValue = sortBy === "dom" ? a.dom ?? Number.MAX_SAFE_INTEGER : a[sortBy];
+      const bValue = sortBy === "dom" ? b.dom ?? Number.MAX_SAFE_INTEGER : b[sortBy];
+      return (aValue - bValue) * direction || a.id.localeCompare(b.id);
+    });
+  }
+  return result.slice(start, start + rows);
 }
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
+
+const SORT_FIELDS = ["price", "miles", "year", "dom"] as const;
+const isProduction = () => process.env.NODE_ENV === "production";
+
+const optionalText = z.string().trim().min(1).max(80).optional();
+const optionalNumber = (min: number, max: number) =>
+  z.coerce.number().int().min(min).max(max).optional();
+
+/** The public query contract. Unknown values are deliberately discarded. */
+export const MarketCheckSearchQuery = z.object({
+  make: optionalText,
+  model: optionalText,
+  year: optionalNumber(1886, 2100),
+  price_min: optionalNumber(0, 10_000_000),
+  price_max: optionalNumber(0, 10_000_000),
+  miles_max: optionalNumber(0, 2_000_000),
+  zip: z.string().trim().regex(/^\d{5}(?:-\d{4})?$/).optional(),
+  radius: optionalNumber(1, 500),
+  search: z.string().trim().min(1).max(100).optional(),
+  wholesale_only: z.enum(["true", "false"]).optional().default("false"),
+  rows: z.coerce.number().int().min(1).max(100).default(20),
+  start: z.coerce.number().int().min(0).max(10_000).default(0),
+  sort_by: z.enum(SORT_FIELDS).default("price"),
+  sort_order: z.enum(["asc", "desc"]).default("asc"),
+}).superRefine((query, ctx) => {
+  if (query.price_min !== undefined && query.price_max !== undefined && query.price_min > query.price_max) {
+    ctx.addIssue({ code: "custom", message: "price_min must not exceed price_max", path: ["price_min"] });
+  }
+});
+
+export type MarketCheckQuery = z.infer<typeof MarketCheckSearchQuery>;
+
+export function parseMarketCheckQuery(query: unknown): MarketCheckQuery {
+  return MarketCheckSearchQuery.parse(query);
+}
 
 function stableQueryKey(q: Record<string, unknown>): string {
   const keys = Object.keys(q).sort();
   return keys.map((k) => `${k}=${String(q[k] ?? "")}`).join("&");
 }
 
-// Main search — returns enriched listings (SWR-cached, keyed by query)
-router.get("/marketcheck/search", async (req: Request, res: Response) => {
-  const apiKey  = process.env.MARKETCHECK_API_KEY;
-  const cacheKey = cacheKeys.marketplaceSearch(stableQueryKey(req.query as Record<string, unknown>));
+function cleanText(value: unknown, max = 120): string | undefined {
+  if (typeof value !== "string") return undefined;
+  const clean = value.replace(/[\u0000-\u001f\u007f]/g, "").trim().slice(0, max);
+  return clean || undefined;
+}
+
+function cleanNumber(value: unknown, min: number, max: number): number | undefined {
+  const number = typeof value === "number" ? value : typeof value === "string" ? Number(value) : NaN;
+  return Number.isFinite(number) && number >= min && number <= max ? Math.round(number) : undefined;
+}
+
+function cleanPhotoLinks(value: unknown): string[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const links = value
+    .filter((link): link is string => typeof link === "string")
+    .map((link) => link.trim())
+    .filter((link) => /^https?:\/\//i.test(link))
+    .slice(0, 20);
+  return links.length ? links : undefined;
+}
+
+function cleanHttpUrl(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  try {
+    const url = new URL(value.trim());
+    return url.protocol === "https:" || url.protocol === "http:" ? url.toString() : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/** Converts untrusted provider records into the stable public listing shape. */
+export function normalizeMarketCheckListing(raw: unknown): BaseListing | null {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  const listing = raw as Record<string, unknown>;
+  const year = cleanNumber(listing.year, 1886, 2100);
+  const price = cleanNumber(listing.price, 0, 10_000_000);
+  const miles = cleanNumber(listing.miles ?? listing.mileage, 0, 2_000_000);
+  const make = cleanText(listing.make, 80);
+  const model = cleanText(listing.model, 80);
+  const vin = cleanText(listing.vin, 17)?.toUpperCase() ?? "";
+  if (!year || price === undefined || miles === undefined || !make || !model) return null;
+
+  const id = cleanText(listing.id ?? listing.vdp_url ?? listing.vin, 200) ?? `${year}-${make}-${model}-${price}`;
+  const trim = cleanText(listing.trim, 100);
+  const rawSeller = listing.seller as Record<string, unknown> | undefined;
+  const sellerName = cleanText(rawSeller?.name ?? listing.dealer_name, 120);
+  const sellerPhone = cleanText(rawSeller?.phone ?? listing.dealer_phone ?? listing.phone, 40);
+  const sellerWebsite = cleanHttpUrl(rawSeller?.website ?? listing.dealer_website ?? listing.website);
+  const photos = cleanPhotoLinks((listing.media as Record<string, unknown> | undefined)?.photo_links ?? listing.photo_links);
+  const vdpUrl = cleanHttpUrl(listing.vdp_url ?? listing.vdpUrl);
+  return {
+    id,
+    heading: cleanText(listing.heading, 200) ?? [year, make, model, trim].filter(Boolean).join(" "),
+    price, miles, year, make, model, vin,
+    ...(trim ? { trim } : {}),
+    ...(cleanText(listing.exterior_color, 80) ? { exterior_color: cleanText(listing.exterior_color, 80) } : {}),
+    ...(cleanText(listing.interior_color, 80) ? { interior_color: cleanText(listing.interior_color, 80) } : {}),
+    ...(cleanText(listing.fuel_type, 60) ? { fuel_type: cleanText(listing.fuel_type, 60) } : {}),
+    ...(cleanText(listing.city, 80) ? { city: cleanText(listing.city, 80) } : {}),
+    ...(cleanText(listing.state, 2) ? { state: cleanText(listing.state, 2)?.toUpperCase() } : {}),
+    ...(cleanNumber(listing.dom, 0, 10_000) !== undefined ? { dom: cleanNumber(listing.dom, 0, 10_000) } : {}),
+    ...(photos ? { media: { photo_links: photos } } : {}),
+    ...(sellerName || sellerPhone || sellerWebsite ? { seller: { ...(sellerName ? { name: sellerName } : {}), ...(sellerPhone ? { phone: sellerPhone } : {}), ...(sellerWebsite ? { website: sellerWebsite } : {}) } } : {}),
+    ...(vdpUrl ? { vdp_url: vdpUrl } : {}),
+  };
+}
+
+interface SearchPayload {
+  listings: Array<BaseListing | EnrichedListing>;
+  totalCount: number;
+  source: "marketcheck" | "3c-curated";
+  sourceLabel: string;
+  message: string;
+  mode: "live" | "demo";
+  status: "available";
+  hasMore: boolean;
+  nextStart: number | null;
+  pagination: { start: number; rows: number; totalCount: number; nextStart: number | null };
+}
+
+class MarketCheckError extends Error {
+  constructor(public readonly status: number, message: string, public readonly retryAfter?: string | null) {
+    super(message);
+  }
+}
+
+function demoSearch(query: MarketCheckQuery): SearchPayload {
+  const filters = Object.fromEntries(Object.entries(query).map(([key, value]) => [key, String(value)]));
+  const allListings = filterListings(ENRICHED_MOCKS, { ...filters, rows: "10000", start: "0" });
+  const listings = allListings.slice(query.start, query.start + query.rows);
+  return {
+    listings, totalCount: allListings.length, source: "3c-curated", sourceLabel: "3C curated demo inventory", message: "Demo inventory is shown because MarketCheck is not configured.", mode: "demo", status: "available",
+    hasMore: query.start + listings.length < allListings.length,
+    nextStart: query.start + listings.length < allListings.length ? query.start + listings.length : null,
+    pagination: { start: query.start, rows: query.rows, totalCount: allListings.length, nextStart: query.start + listings.length < allListings.length ? query.start + listings.length : null },
+  };
+}
+
+const KNOWN_MAKES = ["Alfa Romeo", "Aston Martin", "Mercedes-Benz", "Rolls-Royce", "Land Rover", "Tesla", "Porsche", "Ferrari", "Lamborghini", "Bentley", "Maserati", "McLaren", "BMW", "Audi", "Cadillac", "Chevrolet", "Ford", "Honda", "Hyundai", "Jeep", "Kia", "Lexus", "Lincoln", "Nissan", "Toyota", "Volkswagen", "Volvo"];
+
+/** Extracts documented MarketCheck make/model/year filters from ordinary search text. */
+export function parseMarketCheckSearch(search: string): Pick<MarketCheckQuery, "make" | "model" | "year"> {
+  let remainder = search.trim();
+  const yearMatch = remainder.match(/\b(19\d{2}|20\d{2})\b/);
+  const year = yearMatch ? Number(yearMatch[0]) : undefined;
+  if (yearMatch) remainder = remainder.replace(yearMatch[0], " ");
+  const make = KNOWN_MAKES.find((candidate) => new RegExp(`\\b${candidate.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(remainder));
+  if (make) remainder = remainder.replace(new RegExp(`\\b${make.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i"), " ");
+  const model = cleanText(remainder.replace(/\s+/g, " "), 80);
+  return { ...(make ? { make } : {}), ...(model ? { model } : {}), ...(year ? { year } : {}) };
+}
+
+async function liveSearch(query: MarketCheckQuery, apiKey: string): Promise<SearchPayload> {
+  const params = new URLSearchParams({ api_key: apiKey, rows: String(query.rows), start: String(query.start), sort_by: query.sort_by, sort_order: query.sort_order, car_type: "used" });
+  const searchFilters = query.search ? parseMarketCheckSearch(query.search) : {};
+  for (const key of ["make", "model", "year", "price_min", "price_max", "miles_max", "zip", "radius"] as const) {
+    const value = query[key] ?? searchFilters[key as keyof typeof searchFilters];
+    if (value !== undefined) params.set(key, String(value));
+  }
+  const url = `${MARKETCHECK_BASE}/search/car/active?${params}`;
+  const data = await circuits.marketcheck.execute(async () => {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const controller = new AbortController();
+      // Keep this slightly below the circuit's 8s request timeout so the socket
+      // is cancelled before the circuit returns control to the caller.
+      const timeout = setTimeout(() => controller.abort(), 7_500);
+      try {
+        const response = await fetch(url, { signal: controller.signal });
+        if (response.ok) return await response.json() as Record<string, unknown>;
+        const retryable = [408, 425, 500, 502, 503, 504].includes(response.status);
+        if (retryable && attempt === 0) continue;
+        throw new MarketCheckError(response.status === 429 ? 429 : 502, "MarketCheck provider request failed", response.headers.get("retry-after"));
+      } catch (error) {
+        if (error instanceof MarketCheckError || attempt === 1) throw error;
+      } finally {
+        clearTimeout(timeout);
+      }
+    }
+    throw new MarketCheckError(502, "MarketCheck provider request failed");
+  });
+  const rawListings = Array.isArray(data.listings) ? data.listings : [];
+  // Provider listings remain provider facts: no synthetic discounts, values, or wholesale flags.
+  const listings = rawListings.map(normalizeMarketCheckListing).filter((listing): listing is BaseListing => listing !== null);
+  const totalCount = cleanNumber(data.num_found ?? data.total ?? data.totalCount, 0, 10_000_000) ?? listings.length;
+  const nextStart = query.start + listings.length < totalCount ? query.start + listings.length : null;
+  return { listings, totalCount, source: "marketcheck", sourceLabel: "Live MarketCheck inventory", message: "Live inventory supplied by MarketCheck.", mode: "live", status: "available", hasMore: nextStart !== null, nextStart, pagination: { start: query.start, rows: query.rows, totalCount, nextStart } };
+}
+
+async function searchMarketCheck(query: MarketCheckQuery): Promise<SearchPayload> {
+  const apiKey = process.env.MARKETCHECK_API_KEY;
+  if (!apiKey) {
+    if (!isProduction()) return demoSearch(query);
+    throw new MarketCheckError(503, "MarketCheck is not configured");
+  }
+  return liveSearch(query, apiKey);
+}
+
+function sendMarketCheckError(req: Request, res: Response, error: unknown): void {
+  const status = error instanceof MarketCheckError ? error.status : 503;
+  const retryAfter = error instanceof MarketCheckError ? error.retryAfter : null;
+  req.log.error({ err: error, status, circuit: circuits.marketcheck.status().state }, "MarketCheck search unavailable");
+  if (retryAfter && /^\d+$/.test(retryAfter)) res.set("Retry-After", retryAfter);
+  const message = status === 429 ? "MarketCheck quota or rate limit exceeded" : "MarketCheck search unavailable";
+  res.status(status).json({
+    error: message,
+    message,
+    listings: [],
+    totalCount: 0,
+    source: "marketcheck",
+    sourceLabel: "MarketCheck unavailable",
+    mode: "unavailable",
+    status: "unavailable",
+    hasMore: false,
+    nextStart: null,
+    pagination: { start: 0, rows: 0, totalCount: 0, nextStart: null },
+  });
+}
+
+// Main search — validated, normalized and SWR-cached by canonical query.
+router.get("/marketcheck/search", async (req: Request, res: Response): Promise<void> => {
+  const parsed = MarketCheckSearchQuery.safeParse(req.query);
+  if (!parsed.success) {
+    req.log.warn({ issues: parsed.error.issues }, "Invalid MarketCheck search query");
+    res.status(400).json({ error: "Invalid MarketCheck search query", details: parsed.error.flatten() });
+    return;
+  }
+  const query = parsed.data;
+  const cacheKey = cacheKeys.marketplaceSearch(`v2:${stableQueryKey(query)}`);
 
   try {
-    const payload = await apiCache.get(
-      cacheKey,
-      async () => {
-        if (!apiKey) {
-          const query = req.query as Record<string, string>;
-          const filtered = filterListings(ENRICHED_MOCKS, query);
-          return { listings: filtered, totalCount: filtered.length, source: "3c-curated" as const };
-        }
-
-        const {
-          make, model, year, price_min, price_max,
-          miles_max, zip, radius, rows = "20", start = "0",
-          sort_by = "price", sort_order = "asc",
-        } = req.query;
-
-        const params = new URLSearchParams();
-        params.set("api_key", apiKey);
-        params.set("rows", String(rows));
-        params.set("start", String(start));
-        params.set("sort_by", String(sort_by));
-        params.set("sort_order", String(sort_order));
-        params.set("car_type", "used");
-
-        if (make) params.set("make", String(make));
-        if (model) params.set("model", String(model));
-        if (year) params.set("year", String(year));
-        if (price_min) params.set("price_min", String(price_min));
-        if (price_max) params.set("price_max", String(price_max));
-        if (miles_max) params.set("miles_max", String(miles_max));
-        if (zip) params.set("zip", String(zip));
-        if (radius) params.set("radius", String(radius));
-
-        const url = `${MARKETCHECK_BASE}/search/car/active?${params.toString()}`;
-        const response = await fetch(url);
-        if (!response.ok) {
-          req.log.error({ status: response.status }, "MarketCheck API error — falling back to curated data");
-          const query = req.query as Record<string, string>;
-          const filtered = filterListings(ENRICHED_MOCKS, query);
-          return { listings: filtered, totalCount: filtered.length, source: "3c-curated" as const };
-        }
-        const data = await response.json() as Record<string, unknown>;
-        const enriched = ((data.listings as BaseListing[]) ?? []).map((l: BaseListing) => enrichListing(l));
-        return { ...data, listings: enriched } as Record<string, unknown>;
-      },
-      60_000,
-      5 * 60_000,
-    );
+    const payload = await apiCache.get(cacheKey, () => searchMarketCheck(query), 60_000, 5 * 60_000);
     res.json(payload);
-  } catch (err) {
-    req.log.error({ err }, "MarketCheck fetch failed — falling back to curated data");
-    const query = req.query as Record<string, string>;
-    const filtered = filterListings(ENRICHED_MOCKS, query);
-    res.json({ listings: filtered, totalCount: filtered.length, source: "3c-curated" });
+  } catch (error) {
+    sendMarketCheckError(req, res, error);
   }
 });
 
-// Wholesale engine — only returns listings where price < market_avg
-router.get("/marketcheck/wholesale", async (_req: Request, res: Response) => {
-  const payload = await apiCache.get(
-    cacheKeys.marketplaceWholesale(),
-    async () => {
-      const wholesale = ENRICHED_MOCKS.filter((l) => l.wholesale_potential);
+router.get("/marketcheck/status", (_req: Request, res: Response): void => {
+  const configured = Boolean(process.env.MARKETCHECK_API_KEY);
+  const mode = configured ? "live" : isProduction() ? "unavailable" : "demo";
+  res.status(configured || !isProduction() ? 200 : 503).json({ service: "marketcheck", mode, status: configured || !isProduction() ? "available" : "unavailable", configured, circuit: circuits.marketcheck.status() });
+});
+
+// Wholesale engine derives from the same normalized live search contract.
+router.get("/marketcheck/wholesale", async (req: Request, res: Response): Promise<void> => {
+  try {
+    const payload = await apiCache.get(cacheKeys.marketplaceWholesale(), async () => {
+      const result = await searchMarketCheck({ rows: 100, start: 0, sort_by: "price", sort_order: "asc", wholesale_only: "true" });
+      const wholesale = result.listings.filter((l): l is EnrichedListing => "wholesale_potential" in l && l.wholesale_potential);
       const totalSavings = wholesale.reduce((s, l) => s + l.savings_vs_retail, 0);
       const avgSavings   = wholesale.length ? Math.round(totalSavings / wholesale.length) : 0;
       const avgScore     = wholesale.length
@@ -482,13 +673,22 @@ router.get("/marketcheck/wholesale", async (_req: Request, res: Response) => {
         totalSavings,
         avgSavings,
         avgGuardianScore: avgScore,
-        source: "3c-curated" as const,
+        source: result.source,
+        sourceLabel: result.sourceLabel,
+        message: result.mode === "demo"
+          ? "Demo wholesale candidates are derived from curated fixtures."
+          : "Wholesale candidates are limited to verified provider values.",
+        mode: result.mode,
+        status: result.status,
+        hasMore: false,
+        nextStart: null,
+        pagination: { start: 0, rows: wholesale.length, totalCount: wholesale.length, nextStart: null },
       };
-    },
-    60_000,
-    5 * 60_000,
-  );
-  res.json(payload);
+    }, 60_000, 5 * 60_000);
+    res.json(payload);
+  } catch (error) {
+    sendMarketCheckError(req, res, error);
+  }
 });
 
 // NHTSA VIN Decode — free US government database, no API key required

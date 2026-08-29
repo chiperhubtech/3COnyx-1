@@ -1,8 +1,9 @@
 import { Feather, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { useQuery } from "@tanstack/react-query";
-import React, { useRef, useState } from "react";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Animated,
+  Alert,
   FlatList,
   Image,
   Platform,
@@ -25,21 +26,27 @@ type Listing = {
   year: number;
   make: string;
   model: string;
-  trim: string;
-  exterior_color: string;
-  fuel_type: string;
-  city: string;
-  state: string;
-  dom: number;
-  vin: string;
-  media: { photo_links: string[] };
-  seller: { name: string };
+  trim?: string;
+  exterior_color?: string;
+  fuel_type?: string;
+  city?: string;
+  state?: string;
+  dom?: number;
+  vin?: string;
+  media?: { photo_links?: string[] };
+  seller?: { name?: string; phone?: string; contact_phone?: string; website?: string; url?: string };
 };
 
 type SearchResult = {
   listings: Listing[];
   totalCount: number;
-  source: string;
+  mode: "live" | "demo" | "unavailable";
+  sourceLabel: string;
+  hasMore: boolean;
+  nextStart?: number;
+  message?: string;
+  source?: string;
+  pagination?: { nextStart: number | null };
 };
 
 const FILTERS = ["ALL", "PORSCHE", "FERRARI", "BENTLEY", "LAMBORGHINI", "ROLLS-ROYCE"];
@@ -52,10 +59,51 @@ function maskVin(vin: string) {
 function ListingCard({ item, index }: { item: Listing; index: number }) {
   const scale = useRef(new Animated.Value(1)).current;
   const [bookmarked, setBookmarked] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const imgUrl = item.media?.photo_links?.[0];
 
   const onPressIn = () => Animated.spring(scale, { toValue: 0.97, useNativeDriver: true }).start();
   const onPressOut = () => Animated.spring(scale, { toValue: 1, useNativeDriver: true }).start();
+  const requestAvailability = () => {
+    Alert.alert(
+      "Request availability",
+      `Ask the ONYX concierge to confirm ${item.heading} with the seller? This does not reserve the vehicle or guarantee its price.`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Submit request",
+          onPress: async () => {
+            setSubmitting(true);
+            try {
+              await apiFetch("/source", {
+                method: "POST",
+                body: JSON.stringify({
+                  category: "VEHICLE_PURCHASE",
+                  title: `Availability inquiry — ${item.heading}`.slice(0, 200),
+                  description: [
+                    `Please confirm availability and acquisition options for ${item.heading}.`,
+                    `Market listing ID: ${item.id}.`,
+                    item.vin ? `VIN: ${item.vin}.` : "",
+                    item.seller?.name ? `Seller: ${item.seller.name}.` : "",
+                  ].filter(Boolean).join(" "),
+                  budgetMinCents: 0,
+                  budgetMaxCents: Math.max(100, Math.round((item.price || 1) * 100)),
+                  feeStructurePref: "ANY",
+                  deadlineDays: 7,
+                  isAnonymous: true,
+                }),
+              });
+              Alert.alert("Request submitted", "Your vehicle request is now tracked by ONYX Source.");
+            } catch (error) {
+              Alert.alert("Could not submit request", error instanceof Error ? error.message : "Please try again.");
+            } finally {
+              setSubmitting(false);
+            }
+          },
+        },
+      ],
+    );
+  };
 
   return (
     <Pressable onPressIn={onPressIn} onPressOut={onPressOut}>
@@ -71,15 +119,15 @@ function ListingCard({ item, index }: { item: Listing; index: number }) {
           )}
           <View style={styles.imageOverlay} />
 
-          {/* Cert badge */}
+          {/* Provider provenance badge */}
           <View style={styles.certBadge}>
-            <MaterialCommunityIcons name="shield-check" size={10} color={COLORS.gold} />
-            <Text style={styles.certText}>3C CERTIFIED</Text>
+            <MaterialCommunityIcons name="storefront-outline" size={10} color={COLORS.gold} />
+            <Text style={styles.certText}>DEALER LISTING</Text>
           </View>
 
           {/* DOM badge */}
           <View style={styles.domBadge}>
-            <Text style={styles.domText}>{item.dom}d listed</Text>
+            <Text style={styles.domText}>{item.dom ?? "—"}d listed</Text>
           </View>
 
           {/* Bookmark */}
@@ -98,28 +146,32 @@ function ListingCard({ item, index }: { item: Listing; index: number }) {
         {/* Info */}
         <View style={styles.cardInfo}>
           <View style={styles.vinRow}>
-            <Text style={styles.vinText}>VIN {maskVin(item.vin)}</Text>
+            <Text style={styles.vinText}>VIN {maskVin(item.vin ?? "")}</Text>
             <View style={styles.locationPill}>
               <Feather name="map-pin" size={9} color={COLORS.whiteDim} />
-              <Text style={styles.locationText}>{item.city}, {item.state}</Text>
+              <Text style={styles.locationText}>{[item.city, item.state].filter(Boolean).join(", ") || "Location unavailable"}</Text>
             </View>
           </View>
 
           <Text style={styles.vehicleName} numberOfLines={2}>{item.heading}</Text>
-          <Text style={styles.vehicleSub}>{item.exterior_color} · {item.fuel_type}</Text>
+          <Text style={styles.vehicleSub}>{[item.exterior_color, item.fuel_type].filter(Boolean).join(" · ") || "Details unavailable"}</Text>
 
           <View style={styles.milesRow}>
             <MaterialCommunityIcons name="speedometer" size={12} color={COLORS.whiteDim} />
-            <Text style={styles.milesText}>{item.miles.toLocaleString()} mi</Text>
+            <Text style={styles.milesText}>{item.miles?.toLocaleString?.() ?? "—"} mi</Text>
             <View style={styles.dot} />
             <Text style={styles.sellerText}>{item.seller?.name}</Text>
           </View>
 
           <View style={styles.priceRow}>
             <Text style={styles.price}>${item.price.toLocaleString()}</Text>
-            <Pressable style={styles.conciergeBtn}>
+            <Pressable
+              style={[styles.conciergeBtn, submitting && { opacity: 0.65 }]}
+              onPress={requestAvailability}
+              disabled={submitting}
+            >
               <MaterialCommunityIcons name="robot" size={13} color={COLORS.black} />
-              <Text style={styles.conciergeBtnText}>Via Concierge</Text>
+              <Text style={styles.conciergeBtnText}>{submitting ? "Submitting…" : "Via Concierge"}</Text>
             </Pressable>
           </View>
         </View>
@@ -150,28 +202,39 @@ export default function MarketplaceScreen() {
   const bottomPad = isWeb ? 34 : insets.bottom;
   const [search, setSearch] = useState("");
   const [activeMake, setActiveMake] = useState("ALL");
+  const [zip, setZip] = useState("");
+  const [radius, setRadius] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
   const makeParam = activeMake !== "ALL" ? activeMake.toLowerCase().replace(/-/g, " ") : undefined;
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["marketplace", makeParam],
-    queryFn: () => {
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 350);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  const { data, isLoading, isFetchingNextPage, fetchNextPage, hasNextPage } = useInfiniteQuery({
+    queryKey: ["marketplace", makeParam, debouncedSearch, zip, radius],
+    initialPageParam: 0,
+    queryFn: ({ pageParam, signal }) => {
       const params = new URLSearchParams();
       if (makeParam) params.set("make", makeParam);
-      return apiFetch<SearchResult>(`/marketcheck/search?${params.toString()}`);
+      if (debouncedSearch.trim()) params.set("search", debouncedSearch.trim());
+      if (zip.trim()) params.set("zip", zip.trim());
+      if (radius) params.set("radius", radius);
+      params.set("rows", "20");
+      params.set("start", String(pageParam));
+      return apiFetch<SearchResult>(`/marketcheck/search?${params.toString()}`, { signal });
     },
+    getNextPageParam: (lastPage, _pages, lastPageParam) =>
+      lastPage.mode !== "unavailable" && (lastPage.hasMore || lastPage.pagination?.nextStart != null)
+        ? (lastPage.nextStart ?? lastPage.pagination?.nextStart ?? Number(lastPageParam) + lastPage.listings.length)
+        : undefined,
   });
 
-  const filtered = (data?.listings ?? []).filter((l) => {
-    if (!search) return true;
-    const q = search.toLowerCase();
-    return (
-      l.heading?.toLowerCase().includes(q) ||
-      l.make?.toLowerCase().includes(q) ||
-      l.model?.toLowerCase().includes(q) ||
-      String(l.year).includes(q)
-    );
-  });
+  const latest = data?.pages[0];
+  const listings = useMemo(() => data?.pages.flatMap((page) => page.mode === "unavailable" ? [] : page.listings) ?? [], [data]);
+  const mode = latest?.mode ?? "unavailable";
 
   return (
     <View style={[styles.container, { paddingTop: topPad }]}>
@@ -182,8 +245,14 @@ export default function MarketplaceScreen() {
           <Text style={styles.title}>{t("marketplace.title")}</Text>
         </View>
         <Text style={styles.subtitle}>
-          {data ? `${data.totalCount} ${t("marketplace.blockchainVerified")}` : t("common.loading")}
+           {latest ? `${mode === "demo" ? "DEMO · " : mode === "unavailable" ? "UNAVAILABLE · " : ""}${latest.sourceLabel || (latest.source === "marketcheck" ? "MarketCheck" : "Inventory")} · ${latest.totalCount} listings` : t("common.loading")}
         </Text>
+      </View>
+      <View style={styles.locationFilters}>
+        <TextInput style={styles.locationInput} value={zip} onChangeText={setZip} placeholder="ZIP code" placeholderTextColor={COLORS.whiteDim} keyboardType="numeric" />
+        <Pressable style={styles.radiusChip} onPress={() => setRadius(radius === "50" ? "100" : radius === "100" ? "" : "50")}>
+          <Text style={styles.radiusText}>{radius ? `${radius} mi` : "Any radius"}</Text>
+        </Pressable>
       </View>
 
       {/* Search */}
@@ -234,17 +303,19 @@ export default function MarketplaceScreen() {
         />
       ) : (
         <FlatList
-          data={filtered}
+          data={listings}
           keyExtractor={(item) => item.id}
           contentContainerStyle={{ paddingHorizontal: 16, gap: 12, paddingBottom: bottomPad + 90 }}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
             <View style={styles.emptyState}>
               <MaterialCommunityIcons name="car-off" size={36} color={COLORS.whiteDim} />
-              <Text style={styles.emptyTitle}>No vehicles found</Text>
-              <Text style={styles.emptySub}>Try a different filter</Text>
+              <Text style={styles.emptyTitle}>{mode === "unavailable" ? "Live inventory unavailable" : "No vehicles found"}</Text>
+              <Text style={styles.emptySub}>{mode === "unavailable" ? (latest?.message || "The provider is not configured or cannot be reached. No inventory is shown as live.") : "Try a different filter"}</Text>
             </View>
           }
+          ListHeaderComponent={mode === "demo" ? <View style={styles.demoBanner}><Text style={styles.demoText}>DEMO INVENTORY — Sample listings only. This is not a live provider feed.</Text></View> : null}
+          ListFooterComponent={hasNextPage ? <Pressable style={styles.loadMore} onPress={() => fetchNextPage()} disabled={isFetchingNextPage}><Text style={styles.loadMoreText}>{isFetchingNextPage ? "Loading…" : "Load more listings"}</Text></Pressable> : null}
           renderItem={({ item, index }) => <ListingCard item={item} index={index} />}
         />
       )}
@@ -271,6 +342,10 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   searchInput: { flex: 1, fontFamily: "Inter_400Regular", fontSize: 13, color: COLORS.white },
+  locationFilters: { flexDirection: "row", gap: 8, paddingHorizontal: 16, paddingBottom: 8 },
+  locationInput: { flex: 1, fontFamily: "Inter_400Regular", fontSize: 12, color: COLORS.white, backgroundColor: COLORS.card, borderWidth: 1, borderColor: COLORS.cardBorder, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8 },
+  radiusChip: { justifyContent: "center", paddingHorizontal: 12, borderRadius: 10, backgroundColor: COLORS.card, borderWidth: 1, borderColor: COLORS.cardBorder },
+  radiusText: { fontFamily: "Inter_600SemiBold", fontSize: 11, color: COLORS.gold },
   filterRow: { paddingLeft: 16, paddingRight: 8, paddingBottom: 10, gap: 6 },
   filterChip: {
     paddingHorizontal: 12,
@@ -336,5 +411,9 @@ const styles = StyleSheet.create({
   emptyState: { paddingTop: 80, alignItems: "center", gap: 8 },
   emptyTitle: { fontFamily: "Inter_600SemiBold", fontSize: 16, color: COLORS.white },
   emptySub: { fontFamily: "Inter_400Regular", fontSize: 13, color: COLORS.whiteDim },
+  demoBanner: { marginBottom: 12, borderWidth: 1, borderColor: `${COLORS.gold}55`, backgroundColor: `${COLORS.gold}18`, borderRadius: 10, padding: 10 },
+  demoText: { fontFamily: "Inter_600SemiBold", fontSize: 11, color: COLORS.gold, lineHeight: 16 },
+  loadMore: { marginVertical: 16, alignSelf: "center", paddingHorizontal: 18, paddingVertical: 10, borderRadius: 10, borderWidth: 1, borderColor: `${COLORS.gold}66`, backgroundColor: `${COLORS.gold}18` },
+  loadMoreText: { fontFamily: "Inter_600SemiBold", fontSize: 12, color: COLORS.gold },
   skeletonLine: { height: 11, borderRadius: 6, backgroundColor: "#1E1E1E" },
 });

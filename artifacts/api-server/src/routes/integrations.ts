@@ -40,7 +40,7 @@ function getRegistry(): IntegrationEntry[] {
       industryBenefit: "Real-time market data, VIN decoding, listing analytics, price trend intelligence for dealer inventory pricing",
       envKeys: ["MARKETCHECK_API_KEY"],
       live: checkLive(["MARKETCHECK_API_KEY"]),
-      endpoints: ["/api/marketcheck/search", "/api/marketcheck/vin/:vin", "/api/marketcheck/trends"],
+      endpoints: ["/api/marketcheck/search", "/api/marketcheck/wholesale", "/api/marketcheck/status", "/api/marketcheck/vin/:vin"],
     },
     {
       id: "plaid",

@@ -60,7 +60,11 @@ export function PublicRoute({ children }: { children: React.ReactNode }) {
   const [, navigate] = useLocation();
 
   useEffect(() => {
-    if (!loading && user) navigate("/");
+    if (!loading && user) {
+      const requested = new URLSearchParams(window.location.search).get("redirect");
+      const safeRedirect = requested?.startsWith("/") && !requested.startsWith("//") ? requested : "/";
+      navigate(safeRedirect);
+    }
   }, [user, loading, navigate]);
 
   if (loading) return null;

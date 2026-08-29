@@ -29,8 +29,9 @@ interface MarketListing {
   state?: string;
   dom?: number;
   vin: string;
+  vdp_url?: string;
   media?: { photo_links?: string[] };
-  seller?: { name?: string };
+  seller?: { name?: string; phone?: string; contact_phone?: string; website?: string; url?: string };
   // Wholesale Engine enrichment
   market_avg?: number;
   guardian_health_score?: number;
@@ -53,6 +54,21 @@ interface SearchFilters {
   price_max: string;
   miles_max: string;
   year: string;
+  zip: string;
+  radius: string;
+}
+
+type InventoryMode = "live" | "demo" | "unavailable";
+interface InventoryResponse {
+  listings: MarketListing[];
+  totalCount: number;
+  mode: InventoryMode;
+  sourceLabel: string;
+  hasMore: boolean;
+  nextStart?: number;
+  message?: string;
+  source?: string;
+  pagination?: { nextStart: number | null };
 }
 
 const MAKES = [
@@ -189,6 +205,8 @@ function WholesaleCard({
     : "N/A";
   const isElectric = car.fuel_type?.toLowerCase().includes("electric");
   const isHybrid = car.fuel_type?.toLowerCase().includes("hybrid");
+  const phone = car.seller?.phone ?? car.seller?.contact_phone;
+  const sellerUrl = car.seller?.website ?? car.seller?.url;
 
   const hasWholesale = car.wholesale_potential && car.club_price != null;
 
@@ -307,6 +325,12 @@ function WholesaleCard({
           )}
           <p className="text-[9px] font-mono text-white/15 tracking-widest ml-auto">VIN {maskedVin}</p>
         </div>
+        {(phone || sellerUrl) && (
+          <div className="flex items-center gap-2 text-[10px]">
+            {phone && <a href={`tel:${phone}`} className="text-amber-300 hover:text-amber-200">Call seller</a>}
+            {sellerUrl && <a href={sellerUrl} target="_blank" rel="noreferrer" className="text-white/45 hover:text-white/70">Dealer site ↗</a>}
+          </div>
+        )}
 
         {/* Wholesale pricing block */}
         {hasWholesale && car.club_price != null ? (
@@ -399,52 +423,68 @@ function WholesaleCard({
 }
 
 // ─── Concierge Modal ─────────────────────────────────────────────────────────
-type ModalState = "form" | "submitting" | "success";
-
 function ConciergeModal({ car, onClose }: { car: MarketListing; onClose: () => void }) {
-  const [state, setState] = useState<ModalState>("form");
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
+  const [state, setState] = useState<"ready" | "submitting" | "success" | "error">("ready");
+  const [note, setNote] = useState("");
+  const [error, setError] = useState("");
   const maskedVin = car.vin
     ? "•".repeat(Math.max(0, car.vin.length - 4)) + car.vin.slice(-4)
     : "N/A";
 
-  const handleSubmit = () => {
-    if (!name.trim() || !phone.trim()) return;
-    setState("submitting");
-    setTimeout(() => setState("success"), 1500);
-  };
-
   const isWholesale = car.wholesale_potential && car.club_price != null;
+  const submitInquiry = async () => {
+    setState("submitting");
+    setError("");
+    try {
+      const priceCents = Math.max(100, Math.round((car.price || 1) * 100));
+      const token = localStorage.getItem("3c_auth_token");
+      const response = await fetch(`${BASE}/api/source`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          category: "VEHICLE_PURCHASE",
+          title: `Availability inquiry — ${car.heading}`.slice(0, 200),
+          description: [
+            `Please confirm availability and acquisition options for ${car.heading}.`,
+            `Market listing ID: ${car.id}.`,
+            car.vin ? `VIN: ${car.vin}.` : "",
+            car.seller?.name ? `Seller: ${car.seller.name}.` : "",
+            note.trim() ? `Member note: ${note.trim()}` : "",
+          ].filter(Boolean).join(" "),
+          budgetMinCents: 0,
+          budgetMaxCents: priceCents,
+          feeStructurePref: "ANY",
+          deadlineDays: 7,
+          isAnonymous: true,
+        }),
+      });
+      if (!response.ok) {
+        if (response.status === 401) throw new Error("Please sign in to submit an availability request.");
+        throw new Error("We could not submit the request. Please try again.");
+      }
+      setState("success");
+    } catch (err) {
+      setError((err as Error).message);
+      setState("error");
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" onClick={state !== "submitting" ? onClose : undefined} />
+      <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" onClick={onClose} />
       <div className="relative z-10 w-full max-w-md rounded-2xl border border-white/10 bg-[var(--onyx-surface)] shadow-2xl overflow-hidden">
         {state === "success" ? (
           <div className="p-8 text-center">
-            <div className="w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-400/30 flex items-center justify-center mx-auto mb-4">
-              <CheckCircle2 className="w-7 h-7 text-emerald-400" />
+            <CheckCircle2 className="w-10 h-10 text-emerald-400 mx-auto mb-3" />
+            <h2 className="text-lg font-semibold text-white">Availability request submitted</h2>
+            <p className="text-sm text-white/45 mt-2">Your request is now tracked in ONYX Source. The concierge team can coordinate the seller, inspection, financing, insurance, and delivery.</p>
+            <div className="flex gap-3 mt-6">
+              <a href={`${BASE}/source`} className="flex-1 py-2.5 rounded-lg border border-amber-500/30 text-amber-300 text-sm text-center">Track request</a>
+              <button onClick={onClose} className="flex-1 py-2.5 rounded-lg bg-amber-500 text-black font-semibold text-sm">Done</button>
             </div>
-            <h2 className="text-white font-semibold text-lg mb-2">
-              {isWholesale ? "Wholesale Request Locked In" : "Request Submitted"}
-            </h2>
-            <p className="text-white/40 text-sm mb-2">
-              ONYX is coordinating your acquisition now.{" "}
-              <span className="text-white/60 font-medium">Inspection, financing, and white-glove delivery</span> are handled — no follow-up needed from you.
-            </p>
-            {isWholesale && car.savings_vs_retail != null && (
-              <div className="flex items-center justify-center gap-2 mb-4 px-4 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20">
-                <Tag className="w-3.5 h-3.5 text-amber-400" />
-                <span className="text-sm font-semibold text-amber-300">
-                  You're saving ${car.savings_vs_retail.toLocaleString()} vs local retail
-                </span>
-              </div>
-            )}
-            <p className="text-xs text-white/25 font-mono mb-6">Ref: 3C-{Date.now().toString().slice(-6)}</p>
-            <button onClick={onClose} className="w-full py-2.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-black font-semibold text-sm transition-colors">
-              Done
-            </button>
           </div>
         ) : (
           <>
@@ -496,31 +536,29 @@ function ConciergeModal({ car, onClose }: { car: MarketListing; onClose: () => v
                 )}
               </div>
 
-              <div className="space-y-3 mb-5">
-                <div>
-                  <label className="text-[11px] text-white/30 uppercase tracking-wider block mb-1">Full Name</label>
-                  <input
-                    type="text"
-                    placeholder="Your name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/20 focus:border-amber-500/50 focus:outline-none"
-                  />
+              <label className="block text-xs text-white/50 mb-2" htmlFor="availability-note">What should the concierge know? <span className="text-white/25">(optional)</span></label>
+              <textarea
+                id="availability-note"
+                value={note}
+                onChange={(event) => setNote(event.target.value.slice(0, 800))}
+                placeholder="Trade-in, financing, inspection, insurance, delivery timing…"
+                className="w-full min-h-24 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white placeholder:text-white/20 outline-none focus:border-amber-500/40 mb-3"
+              />
+              {error && (
+                <div className="flex items-center justify-between gap-3 rounded-lg border border-red-400/20 bg-red-400/[0.06] px-3 py-2 mb-3">
+                  <p className="text-xs text-red-200">{error}</p>
+                  {error.startsWith("Please sign in") && (
+                    <a
+                      href={`${BASE}/login?redirect=${encodeURIComponent("/marketplace")}`}
+                      className="shrink-0 text-xs font-semibold text-amber-300 hover:text-amber-200"
+                    >
+                      Sign in
+                    </a>
+                  )}
                 </div>
-                <div>
-                  <label className="text-[11px] text-white/30 uppercase tracking-wider block mb-1">Phone Number</label>
-                  <input
-                    type="tel"
-                    placeholder="+1 (000) 000-0000"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/20 focus:border-amber-500/50 focus:outline-none"
-                  />
-                </div>
-              </div>
-
+              )}
               <p className="text-xs text-white/30 mb-4">
-                A dedicated 3C Concierge specialist will contact you to arrange financing, inspection, and white-glove delivery.
+                This creates a tracked vehicle-purchase request. A request does not reserve the vehicle or guarantee the listed price.
               </p>
 
               <div className="flex gap-3">
@@ -531,12 +569,12 @@ function ConciergeModal({ car, onClose }: { car: MarketListing; onClose: () => v
                   Cancel
                 </button>
                 <button
-                  onClick={handleSubmit}
-                  disabled={!name.trim() || !phone.trim() || state === "submitting"}
-                  className="flex-1 py-2.5 rounded-lg bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed text-black font-semibold text-sm transition-colors flex items-center justify-center gap-2"
+                  onClick={submitInquiry}
+                  disabled={state === "submitting"}
+                  className="flex-1 py-2.5 rounded-lg bg-amber-500 hover:bg-amber-400 disabled:opacity-60 text-black font-semibold text-sm transition-colors flex items-center justify-center gap-2"
                 >
                   {state === "submitting" && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {state === "submitting" ? "Submitting…" : "Submit Request"}
+                  Request availability
                 </button>
               </div>
             </div>
@@ -612,17 +650,24 @@ export default function Marketplace() {
   const { t } = useTranslation();
   const [tab, setTab] = useState<Tab>("all");
   const [filters, setFilters] = useState<SearchFilters>({
-    make: "", price_max: "", miles_max: "", year: "",
+    make: "", price_max: "", miles_max: "", year: "", zip: "", radius: "",
   });
   const [search, setSearch] = useState("");
   const [listings, setListings] = useState<MarketListing[]>([]);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
+  const [mode, setMode] = useState<InventoryMode>("unavailable");
+  const [sourceLabel, setSourceLabel] = useState("");
+  const [providerMessage, setProviderMessage] = useState<string | undefined>();
+  const [hasMore, setHasMore] = useState(false);
+  const [nextStart, setNextStart] = useState(0);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [selectedCar, setSelectedCar] = useState<MarketListing | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [watchedVins, setWatchedVins] = useState<Set<string>>(new Set());
   const [wholesaleStats, setWholesaleStats] = useState<WholesaleStats | null>(null);
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const requestController = useRef<AbortController | null>(null);
 
   // Fetch wholesale stats on mount
   useEffect(() => {
@@ -658,33 +703,58 @@ export default function Marketplace() {
     setWatchedVins((prev) => new Set([...prev, car.id]));
   }, [watchedVins]);
 
-  const fetchListings = useCallback(async (f: SearchFilters, q: string, t: Tab) => {
-    setLoading(true);
+  const fetchListings = useCallback(async (f: SearchFilters, q: string, t: Tab, start = 0, append = false) => {
+    requestController.current?.abort();
+    const controller = new AbortController();
+    requestController.current = controller;
+    append ? setLoadingMore(true) : setLoading(true);
     try {
       const params = new URLSearchParams();
       if (f.make) params.set("make", f.make);
       if (f.price_max) params.set("price_max", f.price_max);
       if (f.miles_max) params.set("miles_max", f.miles_max);
       if (f.year) params.set("year", f.year);
+      if (f.zip) params.set("zip", f.zip);
+      if (f.radius) params.set("radius", f.radius);
       if (q) params.set("search", q);
       if (t === "wholesale") params.set("wholesale_only", "true");
       params.set("rows", "24");
-      const res = await fetch(`${BASE}/api/marketcheck/search?${params}`);
-      const data = await res.json();
-      setListings(data.listings ?? []);
-      setTotal(data.totalCount ?? data.listings?.length ?? 0);
-    } catch {
+      params.set("start", String(start));
+      const res = await fetch(`${BASE}/api/marketcheck/search?${params}`, { signal: controller.signal });
+      if (!res.ok) throw new Error("Inventory provider request failed.");
+       const data = await res.json() as InventoryResponse;
+      if (controller.signal.aborted) return;
+      const responseMode: InventoryMode = ["live", "demo", "unavailable"].includes(data.mode) ? data.mode : "unavailable";
+      const resultListings = responseMode === "unavailable" ? [] : (data.listings ?? []);
+      setListings((current) => append ? [...current, ...resultListings] : resultListings);
+      setTotal(data.totalCount ?? resultListings.length);
+      setMode(responseMode);
+       setSourceLabel(data.sourceLabel ?? (data.source === "marketcheck" ? "MarketCheck live dealer inventory" : ""));
+      setProviderMessage(data.message);
+       const resolvedNextStart = data.nextStart ?? data.pagination?.nextStart ?? null;
+       setHasMore(responseMode !== "unavailable" && (Boolean(data.hasMore) || resolvedNextStart !== null));
+       setNextStart(resolvedNextStart ?? start + resultListings.length);
+    } catch (error) {
+      if ((error as Error).name === "AbortError") return;
       setListings([]);
+      setTotal(0);
+      setMode("unavailable");
+      setSourceLabel("");
+      setProviderMessage("Inventory is temporarily unavailable. Please try again later.");
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted) {
+        setLoading(false);
+        setLoadingMore(false);
+      }
     }
   }, []);
 
+  useEffect(() => () => requestController.current?.abort(), []);
   useEffect(() => { fetchListings(filters, search, tab); }, [tab]);
 
   const applyFilters = () => { fetchListings(filters, search, tab); setShowFilters(false); };
   const clearFilters = () => {
-    const empty = { make: "", price_max: "", miles_max: "", year: "" };
+    const empty = { make: "", price_max: "", miles_max: "", year: "", zip: "", radius: "" };
     setFilters(empty);
     setSearch("");
     fetchListings(empty, "", tab);
@@ -707,7 +777,9 @@ export default function Marketplace() {
         accent="#C9A227"
         title={t("marketplace.title")}
         subtitle={t("marketplace.subtitle")}
-        badge={<span className="neural-badge neural-badge-gold"><span className="ai-live-dot-gold mr-1" />MARKETCHECK</span>}
+        badge={<span className={`neural-badge ${mode === "live" ? "neural-badge-gold" : mode === "demo" ? "border-amber-400/50 text-amber-200" : "border-red-400/40 text-red-300"}`}>
+          <span className={`mr-1 ${mode === "live" ? "ai-live-dot-gold" : ""}`} />{mode === "live" ? "LIVE INVENTORY" : mode === "demo" ? "DEMO INVENTORY" : "PROVIDER UNAVAILABLE"}
+        </span>}
         actions={
           <button
             onClick={() => setShowFilters((v) => !v)}
@@ -817,7 +889,7 @@ export default function Marketplace() {
         {/* ── Filter panel ─────────────────────────────────────────────────── */}
         {showFilters && (
           <div className="rounded-xl border border-white/10 bg-white/[0.03] p-5 mb-5">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
               <div>
                 <label className="text-[11px] text-white/30 uppercase tracking-wider block mb-1">Make</label>
                 <select
@@ -870,6 +942,23 @@ export default function Marketplace() {
                   <option value="2021" className="bg-[var(--onyx-surface)]">2021</option>
                 </select>
               </div>
+              <div>
+                <label className="text-[11px] text-white/30 uppercase tracking-wider block mb-1">ZIP Code</label>
+                <input value={filters.zip} inputMode="numeric" maxLength={10} placeholder="e.g. 90210"
+                  onChange={(e) => setFilters((p) => ({ ...p, zip: e.target.value }))}
+                  className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/20 focus:border-amber-500/50 focus:outline-none" />
+              </div>
+              <div>
+                <label className="text-[11px] text-white/30 uppercase tracking-wider block mb-1">Radius</label>
+                <select value={filters.radius} onChange={(e) => setFilters((p) => ({ ...p, radius: e.target.value }))}
+                  className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-amber-500/50 focus:outline-none">
+                  <option value="" className="bg-[var(--onyx-surface)]">Any distance</option>
+                  <option value="25" className="bg-[var(--onyx-surface)]">25 miles</option>
+                  <option value="50" className="bg-[var(--onyx-surface)]">50 miles</option>
+                  <option value="100" className="bg-[var(--onyx-surface)]">100 miles</option>
+                  <option value="250" className="bg-[var(--onyx-surface)]">250 miles</option>
+                </select>
+              </div>
             </div>
             <div className="flex gap-2">
               <button onClick={applyFilters} className="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-black font-semibold text-sm transition-colors">
@@ -885,9 +974,10 @@ export default function Marketplace() {
         )}
 
         {/* ── Count bar ────────────────────────────────────────────────────── */}
-        {!loading && (
+        {!loading && mode !== "unavailable" && (
           <p className="text-xs text-white/25 mb-4 flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block" />
+            <span className={`w-1.5 h-1.5 rounded-full inline-block ${mode === "live" ? "bg-emerald-400 animate-pulse" : "bg-amber-400"}`} />
+            <span className={mode === "demo" ? "text-amber-300 font-semibold" : ""}>{mode === "demo" ? "DEMO — " : ""}{sourceLabel || (mode === "demo" ? "Sample inventory" : "Inventory provider")} · </span>
             {total} {tab === "wholesale" ? "wholesale" : "certified"}{" "}
             {total === 1 ? "listing" : "listings"} available
             {tab === "all" && wholesaleCount > 0 && (
@@ -928,6 +1018,12 @@ export default function Marketplace() {
               </div>
             ))}
           </div>
+        ) : mode === "unavailable" ? (
+          <div className="text-center py-20 rounded-2xl border border-red-400/20 bg-red-500/[0.04]">
+            <Car className="w-10 h-10 text-red-300/50 mx-auto mb-3" />
+            <p className="text-red-200 text-sm font-medium">Live inventory is unavailable</p>
+            <p className="text-white/40 text-sm mt-2 max-w-md mx-auto">{providerMessage || "The inventory provider is not configured or cannot be reached. No listings are being shown as live inventory."}</p>
+          </div>
         ) : listings.length === 0 ? (
           <div className="text-center py-20">
             <Car className="w-10 h-10 text-white/10 mx-auto mb-3" />
@@ -947,6 +1043,19 @@ export default function Marketplace() {
                 watched={watchedVins.has(car.id)}
               />
             ))}
+          </div>
+        )}
+        {mode === "demo" && !loading && (
+          <div className="mt-5 rounded-xl border border-amber-400/30 bg-amber-500/[0.08] px-4 py-3 text-xs text-amber-100">
+            <strong className="tracking-wide">DEMO INVENTORY.</strong> These are sample listings from {sourceLabel || "the configured demo source"}, not a live provider feed.
+          </div>
+        )}
+        {mode !== "unavailable" && hasMore && (
+          <div className="flex justify-center mt-6">
+            <button onClick={() => fetchListings(filters, search, tab, nextStart, true)} disabled={loadingMore}
+              className="px-5 py-2.5 rounded-lg border border-amber-500/40 bg-amber-500/10 text-amber-300 text-sm font-semibold hover:bg-amber-500/20 disabled:opacity-50">
+              {loadingMore ? "Loading…" : "Load more listings"}
+            </button>
           </div>
         )}
 

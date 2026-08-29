@@ -46,6 +46,10 @@ export default function LoginPage() {
   const [biometricLoading, setBiometricLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
   const [localError, setLocalError] = useState("");
+  const redirectPath = (() => {
+    const requested = new URLSearchParams(window.location.search).get("redirect");
+    return requested?.startsWith("/") && !requested.startsWith("//") ? requested : "/";
+  })();
 
   useEffect(() => {
     setBiometricSupported(browserSupportsWebAuthn());
@@ -65,7 +69,7 @@ export default function LoginPage() {
     setLocalError("");
     try {
       await login(email, password);
-      navigate("/");
+      navigate(redirectPath);
     } catch {}
   };
 
