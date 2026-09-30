@@ -21,6 +21,7 @@ import { ThemeSelector } from "./ThemeSelector";
 import LanguageSelector from "./LanguageSelector";
 import { OnyxLogo } from "./OnyxLogo";
 import { AskOnyxTrigger } from "./AskOnyxPalette";
+import { useAuth } from "@/context/AuthContext";
 
 /* ─── NavItem ─────────────────────────────────────────────────── */
 function NavItem({ label, path, icon: Icon, description, accent = "#C9A227", onClose }: {
@@ -174,9 +175,11 @@ function AIStatusBar() {
 /* ─── AppSidebar ──────────────────────────────────────────────── */
 export function AppSidebar({ onClose }: { onClose?: () => void }) {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [showPlatform, setShowPlatform] = useState(false);
 
   const CUSTOMER_NAV = [
+    { label: "Member Services",           path: "/services",      icon: ClipboardCheck, description: "Insurance · Roadside · Rental · Body work", accent: "#C9A227" },
     { label: "ONYX AI Mode",              path: "/ai-mode",        icon: Brain,       description: "Ask anything · 12-agent mesh · Automotive intelligence", accent: "#00E5FF" },
     { label: "Customize Your Vehicle",    path: "/customize",      icon: Sparkles,    description: "Wraps · Wheels · Leather · Side Steps · Fleet Branding", accent: "#A78BFA" },
     { label: "My QR Badge",               path: "/my-qr",          icon: QrCode,      description: "Your scannable club identity · Download · Share", accent: "#C9A227" },
@@ -323,6 +326,7 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
         {CUSTOMER_NAV.map((item) => (
           <NavItem key={item.path} {...item} onClose={onClose} />
         ))}
+        {user?.role === "Admin" && <NavItem label="Service Desk" path="/services/admin" icon={ClipboardCheck} description="Review requests · Advance statuses" accent="#C9A227" onClose={onClose} />}
 
         <Divider />
         <SectionLabel>DEALERFLOW OS</SectionLabel>

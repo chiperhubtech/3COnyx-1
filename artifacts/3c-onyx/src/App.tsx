@@ -124,6 +124,8 @@ import AiModePage from "@/pages/ai-mode";
 import ShopPage from "@/pages/shop";
 import FounderResetPage from "@/pages/founder-reset";
 import AdvisorPage from "@/pages/advisor";
+import ServicesPage from "@/pages/services";
+import ServicesAdminPage from "@/pages/services-admin";
 
 // Auth + launch pages
 import LoginPage    from "@/pages/login";
@@ -343,6 +345,10 @@ function AppRoutes() {
             <Route path="/trust"                component={TrustPage} />
 
             {/* Consumer */}
+            <Route path="/services/admin">
+              <ProtectedRoute requiredRole="Admin"><ServicesAdminPage /></ProtectedRoute>
+            </Route>
+            <Route path="/services" component={ServicesPage} />
             <Route path="/concierge"            component={Concierge} />
             <Route path="/marketplace"          component={Marketplace} />
             <Route path="/garage"               component={Garage} />

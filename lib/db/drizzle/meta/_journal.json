@@ -22,6 +22,13 @@
       "when": 1776380000000,
       "tag": "0002_perf_hardening_indexes",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790798400000,
+      "tag": "0003_service_requests",
+      "breakpoints": true
     }
   ]
 }

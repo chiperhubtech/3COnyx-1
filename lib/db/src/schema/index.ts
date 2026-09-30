@@ -28,6 +28,7 @@ export * from "./login-attempts";
 export * from "./alibaba-products";
 export * from "./family-office-governance";
 export * from "./source-requests";
+export * from "./service-requests";
 export * from "./member-covenants";
 export * from "./creator-outreach";
 export * from "./referral-ledger";

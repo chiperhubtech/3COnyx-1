@@ -2,3 +2,4 @@
 - [Launch readiness](launch-readiness.md) — prod hard-requires JWT_SECRET + ENCRYPTION_KEY (startupGuard refuses boot); Stripe is soft; go-live order + smoke test + EADDRINUSE non-break.
 - [Shared cache backend](shared-cache-backend.md) — apiCache/cache are L1+optional-Redis L2; opt-in via REDIS_URL, falls back to in-memory; don't make MemoryCache.get async.
 - [Shopify Admin proxy quirks](shopify-admin-quirks.md) — inventory mutations need @idempotent field keys + changeFromQuantity; membership SKUs lack order-webhook fulfillment.
+- [Service request separation](service-request-separation.md) — keep direct member requests apart from vendor bidding; global notifications lack recipient ownership.
