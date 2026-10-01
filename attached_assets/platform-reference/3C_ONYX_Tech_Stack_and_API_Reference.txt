@@ -1,0 +1,4254 @@
+3C ONYX — TECH STACK & API REFERENCE
+Source snapshot: October 1, 2026
+Selectable-text PDF; no credentials included.
+
+
+
+==========================================================================
+1. PLATFORM AT A GLANCE
+==========================================================================
+
+3C ONYX is a TypeScript-based automotive platform with a React web application, an Expo/React Native mobile app, an Express API service, and shared PostgreSQL data. This reference covers the implementation found in this workspace, not a certification of production readiness.
+
+
+COPY-AND-PASTE STACK SUMMARY
+
+Frontend: React 19.1.0, Vite ^7.3.0, TypeScript ~5.9.2, Tailwind CSS ^4.1.14, Radix UI, Wouter ^3.3.5, TanStack React Query ^5.90.21, React Hook Form ^7.55.0, Framer Motion ^12.23.24, Recharts ^2.15.2, Leaflet ^1.9.4 and i18next ^25.10.5.
+
+Mobile: Expo ~54.0.27, React Native 0.81.5, Expo Router ~6.0.17, React Native Web ^0.21.0, Expo SecureStore, device location, camera and notification capabilities.
+
+Backend: Node.js (Replit configuration: Node 24), Express ^5, tRPC ^11.14.1, Zod 3.25.76, ws ^8.20.0, Pino, Helmet, express-rate-limit and request tracing.
+
+Data: PostgreSQL 16 configuration, pg ^8.20.0, Drizzle ORM ^0.45.1, drizzle-kit ^0.31.9, checked-in SQL migrations, optional Redis through ioredis ^5.11.1 and in-memory fallback.
+
+Authentication: bcrypt password hashing, jose JWTs, token revocation and role middleware; Google/Apple token verification and WebAuthn/passkey code. Web tokens use localStorage; mobile tokens use SecureStore. Protection varies by endpoint.
+
+AI and integrations: OpenAI, Google Gemini, Anthropic and Amazon Bedrock client code; Stripe, Shopify, MarketCheck, NHTSA, maps, messaging and other integration implementations. See Section 3 for implementation versus scaffold distinctions.
+
+Tooling: pnpm workspace, TypeScript project references, Orval OpenAPI code generation, esbuild API bundling, Vite web builds, Vitest, GitHub Actions and AWS CDK infrastructure templates.
+
+
+WHAT “ALL APIS” MEANS IN THIS DOCUMENT
+
+The REST appendix includes all 992 literal HTTP method/path registrations reachable from the Express app through its router mounts. Source scanning also checked every TypeScript route file: 0 unmounted registrations and 0 unresolved dynamic route paths were found. The 14 tRPC procedures and /ws WebSocket interface are listed separately.
+
+The external-integration section distinguishes working request/client code from partial adapters, mocks, catalog entries and links. An outbound call in source does not prove a configured account, correct vendor contract, production connectivity or successful transaction.
+
+This is an inventory, not a complete request/response schema or security audit. For payload fields, role checks, response codes and runtime behavior, use the cited source handler. The current OpenAPI document covers only health and selected Gemini operations, not the full API surface.
+
+
+
+==========================================================================
+2. DETAILED TECHNOLOGY STACK
+==========================================================================
+
+Read-only technical inventory (declarations/configuration, not verified production deployment). Versions below are manifest declarations: unprefixed = exact; ^ = compatible-major range; ~ = patch-level range; catalog entries resolved from pnpm-workspace.yaml. No runtime tests/builds executed; no credentials or personal records included.
+
+
+STACK / ARCHITECTURE
+
+TypeScript pnpm monorepo: artifacts/* applications, lib/* shared packages, scripts; internal dependencies workspace:*. Root TypeScript ~5.9.2, tsx exact 4.21.0, Prettier ^3.8.1. ES2022 target, ESM/bundler resolution and project-reference typechecking. Sources: package.json:5–16; pnpm-workspace.yaml:1–5,24–30; tsconfig.base.json:2–23.
+
+Web SPA: React / React DOM exact 19.1.0; Vite ^7.3.0; Tailwind CSS / Vite plugin ^4.1.14; TanStack React Query ^5.90.21; Wouter ^3.3.5; React Hook Form ^7.55.0; Recharts ^2.15.2; Framer Motion ^12.23.24; Radix UI components (individual ^ ranges), Leaflet ^1.9.4 / React Leaflet ^5.0.0; i18next ^25.10.5. Sources: pnpm-workspace.yaml:13–30; artifacts/3c-onyx/package.json:13–92. Vite outputs dist/public with separate vendor chunks: artifacts/3c-onyx/vite.config.ts:24–69.
+
+Mobile: Expo ~54.0.27; React Native exact 0.81.5; Expo Router ~6.0.17; Expo CLI exact 54.0.23; React Native Web ^0.21.0; SecureStore ^15.0.8; shared React Query client. Sources: artifacts/3c-onyx-mobile/package.json:5–10,15–26,37–55,63–66.
+
+API: Node.js, Express ^5, Zod exact 3.25.76; tRPC server/client ^11.14.1; ws ^8.20.0; Pino ^9 / pino-http ^10; Helmet ^8.1.0; express-rate-limit ^8.3.1; ioredis ^5.11.1. Sources: artifacts/api-server/package.json:14–52; artifacts/3c-onyx/package.json:81–83; pnpm-workspace.yaml:30. Modular REST routers under /api, additional /api/trpc, WebSocket /ws: artifacts/api-server/src/app.ts:200–220; src/routes/index.ts:252–258; src/lib/wsHub.ts:39 (all latter paths under artifacts/api-server).
+
+PostgreSQL: platform config declares PostgreSQL 16; pg ^8.20.0, Drizzle ORM ^0.45.1, drizzle-zod ^0.8.3, drizzle-kit ^0.31.9. Shared relational schema covers users, vehicles, deals/tasks, payments/commissions, audit, KYC, documents and services. pg Pool includes pressure monitoring/statistics. Schema push commands plus checked-in SQL migrations. Sources: .replit:1; lib/db/package.json:10–23; pnpm-workspace.yaml:21; lib/db/src/index.ts:17–25,31–84; lib/db/src/schema/index.ts:1–66; lib/db/drizzle.config.ts:8–13; lib/db/drizzle/0001_add_referral_chain_depth.sql, 0002_perf_hardening_indexes.sql, 0003_service_requests.sql.
+
+Optional Redis-backed shared cache/pub-sub with in-memory fallback, not evidence Redis is provisioned: artifacts/api-server/src/lib/cacheBackend.ts:8–16,66–78,201–225.
+
+
+AUTH / API CONVENTIONS
+
+Passwords bcryptjs ^3.0.3, cost 12; jose ^6.2.2 JWT signing HS256, seven-day expiry, unique jti and server-side revocation. Auth middleware accepts Bearer header or token cookie; role middleware declares Member, Dealer, Runner, Specialist, Admin. Web stores JWT in localStorage; mobile uses Expo SecureStore and Bearer injection. Sources: artifacts/api-server/package.json:33,44; src/routes/auth.ts:30,95,162,214–245; src/lib/jwt.ts:12–35; src/middlewares/requireAuth.ts:14–43; src/middlewares/requireRole.ts:3–20; artifacts/3c-onyx/src/context/AuthContext.tsx:68–99; artifacts/3c-onyx-mobile/lib/authStore.ts:12–55; lib/api-client-react/src/custom-fetch.ts:349–355.
+
+Google/Apple social sign-in routes and WebAuthn/passkey registration/authentication exist; SimpleWebAuthn browser/server ^13.3.0, google-auth-library ^10.6.2. Sources: artifacts/api-server/src/routes/auth.ts:334–446; src/routes/webauthn.ts:92–149,185–271; artifacts/api-server/package.json:24,41; artifacts/3c-onyx/package.json:78.
+
+JSON REST errors commonly carry error/code (global errors also ts); credentialed CORS with configured/owned-origin logic; Helmet, request tracing, sanitization, tiered rate limiting, 15-second timeout, audit middleware, raw Stripe webhook body handling. Sources: artifacts/api-server/src/app.ts:43–68,80–90,108–145,156–183,200–220. These are mechanisms, not proof all routes are secured: tRPC currently uses publicProcedure and empty context (src/lib/trpc.ts:31–38; src/routes/index.ts:252–257).
+
+OpenAPI 3.1.0 document, API-info version 0.1.0; Orval ^8.5.2 generates React Query fetch client and Zod schemas at /api. Spec currently documents health and Gemini endpoints, not the entire router surface. Sources: lib/api-spec/openapi.yaml:1–16,29–144; package.json:5–9; orval.config.ts:16–65 (latter two under lib/api-spec).
+
+
+DECLARED INTEGRATION SDKS (NOT PROOF ENABLED/LIVE)
+
+API OpenAI ^6.32.0, Anthropic ^0.80.0, AWS Bedrock/EventBridge/Location/Rekognition/Secrets Manager clients ^3.1019.0, MCP ^1.27.1, OpenSearch JS ^3.5.1, SendGrid ^8.1.6, Twilio ^5.13.1, ethers ^6.16.0. Root Stripe ^20.4.1 / stripe-replit-sync ^1.0.0; web Stripe React ^6.0.0 / JS ^8.11.0. Shared AI wrappers differ: OpenAI ^6.27.0; Gemini ^1.44.0 versus root @google/genai ^1.46.0. Sources: artifacts/api-server/package.json:15–24,38–50; package.json:19–31; artifacts/3c-onyx/package.json:79–80; lib/integrations-openai-ai-server/package.json:12–15; lib/integrations-gemini-ai/package.json:11–14.
+
+
+BUILD / TEST / DEPLOYMENT
+
+Root build performs typechecking then recursive builds. API esbuild ^0.27.3 (workspace override exact 0.27.3) bundles ESM dist/index.mjs with linked source maps and externalized dependencies; start enables source maps. Sources: package.json:7–9; artifacts/api-server/package.json:6–12,66; build.mjs:17–23,30–103,104–107; pnpm-workspace.yaml:66.
+
+Vitest ^4.1.4 and V8 coverage ^4.1.4; Node test environment, src/**/*.test.ts, selected-module coverage. Thirteen API test files cover auth/JWT, caches, blacklist/login guard, sanitizer, idempotency, circuit breaker, commission, checkout, webhooks, MarketCheck. k6 load-test script exists, without a pinned k6 manifest version. Sources: artifacts/api-server/package.json:11–12,62,70; vitest.config.ts:4–24; src/__tests__/*.test.ts; k6/load-test.js:19–95. No checked-in Playwright/Cypress configuration found. CI currently does not invoke Vitest.
+
+GitHub Actions: Node 22 / pnpm 10, frozen-lockfile installs, workspace typecheck, API/web builds and artifacts; dependency audits and Gitleaks, weekly audit/SBOM, Dependabot. Lint command permits skipping; Docker smoke check targets an absent artifacts/api-server/Dockerfile rather than root Dockerfile.api. Sources: .github/workflows/ci.yml:13–15,34–51,72–85,106–124; security-weekly.yml:3–7,29–59,79–85; .github/dependabot.yml. Lockfile format 9.0: pnpm-lock.yaml:1. Runtime targets differ: Replit Node 24, CI Node 22, Docker Node 20 + pnpm major 9; web runner nginx:1.27-alpine. Sources: .replit:1; Dockerfile.api:14–19,38; Dockerfile.web:12,19,31.
+
+Replit application router/autoscale declared (.replit:9–14). Artifact metadata: API /api → Node bundled server, startup /api/healthz; web / → static dist/public with SPA rewrite; mobile /3c-onyx-mobile/ → Expo-domain router/build/serve; explainer /onyx-explainer/ and pitch deck /pitch-deck/ → static Vite apps; design /__mockup → dev-only service. All artifact metadata versions 1.0.0 (not product-release evidence). Sources: artifacts/{api-server,3c-onyx,3c-onyx-mobile,onyx-explainer,pitch-deck,mockup-sandbox}/.replit-artifact/artifact.toml:1–24 (API startup at 31–32). Explainer declares Three ^0.182.0, React Three Fiber ^9.5.0, GSAP ^3.14.2; pitch uses React Router DOM ^7.9.5: respective package.json:13–34 and :24.
+
+Additional AWS CDK source templates exist, not proof deployed: top-level infra declares aws-cdk/aws-cdk-lib ^2.140.0, constructs ^10.3.0; API dev deps declare aws-cdk ^2.1114.1 / aws-cdk-lib ^2.245.0. Templates include Node 20 Lambda agents, HTTP API Gateway, DynamoDB, S3, OpenSearch 2.11, EventBridge, Step Functions, WAF and CloudWatch. Top-level infra is outside pnpm workspace globs. Sources: infra/package.json:14–25; artifacts/api-server/package.json:63–65; pnpm-workspace.yaml:1–5; infra/lib/constructs/agent-lambda.ts:134; infra/lib/stacks/api-stack.ts:126; data-stack.ts:55–196; compute-stack.ts:93; workflow-stack.ts:186–403; security-stack.ts:98; monitoring-stack.ts:120–137.
+
+Scope caveat: declarations and implementation evidence do not substantiate active integrations, native app-store publication, scalability/performance figures, compliance certifications or passing tests. Avoid describing all API endpoints as authenticated or the API bundle as universally self-contained (build externalizes AWS SDK and others).
+
+
+
+==========================================================================
+3. EXTERNAL APIS AND INTEGRATIONS
+==========================================================================
+
+Legend: O = outbound API/client implementation; P = partial implementation; S = scaffold, mock, registry entry or link only. An integration can include both outbound code and fallback/sample behavior. None of these labels means it has been verified active.
+
+Inventory is based on broad recursive source/domain/import/network-call searches across API, web, mobile, shared AI libraries and manifests, with targeted implementation reads. No .env files, secret values, external requests or runtime checks were used; no files changed. Code existence does NOT establish configuration, deployment, connectivity or live transactions. In particular, `artifacts/api-server/src/routes/integrations.ts:17–18` calls environment-variable presence “live”; several other routes label static data similarly. Do not reproduce those labels as verified operational status.
+
+
+EVIDENCE PATH KEY
+
+Path abbreviations below: A=`artifacts/api-server/src/`; W=`artifacts/3c-onyx/src/`; M=`artifacts/3c-onyx-mobile/`; L=`lib/`. O=outbound API/client implementation; P=partial implementation; S=scaffold/mock/registry/link only. O can coexist with mock/fallback paths.
+
+
+AI / AUTOMATION
+
+OpenAI — O: `A/lib/ai-router.ts:120–177` constructs configurable-base-URL OpenAI client and calls chat completions, including image inputs; multi-provider failover at :209 onward. `L/integrations-openai-ai-server/src/client.ts:15`, `src/audio/client.ts:130–288` implement voice chat, speech synthesis/transcription; `A/routes/tts.ts:41` uses audio helper. `L/integrations-openai-ai-server/src/image/client.ts:28–57` contains image generation/editing clients (shared helper existence, not proof every helper is used).
+
+Google Gemini — O: `L/integrations-gemini-ai/src/client.ts:15–21` GoogleGenAI client with configurable integration gateway; `A/lib/ai-router.ts:140–155` chat; extensive consumers including `A/routes/gemini/index.ts`, advisor, agents, guardian, neural. Image helper `L/integrations-gemini-ai/src/image/client.ts:28` calls generateContent. `A/routes/vin.ts:37–44` additionally uses a Gemini-named integration base with OpenAI-style `/chat/completions` request. Gateways are environment-selected, not necessarily direct vendor endpoints.
+
+Anthropic Claude — O: `A/lib/ai-router.ts:130–137,180–191` Anthropic SDK/messages client, configurable base URL; also Claude models through Bedrock.
+
+Amazon Bedrock — O: `A/lib/ai-router.ts:86–117` InvokeModel client, Claude model map :49–56, environment-gated fallback provider. Also separate Lambda clients in `infra/lib/lambda/agents/{concierge,guardian,marketcheck,hypertrack,checkr}/index.ts`.
+
+Gumloop — O/P: `A/routes/gumloop.ts:145` submits `/runs`; workflow catalog, synthetic timed results and in-memory run store remain (:130–196).
+
+Browserbase — P: `A/routes/browserbase.ts:35–54` creates remote browser session only; no browser navigation/extraction implementation in this route. Task outputs and verify-dealer results are static (:61–107,123–141).
+
+Temporal.io, SuperAGI — S: `A/routes/agents.ts:73,148–163,233,327–438` implements in-process Maps, generated workflow identifiers, timers and checkpoint records under those names, not their vendor SDK/services. Web consumes these local routes (`W/pages/agentic-os.tsx:352–414`). MCP SDK is a local protocol/server integration (`A/routes/mcp/index.ts:2–7`), not an external AI provider.
+
+
+AUTOMOTIVE / INSURANCE / RENTALS / DEALER SYSTEMS
+
+MarketCheck — O: `A/routes/marketcheck.ts:8,543–611` REST inventory search, retries/timeouts/circuit protection, normalized provider facts. No-key demo only outside production; production missing-key errors, not fabricated live fallback. `A/lib/priceAlertJob.ts:59` separate outbound listing query. Distinct endpoints appear in source; not validated against vendor contracts.
+
+NHTSA vPIC / recalls — O, public APIs: `A/routes/marketcheck.ts:706–708`, `A/routes/vin.ts:18,67,95`; `A/routes/auto-pulse.ts:178–179,466–468` recalls.
+
+Smartcar — P/O: `A/routes/garage.ts:95–103` odometer/fuel calls when vehicle token exists; OAuth authorization URL :157–168. Demo garage/telemetry otherwise (:61–64,119–125). End-to-end OAuth/token completion not established by these portions. Supplemental Lambda `infra/lib/lambda/agents/smartcar/index.ts:44–100` has location/odometer/fuel/battery and lock/unlock requests.
+
+MOTOR — O/P: `A/routes/motor.ts:67` remote history request; generated history fallback (:78) and computed/static market-value route (:99), not a complete remote valuation integration.
+
+Predii — O + fallback: `A/routes/predii.ts:41,129,170` diagnose, parts search, labor estimates.
+
+InsureMO — O/P: `A/routes/insuremo.ts:84` quote request; locally generated quotes/policy data (:103,137), not proof of carrier binding.
+
+HONK — O + simulated paths: `A/routes/roadside.ts:74,131,163,197` dispatch creation/status/providers/cancellation.
+
+CarTrawler — O/P: code spells endpoint/credential “CarCrawler” (`A/routes/rentals.ts:18,83`), while registry says CarTrawler (`A/routes/integrations.ts:134–142`). Remote rate search exists; booking is local/reference/deep-link behavior, not demonstrated vendor booking. Enterprise, Hertz, Budget, Avis, National, Alamo, Dollar, Sixt are static offers/links at `rentals.ts:32–39`, not separate clients.
+
+Loopit — O/P: `A/routes/loopit.ts:26,86,125` plans/inventory/subscription calls; synthetic fallbacks and local swap route :150–171.
+
+Basemark Rocksolid AR — S: `A/routes/rocksolid.ts:13,89,136,161` local HUD/ADAS/navigation/repair data and environment-presence labels; no remote calls or Rocksolid SDK import. Web AR rendering is not evidence of vendor SDK integration.
+
+Oracle Integration Cloud + CDK Drive, Reynolds & Reynolds, DealerSocket, Dealertrack — O/P via intermediary: `A/lib/dealerConnectors.ts:87–104,132–164,171–238` OIC REST adapter with mock/error fallback; actual consumer `A/routes/dealers.ts:19`. Not direct vendor SDK implementations; some lead operations remain local synthetic acknowledgements.
+
+VinSolutions, DealerSocket, Tekion ARC, Reynolds & Reynolds, CDK/Fortellis, Salesforce Automotive Cloud, ELEAD, HubSpot — S in CRM hub: `A/routes/crm.ts:18–153` endpoint/provider registry; connection/test/sync simulate activation (:300–328), lead push only local (:399). Separate OIC adapter above should not be conflated with this hub.
+
+HyperTrack — API server has inbound webhook only (`A/routes/logistics.ts:313–319`) and demo agent references; runner tracking explicitly replaced by AWS Location (`A/lib/locationService.ts:4`, `A/routes/runners.ts:3`). Separate infrastructure Lambda DOES contain outbound trips/status/summary calls (`infra/lib/lambda/agents/hypertrack/index.ts:27,66,135,146`); distinguish it from API-server implementation.
+
+
+FINANCE / PAYMENTS / IDENTITY / CONTRACTS
+
+Stripe Payments, Checkout, Billing/portal, Connect — O + simulations: `A/lib/stripeClient.ts:9–58` retrieves connector credentials from Replit and constructs Stripe SDK (no direct STRIPE_SECRET_KEY fallback here despite registry key). PaymentIntents `A/routes/checkout.ts:65`, `commerce.ts:47`; Checkout `founding.ts:126`, `subscription.ts:197`; portal `subscription.ts:241`; Connect accounts/links/transfers `wallet.ts:178,244,256`; webhooks `webhooks.ts:51` onward. Some wallet/subscription/dynasty routes simulate missing-client behavior. Bay QR URL is explicitly placeholder (`A/routes/bay.ts:138`). Apple Pay/Google Pay mentions are payment-method claims, not independent Apple/Google payments clients. Web Stripe JS packages declared (`artifacts/3c-onyx/package.json:79–80`), but no source imports/use of loadStripe/Elements/PaymentElement found. Root `package.json:31` stripe-replit-sync is manifest-only.
+
+Stripe Identity — O + simulated pending session: `A/routes/kyc.ts:40–65`, `dynasty.ts:163`; webhook processing in `webhooks.ts`. Not evidence of completed KYC.
+
+Plaid — P: `A/routes/plaid.ts:61,97` actual Link-token/public-token exchange requests; accounts, transactions, net-worth outputs remain SIM_ACCOUNTS/SIM_TRANSACTIONS/static totals (:122–138), even when credential-derived flags change.
+
+Spinwheel — O + simulated paths: `A/routes/spinwheel.ts:33,102` connect/payoff requests; local trade-equity computation.
+
+DocuSign — O + synthetic fallback: `A/routes/docusign.ts:7,86,154` envelope creation/status; default demo endpoint and generated signing URLs (:136), not proof of valid signing ceremony/OAuth implementation.
+
+Google Identity / Sign in with Apple — O: `W/pages/login.tsx:60,121`, `register.tsx:84,120` vendor browser scripts; `A/routes/auth.ts:364` Google token verification and :396–431 Apple JWKS/issuer checks. SimpleWebAuthn browser/server (`A/routes/webauthn.ts:1–13`, `W/pages/biometric-settings.tsx:58–74`) is passkey protocol/local server, not hosted identity provider.
+
+Checkr — O + simulated invitation: `A/routes/specialists.ts:47,65,98,237` candidates/invitations/candidate status. Supplemental reports client in `infra/lib/lambda/agents/checkr/index.ts:69,81,121`.
+
+Ethereum JSON-RPC, Sepolia testnet — O optional anchoring: `A/lib/chainOfCustody.ts:79–97` ethers provider/wallet/sendTransaction; local PostgreSQL/hash-chain otherwise. Etherscan links (`W/pages/custody.tsx:112`) are explorer links, not Etherscan API client.
+
+Banks/lenders in `A/routes/bank-payoff.ts:13–30` and financing offers `A/lib/dealAgents.ts:89–92` are local directory/sample data, not bank API integrations. FX/remittance/settlement routes use internal rates/ledgers (`A/routes/settlement-api.ts:11–30,57,90`), not Wise/payment-network/FX-provider clients.
+
+
+COMMERCE
+
+Shopify — O: `A/lib/shopifyStorefrontClient.ts:87,128–129` connector discovery plus Storefront GraphQL; `A/routes/shop.ts:2` consumes products/cart/checkout helper. Distinguish real request code from dev fallback handling (:90); checkout URL creation is not proof of completed purchase. Root Shopify helper/scripts also exist, but were not counted as deployed server integrations.
+
+Alibaba International Open Platform / Taobao gateway — O: `A/routes/alibaba.ts:35–37,54–98,190–201,286,350` signed ICBU product requests, OAuth exchange/refresh, import persistence. `W/pages/alibaba-dropship.tsx` consumes API routes. Not evidence of supplier-order/fulfilment automation.
+
+API2Cart — S: `A/routes/api2cart.ts:10–17,57–66,88–110,119–149` supported-cart registry, pending acknowledgements, empty products; no outbound API2Cart client. Registry includes Shopify, WooCommerce, Magento, BigCommerce, PrestaShop, OpenCart, Volusion, 3dcart, Squarespace, Wix, Ecwid, Lightspeed, Salesforce Commerce, SAP Commerce, Neto, Shift4Shop, X-Cart, CS-Cart, Zen Cart, osCommerce, VirtueMart, Loaded Commerce, Tictail, Amazon Marketplace, eBay, Etsy, Walmart Marketplace.
+
+LitCommerce — S: `A/routes/litcommerce.ts:10–28,136–200` local multichannel registry/acknowledgements, no vendor calls. Channels: Amazon, eBay, Etsy, Facebook Marketplace, Google Shopping, Walmart, Shopify, WooCommerce, BigCommerce, TikTok Shop, Instagram Shop, Pinterest Shopping, Mercari, Poshmark, OfferUp, Craigslist, Bonanza, Newegg.
+
+SEMA / Apexx — S source labels on seeded aftermarket suppliers/catalog (`A/routes/aftermarket.ts:26,124–197`), not external catalogs. Transporters Montway, uShip, AmeriFreight likewise static provider/price mesh (`A/lib/transporterAgent.ts:107–140`). Spotify, SiriusXM, Apple Music, Pandora are catalog offerings only (`A/routes/entertainment.ts:29–180`); route named paramount is internal network membership logic, not Paramount API.
+
+
+MAPS / MESSAGING / MARKETING / CONTENT
+
+Mapbox — O + fallback: `A/routes/mapbox.ts:6,37,67,108` geocoding/directions/nearby queries; transport tracking not necessarily remote.
+
+Google Maps Places — O + fallback: `A/routes/places.ts:17,95,162,194` nearby/text/details. Apple Maps is mobile navigation deep link only (`M/app/nearby.tsx:168`). CARTO/OpenStreetMap-based web tiles load remotely via Leaflet (`W/pages/logistics.tsx:102`); Leaflet is a library, not a separate API vendor.
+
+Twilio SMS/WhatsApp — O: `A/lib/communication-orchestrator.ts:48–49`, `A/lib/whatsapp.ts:14` SDK messaging; outreach and creator-outreach use Twilio; `A/routes/whatsapp.ts` inbound webhook. Meta WhatsApp functionality here is via Twilio, not demonstrated direct Graph API.
+
+SendGrid — O: `A/lib/communication-orchestrator.ts:87`, `A/routes/creator-outreach.ts:36,597`, `outreach.ts:21,269` email sends.
+
+Expo — O/P: push-token registration and local notifications `M/lib/notifications.ts:5,18–49`, called from `M/app/_layout.tsx:70,84`; token saved through `A/routes/users.ts:18–25`. No server Expo push-dispatch implementation found. APNs/FCM not independently implemented. expo-location is device capability, not cloud maps API; ngrok is dev manifest dependency.
+
+Social Blade — O: creator discovery across YouTube/TikTok/Instagram/Twitch/Facebook via its Matrix API (`A/routes/creator-outreach.ts:70–74,156`). ShoutUGC — O: campaigns/status/add-creator (:387,440,559).
+
+HubSpot, TikTok Ads — S despite impressive status messages: `A/lib/hubspotIntegration.ts:113–120,161–235` local contact/deal arrays; `A/lib/tiktokAdsIntegration.ts:125–209` local config/campaign records, no vendor request clients. Inbound lead/webhook processing is not outbound sync. Constant Contact — S: `A/routes/constant-contact.ts:90` fabricated platform OAuth URL and local acknowledgements; no Constant Contact API calls.
+
+Instagram, TikTok, Facebook, X/Twitter, YouTube, LinkedIn, Pinterest, Snapchat, Threads — S publishing/OAuth registry (`A/routes/social-amplifier.ts:8–17,61–89`), not implemented posting APIs. WhatsApp/Telegram/TikTok/Instagram sharing links/deep links (`W/components/AltruisticShare.tsx:131–182`, `M/app/invite.tsx:222–226`) are links, not publishing clients.
+
+Google News RSS, Reddit JSON, YouTube channel XML, Autoblog, The Drive, Jalopnik, Car and Driver, MotorTrend RSS — O feed fetching, not contracted partner integrations (`A/routes/auto-pulse.ts:78–85,134,211–222,278–279`). Google Fonts / Unsplash / YouTube thumbnails are remote presentation assets (`W/pages/join.tsx:530`, `M/app/scanner.tsx:39–46`, `A/routes/auto-pulse.ts:306`), not business API integrations.
+
+
+CLOUD / ANALYTICS / OPERATIONS
+
+AWS Location tracking — O + memory fallback (`A/lib/locationService.ts:34,82,114`); Rekognition — O label detection + rule fallback (`A/lib/rekognition.ts:100,148–152`); EventBridge — O production-gated publish + in-process emitter (`A/lib/eventBus.ts:98–104,268`); Secrets Manager SDK retrieval exists (`A/lib/secrets.ts`, manifest `artifacts/api-server/package.json:20`; secret values not inspected). OpenSearch — O indexing/query/index-create + database fallback (`A/lib/vehicleSearch.ts:30,91,144,184–210`); service endpoint is configurable, AWS hosting not proven.
+
+AWS CDK resource definitions only for broader cloud stack: `artifacts/api-server/infra/lib/{data,compute,workflow,security}-stack.ts:1–7` and `infra/lib/stacks/*.ts:1–11` reference OpenSearch, Location, Step Functions, Lambda, EventBridge, WAF, DynamoDB, S3, KMS, Secrets Manager, API Gateway, Cognito, SNS, SQS, CloudWatch, VPC/IAM etc. IaC is not deployment evidence; Cognito is not main API auth integration.
+
+Oracle Object Storage — S, important correction: `A/lib/oracleStorage.ts:81–100` only logs upload intent/returns constructed URL; Signature V1/upload request absent. Local “S3+CloudFront-equivalent” object vault and “Prometheus+Grafana-equivalent” metrics are internal implementations, not AWS/Grafana clients (`A/routes/sovereign-infrastructure.ts:21–23`). S3/R2 in documents/spinmedia are future comments, not storage clients.
+
+Namecheap — O XML API domain/DNS/email-forward operations (`A/lib/namecheap.ts:16,70,177–217`). Tailor Brands is admin/company dashboard/setup links only (`W/pages/admin.tsx:498`, `A/routes/company.ts:59–66`). Replit — O connector broker for Stripe/Shopify and AI gateway configuration; Vite plugins are developer tooling, not business APIs.
+
+PostgreSQL (`L/db/package.json` pg dependency) and Redis (`A/lib/cacheBackend.ts`, API manifest ioredis) have connection/client implementations; no named Neon/Supabase/Upstash provider established.
+
+Analytics: local DB/revenue/growth/telemetry analytics (`A/routes/{analytics,growth,telemetry}.ts`), not external GA/Segment/Mixpanel/PostHog/Sentry integration. Generic alert-webhook POST exists (`A/lib/alertEngine.ts:180–202`), no independently established Slack/Discord vendor client. Tracing only notes compatibility with OpenTelemetry/Datadog/X-Ray/Jaeger/Grafana Tempo (`A/middlewares/tracing.ts:6–8`); not exporters. PagerDuty appears only commented IaC suggestion (`infra/lib/stacks/monitoring-stack.ts:60`).
+
+Exclusions/corrections for PDF: CARFAX, NMVTIS, NCIC, DMV/TrueCar/KBB and similar names occur in sample reasoning, comparisons, certifications or proposed capability text, not discovered outbound verification clients (`A/routes/security.ts:273`, `browserbase.ts:138`, `pro.ts:112`, `union.ts:205`). Product brands, OEM names, builder directories, government/event URLs and app-store enrollment links are not integrations. Package manifests support SDK/library inventory, not activation: API manifest :15–50; web :78–80; mobile :16,36,63; root :19–31; Gemini library :12. Do not use the registry’s “15 integrations” or source flags as an exhaustive or live-provider count.
+
+
+
+==========================================================================
+4. API ACCESS AND INTERFACES
+==========================================================================
+
+
+BASE PATHS AND CALLING CONVENTIONS
+
+REST: use the platform origin followed by /api and the exact path shown in Section 5. Paths in this PDF already include /api; do not add it twice. No published hostname is assumed here. Browser applications should retain the artifact base-path prefix when constructing URLs.
+
+Dynamic parameters use Express notation such as :id or :requestId. Replace them with the actual resource identifier. Methods are significant: GET, POST, PUT, PATCH and DELETE are separate operations.
+
+Protected routes commonly accept Authorization: Bearer <token> or the existing token cookie. Roles and middleware vary by handler; the endpoint inventory deliberately does not label uninspected routes “public” or “secure.” Webhook routes may use provider signatures instead of user authentication.
+
+Example read-only request (placeholders, not credentials):
+
+curl "https://<platform-host>/api/services/requests" \
+  -H "Authorization: Bearer <your-session-token>"
+
+Do not automatically run every listed endpoint: the inventory includes destructive operations, payment operations, admin actions, seed/demo endpoints and third-party dispatch requests.
+
+
+TRPC /API/TRPC
+
+Source: artifacts/api-server/src/lib/trpc.ts. Mounted through the Express tRPC adapter in routes/index.ts. The current procedures use publicProcedure and an empty server context; do not assume the REST auth middleware protects these procedures. Use the tRPC client/encoding, not plain REST bodies.
+
+QUERY  /api/trpc/vehicle.search  [source line 37]
+
+QUERY  /api/trpc/vehicle.getById  [source line 52]
+
+QUERY  /api/trpc/vehicle.list  [source line 59]
+
+QUERY  /api/trpc/vehicle.watchlist  [source line 65]
+
+QUERY  /api/trpc/wallet.summary  [source line 73]
+
+QUERY  /api/trpc/wallet.transactions  [source line 90]
+
+QUERY  /api/trpc/tasks.list  [source line 98]
+
+QUERY  /api/trpc/tasks.stats  [source line 108]
+
+QUERY  /api/trpc/ai.status  [source line 132]
+
+QUERY  /api/trpc/blockchain.chain  [source line 136]
+
+QUERY  /api/trpc/blockchain.verify  [source line 144]
+
+QUERY  /api/trpc/agent.agents  [source line 150]
+
+QUERY  /api/trpc/agent.session  [source line 151]
+
+QUERY  /api/trpc/agent.wsStats  [source line 154]
+
+
+WEBSOCKET /WS
+
+Source: artifacts/api-server/src/lib/wsHub.ts. The server sends a welcome message with clientId and timestamp. Supported inbound message handling: subscribe with room, unsubscribe with room, and ping. Responses include subscribed and pong. Server-side broadcasts are room-based. The attach handler shown in source does not perform a user authentication check; deployment and authorization behavior were not tested for this document.
+
+{"type":"subscribe","room":"<room-name>"}
+{"type":"unsubscribe","room":"<room-name>"}
+{"type":"ping"}
+
+
+OPENAPI AND INFRASTRUCTURE INTERFACES
+
+lib/api-spec/openapi.yaml declares OpenAPI 3.1.0, API-info version 0.1.0 and server base /api. Documented paths: /healthz; /gemini/conversations; /gemini/conversations/{id}; /gemini/conversations/{id}/messages; /gemini/generate-image. Orval generates shared React Query and Zod packages from this limited contract.
+
+AWS CDK templates also define potential API Gateway/Lambda interfaces. They are deployment templates, not confirmed active endpoints, and are not mixed into the mounted Express inventory. See infra/lib/stacks/api-stack.ts and infra/lib/lambda/agents/ for those separate definitions.
+
+
+
+==========================================================================
+5. COMPLETE MOUNTED REST API INVENTORY
+==========================================================================
+
+992 method/path registrations across 173 source modules. Grouped alphabetically by route module. “L” is the handler’s source line at the snapshot date. Each row is an implemented registration, not proof of a successful or production-enabled operation. Use PDF search to find a path, provider or module.
+
+
+ADMIN  (10)
+
+Source: artifacts/api-server/src/routes/admin.ts
+
+POST    /api/admin/audit  [L133]
+
+PATCH   /api/admin/escrow-orders/:orderId/connect-accounts  [L307]
+
+POST    /api/admin/escrow-orders/:orderId/retry-payout  [L350]
+
+GET     /api/admin/reconciliation  [L140]
+
+GET     /api/admin/stats  [L26]
+
+GET     /api/admin/transactions  [L117]
+
+GET     /api/admin/users  [L74]
+
+GET     /api/admin/users/:id  [L94]
+
+PATCH   /api/admin/users/:id  [L101]
+
+GET     /api/admin/waitlist  [L127]
+
+
+ADVISOR  (3)
+
+Source: artifacts/api-server/src/routes/advisor.ts
+
+GET     /api/advisor/intents  [L100]
+
+GET     /api/advisor/picks  [L46]
+
+POST    /api/advisor/quote-audit  [L141]
+
+
+AFTERMARKET  (10)
+
+Source: artifacts/api-server/src/routes/aftermarket.ts
+
+GET     /api/aftermarket/cart/:session  [L824]
+
+DELETE  /api/aftermarket/cart/:session/:itemId  [L831]
+
+POST    /api/aftermarket/cart/add  [L796]
+
+GET     /api/aftermarket/categories  [L672]
+
+POST    /api/aftermarket/customize  [L879]
+
+GET     /api/aftermarket/fitment-check  [L773]
+
+POST    /api/aftermarket/order  [L842]
+
+GET     /api/aftermarket/product/:id  [L749]
+
+GET     /api/aftermarket/products  [L694]
+
+GET     /api/aftermarket/suppliers  [L689]
+
+
+AGENTS  (11)
+
+Source: artifacts/api-server/src/routes/agents.ts
+
+POST    /api/agents/creator/generate  [L489]
+
+GET     /api/agents/feed  [L128]
+
+POST    /api/agents/parts/search  [L443]
+
+GET     /api/agents/pipeline/active  [L246]
+
+POST    /api/agents/pipeline/interrupt  [L251]
+
+POST    /api/agents/pipeline/resume  [L266]
+
+POST    /api/agents/pipeline/trigger  [L144]
+
+GET     /api/agents/status  [L138]
+
+POST    /api/agents/superagi/goal  [L327]
+
+GET     /api/agents/superagi/goal/:id  [L417]
+
+GET     /api/agents/temporal/checkpoints  [L424]
+
+
+AI-MODE  (3)
+
+Source: artifacts/api-server/src/routes/ai-mode.ts
+
+POST    /api/ai-mode/query  [L88]
+
+GET     /api/ai-mode/status  [L64]
+
+GET     /api/ai-mode/suggestions  [L59]
+
+
+ALERTS  (1)
+
+Source: artifacts/api-server/src/routes/alerts.ts
+
+GET     /api/admin/alerts  [L8]
+
+
+ALIBABA  (7)
+
+Source: artifacts/api-server/src/routes/alibaba.ts
+
+POST    /api/alibaba/auth/refresh  [L323]
+
+GET     /api/alibaba/auth/status  [L230]
+
+POST    /api/alibaba/auth/token  [L259]
+
+GET     /api/alibaba/products  [L501]
+
+DELETE  /api/alibaba/products/:id  [L584]
+
+GET     /api/alibaba/products/:id  [L556]
+
+POST    /api/alibaba/products/import  [L382]
+
+
+ANALYTICS  (1)
+
+Source: artifacts/api-server/src/routes/analytics.ts
+
+GET     /api/analytics/revenue  [L15]
+
+
+API2CART  (8)
+
+Source: artifacts/api-server/src/routes/api2cart.ts
+
+GET     /api/api2cart/analytics  [L172]
+
+POST    /api/api2cart/connect  [L73]
+
+GET     /api/api2cart/connections  [L57]
+
+DELETE  /api/api2cart/connections/:connectionId  [L194]
+
+GET     /api/api2cart/orders  [L156]
+
+GET     /api/api2cart/platforms  [L49]
+
+GET     /api/api2cart/products  [L137]
+
+POST    /api/api2cart/sync/:connectionId  [L119]
+
+
+APPAREL  (4)
+
+Source: artifacts/api-server/src/routes/apparel.ts
+
+GET     /api/apparel/catalog  [L841]
+
+GET     /api/apparel/catalog/:productId  [L860]
+
+GET     /api/apparel/categories  [L922]
+
+POST    /api/apparel/order  [L877]
+
+
+ASK-ONYX  (3)
+
+Source: artifacts/api-server/src/routes/ask-onyx.ts
+
+POST    /api/ask-onyx/ask  [L174]
+
+POST    /api/ask-onyx/batch  [L249]
+
+GET     /api/ask-onyx/status  [L153]
+
+
+ASK3C  (5)
+
+Source: artifacts/api-server/src/routes/ask3c.ts
+
+POST    /api/ask  [L464]
+
+GET     /api/ask/health  [L748]
+
+GET     /api/ask/intents  [L672]
+
+GET     /api/ask/uacl  [L789]
+
+POST    /api/ask/vision  [L619]
+
+
+ATTRIBUTION  (3)
+
+Source: artifacts/api-server/src/routes/attribution.ts
+
+GET     /api/attribution/status  [L258]
+
+GET     /api/node/:id/earnings  [L18]
+
+POST    /api/payout/distribute  [L122]
+
+
+AUDIT  (3)
+
+Source: artifacts/api-server/src/routes/audit.ts
+
+GET     /api/audit/logs  [L93]
+
+POST    /api/audit/seed  [L159]
+
+GET     /api/audit/stats  [L142]
+
+
+AUTH  (9)
+
+Source: artifacts/api-server/src/routes/auth.ts
+
+POST    /api/auth/founder-reset  [L280]
+
+POST    /api/auth/login  [L133]
+
+POST    /api/auth/logout  [L241]
+
+GET     /api/auth/me  [L201]
+
+POST    /api/auth/onboarding-complete  [L257]
+
+POST    /api/auth/refresh  [L214]
+
+POST    /api/auth/register  [L61]
+
+POST    /api/auth/social  [L334]
+
+GET     /api/auth/validate-code  [L44]
+
+
+AUTO-PULSE  (3)
+
+Source: artifacts/api-server/src/routes/auto-pulse.ts
+
+GET     /api/auto-pulse/feed  [L320]
+
+GET     /api/auto-pulse/trending  [L385]
+
+GET     /api/auto-pulse/vehicle-intel  [L426]
+
+
+AUTO-SETTLE  (3)
+
+Source: artifacts/api-server/src/routes/auto-settle.ts
+
+POST    /api/auto-settle/settle  [L12]
+
+POST    /api/auto-settle/settle-batch  [L53]
+
+GET     /api/auto-settle/status  [L8]
+
+
+AUTOMOTIVE-PLATFORM  (21)
+
+Source: artifacts/api-server/src/routes/automotive-platform.ts
+
+GET     /api/platform/deals/:dealId  [L873]
+
+POST    /api/platform/deals/create  [L819]
+
+GET     /api/platform/inventory/search  [L745]
+
+POST    /api/platform/leads/create  [L781]
+
+POST    /api/platform/messages/send  [L964]
+
+GET     /api/platform/openapi.json  [L451]
+
+POST    /api/platform/service/request  [L907]
+
+POST    /api/platform/v1/action  [L605]
+
+GET     /api/platform/v1/cases/:caseId  [L325]
+
+POST    /api/platform/v1/execute  [L254]
+
+GET     /api/platform/v1/hubs  [L197]
+
+GET     /api/platform/v1/hubs/:hubId  [L211]
+
+GET     /api/platform/v1/inventory/match  [L375]
+
+GET     /api/platform/v1/mesh/agents  [L425]
+
+GET     /api/platform/v1/nodes  [L732]
+
+POST    /api/platform/v1/nodes/register  [L702]
+
+POST    /api/platform/v1/payout/connect  [L354]
+
+GET     /api/platform/v1/status  [L221]
+
+GET     /api/platform/v1/transaction/:transactionId  [L675]
+
+GET     /api/platform/v1/verify/:vin  [L399]
+
+GET     /api/platform/vehicle/:vin/verify  [L941]
+
+
+AUTONOMOUSENGINE  (4)
+
+Source: artifacts/api-server/src/routes/autonomousEngine.ts
+
+POST    /api/ai/diagnose  [L104]
+
+GET     /api/autonomous/status  [L430]
+
+POST    /api/decision/execute  [L233]
+
+POST    /api/input/process  [L54]
+
+
+BANK-PAYOFF  (6)
+
+Source: artifacts/api-server/src/routes/bank-payoff.ts
+
+POST    /api/bank-payoff/advance/:payoffRef  [L106]
+
+POST    /api/bank-payoff/initiate  [L56]
+
+GET     /api/bank-payoff/lenders  [L48]
+
+GET     /api/bank-payoff/my-payoffs/:userId  [L178]
+
+GET     /api/bank-payoff/payoff/:payoffRef  [L164]
+
+GET     /api/bank-payoff/status  [L33]
+
+
+BANK-PORTAL  (4)
+
+Source: artifacts/api-server/src/routes/bank-portal.ts
+
+GET     /api/banks  [L321]
+
+GET     /api/banks/:id  [L372]
+
+POST    /api/banks/:id/generate-key  [L279]
+
+POST    /api/banks/register  [L222]
+
+
+BAY  (10)
+
+Source: artifacts/api-server/src/routes/bay.ts
+
+POST    /api/bay/qr  [L123]
+
+GET     /api/bay/qr/:qrCode  [L190]
+
+PATCH   /api/bay/qr/:qrCode/paid  [L199]
+
+GET     /api/bay/qr/all  [L170]
+
+GET     /api/bay/slots  [L31]
+
+POST    /api/bay/slots  [L40]
+
+DELETE  /api/bay/slots/:id  [L117]
+
+PATCH   /api/bay/slots/:id/gps  [L87]
+
+POST    /api/bay/slots/:id/rush  [L98]
+
+PATCH   /api/bay/slots/:id/status  [L64]
+
+
+BEHAVIORAL-ENGINE  (6)
+
+Source: artifacts/api-server/src/routes/behavioral-engine.ts
+
+GET     /api/behavioral/agent/:agentId/metrics  [L31]
+
+GET     /api/behavioral/agent/:agentId/patterns  [L37]
+
+POST    /api/behavioral/analyze  [L64]
+
+GET     /api/behavioral/intelligence  [L26]
+
+GET     /api/behavioral/session/:sessionId  [L44]
+
+GET     /api/behavioral/status  [L21]
+
+
+BLOCKCHAIN  (6)
+
+Source: artifacts/api-server/src/routes/blockchain.ts
+
+GET     /api/blockchain/chain/:vehicleId  [L31]
+
+POST    /api/blockchain/entry  [L49]
+
+GET     /api/blockchain/entry/:hash  [L79]
+
+GET     /api/blockchain/proof/:hash  [L94]
+
+GET     /api/blockchain/status  [L18]
+
+GET     /api/blockchain/verify/:vehicleId  [L68]
+
+
+BROWSERBASE  (4)
+
+Source: artifacts/api-server/src/routes/browserbase.ts
+
+POST    /api/browserbase/task  [L27]
+
+GET     /api/browserbase/task/:id  [L111]
+
+GET     /api/browserbase/tasks  [L118]
+
+POST    /api/browserbase/verify-dealer  [L124]
+
+
+C-SUITE-AGENTS  (7)
+
+Source: artifacts/api-server/src/routes/c-suite-agents.ts
+
+GET     /api/c-suite/agent/:agentId  [L77]
+
+POST    /api/c-suite/compute  [L42]
+
+POST    /api/c-suite/compute-all  [L63]
+
+GET     /api/c-suite/dashboard  [L38]
+
+POST    /api/c-suite/directive/accepted  [L98]
+
+POST    /api/c-suite/directive/overridden  [L113]
+
+GET     /api/c-suite/status  [L10]
+
+
+CHECKOUT  (4)
+
+Source: artifacts/api-server/src/routes/checkout.ts
+
+GET     /api/checkout/orders  [L428]
+
+GET     /api/checkout/orders/:id  [L437]
+
+POST    /api/checkout/release  [L131]
+
+POST    /api/checkout/vehicle  [L32]
+
+
+CI  (3)
+
+Source: artifacts/api-server/src/routes/ci.ts
+
+POST    /api/ci/run  [L49]
+
+GET     /api/ci/run/:runId  [L101]
+
+GET     /api/ci/status  [L33]
+
+
+CLUBS  (9)
+
+Source: artifacts/api-server/src/routes/clubs.ts
+
+GET     /api/clubs/clubs  [L75]
+
+POST    /api/clubs/clubs  [L32]
+
+GET     /api/clubs/clubs/:slug  [L119]
+
+POST    /api/clubs/clubs/:slug/join  [L149]
+
+GET     /api/clubs/clubs/:slug/treasury  [L211]
+
+POST    /api/clubs/clubs/:slug/treasury/attribute  [L253]
+
+POST    /api/clubs/clubs/:slug/verify  [L192]
+
+GET     /api/clubs/clubs/all  [L104]
+
+GET     /api/clubs/clubs/my/memberships  [L298]
+
+
+COMMAND  (9)
+
+Source: artifacts/api-server/src/routes/command.ts
+
+GET     /api/command/alerts  [L336]
+
+POST    /api/command/alerts/:id/ack  [L341]
+
+GET     /api/command/flagged  [L288]
+
+GET     /api/command/hectocorn  [L372]
+
+GET     /api/command/k-factor/trend  [L278]
+
+GET     /api/command/mesh/stats  [L349]
+
+GET     /api/command/missions  [L283]
+
+POST    /api/command/override/:id  [L297]
+
+GET     /api/command/pulse  [L223]
+
+
+COMMERCE  (4)
+
+Source: artifacts/api-server/src/routes/commerce.ts
+
+GET     /api/commerce/config  [L11]
+
+POST    /api/commerce/confirm-payment  [L78]
+
+POST    /api/commerce/create-intent  [L24]
+
+GET     /api/commerce/payment-status/:intentId  [L129]
+
+
+COMMISSIONS  (4)
+
+Source: artifacts/api-server/src/routes/commissions.ts
+
+GET     /api/commissions/my-earnings  [L59]
+
+POST    /api/commissions/process  [L11]
+
+GET     /api/commissions/rates  [L119]
+
+GET     /api/commissions/summary/:userId  [L130]
+
+
+COMMUNITY  (3)
+
+Source: artifacts/api-server/src/routes/community.ts
+
+GET     /api/community/celebration-check  [L201]
+
+GET     /api/community/network-feed  [L124]
+
+GET     /api/community/profile  [L30]
+
+
+COMPANY  (5)
+
+Source: artifacts/api-server/src/routes/company.ts
+
+GET     /api/company/domains  [L114]
+
+GET     /api/company/domains/:domain/dns  [L128]
+
+POST    /api/company/domains/:domain/dns  [L146]
+
+GET     /api/company/domains/:domain/email  [L167]
+
+GET     /api/company/overview  [L29]
+
+
+COMPLIANCE  (7)
+
+Source: artifacts/api-server/src/routes/compliance.ts
+
+GET     /api/compliance/1099  [L111]
+
+GET     /api/compliance/1099/me  [L83]
+
+GET     /api/compliance/backup/status  [L198]
+
+POST    /api/compliance/charter/sign  [L41]
+
+GET     /api/compliance/charter/status  [L23]
+
+POST    /api/compliance/tax-info  [L136]
+
+GET     /api/compliance/tax-info/me  [L181]
+
+
+CONSTANT-CONTACT  (8)
+
+Source: artifacts/api-server/src/routes/constant-contact.ts
+
+GET     /api/marketing/account  [L63]
+
+GET     /api/marketing/analytics  [L231]
+
+POST    /api/marketing/automation  [L168]
+
+POST    /api/marketing/campaign/email  [L99]
+
+POST    /api/marketing/campaign/sms  [L134]
+
+GET     /api/marketing/capabilities  [L41]
+
+POST    /api/marketing/connect  [L76]
+
+POST    /api/marketing/landing-page  [L198]
+
+
+COVENANT  (4)
+
+Source: artifacts/api-server/src/routes/covenant.ts
+
+POST    /api/covenant  [L68]
+
+GET     /api/covenant/all  [L139]
+
+GET     /api/covenant/mine  [L117]
+
+GET     /api/covenant/text  [L134]
+
+
+CREATOR-OUTREACH  (12)
+
+Source: artifacts/api-server/src/routes/creator-outreach.ts
+
+GET     /api/creator-outreach/campaigns  [L338]
+
+POST    /api/creator-outreach/campaigns  [L297]
+
+GET     /api/creator-outreach/creators  [L248]
+
+POST    /api/creator-outreach/creators  [L199]
+
+PATCH   /api/creator-outreach/creators/:creatorId/status  [L272]
+
+GET     /api/creator-outreach/discover  [L127]
+
+GET     /api/creator-outreach/log  [L664]
+
+POST    /api/creator-outreach/outreach/:creatorId  [L487]
+
+POST    /api/creator-outreach/preview-message  [L459]
+
+POST    /api/creator-outreach/shout/campaigns  [L352]
+
+GET     /api/creator-outreach/shout/campaigns/:shoutCampaignId  [L426]
+
+GET     /api/creator-outreach/stats  [L696]
+
+
+CRM  (14)
+
+Source: artifacts/api-server/src/routes/crm.ts
+
+GET     /api/crm/crm/analytics  [L433]
+
+GET     /api/crm/crm/connections  [L268]
+
+POST    /api/crm/crm/connections  [L277]
+
+DELETE  /api/crm/crm/connections/:id  [L342]
+
+POST    /api/crm/crm/connections/:id/sync  [L323]
+
+POST    /api/crm/crm/connections/:id/test  [L307]
+
+GET     /api/crm/crm/inventory  [L420]
+
+GET     /api/crm/crm/leads  [L351]
+
+POST    /api/crm/crm/leads  [L373]
+
+PATCH   /api/crm/crm/leads/:id  [L403]
+
+GET     /api/crm/crm/providers  [L259]
+
+GET     /api/crm/crm/summary  [L506]
+
+POST    /api/crm/crm/webhooks/:provider  [L462]
+
+GET     /api/crm/crm/webhooks/events  [L498]
+
+
+CULTURAL-ENGINE  (3)
+
+Source: artifacts/api-server/src/routes/cultural-engine.ts
+
+GET     /api/cultural/ar-characters  [L249]
+
+GET     /api/cultural/profile  [L171]
+
+GET     /api/cultural/tones  [L237]
+
+
+DATA-INTELLIGENCE  (7)
+
+Source: artifacts/api-server/src/routes/data-intelligence.ts
+
+GET     /api/data-intelligence/capabilities  [L122]
+
+GET     /api/data-intelligence/competitive-intel  [L76]
+
+GET     /api/data-intelligence/demand-forecast  [L58]
+
+GET     /api/data-intelligence/market-pricing  [L43]
+
+GET     /api/data-intelligence/regional-trends  [L62]
+
+GET     /api/data-intelligence/reports  [L117]
+
+POST    /api/data-intelligence/reports  [L99]
+
+
+DEAL-COMMAND  (7)
+
+Source: artifacts/api-server/src/routes/deal-command.ts
+
+POST    /api/deals/:id/agent/:agentName  [L371]
+
+POST    /api/deals/:id/bind-insurance  [L190]
+
+POST    /api/deals/:id/complete-step  [L331]
+
+POST    /api/deals/:id/desk  [L131]
+
+GET     /api/deals/:id/pipeline  [L408]
+
+GET     /api/deals/:id/verify  [L258]
+
+POST    /api/deals/text-to-deal  [L19]
+
+
+DEALER-GROUPS  (11)
+
+Source: artifacts/api-server/src/routes/dealer-groups.ts
+
+GET     /api/dealer-groups/:groupId  [L337]
+
+POST    /api/dealer-groups/:groupId/benchmark  [L507]
+
+GET     /api/dealer-groups/:groupId/composite  [L356]
+
+POST    /api/dealer-groups/:groupId/invite  [L414]
+
+GET     /api/dealer-groups/:groupId/leaderboard  [L440]
+
+GET     /api/dealer-groups/:groupId/proof  [L471]
+
+POST    /api/dealer-groups/create  [L145]
+
+POST    /api/dealer-groups/join  [L207]
+
+GET     /api/dealer-groups/my-groups  [L266]
+
+GET     /api/dealer-groups/network-effect  [L283]
+
+GET     /api/dealer-groups/status  [L89]
+
+
+DEALERFLOW  (24)
+
+Source: artifacts/api-server/src/routes/dealerflow.ts
+
+GET     /api/dealerflow/approvals  [L602]
+
+GET     /api/dealerflow/bank-vault  [L1250]
+
+GET     /api/dealerflow/dashboard  [L866]
+
+POST    /api/dealerflow/escalate  [L1042]
+
+POST    /api/dealerflow/intake  [L668]
+
+POST    /api/dealerflow/intake/vision  [L1401]
+
+GET     /api/dealerflow/performance  [L1291]
+
+GET     /api/dealerflow/queue  [L992]
+
+GET     /api/dealerflow/referrals  [L1567]
+
+POST    /api/dealerflow/route  [L1712]
+
+GET     /api/dealerflow/tasks  [L194]
+
+POST    /api/dealerflow/tasks  [L262]
+
+PATCH   /api/dealerflow/tasks/:id  [L313]
+
+POST    /api/dealerflow/tasks/:id/approve  [L537]
+
+GET     /api/dealerflow/tasks/:id/audit-trail  [L1736]
+
+POST    /api/dealerflow/tasks/:id/notify  [L1505]
+
+POST    /api/dealerflow/tasks/:id/request-approval  [L489]
+
+POST    /api/dealerflow/tasks/:id/resolve-escalation  [L1105]
+
+POST    /api/dealerflow/tasks/:id/retry  [L1168]
+
+GET     /api/dealerflow/tasks/:id/suggest  [L635]
+
+GET     /api/dealerflow/tickets  [L747]
+
+POST    /api/dealerflow/tickets  [L777]
+
+PATCH   /api/dealerflow/tickets/:id  [L826]
+
+GET     /api/dealerflow/velocity  [L1630]
+
+
+DEALERS  (4)
+
+Source: artifacts/api-server/src/routes/dealers.ts
+
+GET     /api/dealers/:dealerId/inventory  [L33]
+
+POST    /api/dealers/:dealerId/leads  [L54]
+
+GET     /api/dealers/:dealerId/slots  [L84]
+
+GET     /api/dealers/status  [L25]
+
+
+DEALS  (7)
+
+Source: artifacts/api-server/src/routes/deals.ts
+
+GET     /api/deals  [L155]
+
+POST    /api/deals  [L62]
+
+GET     /api/deals/:id  [L201]
+
+PATCH   /api/deals/:id  [L268]
+
+GET     /api/deals/dashboard/my-deals  [L335]
+
+GET     /api/deals/dashboard/store-performance  [L464]
+
+GET     /api/deals/search/global  [L533]
+
+
+DELIVERY  (4)
+
+Source: artifacts/api-server/src/routes/delivery.ts
+
+POST    /api/delivery/qr/:taskId  [L115]
+
+GET     /api/delivery/receipt/:taskId  [L265]
+
+GET     /api/delivery/tasks  [L275]
+
+POST    /api/delivery/verify  [L182]
+
+
+DEVELOPER-PLATFORM  (9)
+
+Source: artifacts/api-server/src/routes/developer-platform.ts
+
+GET     /api/developer/apps  [L47]
+
+POST    /api/developer/apps  [L29]
+
+GET     /api/developer/apps/:id  [L53]
+
+POST    /api/developer/apps/:id/keys  [L62]
+
+POST    /api/developer/apps/:id/webhooks  [L85]
+
+DELETE  /api/developer/keys/:id  [L79]
+
+GET     /api/developer/stats  [L119]
+
+GET     /api/developer/tiers  [L104]
+
+GET     /api/developer/webhooks/:id/deliveries  [L98]
+
+
+DOCUMENTS  (2)
+
+Source: artifacts/api-server/src/routes/documents.ts
+
+GET     /api/documents/:userId  [L26]
+
+POST    /api/documents/upload  [L7]
+
+
+DOCUSIGN  (5)
+
+Source: artifacts/api-server/src/routes/docusign.ts
+
+GET     /api/docusign/deal/:dealId/envelopes  [L180]
+
+POST    /api/docusign/envelope  [L71]
+
+GET     /api/docusign/envelope/:envelopeId  [L149]
+
+GET     /api/docusign/status  [L53]
+
+GET     /api/docusign/templates  [L63]
+
+
+DROPSHIP  (8)
+
+Source: artifacts/api-server/src/routes/dropship.ts
+
+GET     /api/dropship/bol/:bolId  [L299]
+
+GET     /api/dropship/carriers  [L281]
+
+POST    /api/dropship/claim  [L306]
+
+GET     /api/dropship/scan/:vehicleId  [L412]
+
+GET     /api/dropship/scan/:vehicleId/ar  [L422]
+
+POST    /api/dropship/scan/submit  [L377]
+
+GET     /api/dropship/shipments  [L286]
+
+POST    /api/dropship/shipments/:bolId/status  [L368]
+
+
+DYNASTY  (6)
+
+Source: artifacts/api-server/src/routes/dynasty.ts
+
+GET     /api/dynasty/constants  [L425]
+
+POST    /api/dynasty/kyc/initiate  [L139]
+
+POST    /api/dynasty/kyc/verify  [L228]
+
+GET     /api/dynasty/ledger  [L413]
+
+GET     /api/dynasty/passive-income/:referrerId  [L402]
+
+POST    /api/dynasty/purchase  [L247]
+
+
+ENGINE  (6)
+
+Source: artifacts/api-server/src/routes/engine.ts
+
+GET     /api/engine/decisions  [L167]
+
+POST    /api/engine/feedback  [L133]
+
+POST    /api/engine/fraud/check  [L102]
+
+POST    /api/engine/score/shop  [L71]
+
+POST    /api/engine/score/vehicle  [L38]
+
+GET     /api/engine/status  [L32]
+
+
+ENHANCE  (1)
+
+Source: artifacts/api-server/src/routes/enhance.ts
+
+POST    /api/enhance  [L55]
+
+
+ENTERTAINMENT  (3)
+
+Source: artifacts/api-server/src/routes/entertainment.ts
+
+GET     /api/entertainment/catalog  [L194]
+
+GET     /api/entertainment/catalog/:productId  [L217]
+
+POST    /api/entertainment/subscribe  [L231]
+
+
+ESCALATION  (9)
+
+Source: artifacts/api-server/src/routes/escalation.ts
+
+GET     /api/escalation/:id  [L183]
+
+POST    /api/escalation/:id/briefed  [L284]
+
+POST    /api/escalation/:id/message  [L312]
+
+PATCH   /api/escalation/:id/resolve  [L190]
+
+POST    /api/escalation/:id/takeover  [L232]
+
+GET     /api/escalation/:id/thread  [L351]
+
+POST    /api/escalation/create  [L91]
+
+GET     /api/escalation/queue  [L147]
+
+GET     /api/escalation/stats  [L162]
+
+
+EVENT-RADAR  (3)
+
+Source: artifacts/api-server/src/routes/event-radar.ts
+
+GET     /api/event-radar/radar  [L316]
+
+GET     /api/event-radar/radar/categories  [L338]
+
+POST    /api/event-radar/radar/outreach  [L342]
+
+
+EVENTS  (8)
+
+Source: artifacts/api-server/src/routes/events.ts
+
+GET     /api/events/events  [L88]
+
+POST    /api/events/events  [L27]
+
+GET     /api/events/events/:slug  [L142]
+
+POST    /api/events/events/:slug/approve  [L272]
+
+POST    /api/events/events/:slug/checkin  [L237]
+
+POST    /api/events/events/:slug/register  [L189]
+
+GET     /api/events/events/all  [L127]
+
+GET     /api/events/events/my/registered  [L291]
+
+
+FAMILY-OFFICE  (7)
+
+Source: artifacts/api-server/src/routes/family-office.ts
+
+GET     /api/api/family-office/analyses  [L259]
+
+POST    /api/api/family-office/analyze  [L138]
+
+GET     /api/api/family-office/assets  [L302]
+
+POST    /api/api/family-office/assets  [L271]
+
+DELETE  /api/api/family-office/assets/:id  [L313]
+
+GET     /api/api/family-office/mission  [L68]
+
+POST    /api/api/family-office/mission  [L80]
+
+
+FEDERATION-API  (6)
+
+Source: artifacts/api-server/src/routes/federation-api.ts
+
+GET     /api/federation/nodes  [L21]
+
+POST    /api/federation/nodes  [L37]
+
+POST    /api/federation/nodes/:nodeId/heartbeat  [L54]
+
+POST    /api/federation/sync  [L71]
+
+GET     /api/federation/sync/history  [L83]
+
+GET     /api/federation/topology  [L88]
+
+
+FINTECH-COMPLIANCE  (7)
+
+Source: artifacts/api-server/src/routes/fintech-compliance.ts
+
+GET     /api/fintech/dashboard  [L26]
+
+POST    /api/fintech/enforce-method  [L41]
+
+GET     /api/fintech/held-earnings/:userId  [L73]
+
+GET     /api/fintech/held-earnings/me  [L56]
+
+POST    /api/fintech/release-earnings  [L90]
+
+GET     /api/fintech/status  [L8]
+
+POST    /api/fintech/validate-payout  [L30]
+
+
+FOUNDING  (4)
+
+Source: artifacts/api-server/src/routes/founding.ts
+
+POST    /api/founding/checkout  [L92]
+
+POST    /api/founding/confirm  [L255]
+
+GET     /api/founding/count  [L54]
+
+GET     /api/founding/verify/:sessionId  [L192]
+
+
+FULLPATH  (4)
+
+Source: artifacts/api-server/src/routes/fullpath.ts
+
+GET     /api/fullpath/inventory-velocity  [L236]
+
+POST    /api/fullpath/match  [L252]
+
+GET     /api/fullpath/shopper-intent  [L219]
+
+GET     /api/fullpath/status  [L198]
+
+
+GAMIFICATION  (7)
+
+Source: artifacts/api-server/src/routes/gamification.ts
+
+GET     /api/gamification/achievements  [L514]
+
+GET     /api/gamification/challenges  [L441]
+
+POST    /api/gamification/challenges/complete  [L465]
+
+GET     /api/gamification/leaderboard  [L499]
+
+POST    /api/gamification/points/award  [L540]
+
+GET     /api/gamification/profile/:userId  [L411]
+
+GET     /api/gamification/tier  [L526]
+
+
+GARAGE  (5)
+
+Source: artifacts/api-server/src/routes/garage.ts
+
+POST    /api/garage/connect  [L153]
+
+POST    /api/garage/specialist  [L231]
+
+GET     /api/garage/vehicles  [L69]
+
+DELETE  /api/garage/vehicles/:id  [L221]
+
+GET     /api/garage/vehicles/:id/telemetry  [L81]
+
+
+GEMINI/INDEX  (9)
+
+Source: artifacts/api-server/src/routes/gemini/index.ts
+
+GET     /api/gemini/conversations  [L480]
+
+POST    /api/gemini/conversations  [L485]
+
+DELETE  /api/gemini/conversations/:id  [L500]
+
+GET     /api/gemini/conversations/:id  [L492]
+
+GET     /api/gemini/conversations/:id/messages  [L509]
+
+POST    /api/gemini/conversations/:id/messages  [L515]
+
+POST    /api/gemini/diagnose  [L636]
+
+GET     /api/rewards/events  [L656]
+
+POST    /api/rewards/trigger  [L661]
+
+
+GENESIS  (3)
+
+Source: artifacts/api-server/src/routes/genesis.ts
+
+GET     /api/genesis/agents  [L165]
+
+GET     /api/genesis/manifest  [L59]
+
+GET     /api/genesis/pulse  [L122]
+
+
+GLOBAL-INCLUSION  (7)
+
+Source: artifacts/api-server/src/routes/global-inclusion.ts
+
+GET     /api/global/currency/:code  [L170]
+
+GET     /api/global/device-config  [L234]
+
+POST    /api/global/offline/queue  [L180]
+
+POST    /api/global/offline/sync/:userId  [L208]
+
+GET     /api/global/status  [L129]
+
+GET     /api/global/translations  [L160]
+
+GET     /api/global/translations/:lang  [L150]
+
+
+GOVERNANCE-API  (5)
+
+Source: artifacts/api-server/src/routes/governance-api.ts
+
+GET     /api/governance/framework  [L88]
+
+GET     /api/governance/jurisdictions  [L22]
+
+POST    /api/governance/jurisdictions  [L40]
+
+GET     /api/governance/reports  [L64]
+
+POST    /api/governance/reports/generate  [L69]
+
+
+GOVERNOR  (5)
+
+Source: artifacts/api-server/src/routes/governor.ts
+
+POST    /api/governor/evaluate  [L46]
+
+POST    /api/governor/evaluate-shop  [L156]
+
+POST    /api/governor/evaluate-vehicle  [L87]
+
+POST    /api/governor/simulate  [L191]
+
+GET     /api/governor/status  [L228]
+
+
+GROWTH  (5)
+
+Source: artifacts/api-server/src/routes/growth.ts
+
+GET     /api/growth/leaderboard  [L186]
+
+GET     /api/growth/member/:code  [L224]
+
+GET     /api/growth/network-dominance  [L352]
+
+GET     /api/growth/stats  [L83]
+
+POST    /api/growth/track  [L323]
+
+
+GUARDIAN  (8)
+
+Source: artifacts/api-server/src/routes/guardian.ts
+
+GET     /api/guardian/alerts  [L265]
+
+POST    /api/guardian/alerts/:id/approve  [L310]
+
+POST    /api/guardian/alerts/:id/dismiss  [L472]
+
+GET     /api/guardian/mesh-log  [L483]
+
+GET     /api/guardian/strikes  [L600]
+
+POST    /api/guardian/strikes/:id/deploy  [L617]
+
+POST    /api/guardian/strikes/detect  [L755]
+
+GET     /api/guardian/telemetry/:vehicleId  [L282]
+
+
+GUMLOOP  (4)
+
+Source: artifacts/api-server/src/routes/gumloop.ts
+
+POST    /api/gumloop/run  [L134]
+
+GET     /api/gumloop/run/:id  [L187]
+
+GET     /api/gumloop/runs  [L194]
+
+GET     /api/gumloop/workflows  [L129]
+
+
+HEALTH  (3)
+
+Source: artifacts/api-server/src/routes/health.ts
+
+GET     /api/healthz  [L60]
+
+GET     /api/livez  [L139]
+
+GET     /api/readyz  [L128]
+
+
+HUBSPOT  (10)
+
+Source: artifacts/api-server/src/routes/hubspot.ts
+
+GET     /api/hubspot/analytics  [L74]
+
+POST    /api/hubspot/connect  [L23]
+
+GET     /api/hubspot/contacts  [L42]
+
+POST    /api/hubspot/contacts  [L48]
+
+GET     /api/hubspot/deals  [L58]
+
+POST    /api/hubspot/deals  [L64]
+
+GET     /api/hubspot/pipelines  [L34]
+
+GET     /api/hubspot/properties  [L38]
+
+GET     /api/hubspot/status  [L19]
+
+POST    /api/hubspot/webhook  [L78]
+
+
+IMPACT  (5)
+
+Source: artifacts/api-server/src/routes/impact.ts
+
+GET     /api/impact  [L132]
+
+GET     /api/impact/integrity-mesh  [L84]
+
+GET     /api/impact/metrics  [L33]
+
+GET     /api/impact/mission-stats  [L117]
+
+GET     /api/impact/pro  [L230]
+
+
+INDEX  (2)
+
+Source: artifacts/api-server/src/routes/index.ts
+
+GET     /api/ai-router/status  [L265]
+
+GET     /api/ws-stats  [L260]
+
+
+INSPECTION  (2)
+
+Source: artifacts/api-server/src/routes/inspection.ts
+
+POST    /api/inspection/analyze  [L25]
+
+GET     /api/inspection/status  [L18]
+
+
+INSPECTIONS  (2)
+
+Source: artifacts/api-server/src/routes/inspections.ts
+
+GET     /api/inspections  [L7]
+
+POST    /api/inspections  [L16]
+
+
+INSUREMO  (2)
+
+Source: artifacts/api-server/src/routes/insuremo.ts
+
+GET     /api/insuremo/policies  [L108]
+
+GET     /api/insuremo/quote  [L78]
+
+
+INTEGRATIONS  (3)
+
+Source: artifacts/api-server/src/routes/integrations.ts
+
+GET     /api/integrations/by-agent/:agentName  [L226]
+
+GET     /api/integrations/detail/:id  [L215]
+
+GET     /api/integrations/status  [L191]
+
+
+INTELLIGENCE  (10)
+
+Source: artifacts/api-server/src/routes/intelligence.ts
+
+GET     /api/intelligence/alerts  [L272]
+
+POST    /api/intelligence/dismiss-public/:id  [L458]
+
+POST    /api/intelligence/dismiss/:id  [L378]
+
+POST    /api/intelligence/execute  [L331]
+
+GET     /api/intelligence/feed  [L393]
+
+GET     /api/intelligence/fleet-status  [L416]
+
+GET     /api/intelligence/profile  [L291]
+
+POST    /api/intelligence/profile  [L309]
+
+GET     /api/intelligence/savings  [L279]
+
+GET     /api/intelligence/weekly-digest  [L285]
+
+
+INVITE-NETWORK  (8)
+
+Source: artifacts/api-server/src/routes/invite-network.ts
+
+POST    /api/invites/invite/send  [L166]
+
+GET     /api/invites/leaderboard  [L274]
+
+GET     /api/invites/node/:userId  [L141]
+
+POST    /api/invites/node/availability  [L195]
+
+GET     /api/invites/node/nearby/:geoHash  [L213]
+
+POST    /api/invites/node/register  [L40]
+
+GET     /api/invites/status  [L23]
+
+GET     /api/invites/tree/:userId  [L238]
+
+
+IP-ANCHOR  (4)
+
+Source: artifacts/api-server/src/routes/ip-anchor.ts
+
+POST    /api/ip/anchor  [L27]
+
+GET     /api/ip/anchors  [L80]
+
+GET     /api/ip/anchors/:id  [L112]
+
+GET     /api/ip/anchors/verify/:hash  [L87]
+
+
+KYC  (3)
+
+Source: artifacts/api-server/src/routes/kyc.ts
+
+GET     /api/kyc/admin/user/:id  [L105]
+
+POST    /api/kyc/session  [L22]
+
+GET     /api/kyc/status  [L82]
+
+
+LIFECYCLE-ENGINE  (16)
+
+Source: artifacts/api-server/src/routes/lifecycle-engine.ts
+
+POST    /api/lifecycle/deal/structure  [L879]
+
+GET     /api/lifecycle/ip-manifest  [L1031]
+
+GET     /api/lifecycle/nodes  [L688]
+
+GET     /api/lifecycle/nodes/:id  [L850]
+
+POST    /api/lifecycle/nodes/:id/schedule  [L781]
+
+GET     /api/lifecycle/nodes/nearby  [L722]
+
+POST    /api/lifecycle/nodes/register  [L622]
+
+POST    /api/lifecycle/referral  [L108]
+
+GET     /api/lifecycle/referral/:id  [L198]
+
+POST    /api/lifecycle/referral/:id/close  [L217]
+
+GET     /api/lifecycle/referrals  [L166]
+
+GET     /api/lifecycle/vault/:bundleId  [L591]
+
+POST    /api/lifecycle/vault/:bundleId/seal  [L534]
+
+POST    /api/lifecycle/vault/:bundleId/validate  [L962]
+
+POST    /api/lifecycle/vault/bundle  [L467]
+
+GET     /api/lifecycle/warranty/:vin  [L303]
+
+
+LITCOMMERCE  (7)
+
+Source: artifacts/api-server/src/routes/litcommerce.ts
+
+GET     /api/marketplace-hub/analytics  [L240]
+
+POST    /api/marketplace-hub/bulk-list  [L208]
+
+GET     /api/marketplace-hub/channels  [L104]
+
+POST    /api/marketplace-hub/connect  [L133]
+
+GET     /api/marketplace-hub/connections  [L120]
+
+POST    /api/marketplace-hub/list-product  [L173]
+
+GET     /api/marketplace-hub/strategies  [L112]
+
+
+LOCATION-NODES  (9)
+
+Source: artifacts/api-server/src/routes/location-nodes.ts
+
+GET     /api/locations/leaderboard  [L192]
+
+GET     /api/locations/location/:locationRef  [L73]
+
+GET     /api/locations/my-locations/:userId  [L154]
+
+GET     /api/locations/nearby/:geoHash  [L177]
+
+POST    /api/locations/register  [L37]
+
+POST    /api/locations/revenue/:locationRef  [L128]
+
+POST    /api/locations/scan/:locationRef  [L84]
+
+POST    /api/locations/signup/:locationRef  [L106]
+
+GET     /api/locations/status  [L19]
+
+
+LOGISTICS  (5)
+
+Source: artifacts/api-server/src/routes/logistics.ts
+
+POST    /api/logistics/hypertrack/webhook  [L313]
+
+GET     /api/logistics/runners  [L266]
+
+GET     /api/logistics/runners/:id  [L324]
+
+GET     /api/logistics/tasks  [L294]
+
+POST    /api/logistics/tasks/:id/assign  [L299]
+
+
+LOOPIT  (5)
+
+Source: artifacts/api-server/src/routes/loopit.ts
+
+GET     /api/fleet/inventory  [L80]
+
+GET     /api/fleet/plans  [L23]
+
+GET     /api/fleet/status  [L13]
+
+POST    /api/fleet/subscribe  [L115]
+
+POST    /api/fleet/swap  [L150]
+
+
+MAPBOX  (6)
+
+Source: artifacts/api-server/src/routes/mapbox.ts
+
+GET     /api/maps/directions  [L56]
+
+GET     /api/maps/geocode  [L30]
+
+GET     /api/maps/nearby  [L96]
+
+GET     /api/maps/status  [L12]
+
+GET     /api/maps/token  [L22]
+
+GET     /api/maps/transport-track/:transportId  [L145]
+
+
+MARKETCHECK  (4)
+
+Source: artifacts/api-server/src/routes/marketcheck.ts
+
+GET     /api/marketcheck/search  [L635]
+
+GET     /api/marketcheck/status  [L653]
+
+GET     /api/marketcheck/vin/:vin  [L696]
+
+GET     /api/marketcheck/wholesale  [L660]
+
+
+MCP/INDEX  (4)
+
+Source: artifacts/api-server/src/routes/mcp/index.ts
+
+DELETE  /api/mcp  [L326]
+
+GET     /api/mcp  [L317]
+
+POST    /api/mcp  [L308]
+
+GET     /api/mcp/tools  [L335]
+
+
+MESH  (4)
+
+Source: artifacts/api-server/src/routes/mesh.ts
+
+POST    /api/mesh/chat  [L48]
+
+GET     /api/mesh/log  [L32]
+
+GET     /api/mesh/route  [L37]
+
+GET     /api/mesh/status  [L21]
+
+
+MONETIZATION  (4)
+
+Source: artifacts/api-server/src/routes/monetization.ts
+
+GET     /api/monetization/per-node  [L365]
+
+GET     /api/monetization/projections  [L246]
+
+GET     /api/monetization/summary  [L56]
+
+GET     /api/monetization/tech-fee  [L188]
+
+
+MOTOR  (2)
+
+Source: artifacts/api-server/src/routes/motor.ts
+
+GET     /api/motor/history/:vin  [L61]
+
+GET     /api/motor/market-value/:vin  [L82]
+
+
+NEURAL  (8)
+
+Source: artifacts/api-server/src/routes/neural.ts
+
+GET     /api/neural/agents  [L337]
+
+GET     /api/neural/agents/:id  [L343]
+
+POST    /api/neural/agents/spawn  [L282]
+
+POST    /api/neural/analyze  [L351]
+
+POST    /api/neural/generate  [L147]
+
+POST    /api/neural/score  [L219]
+
+GET     /api/neural/status  [L395]
+
+POST    /api/neural/think  [L97]
+
+
+NOTIFICATIONS  (4)
+
+Source: artifacts/api-server/src/routes/notifications.ts
+
+GET     /api/notifications  [L22]
+
+PATCH   /api/notifications/:id/read  [L35]
+
+POST    /api/notifications/read-all  [L41]
+
+POST    /api/notifications/seed  [L46]
+
+
+OEM-INCENTIVES  (5)
+
+Source: artifacts/api-server/src/routes/oem-incentives.ts
+
+GET     /api/oem-incentives/manufacturers  [L466]
+
+POST    /api/oem-incentives/match  [L489]
+
+GET     /api/oem-incentives/programs/:manufacturer  [L475]
+
+POST    /api/oem-incentives/quick-match  [L563]
+
+GET     /api/oem-incentives/status  [L451]
+
+
+OMNI-NODE  (3)
+
+Source: artifacts/api-server/src/routes/omni-node.ts
+
+GET     /api/omni-node/my-submissions  [L277]
+
+POST    /api/omni-node/submit  [L64]
+
+GET     /api/omni-node/track/:code  [L210]
+
+
+ONYX-WALLET  (7)
+
+Source: artifacts/api-server/src/routes/onyx-wallet.ts
+
+GET     /api/onyx-wallet/:userId  [L57]
+
+POST    /api/onyx-wallet/create  [L37]
+
+POST    /api/onyx-wallet/credit  [L98]
+
+GET     /api/onyx-wallet/history/:userId  [L207]
+
+GET     /api/onyx-wallet/leaderboard  [L230]
+
+GET     /api/onyx-wallet/status  [L14]
+
+POST    /api/onyx-wallet/withdraw  [L153]
+
+
+ORACLE  (2)
+
+Source: artifacts/api-server/src/routes/oracle.ts
+
+GET     /api/oracle/status  [L12]
+
+POST    /api/oracle/upload  [L17]
+
+
+ORCHESTRATOR  (6)
+
+Source: artifacts/api-server/src/routes/orchestrator.ts
+
+GET     /api/orchestrator/agents  [L55]
+
+POST    /api/orchestrator/ai/route  [L63]
+
+POST    /api/orchestrator/session  [L19]
+
+GET     /api/orchestrator/session/:id  [L46]
+
+POST    /api/orchestrator/task  [L25]
+
+GET     /api/orchestrator/ws-stats  [L59]
+
+
+OUTREACH  (7)
+
+Source: artifacts/api-server/src/routes/outreach.ts
+
+POST    /api/outreach/blast/fire  [L205]
+
+GET     /api/outreach/blast/history  [L302]
+
+GET     /api/outreach/blast/preview  [L181]
+
+GET     /api/outreach/contacts  [L138]
+
+POST    /api/outreach/contacts  [L144]
+
+DELETE  /api/outreach/contacts/:id  [L174]
+
+GET     /api/outreach/stats  [L307]
+
+
+OWNER  (5)
+
+Source: artifacts/api-server/src/routes/owner.ts
+
+GET     /api/owner/audit  [L115]
+
+GET     /api/owner/platform  [L87]
+
+POST    /api/owner/rotate-token  [L137]
+
+POST    /api/owner/shutdown  [L125]
+
+POST    /api/owner/verify  [L68]
+
+
+PARAMOUNT  (4)
+
+Source: artifacts/api-server/src/routes/paramount.ts
+
+GET     /api/paramount/credential  [L36]
+
+GET     /api/paramount/sovereign/keys  [L150]
+
+POST    /api/paramount/sovereign/transfer  [L181]
+
+POST    /api/paramount/verify  [L105]
+
+
+PLACES  (4)
+
+Source: artifacts/api-server/src/routes/places.ts
+
+GET     /api/places/places/categories  [L57]
+
+GET     /api/places/places/detail/:id  [L171]
+
+GET     /api/places/places/nearby  [L62]
+
+GET     /api/places/places/search  [L140]
+
+
+PLAID  (5)
+
+Source: artifacts/api-server/src/routes/plaid.ts
+
+GET     /api/plaid/accounts  [L121]
+
+POST    /api/plaid/exchange-token  [L91]
+
+POST    /api/plaid/link-token  [L58]
+
+GET     /api/plaid/net-worth  [L131]
+
+GET     /api/plaid/transactions  [L126]
+
+
+PLUGIN-API  (6)
+
+Source: artifacts/api-server/src/routes/plugin-api.ts
+
+GET     /api/plugins  [L31]
+
+POST    /api/plugins  [L37]
+
+POST    /api/plugins/:id/install  [L58]
+
+DELETE  /api/plugins/installs/:id  [L74]
+
+GET     /api/plugins/marketplace  [L20]
+
+GET     /api/plugins/runtime  [L80]
+
+
+PREDII  (4)
+
+Source: artifacts/api-server/src/routes/predii.ts
+
+POST    /api/predii/diagnose  [L23]
+
+POST    /api/predii/labor-estimate  [L155]
+
+POST    /api/predii/parts-lookup  [L112]
+
+GET     /api/predii/status  [L13]
+
+
+PRO  (5)
+
+Source: artifacts/api-server/src/routes/pro.ts
+
+GET     /api/pro/apprentice/guides  [L63]
+
+POST    /api/pro/apprentice/signoff  [L73]
+
+GET     /api/pro/foreman/command  [L89]
+
+GET     /api/pro/ledger  [L170]
+
+GET     /api/pro/oem/heatmap  [L132]
+
+
+PROOF-ENGINE  (7)
+
+Source: artifacts/api-server/src/routes/proof-engine.ts
+
+GET     /api/proof/:entityType/:entityId  [L101]
+
+GET     /api/proof/chain  [L40]
+
+POST    /api/proof/genesis  [L134]
+
+GET     /api/proof/stats  [L26]
+
+GET     /api/proof/verify  [L77]
+
+GET     /api/proof/verify/:entityType/:entityId  [L91]
+
+GET     /api/vehicle/:vin/verify  [L120]
+
+
+RACING  (7)
+
+Source: artifacts/api-server/src/routes/racing.ts
+
+GET     /api/racing/calendar  [L443]
+
+GET     /api/racing/feed  [L558]
+
+GET     /api/racing/live  [L361]
+
+GET     /api/racing/standings/f1  [L458]
+
+GET     /api/racing/standings/nascar  [L489]
+
+GET     /api/racing/standings/nhra  [L512]
+
+GET     /api/racing/telemetry/:driverId  [L535]
+
+
+RECOMMENDATIONS  (1)
+
+Source: artifacts/api-server/src/routes/recommendations.ts
+
+GET     /api/recommendations  [L186]
+
+
+REFERRALS  (5)
+
+Source: artifacts/api-server/src/routes/referrals.ts
+
+POST    /api/referrals/generate-link  [L42]
+
+GET     /api/referrals/ledger  [L168]
+
+GET     /api/referrals/my-stats  [L27]
+
+GET     /api/referrals/resolve/:code  [L79]
+
+POST    /api/referrals/track  [L111]
+
+
+REMITTANCE  (6)
+
+Source: artifacts/api-server/src/routes/remittance.ts
+
+POST    /api/remittance/complete/:transferRef  [L124]
+
+GET     /api/remittance/my-transfers/:userId  [L152]
+
+GET     /api/remittance/rates  [L49]
+
+POST    /api/remittance/send  [L64]
+
+GET     /api/remittance/status  [L29]
+
+GET     /api/remittance/transfer/:transferRef  [L141]
+
+
+RENTALS  (5)
+
+Source: artifacts/api-server/src/routes/rentals.ts
+
+POST    /api/rentals/rentals/book  [L129]
+
+GET     /api/rentals/rentals/history  [L151]
+
+GET     /api/rentals/rentals/providers  [L99]
+
+GET     /api/rentals/rentals/rates/:id  [L121]
+
+GET     /api/rentals/rentals/search  [L43]
+
+
+REP-PORTAL  (6)
+
+Source: artifacts/api-server/src/routes/rep-portal.ts
+
+GET     /api/rep/:repKey  [L76]
+
+GET     /api/rep/:repKey/bundle/:bundleId  [L155]
+
+POST    /api/rep/:repKey/bundle/:bundleId/fund  [L232]
+
+GET     /api/rep/:repKey/stats  [L478]
+
+GET     /api/rep/:repKey/warranty/:vin  [L324]
+
+POST    /api/rep/:repKey/warranty/:vin/approve  [L417]
+
+
+REPUTATION  (9)
+
+Source: artifacts/api-server/src/routes/reputation.ts
+
+GET     /api/reputation/audit  [L411]
+
+GET     /api/reputation/leaderboard  [L405]
+
+GET     /api/reputation/match  [L313]
+
+GET     /api/reputation/members  [L421]
+
+GET     /api/reputation/members/:id  [L367]
+
+POST    /api/reputation/members/:id/rate  [L374]
+
+GET     /api/reputation/professionals  [L291]
+
+GET     /api/reputation/professionals/:id  [L305]
+
+POST    /api/reputation/professionals/:id/rate  [L328]
+
+
+ROADSIDE  (5)
+
+Source: artifacts/api-server/src/routes/roadside.ts
+
+POST    /api/roadside/roadside/cancel/:id  [L179]
+
+GET     /api/roadside/roadside/history  [L174]
+
+GET     /api/roadside/roadside/providers  [L142]
+
+POST    /api/roadside/roadside/request  [L38]
+
+GET     /api/roadside/roadside/request/:id  [L114]
+
+
+ROCKSOLID  (6)
+
+Source: artifacts/api-server/src/routes/rocksolid.ts
+
+GET     /api/ar/adas/alerts  [L51]
+
+GET     /api/ar/navigation/overlay  [L93]
+
+POST    /api/ar/session/:sessionId/end  [L47]
+
+POST    /api/ar/session/start  [L27]
+
+GET     /api/ar/status  [L11]
+
+GET     /api/ar/vehicle/:vehicleId/safety-score  [L140]
+
+
+RUNNER  (5)
+
+Source: artifacts/api-server/src/routes/runner.ts
+
+POST    /api/runner/payout  [L230]
+
+GET     /api/runner/tasks  [L165]
+
+POST    /api/runner/tasks/:id/accept  [L182]
+
+POST    /api/runner/tasks/:id/complete  [L205]
+
+GET     /api/runner/tasks/mine  [L173]
+
+
+RUNNERS  (6)
+
+Source: artifacts/api-server/src/routes/runners.ts
+
+GET     /api/runners/active  [L79]
+
+GET     /api/runners/eta  [L119]
+
+POST    /api/runners/location  [L34]
+
+GET     /api/runners/location/:id  [L64]
+
+GET     /api/runners/nearest  [L90]
+
+GET     /api/runners/status  [L29]
+
+
+SDV  (8)
+
+Source: artifacts/api-server/src/routes/sdv.ts
+
+GET     /api/sdv/market  [L164]
+
+GET     /api/sdv/ota/:vehicleId  [L312]
+
+POST    /api/sdv/ota/report  [L267]
+
+GET     /api/sdv/profile/:vehicleId  [L188]
+
+POST    /api/sdv/profile/:vehicleId/register  [L207]
+
+POST    /api/sdv/score  [L352]
+
+GET     /api/sdv/status  [L152]
+
+POST    /api/sdv/telemetry  [L325]
+
+
+SECURITY  (10)
+
+Source: artifacts/api-server/src/routes/security.ts
+
+GET     /api/security/agent-audit  [L529]
+
+POST    /api/security/agent-audit/entry  [L540]
+
+GET     /api/security/agent-audit/export  [L600]
+
+GET     /api/security/agent-audit/verify  [L562]
+
+POST    /api/security/decrypt  [L387]
+
+POST    /api/security/encrypt  [L347]
+
+GET     /api/security/shield  [L318]
+
+GET     /api/security/transient-access/:token/vitals  [L485]
+
+GET     /api/security/transient-access/active  [L464]
+
+POST    /api/security/transient-access/grant  [L415]
+
+
+SERVICES  (7)
+
+Source: artifacts/api-server/src/routes/services.ts
+
+GET     /api/services/admin/requests  [L90]
+
+PATCH   /api/services/admin/requests/:id  [L111]
+
+GET     /api/services/notifications  [L73]
+
+PATCH   /api/services/notifications/:id/read  [L80]
+
+GET     /api/services/requests  [L29]
+
+POST    /api/services/requests  [L36]
+
+GET     /api/services/requests/:id/events  [L60]
+
+
+SETTLEMENT-API  (5)
+
+Source: artifacts/api-server/src/routes/settlement-api.ts
+
+GET     /api/settlement/capabilities  [L109]
+
+GET     /api/settlement/fx-rates  [L85]
+
+GET     /api/settlement/ledger  [L79]
+
+GET     /api/settlement/summary  [L93]
+
+POST    /api/settlement/transact  [L36]
+
+
+SHOP  (2)
+
+Source: artifacts/api-server/src/routes/shop.ts
+
+POST    /api/shop/checkout  [L61]
+
+GET     /api/shop/products  [L38]
+
+
+SMART-PROMOTIONS  (2)
+
+Source: artifacts/api-server/src/routes/smart-promotions.ts
+
+GET     /api/smart-promotions/feed  [L140]
+
+POST    /api/smart-promotions/respond  [L197]
+
+
+SOCIAL-AMPLIFIER  (7)
+
+Source: artifacts/api-server/src/routes/social-amplifier.ts
+
+GET     /api/social-amplifier/analytics  [L159]
+
+POST    /api/social-amplifier/auto-promote  [L137]
+
+POST    /api/social-amplifier/campaign  [L97]
+
+POST    /api/social-amplifier/connect  [L58]
+
+GET     /api/social-amplifier/connections  [L45]
+
+GET     /api/social-amplifier/platforms  [L33]
+
+GET     /api/social-amplifier/templates  [L41]
+
+
+SOCIAL-PROOF  (6)
+
+Source: artifacts/api-server/src/routes/social-proof.ts
+
+GET     /api/social-proof/feed  [L19]
+
+GET     /api/social-proof/milestones/:userId  [L140]
+
+GET     /api/social-proof/my-stats/:userId  [L60]
+
+GET     /api/social-proof/nearby-activity  [L105]
+
+GET     /api/social-proof/network-stats  [L178]
+
+GET     /api/social-proof/status  [L7]
+
+
+SOURCE  (7)
+
+Source: artifacts/api-server/src/routes/source.ts
+
+GET     /api/source  [L68]
+
+POST    /api/source  [L147]
+
+GET     /api/source/:id  [L91]
+
+POST    /api/source/:id/award/:bidId  [L247]
+
+POST    /api/source/:id/bid  [L186]
+
+POST    /api/source/:id/close  [L298]
+
+GET     /api/source/admin/all  [L320]
+
+
+SOVEREIGN-HARDENED  (9)
+
+Source: artifacts/api-server/src/routes/sovereign-hardened.ts
+
+POST    /api/hardened/hub/assess  [L125]
+
+GET     /api/hardened/hub/status  [L118]
+
+GET     /api/hardened/idempotency/stats  [L150]
+
+POST    /api/hardened/michelin/assess  [L98]
+
+GET     /api/hardened/michelin/status  [L87]
+
+GET     /api/hardened/state-hardener/status  [L59]
+
+GET     /api/hardened/state-hardener/transitions/:domain/:state  [L73]
+
+POST    /api/hardened/state-hardener/validate  [L63]
+
+GET     /api/hardened/status  [L42]
+
+
+SOVEREIGN-INFRASTRUCTURE  (19)
+
+Source: artifacts/api-server/src/routes/sovereign-infrastructure.ts
+
+GET     /api/infrastructure/logs  [L52]
+
+GET     /api/infrastructure/logs/aggregate  [L75]
+
+GET     /api/infrastructure/logs/dashboard  [L65]
+
+GET     /api/infrastructure/logs/trace/:correlationId  [L69]
+
+GET     /api/infrastructure/mesh  [L30]
+
+GET     /api/infrastructure/mesh/service/:name  [L34]
+
+GET     /api/infrastructure/metrics  [L43]
+
+GET     /api/infrastructure/metrics/prometheus  [L47]
+
+GET     /api/infrastructure/pipeline  [L175]
+
+GET     /api/infrastructure/pipeline/checks  [L190]
+
+POST    /api/infrastructure/pipeline/trigger  [L179]
+
+GET     /api/infrastructure/status  [L12]
+
+GET     /api/infrastructure/vault  [L80]
+
+GET     /api/infrastructure/vault/:bucket  [L84]
+
+DELETE  /api/infrastructure/vault/:bucket/object/:key  [L168]
+
+GET     /api/infrastructure/vault/:bucket/object/:key  [L114]
+
+POST    /api/infrastructure/vault/:bucket/signed-url  [L135]
+
+POST    /api/infrastructure/vault/:bucket/upload  [L93]
+
+GET     /api/vault/signed/:token  [L148]
+
+
+SOVEREIGN-LEARNING  (11)
+
+Source: artifacts/api-server/src/routes/sovereign-learning.ts
+
+POST    /api/learning/accepted  [L55]
+
+GET     /api/learning/agent/:agentId/report  [L75]
+
+GET     /api/learning/agent/:agentId/threshold  [L80]
+
+POST    /api/learning/correction  [L29]
+
+GET     /api/learning/dashboard  [L25]
+
+POST    /api/learning/outcome  [L65]
+
+GET     /api/learning/status  [L10]
+
+POST    /api/nba/accepted  [L146]
+
+POST    /api/nba/batch  [L118]
+
+POST    /api/nba/compute  [L89]
+
+GET     /api/nba/dashboard  [L85]
+
+
+SOVEREIGNTY-API  (3)
+
+Source: artifacts/api-server/src/routes/sovereignty-api.ts
+
+GET     /api/sovereignty  [L24]
+
+GET     /api/sovereignty/shield  [L61]
+
+GET     /api/sovereignty/verify  [L49]
+
+
+SPECIALISTS  (3)
+
+Source: artifacts/api-server/src/routes/specialists.ts
+
+GET     /api/specialists/applications  [L210]
+
+POST    /api/specialists/apply  [L103]
+
+GET     /api/specialists/bgc-status/:candidateId  [L227]
+
+
+SPINMEDIA  (5)
+
+Source: artifacts/api-server/src/routes/spinmedia.ts
+
+GET     /api/spin/session/:vehicleId  [L93]
+
+POST    /api/spin/session/:vehicleId/frame  [L131]
+
+POST    /api/spin/session/:vehicleId/start  [L109]
+
+POST    /api/spin/session/:vehicleId/submit  [L156]
+
+GET     /api/spin/stats  [L181]
+
+
+SPINWHEEL  (4)
+
+Source: artifacts/api-server/src/routes/spinwheel.ts
+
+POST    /api/spinwheel/connect  [L23]
+
+GET     /api/spinwheel/payoff/:accountId  [L97]
+
+GET     /api/spinwheel/status  [L13]
+
+POST    /api/spinwheel/trade-equity  [L124]
+
+
+SPLIT-PAYMENTS  (6)
+
+Source: artifacts/api-server/src/routes/split-payments.ts
+
+POST    /api/splits/calculate  [L34]
+
+POST    /api/splits/distribute/:splitRef  [L156]
+
+GET     /api/splits/history/:userId  [L245]
+
+GET     /api/splits/split/:splitRef  [L226]
+
+GET     /api/splits/status  [L20]
+
+POST    /api/splits/verify/:splitRef  [L111]
+
+
+STRATEGY  (5)
+
+Source: artifacts/api-server/src/routes/strategy.ts
+
+GET     /api/strategy/flywheel  [L245]
+
+GET     /api/strategy/founding-pilot  [L269]
+
+GET     /api/strategy/model  [L241]
+
+GET     /api/strategy/overview  [L218]
+
+GET     /api/strategy/valuation  [L249]
+
+
+STREETNETWORK  (6)
+
+Source: artifacts/api-server/src/routes/streetNetwork.ts
+
+GET     /api/activity/feed  [L257]
+
+GET     /api/leaderboard  [L209]
+
+GET     /api/node/:id/qr  [L146]
+
+GET     /api/node/:id/role  [L312]
+
+GET     /api/referral/:username  [L67]
+
+GET     /api/street-network/status  [L362]
+
+
+SUBSCRIPTION  (4)
+
+Source: artifacts/api-server/src/routes/subscription.ts
+
+POST    /api/subscription/checkout  [L183]
+
+GET     /api/subscription/hectocorn  [L252]
+
+POST    /api/subscription/portal  [L228]
+
+GET     /api/subscription/status  [L124]
+
+
+SUCCESS-STORIES  (7)
+
+Source: artifacts/api-server/src/routes/success-stories.ts
+
+POST    /api/success-stories  [L67]
+
+DELETE  /api/success-stories/:id  [L87]
+
+GET     /api/success-stories/:id  [L56]
+
+PATCH   /api/success-stories/:id  [L75]
+
+GET     /api/success-stories/featured  [L20]
+
+GET     /api/success-stories/published  [L9]
+
+GET     /api/success-stories/stats  [L34]
+
+
+SURVEY-SHIELD  (9)
+
+Source: artifacts/api-server/src/routes/survey-shield.ts
+
+GET     /api/survey-shield/analytics  [L364]
+
+POST    /api/survey-shield/checkpoint  [L116]
+
+GET     /api/survey-shield/deal/:dealId  [L191]
+
+POST    /api/survey-shield/manager-override  [L216]
+
+POST    /api/survey-shield/oem-bridge  [L256]
+
+GET     /api/survey-shield/oem-manufacturers  [L307]
+
+GET     /api/survey-shield/stages  [L322]
+
+GET     /api/survey-shield/status  [L90]
+
+POST    /api/survey-shield/verify-readiness  [L331]
+
+
+TASK-MATCHING-ENGINE  (8)
+
+Source: artifacts/api-server/src/routes/task-matching-engine.ts
+
+POST    /api/tasks/create  [L49]
+
+POST    /api/tasks/match/:taskRef  [L87]
+
+GET     /api/tasks/metrics  [L273]
+
+GET     /api/tasks/my-tasks/:userId  [L249]
+
+GET     /api/tasks/queue  [L235]
+
+GET     /api/tasks/status  [L30]
+
+GET     /api/tasks/task/:taskRef  [L222]
+
+POST    /api/tasks/transition/:taskRef  [L163]
+
+
+TELEMETRY-PIPELINE  (7)
+
+Source: artifacts/api-server/src/routes/telemetry-pipeline.ts
+
+GET     /api/iot/capabilities  [L109]
+
+GET     /api/iot/data/:streamId  [L57]
+
+GET     /api/iot/fleet/health  [L82]
+
+POST    /api/iot/ingest  [L28]
+
+GET     /api/iot/maintenance/:vin  [L64]
+
+GET     /api/iot/streams  [L22]
+
+POST    /api/iot/streams  [L10]
+
+
+TELEMETRY  (6)
+
+Source: artifacts/api-server/src/routes/telemetry.ts
+
+GET     /api/telemetry/events  [L294]
+
+POST    /api/telemetry/events  [L302]
+
+GET     /api/telemetry/forecast  [L325]
+
+GET     /api/telemetry/insights  [L318]
+
+GET     /api/telemetry/network  [L332]
+
+GET     /api/telemetry/pulse  [L285]
+
+
+TEXT-TO-DEAL  (3)
+
+Source: artifacts/api-server/src/routes/text-to-deal.ts
+
+POST    /api/text-to-deal/convert  [L240]
+
+POST    /api/text-to-deal/extract  [L333]
+
+GET     /api/text-to-deal/status  [L228]
+
+
+THEME-ENGINE  (7)
+
+Source: artifacts/api-server/src/routes/theme-engine.ts
+
+GET     /api/themes/categories  [L698]
+
+GET     /api/themes/list  [L575]
+
+GET     /api/themes/status  [L556]
+
+GET     /api/themes/theme/:themeId  [L598]
+
+GET     /api/themes/theme/:themeId/css  [L607]
+
+GET     /api/themes/user/:userId  [L639]
+
+POST    /api/themes/user/:userId/set  [L660]
+
+
+TIKTOK-ADS  (11)
+
+Source: artifacts/api-server/src/routes/tiktok-ads.ts
+
+GET     /api/tiktok-ads/analytics  [L59]
+
+GET     /api/tiktok-ads/audiences  [L41]
+
+GET     /api/tiktok-ads/campaigns  [L45]
+
+POST    /api/tiktok-ads/campaigns  [L49]
+
+POST    /api/tiktok-ads/connect  [L26]
+
+GET     /api/tiktok-ads/leads  [L63]
+
+POST    /api/tiktok-ads/leads/ingest  [L67]
+
+GET     /api/tiktok-ads/share-link  [L77]
+
+GET     /api/tiktok-ads/status  [L22]
+
+GET     /api/tiktok-ads/templates  [L37]
+
+POST    /api/tiktok-ads/webhook  [L85]
+
+
+TIMELINE  (3)
+
+Source: artifacts/api-server/src/routes/timeline.ts
+
+GET     /api/timeline/:vin  [L59]
+
+GET     /api/timeline/deal/:bundleId  [L253]
+
+GET     /api/timeline/feed  [L332]
+
+
+TRANSPORTER  (6)
+
+Source: artifacts/api-server/src/routes/transporter.ts
+
+GET     /api/transport/:shipmentId  [L276]
+
+POST    /api/transport/:shipmentId/confirm  [L134]
+
+PUT     /api/transport/:shipmentId/status  [L187]
+
+GET     /api/transport/active  [L239]
+
+POST    /api/transport/quote  [L42]
+
+GET     /api/transport/status  [L33]
+
+
+TRUST-ENGINE  (4)
+
+Source: artifacts/api-server/src/routes/trust-engine.ts
+
+GET     /api/trust/leaderboard  [L141]
+
+GET     /api/trust/profile  [L27]
+
+GET     /api/trust/score-check  [L185]
+
+POST    /api/trust/verify  [L80]
+
+
+TTS  (2)
+
+Source: artifacts/api-server/src/routes/tts.ts
+
+POST    /api/tts/generate  [L22]
+
+GET     /api/tts/status  [L12]
+
+
+UNION  (5)
+
+Source: artifacts/api-server/src/routes/union.ts
+
+GET     /api/union/ecosystem  [L238]
+
+POST    /api/union/join  [L331]
+
+GET     /api/union/manifesto  [L41]
+
+GET     /api/union/members  [L389]
+
+GET     /api/union/pain-map  [L154]
+
+
+UNITY  (7)
+
+Source: artifacts/api-server/src/routes/unity.ts
+
+GET     /api/unity/partners  [L165]
+
+POST    /api/unity/rate  [L278]
+
+POST    /api/unity/scan  [L179]
+
+GET     /api/unity/status  [L143]
+
+GET     /api/unity/ticker  [L224]
+
+POST    /api/unity/transaction  [L249]
+
+GET     /api/unity/vehicles  [L156]
+
+
+USERS  (3)
+
+Source: artifacts/api-server/src/routes/users.ts
+
+GET     /api/users/profile  [L34]
+
+PATCH   /api/users/profile  [L43]
+
+PATCH   /api/users/push-token  [L17]
+
+
+VEHICLE-CUSTOMIZE  (3)
+
+Source: artifacts/api-server/src/routes/vehicle-customize.ts
+
+GET     /api/customize/catalog  [L71]
+
+GET     /api/customize/categories  [L185]
+
+POST    /api/customize/quote  [L107]
+
+
+VEHICLE-LIFECYCLE  (1)
+
+Source: artifacts/api-server/src/routes/vehicle-lifecycle.ts
+
+GET     /api/vehicle/timeline/:vin  [L31]
+
+
+VEHICLE-VERIFY  (3)
+
+Source: artifacts/api-server/src/routes/vehicle-verify.ts
+
+GET     /api/vehicles/badge/:vin  [L243]
+
+GET     /api/vehicles/status  [L15]
+
+GET     /api/vehicles/verify/:vin  [L69]
+
+
+VEHICLEPROOF  (2)
+
+Source: artifacts/api-server/src/routes/vehicleProof.ts
+
+GET     /api/vehicle/:vin/proof  [L60]
+
+GET     /api/vehicle/cascade/status  [L308]
+
+
+VENUES  (6)
+
+Source: artifacts/api-server/src/routes/venues.ts
+
+GET     /api/venues/venues  [L81]
+
+POST    /api/venues/venues  [L26]
+
+GET     /api/venues/venues/:slug  [L136]
+
+POST    /api/venues/venues/:slug/verify  [L176]
+
+GET     /api/venues/venues/all  [L121]
+
+GET     /api/venues/venues/my/listings  [L195]
+
+
+VIN  (3)
+
+Source: artifacts/api-server/src/routes/vin.ts
+
+GET     /api/vin/decode  [L59]
+
+POST    /api/vin/passport  [L78]
+
+GET     /api/vin/passport/:vin  [L150]
+
+
+WAITLIST  (4)
+
+Source: artifacts/api-server/src/routes/waitlist.ts
+
+GET     /api/waitlist/check/:email  [L81]
+
+POST    /api/waitlist/invite  [L97]
+
+POST    /api/waitlist/join  [L19]
+
+GET     /api/waitlist/stats  [L63]
+
+
+WALLET  (6)
+
+Source: artifacts/api-server/src/routes/wallet.ts
+
+GET     /api/wallet/:memberId  [L143]
+
+POST    /api/wallet/connect/onboard  [L232]
+
+POST    /api/wallet/connect/simulate  [L280]
+
+GET     /api/wallet/members  [L138]
+
+POST    /api/wallet/payout  [L154]
+
+GET     /api/wallet/stripe/status  [L291]
+
+
+WARRANTY-INTEL  (4)
+
+Source: artifacts/api-server/src/routes/warranty-intel.ts
+
+POST    /api/warranty/check  [L78]
+
+GET     /api/warranty/programs  [L183]
+
+GET     /api/warranty/status  [L64]
+
+GET     /api/warranty/vin/:vin  [L168]
+
+
+WATCHLIST  (3)
+
+Source: artifacts/api-server/src/routes/watchlist.ts
+
+GET     /api/watchlist  [L7]
+
+POST    /api/watchlist  [L15]
+
+DELETE  /api/watchlist/:id  [L48]
+
+
+WEBAUTHN  (6)
+
+Source: artifacts/api-server/src/routes/webauthn.ts
+
+POST    /api/webauthn/authenticate/options  [L185]
+
+POST    /api/webauthn/authenticate/verify  [L228]
+
+GET     /api/webauthn/credentials  [L326]
+
+DELETE  /api/webauthn/credentials/:credentialId  [L344]
+
+POST    /api/webauthn/register/options  [L92]
+
+POST    /api/webauthn/register/verify  [L126]
+
+
+WEBHOOKS  (1)
+
+Source: artifacts/api-server/src/routes/webhooks.ts
+
+POST    /api/webhooks/stripe  [L46]
+
+
+WHATSAPP  (4)
+
+Source: artifacts/api-server/src/routes/whatsapp.ts
+
+POST    /api/whatsapp/send  [L126]
+
+GET     /api/whatsapp/status  [L150]
+
+POST    /api/whatsapp/test  [L171]
+
+POST    /api/whatsapp/webhook  [L36]
+
+
+WISDOM  (9)
+
+Source: artifacts/api-server/src/routes/wisdom.ts
+
+GET     /api/wisdom/agent/:agentId  [L94]
+
+GET     /api/wisdom/canon  [L45]
+
+GET     /api/wisdom/canon/:bookId  [L66]
+
+GET     /api/wisdom/principles  [L77]
+
+POST    /api/wisdom/query  [L109]
+
+GET     /api/wisdom/sprints  [L183]
+
+POST    /api/wisdom/sprints/:id/evidence  [L203]
+
+GET     /api/wisdom/stress-test  [L176]
+
+GET     /api/wisdom/summary  [L240]
+
+
+WORKER  (3)
+
+Source: artifacts/api-server/src/routes/worker.ts
+
+GET     /api/worker/dashboard  [L104]
+
+GET     /api/worker/impact  [L389]
+
+GET     /api/worker/leaderboard  [L324]
+
+
+
+==========================================================================
+6. DECLARED DEPENDENCY REFERENCE
+==========================================================================
+
+The following is the unique direct-dependency inventory from the root, application, shared-library and scripts manifests, plus the top-level infrastructure manifest. It excludes transitive dependencies. Values are declarations, not a claim about installed resolved versions. ^ and ~ retain their package-manager meanings. catalog: values are resolved from pnpm-workspace.yaml; workspace:* means an internal package.
+
+200 unique direct package names across 15 manifests. Packages may appear under multiple declared versions.
+
+
+@anthropic-ai/sdk
+
+^0.80.0 — artifacts/api-server
+
+
+@aws-sdk/client-bedrock-runtime
+
+^3.1019.0 — root; artifacts/api-server
+
+
+@aws-sdk/client-eventbridge
+
+^3.1019.0 — root; artifacts/api-server
+
+
+@aws-sdk/client-location
+
+^3.1019.0 — root; artifacts/api-server
+
+
+@aws-sdk/client-rekognition
+
+^3.1019.0 — root; artifacts/api-server
+
+
+@aws-sdk/client-secrets-manager
+
+^3.1019.0 — root; artifacts/api-server
+
+
+@babel/core
+
+^7.25.2 — artifacts/3c-onyx-mobile [dev]
+
+
+@expo-google-fonts/inter
+
+^0.4.0 — artifacts/3c-onyx-mobile [dev]
+
+
+@expo/cli
+
+54.0.23 — artifacts/3c-onyx-mobile [dev]
+
+
+@expo/ngrok
+
+^4.1.0 — artifacts/3c-onyx-mobile [dev]
+
+
+@expo/vector-icons
+
+^15.0.3 — artifacts/3c-onyx-mobile [dev]
+
+
+@google/genai
+
+^1.46.0 — root
+
+^1.44.0 — lib/integrations-gemini-ai
+
+
+@hookform/resolvers
+
+^3.10.0 — artifacts/3c-onyx [dev]; artifacts/mockup-sandbox [dev]
+
+
+@modelcontextprotocol/sdk
+
+^1.27.1 — root; artifacts/api-server
+
+
+@opensearch-project/opensearch
+
+^3.5.1 — root; artifacts/api-server
+
+
+@radix-ui/react-accordion
+
+^1.2.4 — artifacts/3c-onyx [dev]
+
+^1.2.12 — artifacts/mockup-sandbox [dev]
+
+
+@radix-ui/react-alert-dialog
+
+^1.1.7 — artifacts/3c-onyx [dev]
+
+^1.1.15 — artifacts/mockup-sandbox [dev]
+
+
+@radix-ui/react-aspect-ratio
+
+^1.1.3 — artifacts/3c-onyx [dev]
+
+^1.1.8 — artifacts/mockup-sandbox [dev]
+
+
+@radix-ui/react-avatar
+
+^1.1.4 — artifacts/3c-onyx [dev]
+
+^1.1.11 — artifacts/mockup-sandbox [dev]
+
+
+@radix-ui/react-checkbox
+
+^1.1.5 — artifacts/3c-onyx [dev]
+
+^1.3.3 — artifacts/mockup-sandbox [dev]
+
+
+@radix-ui/react-collapsible
+
+^1.1.4 — artifacts/3c-onyx [dev]
+
+^1.1.12 — artifacts/mockup-sandbox [dev]
+
+
+@radix-ui/react-context-menu
+
+^2.2.7 — artifacts/3c-onyx [dev]
+
+^2.2.16 — artifacts/mockup-sandbox [dev]
+
+
+@radix-ui/react-dialog
+
+^1.1.7 — artifacts/3c-onyx [dev]
+
+^1.1.15 — artifacts/mockup-sandbox [dev]
+
+
+@radix-ui/react-dropdown-menu
+
+^2.1.7 — artifacts/3c-onyx [dev]
+
+^2.1.16 — artifacts/mockup-sandbox [dev]
+
+
+@radix-ui/react-hover-card
+
+^1.1.7 — artifacts/3c-onyx [dev]
+
+^1.1.15 — artifacts/mockup-sandbox [dev]
+
+
+@radix-ui/react-label
+
+^2.1.3 — artifacts/3c-onyx [dev]
+
+^2.1.8 — artifacts/mockup-sandbox [dev]
+
+
+@radix-ui/react-menubar
+
+^1.1.7 — artifacts/3c-onyx [dev]
+
+^1.1.16 — artifacts/mockup-sandbox [dev]
+
+
+@radix-ui/react-navigation-menu
+
+^1.2.6 — artifacts/3c-onyx [dev]
+
+^1.2.14 — artifacts/mockup-sandbox [dev]
+
+
+@radix-ui/react-popover
+
+^1.1.7 — artifacts/3c-onyx [dev]
+
+^1.1.15 — artifacts/mockup-sandbox [dev]
+
+
+@radix-ui/react-progress
+
+^1.1.3 — artifacts/3c-onyx [dev]
+
+^1.1.8 — artifacts/mockup-sandbox [dev]
+
+
+@radix-ui/react-radio-group
+
+^1.2.4 — artifacts/3c-onyx [dev]
+
+^1.3.8 — artifacts/mockup-sandbox [dev]
+
+
+@radix-ui/react-scroll-area
+
+^1.2.4 — artifacts/3c-onyx [dev]
+
+^1.2.10 — artifacts/mockup-sandbox [dev]
+
+
+@radix-ui/react-select
+
+^2.1.7 — artifacts/3c-onyx [dev]
+
+^2.2.6 — artifacts/mockup-sandbox [dev]
+
+
+@radix-ui/react-separator
+
+^1.1.3 — artifacts/3c-onyx [dev]
+
+^1.1.8 — artifacts/mockup-sandbox [dev]
+
+
+@radix-ui/react-slider
+
+^1.2.4 — artifacts/3c-onyx [dev]
+
+^1.3.6 — artifacts/mockup-sandbox [dev]
+
+
+@radix-ui/react-slot
+
+^1.2.0 — artifacts/3c-onyx [dev]
+
+^1.2.4 — artifacts/mockup-sandbox [dev]
+
+
+@radix-ui/react-switch
+
+^1.1.4 — artifacts/3c-onyx [dev]
+
+^1.2.6 — artifacts/mockup-sandbox [dev]
+
+
+@radix-ui/react-tabs
+
+^1.1.4 — artifacts/3c-onyx [dev]
+
+^1.1.13 — artifacts/mockup-sandbox [dev]
+
+
+@radix-ui/react-toast
+
+^1.2.7 — artifacts/3c-onyx [dev]; artifacts/mockup-sandbox [dev]
+
+
+@radix-ui/react-toggle
+
+^1.1.3 — artifacts/3c-onyx [dev]
+
+^1.1.10 — artifacts/mockup-sandbox [dev]
+
+
+@radix-ui/react-toggle-group
+
+^1.1.3 — artifacts/3c-onyx [dev]
+
+^1.1.11 — artifacts/mockup-sandbox [dev]
+
+
+@radix-ui/react-tooltip
+
+^1.2.0 — artifacts/3c-onyx [dev]
+
+^1.2.8 — artifacts/mockup-sandbox [dev]
+
+
+@react-native-async-storage/async-storage
+
+2.2.0 — artifacts/3c-onyx-mobile [dev]
+
+
+@react-spring/web
+
+^10.0.3 — artifacts/onyx-explainer [dev]
+
+
+@react-three/drei
+
+^10.7.7 — artifacts/onyx-explainer [dev]
+
+
+@react-three/fiber
+
+^9.5.0 — artifacts/onyx-explainer [dev]
+
+
+@replit/vite-plugin-cartographer
+
+^0.5.1 — artifacts/3c-onyx [dev]; artifacts/mockup-sandbox [dev]; artifacts/onyx-explainer [dev]; artifacts/pitch-deck [dev]
+
+
+@replit/vite-plugin-dev-banner
+
+^0.1.1 — artifacts/3c-onyx [dev]; artifacts/onyx-explainer [dev]; artifacts/pitch-deck [dev]
+
+
+@replit/vite-plugin-runtime-error-modal
+
+^0.0.6 — artifacts/3c-onyx [dev]; artifacts/mockup-sandbox [dev]; artifacts/onyx-explainer [dev]; artifacts/pitch-deck [dev]
+
+
+@sendgrid/mail
+
+^8.1.6 — artifacts/api-server
+
+
+@simplewebauthn/browser
+
+^13.3.0 — artifacts/3c-onyx
+
+
+@simplewebauthn/server
+
+^13.3.0 — artifacts/api-server
+
+
+@stardazed/streams-text-encoding
+
+^1.0.2 — artifacts/3c-onyx-mobile [dev]
+
+
+@stripe/react-stripe-js
+
+^6.0.0 — artifacts/3c-onyx
+
+
+@stripe/stripe-js
+
+^8.11.0 — artifacts/3c-onyx
+
+
+@tailwindcss/typography
+
+^0.5.15 — artifacts/3c-onyx [dev]
+
+
+@tailwindcss/vite
+
+^4.1.14 — artifacts/3c-onyx [dev]; artifacts/mockup-sandbox [dev]; artifacts/onyx-explainer [dev]; artifacts/pitch-deck [dev]
+
+
+@tanstack/react-query
+
+^5.90.21 — artifacts/3c-onyx [dev]; artifacts/3c-onyx-mobile [dev]; lib/api-client-react
+
+
+@trpc/client
+
+^11.14.1 — artifacts/3c-onyx
+
+
+@trpc/react-query
+
+^11.14.1 — artifacts/3c-onyx
+
+
+@trpc/server
+
+^11.14.1 — artifacts/3c-onyx; artifacts/api-server
+
+
+@types/bcryptjs
+
+^3.0.0 — artifacts/api-server [dev]
+
+
+@types/compression
+
+^1.8.1 — artifacts/api-server
+
+
+@types/cookie-parser
+
+^1.4.10 — artifacts/api-server [dev]
+
+
+@types/cors
+
+^2.8.19 — artifacts/api-server [dev]
+
+
+@types/express
+
+^5.0.6 — artifacts/api-server [dev]
+
+
+@types/express-rate-limit
+
+^6.0.2 — artifacts/api-server [dev]
+
+
+@types/express-serve-static-core
+
+^5.1.1 — artifacts/api-server
+
+
+@types/leaflet
+
+^1.9.21 — artifacts/3c-onyx
+
+
+@types/multer
+
+^2.1.0 — root
+
+
+@types/node
+
+^25.3.3 — artifacts/3c-onyx [dev]; artifacts/api-server [dev]; artifacts/mockup-sandbox [dev]; artifacts/onyx-explainer [dev]; artifacts/pitch-deck [dev]; lib/db [dev]; scripts [dev]
+
+^20.0.0 — infra [dev]
+
+
+@types/pdfkit
+
+^0.17.5 — root [dev]
+
+
+@types/pg
+
+^8.18.0 — lib/db [dev]
+
+
+@types/qrcode
+
+^1.5.6 — artifacts/api-server
+
+
+@types/react
+
+^19.2.0 — artifacts/3c-onyx [dev]; artifacts/mockup-sandbox [dev]; artifacts/onyx-explainer [dev]; artifacts/pitch-deck [dev]
+
+~19.1.10 — artifacts/3c-onyx-mobile [dev]
+
+
+@types/react-dom
+
+^19.2.0 — artifacts/3c-onyx [dev]; artifacts/mockup-sandbox [dev]; artifacts/onyx-explainer [dev]; artifacts/pitch-deck [dev]
+
+~19.1.7 — artifacts/3c-onyx-mobile [dev]
+
+
+@types/ws
+
+^8.18.1 — artifacts/api-server [dev]
+
+
+@ungap/structured-clone
+
+^1.3.0 — artifacts/3c-onyx-mobile [dev]
+
+
+@vitejs/plugin-react
+
+^5.0.4 — artifacts/3c-onyx [dev]; artifacts/mockup-sandbox [dev]; artifacts/onyx-explainer [dev]; artifacts/pitch-deck [dev]
+
+
+@vitest/coverage-v8
+
+^4.1.4 — artifacts/api-server [dev]
+
+
+@workspace/api-client-react
+
+workspace:* — artifacts/3c-onyx [dev]; artifacts/3c-onyx-mobile [dev]
+
+
+@workspace/api-zod
+
+workspace:* — artifacts/api-server
+
+
+@workspace/db
+
+workspace:* — artifacts/api-server
+
+
+@workspace/integrations-gemini-ai
+
+workspace:* — artifacts/api-server
+
+
+@workspace/integrations-openai-ai-server
+
+workspace:* — artifacts/api-server
+
+
+aws-cdk
+
+^2.1114.1 — artifacts/api-server [dev]
+
+^2.140.0 — infra [dev]
+
+
+aws-cdk-lib
+
+^2.245.0 — artifacts/api-server [dev]
+
+^2.140.0 — infra
+
+
+babel-plugin-react-compiler
+
+^19.0.0-beta-e993439-20250117 — artifacts/3c-onyx-mobile [dev]
+
+
+bcryptjs
+
+^3.0.3 — artifacts/api-server
+
+
+chokidar
+
+^4.0.3 — artifacts/mockup-sandbox [dev]
+
+
+class-variance-authority
+
+^0.7.1 — artifacts/3c-onyx [dev]; artifacts/mockup-sandbox [dev]
+
+
+clsx
+
+^2.1.1 — artifacts/3c-onyx [dev]; artifacts/mockup-sandbox [dev]; artifacts/onyx-explainer [dev]
+
+
+cmdk
+
+^1.1.1 — artifacts/3c-onyx [dev]; artifacts/mockup-sandbox [dev]
+
+
+compression
+
+^1.8.1 — artifacts/api-server
+
+
+constructs
+
+^10.6.0 — artifacts/api-server [dev]
+
+^10.3.0 — infra
+
+
+cookie-parser
+
+^1.4.7 — artifacts/api-server
+
+
+cors
+
+^2 — artifacts/api-server
+
+
+date-fns
+
+^3.6.0 — artifacts/3c-onyx [dev]; artifacts/mockup-sandbox [dev]
+
+
+drizzle-kit
+
+^0.31.9 — lib/db [dev]
+
+
+drizzle-orm
+
+^0.45.1 — artifacts/api-server; lib/db
+
+
+drizzle-zod
+
+^0.8.3 — lib/db
+
+
+embla-carousel-react
+
+^8.6.0 — artifacts/3c-onyx [dev]; artifacts/mockup-sandbox [dev]
+
+
+esbuild
+
+^0.27.3 — artifacts/api-server [dev]
+
+
+esbuild-plugin-pino
+
+^2.3.3 — artifacts/api-server [dev]
+
+
+ethers
+
+^6.16.0 — artifacts/api-server
+
+
+eventemitter3
+
+^5.0.4 — artifacts/3c-onyx-mobile
+
+
+expo
+
+~54.0.27 — artifacts/3c-onyx-mobile [dev]
+
+
+expo-blur
+
+~15.0.8 — artifacts/3c-onyx-mobile [dev]
+
+
+expo-clipboard
+
+^8.0.8 — artifacts/3c-onyx-mobile
+
+
+expo-constants
+
+~18.0.11 — artifacts/3c-onyx-mobile [dev]
+
+
+expo-contacts
+
+^15.0.11 — artifacts/3c-onyx-mobile
+
+
+expo-font
+
+~14.0.10 — artifacts/3c-onyx-mobile [dev]
+
+
+expo-glass-effect
+
+~0.1.4 — artifacts/3c-onyx-mobile [dev]
+
+
+expo-haptics
+
+~15.0.8 — artifacts/3c-onyx-mobile [dev]
+
+
+expo-image
+
+~3.0.11 — artifacts/3c-onyx-mobile [dev]
+
+
+expo-image-picker
+
+~17.0.9 — artifacts/3c-onyx-mobile [dev]
+
+
+expo-linear-gradient
+
+~15.0.8 — artifacts/3c-onyx-mobile [dev]
+
+
+expo-linking
+
+~8.0.10 — artifacts/3c-onyx-mobile [dev]
+
+
+expo-localization
+
+^17.0.8 — artifacts/3c-onyx-mobile
+
+
+expo-location
+
+~19.0.8 — artifacts/3c-onyx-mobile [dev]
+
+
+expo-notifications
+
+^0.32.16 — artifacts/3c-onyx-mobile
+
+
+expo-router
+
+~6.0.17 — artifacts/3c-onyx-mobile [dev]
+
+
+expo-secure-store
+
+^15.0.8 — artifacts/3c-onyx-mobile
+
+
+expo-splash-screen
+
+~31.0.12 — artifacts/3c-onyx-mobile [dev]
+
+
+expo-status-bar
+
+~3.0.9 — artifacts/3c-onyx-mobile [dev]
+
+
+expo-symbols
+
+~1.0.8 — artifacts/3c-onyx-mobile [dev]
+
+
+expo-system-ui
+
+~6.0.9 — artifacts/3c-onyx-mobile [dev]
+
+
+expo-web-browser
+
+~15.0.10 — artifacts/3c-onyx-mobile [dev]
+
+
+express
+
+^5 — artifacts/api-server
+
+
+express-rate-limit
+
+^8.3.1 — artifacts/api-server
+
+
+fast-glob
+
+^3.3.3 — artifacts/mockup-sandbox [dev]
+
+
+framer-motion
+
+^12.23.24 — artifacts/3c-onyx [dev]; artifacts/mockup-sandbox [dev]; artifacts/onyx-explainer [dev]
+
+
+google-auth-library
+
+^10.6.2 — artifacts/api-server
+
+
+gsap
+
+^3.14.2 — artifacts/onyx-explainer [dev]
+
+
+helmet
+
+^8.1.0 — artifacts/api-server
+
+
+html5-qrcode
+
+^2.3.8 — artifacts/3c-onyx
+
+
+i18next
+
+^25.10.5 — artifacts/3c-onyx; artifacts/3c-onyx-mobile
+
+
+i18next-browser-languagedetector
+
+^8.2.1 — artifacts/3c-onyx
+
+
+i18next-http-backend
+
+^3.0.2 — artifacts/3c-onyx
+
+
+input-otp
+
+^1.4.2 — artifacts/3c-onyx [dev]; artifacts/mockup-sandbox [dev]
+
+
+ioredis
+
+^5.11.1 — artifacts/api-server
+
+
+jose
+
+^6.2.2 — artifacts/api-server
+
+
+leaflet
+
+^1.9.4 — artifacts/3c-onyx
+
+
+lottie-react
+
+^2.4.1 — artifacts/onyx-explainer [dev]
+
+
+lucide-react
+
+^0.545.0 — artifacts/3c-onyx [dev]; artifacts/mockup-sandbox [dev]; artifacts/onyx-explainer [dev]
+
+
+multer
+
+^2.1.1 — root
+
+
+next-themes
+
+^0.4.6 — artifacts/3c-onyx [dev]; artifacts/mockup-sandbox [dev]
+
+
+openai
+
+^6.32.0 — artifacts/api-server
+
+^6.27.0 — lib/integrations-openai-ai-server
+
+
+orval
+
+^8.5.2 — lib/api-spec [dev]
+
+
+p-limit
+
+^7.3.0 — lib/integrations-gemini-ai; lib/integrations-openai-ai-server
+
+
+p-retry
+
+^7.1.1 — lib/integrations-gemini-ai; lib/integrations-openai-ai-server
+
+
+pdf-lib
+
+^1.17.1 — artifacts/api-server
+
+
+pdfkit
+
+^0.18.0 — root
+
+
+pg
+
+^8.20.0 — lib/db
+
+
+pino
+
+^9 — artifacts/api-server
+
+
+pino-http
+
+^10 — artifacts/api-server
+
+
+pino-pretty
+
+^13 — artifacts/api-server [dev]
+
+
+prettier
+
+^3.8.1 — root [dev]
+
+
+qrcode
+
+^1.5.4 — artifacts/api-server
+
+
+qrcode.react
+
+^4.2.0 — artifacts/3c-onyx
+
+
+react
+
+19.1.0 — artifacts/3c-onyx [dev]; artifacts/3c-onyx-mobile [dev]; artifacts/mockup-sandbox [dev]; artifacts/onyx-explainer [dev]; artifacts/pitch-deck [dev]
+
+
+react-day-picker
+
+^9.11.1 — artifacts/3c-onyx [dev]; artifacts/mockup-sandbox [dev]
+
+
+react-dom
+
+19.1.0 — artifacts/3c-onyx [dev]; artifacts/3c-onyx-mobile [dev]; artifacts/mockup-sandbox [dev]; artifacts/onyx-explainer [dev]; artifacts/pitch-deck [dev]
+
+
+react-hook-form
+
+^7.55.0 — artifacts/3c-onyx [dev]
+
+^7.66.0 — artifacts/mockup-sandbox [dev]
+
+
+react-i18next
+
+^16.6.2 — artifacts/3c-onyx; artifacts/3c-onyx-mobile
+
+
+react-icons
+
+^5.4.0 — artifacts/3c-onyx [dev]
+
+
+react-leaflet
+
+^5.0.0 — artifacts/3c-onyx
+
+
+react-native
+
+0.81.5 — artifacts/3c-onyx-mobile [dev]
+
+
+react-native-gesture-handler
+
+~2.28.0 — artifacts/3c-onyx-mobile [dev]
+
+
+react-native-keyboard-controller
+
+^1.18.5 — artifacts/3c-onyx-mobile [dev]
+
+
+react-native-qrcode-svg
+
+^6.3.21 — artifacts/3c-onyx-mobile
+
+
+react-native-reanimated
+
+~4.1.1 — artifacts/3c-onyx-mobile [dev]
+
+
+react-native-safe-area-context
+
+~5.6.0 — artifacts/3c-onyx-mobile [dev]
+
+
+react-native-screens
+
+~4.16.0 — artifacts/3c-onyx-mobile [dev]
+
+
+react-native-svg
+
+15.12.1 — artifacts/3c-onyx-mobile [dev]
+
+
+react-native-web
+
+^0.21.0 — artifacts/3c-onyx-mobile [dev]
+
+
+react-native-worklets
+
+0.5.1 — artifacts/3c-onyx-mobile [dev]
+
+
+react-resizable-panels
+
+^2.1.7 — artifacts/3c-onyx [dev]
+
+^2.1.9 — artifacts/mockup-sandbox [dev]
+
+
+react-router-dom
+
+^7.9.5 — artifacts/pitch-deck [dev]
+
+
+recharts
+
+^2.15.2 — artifacts/3c-onyx [dev]
+
+^2.15.4 — artifacts/mockup-sandbox [dev]
+
+
+sonner
+
+^2.0.7 — artifacts/3c-onyx [dev]; artifacts/mockup-sandbox [dev]
+
+
+source-map-support
+
+^0.5.21 — infra
+
+
+stripe
+
+^20.4.1 — root
+
+
+stripe-replit-sync
+
+^1.0.0 — root
+
+
+tailwind-merge
+
+^3.3.1 — artifacts/3c-onyx [dev]; artifacts/mockup-sandbox [dev]; artifacts/onyx-explainer [dev]
+
+
+tailwindcss
+
+^4.1.14 — artifacts/3c-onyx [dev]; artifacts/mockup-sandbox [dev]; artifacts/onyx-explainer [dev]; artifacts/pitch-deck [dev]
+
+
+tailwindcss-animate
+
+^1.0.7 — artifacts/mockup-sandbox [dev]
+
+
+thread-stream
+
+3.1.0 — artifacts/api-server [dev]
+
+
+three
+
+^0.182.0 — artifacts/onyx-explainer [dev]
+
+
+tsx
+
+4.21.0 — root [dev]; artifacts/pitch-deck [dev]; scripts [dev]
+
+
+tw-animate-css
+
+^1.4.0 — artifacts/3c-onyx [dev]; artifacts/mockup-sandbox [dev]
+
+
+twilio
+
+^5.13.1 — artifacts/api-server
+
+
+typescript
+
+~5.9.2 — root [dev]; artifacts/3c-onyx-mobile [dev]
+
+^5.4.0 — infra [dev]
+
+
+vaul
+
+^1.1.2 — artifacts/3c-onyx [dev]; artifacts/mockup-sandbox [dev]
+
+
+vite
+
+^7.3.0 — artifacts/3c-onyx [dev]; artifacts/mockup-sandbox [dev]; artifacts/onyx-explainer [dev]; artifacts/pitch-deck [dev]
+
+
+vitest
+
+^4.1.4 — artifacts/api-server [dev]
+
+
+wouter
+
+^3.3.5 — artifacts/3c-onyx [dev]
+
+
+ws
+
+^8.20.0 — artifacts/api-server
+
+
+zod
+
+3.25.76 — artifacts/3c-onyx [dev]; artifacts/3c-onyx-mobile [dev]; artifacts/api-server; artifacts/mockup-sandbox [dev]; artifacts/pitch-deck [dev]; lib/api-zod; lib/db
+
+
+zod-validation-error
+
+^3.4.0 — artifacts/3c-onyx-mobile [dev]
+
+
+
+==========================================================================
+7. SCOPE, SOURCE NOTES AND CAUTIONS
+==========================================================================
+
+Method: parsed TypeScript syntax trees to follow the Express app’s imported router mounts and enumerate literal HTTP registrations. The scan supports mount prefixes and literal path arrays, and cross-checks route modules for unmounted registrations. tRPC procedures were extracted from router objects. External integrations and stack details were reviewed separately against source and manifests.
+
+Important distinctions: routes can return static or simulated data even when their names or response flags say “live.” SDK dependencies can be installed but unused. Infrastructure templates can exist without deployed infrastructure. Environment-variable names or presence checks are not evidence of a working vendor account.
+
+This document does not reproduce secret values, session tokens, private keys or database contents. It is a technical inventory and may expose internal endpoint names and source layout; share it with intended technical collaborators rather than treating it as a public security certification.
+
+Not performed for this request: live provider checks, production-database queries, payment transactions, full payload/response-schema extraction, route-by-route permission testing, load testing or compliance verification. API availability, behavior and versions may differ in a published build.
+
+For the complete lockfile-resolved dependency graph, consult pnpm-lock.yaml. For exact endpoint behavior, consult the source module and line reference. A matching plain-text export is supplied for convenient bulk copying.

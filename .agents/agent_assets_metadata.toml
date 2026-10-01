@@ -17,123 +17,172 @@ id = "mFTjO0a2Tojm93Ww9XA6s"
 uri = "file://3C_ONYX_VC_Brief.pdf"
 type = "pdf"
 title = "3C ONYX — 1 Billion Member Game Plan (VC Brief)"
+logical_id = "f601e372-e60c-400f-9409-4d13608a3723"
 
 [[outputs]]
 id = "62tjLIaFVdVJbonWhbuaU"
 uri = "file://3C_ONYX_Sovereign_Declaration.pdf"
 type = "pdf"
 title = "3C ONYX — Sovereign Ownership Declaration (Print-Ready)"
+logical_id = "eb830532-01e4-40ff-8fc7-e468032f44b5"
 
 [[outputs]]
 id = "V5xJMKym0l1EmW5yk1kpp"
 uri = "file://3C_ONYX_Bank_Funding_Request.pdf"
 type = "pdf"
 title = "Citizens Bank Funding Request — CUXTOMCANDYCLUB LLC"
+logical_id = "8b6f2257-da5c-4fa6-b83a-243ef8137937"
 
 [[outputs]]
 id = "GuEMFnST4uajefuO16hST"
 uri = "file://3C_ONYX_Founder_Privacy_Strategy.pdf"
 type = "pdf"
 title = "3C ONYX — Founder Privacy & Dynasty Protection Strategy (Attorney Brief)"
+logical_id = "93cd55f5-657a-43a4-bb3b-8836a8556943"
 
 [[outputs]]
 id = "R-uKn6rVm4Fb6Pw8w0QUA"
 uri = "file://3C_ONYX_VC_Outreach_10_Firms.pdf"
 type = "pdf"
 title = "3C ONYX | VC Outreach Brief — 10 Firms"
+logical_id = "726786e2-a4fb-4d8e-b86d-1e286b6deffd"
 
 [[outputs]]
 id = "NBw-5sB_RUZS5LL7e97F7"
 uri = "file://3C_ONYX_Platform_Overview.pdf"
 type = "pdf"
 title = "3C ONYX Platform Overview — The GOD-Tier Build"
+logical_id = "bf3312fd-ce61-4aa6-a647-106971f6c26d"
 
 [[outputs]]
 id = "nVIy8t6TImczxBmlRcboL"
 uri = "file://3C_ONYX_Investor_Brief.pdf"
 type = "pdf"
 title = "3C ONYX Investor Brief v4 — $150M Valuation"
+logical_id = "ca58e087-217a-42da-970f-c4d92cc6c189"
 
 [[outputs]]
 id = "NJBLkupJyjf2zEwtf5Kza"
 uri = "file://3C_ONYX_One_Pager.pdf"
 type = "pdf"
 title = "3C ONYX Investor One-Pager — Print Ready"
+logical_id = "1ba1460a-9494-4a39-b343-6de6cf070774"
 
 [[outputs]]
 id = "4okoerjHwc6i8flitmUv4"
 uri = "file://3C_ONYX_Growth_Brief.pdf"
 type = "pdf"
 title = "3C ONYX Real Growth Plan — $2M · 10M Members · 4 Engines (Copy-Paste Ready)"
+logical_id = "b053c854-f862-409a-b51e-1e4b9e46f4f2"
 
 [[outputs]]
 id = "XAAOfp6IJb8II4xvsn0NM"
 uri = "file://automotive-os-platform.pdf"
 type = "pdf"
 title = "3C ONYX — Automotive Ecosystem OS: AWS + Oracle (100× Stronger)"
+logical_id = "72171daa-fd1d-4b6e-8695-47881af8a9d8"
 
 [[outputs]]
 id = "oYC3Ro9Fd7zhawVfcjdIA"
 uri = "file://3C_ONYX_Sovereign_Brief.pdf"
 type = "pdf"
 title = "3C ONYX — Sovereign Executive Brief"
+logical_id = "12db7e29-a748-474a-87d6-d55e5d769f81"
 
 [[outputs]]
 id = "_TYxiuxB8yFySzM4e9yYY"
 uri = "file://3C_ONYX_Federal_Addendum.pdf"
 type = "pdf"
 title = "3C ONYX — Federal Technical & Operational Addendum A"
+logical_id = "d335e7e4-1882-4a8f-a91d-a97d8faa0842"
 
 [[outputs]]
 id = "Tuc11V-d8UOv076JwSLxs"
 uri = "file://3C_ONYX_Federal_Master_Brief.pdf"
 type = "pdf"
 title = "3C ONYX — FBI & Federal Master Brief (Definitive Edition)"
+logical_id = "6b67bcf0-99a2-40d7-80cb-b25b8417ce07"
 
 [[outputs]]
 id = "6scViuv2LpA8lCLprGPCU"
 uri = "file://3C_ONYX_IP_Master_Ledger.pdf"
 type = "pdf"
 title = "3C ONYX — Master IP Ledger v2.0"
+logical_id = "90545569-2a2a-41d7-a4f9-ece62e2dd380"
 
 [[outputs]]
 id = "KX7hvcVQZs-yDYZKAGpi4"
 uri = "file://artifacts/3c-onyx/public/3C_ONYX_Sovereign_Valuation_Brief.pdf"
 type = "pdf"
 title = "3C ONYX — The Unified Automotive Command Layer: Strategic Valuation & Infrastructure Brief"
+logical_id = "9fc8cfc0-e782-4c62-a599-2fc1cd18b3fd"
 
 [[outputs]]
 id = "2wp8_daEvE5Nwkuf7EbcU"
 uri = "file://exports/3C-ONYX-Platform-Valuation-Brief.pdf"
 type = "pdf"
 title = "3C ONYX — Complete Platform Architecture & Pre-Launch Valuation Brief (15 Sections)"
+logical_id = "cf878703-99c1-45ad-92ae-59cbeefaf06d"
 
 [[outputs]]
 id = "1EvL9rzYSdc0RNdWcq5O-"
 uri = "file://3C_ONYX_Business_Checklist.pdf"
 type = "pdf"
 title = "3C ONYX — Launch Checklist & Net 30 Vendor Guide"
+logical_id = "c10702be-b87a-4035-8424-4b7bcfc2abea"
 
 [[outputs]]
 id = "6t8MBnTy1DtiYpoAxEyrl"
 uri = "file://3C_ONYX_Strategic_Assessment.pdf"
 type = "pdf"
 title = "3C ONYX Strategic Platform Assessment"
+logical_id = "42f9c28e-d4c8-448e-884f-b260878c54bb"
 
 [[outputs]]
 id = "YZFL1XS-ePdLwOqx0sY5k"
 uri = "file://3C_ONYX_IP_Portfolio.pdf"
 type = "pdf"
 title = "3C ONYX Intellectual Property Portfolio"
+logical_id = "461c20fc-8e6c-4502-8dc6-0f85792ebb02"
 
 [[outputs]]
 id = "vKDCqb_0nsyQca6XjS_Mj"
 uri = "file://exports/3C_ONYX_Master_Platform_Ledger.pdf"
 type = "pdf"
 title = "3C ONYX — Master Platform Ledger (APIs · Revenue · IP)"
+logical_id = "7a670c3a-d69d-426b-84d6-9efceb441dba"
 
 [[outputs]]
 id = "U_BHPcFItrk9cCAB18V8g"
 uri = "file://exports/3C_ONYX_White_Paper.pdf"
 type = "pdf"
 title = "3C ONYX — White Paper v1.0"
+logical_id = "5b2cdb6b-17b3-47b2-9b07-65c43418375f"
+
+[[outputs]]
+id = "Qxzw8rr32JW7dBLKeBHTw"
+uri = "file://attached_assets/platform-reference/3C_ONYX_Tech_Stack_and_API_Reference.pdf"
+type = "pdf"
+title = "3C ONYX — Tech Stack & API Reference"
+description = "58-page searchable PDF with selectable text: technology stack, external integrations, 992 REST routes, 14 tRPC procedures, WebSocket details and dependency declarations. No credentials included."
+logical_id = "f34a9d1f-6ff6-453e-883c-4d3e6293757d"
+content_hash = "sha256:e32ee3ee9abab2a4e027f5a49dd4c521d3cf8e5edc3b7f38ded00de57877fc24"
+size = 175874
+mtime_ms = 1790880591637
+storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:eb25d043-cc07-434a-b5ec-445156034c51/f34a9d1f-6ff6-453e-883c-4d3e6293757d/58f3e2d5-0c17-42f7-ab85-af0ad819df6b"
+storage_version_token = "1790880607673780"
+content_type = "application/pdf"
+
+[[outputs]]
+id = "gViEz2WpPVLkRJH5xdf--"
+uri = "file://attached_assets/platform-reference/3C_ONYX_Tech_Stack_and_API_Reference.txt"
+type = "text"
+title = "3C ONYX — Plain-Text Copy"
+description = "The same reference in plain text for quick copying and pasting."
+logical_id = "01d49014-5de0-491c-8a40-465f7ef9d533"
+content_hash = "sha256:21b8d0492559c022fd88b32487b2acad849edf2f39fcf94c36dee807403961cd"
+size = 105771
+mtime_ms = 1790880591629
+storage_uri = "gcs://replit-rams-assets-spock/rams/assets/repl:eb25d043-cc07-434a-b5ec-445156034c51/01d49014-5de0-491c-8a40-465f7ef9d533/5c48617f-b905-4bcc-ac0d-dfe05faea519"
+storage_version_token = "1790880608990322"
+content_type = "text/plain"
