@@ -4,3 +4,4 @@
 - [Shopify Admin proxy quirks](shopify-admin-quirks.md) — inventory mutations need @idempotent field keys + changeFromQuantity; membership SKUs lack order-webhook fulfillment.
 - [Service request separation](service-request-separation.md) — keep direct member requests apart from vendor bidding; global notifications lack recipient ownership.
 - [Provider contract verification](provider-contract-verification.md) — activation requires usable live records and effective filters, not just HTTP 200 or a configured flag.
+- [Smartcar API generation](smartcar-api-generation.md) — current API credentials use v3 application authentication; Connect needs a separate Application ID.
