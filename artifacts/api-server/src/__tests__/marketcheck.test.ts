@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   normalizeMarketCheckListing,
+  marketCheckSearchParams,
   parseMarketCheckSearch,
   parseMarketCheckQuery,
 } from "../routes/marketcheck";
@@ -81,6 +82,37 @@ describe("MarketCheck search contract", () => {
 
   it("drops provider records missing required market values", () => {
     expect(normalizeMarketCheckListing({ year: 2023, make: "Example", model: "Coupe" })).toBeNull();
+  });
+
+  it("maps price and mileage limits to provider ranges", () => {
+    const params = marketCheckSearchParams({
+      rows: 3, start: 0, sort_by: "price", sort_order: "asc", wholesale_only: "false",
+      price_min: 10000, price_max: 20000, miles_max: 50000,
+    }, "test-placeholder");
+    expect(params.get("price_range")).toBe("10000-20000");
+    expect(params.get("miles_range")).toBe("0-50000");
+    expect(params.has("price_min")).toBe(false);
+    expect(params.has("price_max")).toBe(false);
+    expect(params.has("miles_max")).toBe(false);
+  });
+
+  it("normalizes MarketCheck v2 nested build and dealer records", () => {
+    expect(normalizeMarketCheckListing({
+      id: "nested-provider-listing",
+      price: 18500,
+      miles: 48600,
+      build: { year: 2024, make: "Toyota", model: "Camry", trim: "LE", fuel_type: "Unleaded" },
+      dealer: { name: "Example Dealer", city: "Miami", state: "fl", phone: "555-0100", website: "https://dealer.example/" },
+      media: { photo_links: ["https://images.example/car.jpg"] },
+    })).toMatchObject({
+      year: 2024, make: "Toyota", model: "Camry", trim: "LE",
+      price: 18500, miles: 48600, fuel_type: "Unleaded",
+      city: "Miami", state: "FL",
+      seller: { name: "Example Dealer", phone: "555-0100", website: "https://dealer.example/" },
+    });
+    expect(normalizeMarketCheckListing({
+      price: 10000, miles: 100, build: { year: 2024, make: "Toyota" },
+    })).toBeNull();
   });
 
   it("extracts useful documented provider filters from free text", () => {

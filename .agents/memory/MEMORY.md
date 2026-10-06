@@ -3,3 +3,4 @@
 - [Shared cache backend](shared-cache-backend.md) — apiCache/cache are L1+optional-Redis L2; opt-in via REDIS_URL, falls back to in-memory; don't make MemoryCache.get async.
 - [Shopify Admin proxy quirks](shopify-admin-quirks.md) — inventory mutations need @idempotent field keys + changeFromQuantity; membership SKUs lack order-webhook fulfillment.
 - [Service request separation](service-request-separation.md) — keep direct member requests apart from vendor bidding; global notifications lack recipient ownership.
+- [Provider contract verification](provider-contract-verification.md) — activation requires usable live records and effective filters, not just HTTP 200 or a configured flag.

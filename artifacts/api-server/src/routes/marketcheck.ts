@@ -487,20 +487,24 @@ function cleanHttpUrl(value: unknown): string | undefined {
 export function normalizeMarketCheckListing(raw: unknown): BaseListing | null {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
   const listing = raw as Record<string, unknown>;
-  const year = cleanNumber(listing.year, 1886, 2100);
+  const build = listing.build && typeof listing.build === "object" && !Array.isArray(listing.build)
+    ? listing.build as Record<string, unknown> : {};
+  const dealer = listing.dealer && typeof listing.dealer === "object" && !Array.isArray(listing.dealer)
+    ? listing.dealer as Record<string, unknown> : {};
+  const year = cleanNumber(listing.year ?? build.year, 1886, 2100);
   const price = cleanNumber(listing.price, 0, 10_000_000);
   const miles = cleanNumber(listing.miles ?? listing.mileage, 0, 2_000_000);
-  const make = cleanText(listing.make, 80);
-  const model = cleanText(listing.model, 80);
+  const make = cleanText(listing.make ?? build.make, 80);
+  const model = cleanText(listing.model ?? build.model, 80);
   const vin = cleanText(listing.vin, 17)?.toUpperCase() ?? "";
   if (!year || price === undefined || miles === undefined || !make || !model) return null;
 
   const id = cleanText(listing.id ?? listing.vdp_url ?? listing.vin, 200) ?? `${year}-${make}-${model}-${price}`;
-  const trim = cleanText(listing.trim, 100);
+  const trim = cleanText(listing.trim ?? build.trim, 100);
   const rawSeller = listing.seller as Record<string, unknown> | undefined;
-  const sellerName = cleanText(rawSeller?.name ?? listing.dealer_name, 120);
-  const sellerPhone = cleanText(rawSeller?.phone ?? listing.dealer_phone ?? listing.phone, 40);
-  const sellerWebsite = cleanHttpUrl(rawSeller?.website ?? listing.dealer_website ?? listing.website);
+  const sellerName = cleanText(rawSeller?.name ?? dealer.name ?? listing.dealer_name, 120);
+  const sellerPhone = cleanText(rawSeller?.phone ?? dealer.phone ?? listing.dealer_phone ?? listing.phone, 40);
+  const sellerWebsite = cleanHttpUrl(rawSeller?.website ?? dealer.website ?? listing.dealer_website ?? listing.website);
   const photos = cleanPhotoLinks((listing.media as Record<string, unknown> | undefined)?.photo_links ?? listing.photo_links);
   const vdpUrl = cleanHttpUrl(listing.vdp_url ?? listing.vdpUrl);
   return {
@@ -510,9 +514,9 @@ export function normalizeMarketCheckListing(raw: unknown): BaseListing | null {
     ...(trim ? { trim } : {}),
     ...(cleanText(listing.exterior_color, 80) ? { exterior_color: cleanText(listing.exterior_color, 80) } : {}),
     ...(cleanText(listing.interior_color, 80) ? { interior_color: cleanText(listing.interior_color, 80) } : {}),
-    ...(cleanText(listing.fuel_type, 60) ? { fuel_type: cleanText(listing.fuel_type, 60) } : {}),
-    ...(cleanText(listing.city, 80) ? { city: cleanText(listing.city, 80) } : {}),
-    ...(cleanText(listing.state, 2) ? { state: cleanText(listing.state, 2)?.toUpperCase() } : {}),
+    ...(cleanText(listing.fuel_type ?? build.fuel_type, 60) ? { fuel_type: cleanText(listing.fuel_type ?? build.fuel_type, 60) } : {}),
+    ...(cleanText(listing.city ?? dealer.city, 80) ? { city: cleanText(listing.city ?? dealer.city, 80) } : {}),
+    ...(cleanText(listing.state ?? dealer.state, 2) ? { state: cleanText(listing.state ?? dealer.state, 2)?.toUpperCase() } : {}),
     ...(cleanNumber(listing.dom, 0, 10_000) !== undefined ? { dom: cleanNumber(listing.dom, 0, 10_000) } : {}),
     ...(photos ? { media: { photo_links: photos } } : {}),
     ...(sellerName || sellerPhone || sellerWebsite ? { seller: { ...(sellerName ? { name: sellerName } : {}), ...(sellerPhone ? { phone: sellerPhone } : {}), ...(sellerWebsite ? { website: sellerWebsite } : {}) } } : {}),
@@ -565,13 +569,22 @@ export function parseMarketCheckSearch(search: string): Pick<MarketCheckQuery, "
   return { ...(make ? { make } : {}), ...(model ? { model } : {}), ...(year ? { year } : {}) };
 }
 
-async function liveSearch(query: MarketCheckQuery, apiKey: string): Promise<SearchPayload> {
+export function marketCheckSearchParams(query: MarketCheckQuery, apiKey: string): URLSearchParams {
   const params = new URLSearchParams({ api_key: apiKey, rows: String(query.rows), start: String(query.start), sort_by: query.sort_by, sort_order: query.sort_order, car_type: "used" });
+  // MarketCheck accepts ranges, not price_min/price_max/miles_max.
+  // Bound these required values so unpriced records cannot fill the first page.
+  params.set("price_range", `${query.price_min ?? 1}-${query.price_max ?? 10_000_000}`);
+  params.set("miles_range", `0-${query.miles_max ?? 2_000_000}`);
   const searchFilters = query.search ? parseMarketCheckSearch(query.search) : {};
-  for (const key of ["make", "model", "year", "price_min", "price_max", "miles_max", "zip", "radius"] as const) {
+  for (const key of ["make", "model", "year", "zip", "radius"] as const) {
     const value = query[key] ?? searchFilters[key as keyof typeof searchFilters];
     if (value !== undefined) params.set(key, String(value));
   }
+  return params;
+}
+
+async function liveSearch(query: MarketCheckQuery, apiKey: string): Promise<SearchPayload> {
+  const params = marketCheckSearchParams(query, apiKey);
   const url = `${MARKETCHECK_BASE}/search/car/active?${params}`;
   const data = await circuits.marketcheck.execute(async () => {
     for (let attempt = 0; attempt < 2; attempt++) {
@@ -597,7 +610,8 @@ async function liveSearch(query: MarketCheckQuery, apiKey: string): Promise<Sear
   // Provider listings remain provider facts: no synthetic discounts, values, or wholesale flags.
   const listings = rawListings.map(normalizeMarketCheckListing).filter((listing): listing is BaseListing => listing !== null);
   const totalCount = cleanNumber(data.num_found ?? data.total ?? data.totalCount, 0, 10_000_000) ?? listings.length;
-  const nextStart = query.start + listings.length < totalCount ? query.start + listings.length : null;
+  // Advance past provider records even when validation rejects one, avoiding repeated pages.
+  const nextStart = rawListings.length > 0 && query.start + rawListings.length < totalCount ? query.start + rawListings.length : null;
   return { listings, totalCount, source: "marketcheck", sourceLabel: "Live MarketCheck inventory", message: "Live inventory supplied by MarketCheck.", mode: "live", status: "available", hasMore: nextStart !== null, nextStart, pagination: { start: query.start, rows: query.rows, totalCount, nextStart } };
 }
 
@@ -640,7 +654,7 @@ router.get("/marketcheck/search", async (req: Request, res: Response): Promise<v
     return;
   }
   const query = parsed.data;
-  const cacheKey = cacheKeys.marketplaceSearch(`v2:${stableQueryKey(query)}`);
+  const cacheKey = cacheKeys.marketplaceSearch(`v4:${stableQueryKey(query)}`);
 
   try {
     const payload = await apiCache.get(cacheKey, () => searchMarketCheck(query), 60_000, 5 * 60_000);
