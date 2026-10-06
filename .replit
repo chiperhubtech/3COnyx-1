@@ -84,3 +84,10 @@ channel = "stable-25_05"
 [userenv.shared]
 NAMECHEAP_API_USER = "Ron3c"
 NAMECHEAP_CLIENT_IP = "34.23.128.152"
+SMARTCAR_APPLICATION_ID = "39e525a7-8330-4ecb-8d1d-f71c437988a2"
+
+[userenv.development]
+SMARTCAR_REDIRECT_URI = "https://eb25d043-cc07-434a-b5ec-445156034c51-00-1s66novwliksy.worf.replit.dev/api/garage/callback"
+
+[userenv.production]
+SMARTCAR_REDIRECT_URI = "https://3conyx.ai/api/garage/callback"

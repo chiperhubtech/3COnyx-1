@@ -8,6 +8,7 @@ import orchestratorRouter from "./orchestrator";
 import healthRouter from "./health";
 import marketcheckRouter from "./marketcheck";
 import garageRouter from "./garage";
+import smartcarRouter from "./smartcar";
 import logisticsRouter from "./logistics";
 import deliveryRouter from "./delivery";
 import walletRouter from "./wallet";
@@ -180,6 +181,7 @@ const router: IRouter = Router();
 
 router.use(healthRouter);
 router.use(marketcheckRouter);
+router.use(smartcarRouter);
 router.use(garageRouter);
 router.use(logisticsRouter);
 router.use(deliveryRouter);

@@ -7,6 +7,8 @@ import {
 import { PageHeader } from "@/components/PageHeader";
 import { maskVin } from "@/lib/piiMask";
 import { useTranslation } from "react-i18next";
+import { garageApi } from "@/lib/garage-api";
+import { SmartcarConnectModal } from "@/components/SmartcarConnectModal";
 
 interface Vehicle {
   id: string;
@@ -16,167 +18,16 @@ interface Vehicle {
   vin: string;
   color: string;
   fuelType: "gasoline" | "electric" | "hybrid";
+  mode?: "live" | "simulated";
 }
 
 interface Telemetry {
-  odometer: number;
+  odometer: number | null;
   fuelPercent: number | null;
   batteryPercent: number | null;
   fuelType: string;
-  lastSync: string;
+  lastSync: string | null;
   serviceRequired: boolean;
-}
-
-const CONNECT_MAKES = [
-  { make: "Porsche", models: ["911 GT3", "Cayenne Turbo S", "Panamera 4S", "Taycan Turbo S"] },
-  { make: "BMW", models: ["M5 Competition", "X5 M", "M8 Gran Coupe"] },
-  { make: "Mercedes-Benz", models: ["AMG GT 63 S", "S580 4MATIC", "G63 AMG"] },
-  { make: "Tesla", models: ["Model S Plaid", "Model X Plaid"] },
-  { make: "Bentley", models: ["Continental GT Speed", "Flying Spur", "Bentayga EWB"] },
-  { make: "Rolls-Royce", models: ["Ghost Extended", "Phantom", "Cullinan"] },
-  { make: "Ferrari", models: ["Roma", "SF90 Stradale", "Purosangue"] },
-  { make: "Lamborghini", models: ["Urus Performante", "Huracán EVO"] },
-  { make: "Rivian", models: ["R1T", "R1S"] },
-];
-
-type ConnectStep = "brand" | "model" | "linking" | "done";
-
-// ─── Connect Flow Modal ────────────────────────────────────────────────────────
-function ConnectModal({ onClose, onConnected }: { onClose: () => void; onConnected: (v: Vehicle) => void }) {
-  const [step, setStep] = useState<ConnectStep>("brand");
-  const [selectedMake, setSelectedMake] = useState<string>("");
-  const [selectedModel, setSelectedModel] = useState<string>("");
-
-  const models = CONNECT_MAKES.find((m) => m.make === selectedMake)?.models ?? [];
-
-  const handleLink = async () => {
-    setStep("linking");
-    await new Promise((r) => setTimeout(r, 2200));
-
-    const res = await fetch("/api/garage/connect", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ make: selectedMake, model: selectedModel, year: 2023 }),
-    });
-    const data = await res.json();
-    if (data.vehicle) {
-      setStep("done");
-      setTimeout(() => { onConnected(data.vehicle); onClose(); }, 1200);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={step !== "linking" ? onClose : undefined} />
-      <div className="relative z-10 w-full max-w-sm rounded-2xl border border-white/10 bg-[var(--onyx-surface)] shadow-2xl overflow-hidden">
-
-        {/* Header */}
-        <div className="p-5 border-b border-white/10 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded bg-white flex items-center justify-center">
-              <Wifi className="w-4 h-4 text-black" />
-            </div>
-            <div>
-              <p className="text-white font-semibold text-sm">Smartcar Connect</p>
-              <p className="text-white/30 text-[10px]">Secure vehicle pairing</p>
-            </div>
-          </div>
-          {step !== "linking" && (
-            <button onClick={onClose} className="text-white/30 hover:text-white/60">
-              <X className="w-4 h-4" />
-            </button>
-          )}
-        </div>
-
-        <div className="p-5">
-          {step === "brand" && (
-            <>
-              <p className="text-xs text-white/40 mb-3">Select your vehicle brand</p>
-              <div className="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto pr-1">
-                {CONNECT_MAKES.map(({ make }) => (
-                  <button
-                    key={make}
-                    onClick={() => { setSelectedMake(make); setStep("model"); }}
-                    className="text-left px-3 py-2.5 rounded-lg border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] hover:border-amber-500/30 text-white/70 hover:text-white text-sm font-medium transition-all"
-                  >
-                    {make}
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
-
-          {step === "model" && (
-            <>
-              <button onClick={() => setStep("brand")} className="text-xs text-amber-400/70 hover:text-amber-400 mb-3 flex items-center gap-1 transition-colors">
-                ← Back to brands
-              </button>
-              <p className="text-xs text-white/40 mb-3">Select your {selectedMake} model</p>
-              <div className="space-y-2 mb-5">
-                {models.map((model) => (
-                  <button
-                    key={model}
-                    onClick={() => setSelectedModel(model)}
-                    className={`w-full text-left px-3 py-2.5 rounded-lg border text-sm font-medium transition-all ${
-                      selectedModel === model
-                        ? "border-amber-500/40 bg-amber-500/10 text-amber-300"
-                        : "border-white/10 bg-white/[0.03] hover:bg-white/[0.06] text-white/70"
-                    }`}
-                  >
-                    {selectedMake} {model}
-                  </button>
-                ))}
-              </div>
-              <div className="mb-4 p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/20">
-                <div className="flex items-center gap-2 mb-1">
-                  <Shield className="w-3.5 h-3.5 text-emerald-400" />
-                  <p className="text-xs text-emerald-400 font-medium">Read-only access</p>
-                </div>
-                <p className="text-[11px] text-white/30">Odometer, fuel level, and battery — 3C Onyx never controls your vehicle.</p>
-              </div>
-              <button
-                onClick={handleLink}
-                disabled={!selectedModel}
-                className="w-full py-2.5 rounded-lg bg-amber-500 hover:bg-amber-400 disabled:opacity-40 text-black font-semibold text-sm transition-colors"
-              >
-                Link Vehicle
-              </button>
-            </>
-          )}
-
-          {step === "linking" && (
-            <div className="py-6 text-center">
-              <div className="relative w-14 h-14 mx-auto mb-4">
-                <div className="w-14 h-14 rounded-full border-2 border-amber-500/20 border-t-amber-500 animate-spin" />
-                <Wifi className="w-5 h-5 text-amber-400 absolute inset-0 m-auto" />
-              </div>
-              <p className="text-white font-medium text-sm mb-1">Establishing secure link…</p>
-              <p className="text-white/35 text-xs">Connecting to {selectedMake} {selectedModel}</p>
-              <div className="mt-4 space-y-1.5">
-                {["Authenticating identity", "Requesting permissions", "Fetching vehicle data"].map((s, i) => (
-                  <div key={s} className="flex items-center gap-2 text-xs text-white/30">
-                    <div className="w-3.5 h-3.5 rounded-full border border-emerald-400/40 bg-emerald-400/10 flex items-center justify-center">
-                      <CheckCircle2 className="w-2.5 h-2.5 text-emerald-400" style={{ opacity: i < 2 ? 1 : 0.4 }} />
-                    </div>
-                    {s}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {step === "done" && (
-            <div className="py-6 text-center">
-              <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-400/30 flex items-center justify-center mx-auto mb-3">
-                <CheckCircle2 className="w-6 h-6 text-emerald-400" />
-              </div>
-              <p className="text-white font-semibold text-sm">Vehicle Linked!</p>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
 }
 
 // ─── Specialist Request Modal ──────────────────────────────────────────────────
@@ -191,19 +42,18 @@ function SpecialistModal({
 }) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [concern, setConcern] = useState(`Service required — odometer at ${telemetry.odometer.toLocaleString()} mi`);
+  const [concern, setConcern] = useState(`Service enquiry — odometer ${telemetry.odometer?.toLocaleString() ?? "unavailable"} mi`);
   const [state, setState] = useState<"form" | "submitting" | "done">("form");
   const [refId, setRefId] = useState("");
 
   const handleSubmit = async () => {
     if (!name.trim() || !phone.trim()) return;
     setState("submitting");
-    const res = await fetch("/api/garage/specialist", {
+    const data = await garageApi<{ refId: string }>("/specialist", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ vehicleId: vehicle.id, name, phone, concern }),
     });
-    const data = await res.json();
     setRefId(data.refId ?? "");
     setState("done");
   };
@@ -237,7 +87,7 @@ function SpecialistModal({
                 <AlertTriangle className="w-4 h-4 text-red-400 shrink-0" />
                 <div>
                   <p className="text-sm font-medium text-white">{vehicle.year} {vehicle.make} {vehicle.model}</p>
-                  <p className="text-xs text-red-400/80">{telemetry.odometer.toLocaleString()} mi — service overdue</p>
+                  <p className="text-xs text-red-400/80">{telemetry.odometer?.toLocaleString() ?? "N/A"} mi</p>
                 </div>
               </div>
               <div className="space-y-3 mb-4">
@@ -322,12 +172,15 @@ function VehicleCard({ vehicle, onUnlink }: { vehicle: Vehicle; onUnlink: (id: s
   const [refreshing, setRefreshing] = useState(false);
   const [specialistModal, setSpecialistModal] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [error, setError] = useState("");
 
   const fetchTelemetry = useCallback(async (silent = false) => {
     if (!silent) setLoading(true); else setRefreshing(true);
     try {
-      const res = await fetch(`/api/garage/vehicles/${vehicle.id}/telemetry`);
-      if (res.ok) setTelemetry(await res.json());
+      setError("");
+      setTelemetry(await garageApi<Telemetry>(`/vehicles/${encodeURIComponent(vehicle.id)}/telemetry`));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Telemetry unavailable.");
     } finally {
       setLoading(false); setRefreshing(false);
     }
@@ -358,7 +211,7 @@ function VehicleCard({ vehicle, onUnlink }: { vehicle: Vehicle; onUnlink: (id: s
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-[10px] text-emerald-400 font-medium">Live</span>
+                <span className="text-[10px] text-emerald-400 font-medium">{vehicle.mode === "simulated" ? "Simulated" : "Connected"}</span>
               </div>
               <div className="relative">
                 <button onClick={() => setMenuOpen((v) => !v)}
@@ -382,7 +235,8 @@ function VehicleCard({ vehicle, onUnlink }: { vehicle: Vehicle; onUnlink: (id: s
           </div>
 
           {/* VIN */}
-          <p className="text-[10px] font-mono text-white/15 tracking-widest mb-4">VIN {maskVin(vehicle.vin)}</p>
+          {vehicle.vin && <p className="text-[10px] font-mono text-white/15 tracking-widest mb-4">VIN {maskVin(vehicle.vin)}</p>}
+          {error && <p role="alert" className="text-sm text-red-300 mb-3">{error} <button className="underline" onClick={() => fetchTelemetry(true)}>Retry</button></p>}
 
           {/* Telemetry gauges */}
           {loading ? (
@@ -401,12 +255,12 @@ function VehicleCard({ vehicle, onUnlink }: { vehicle: Vehicle; onUnlink: (id: s
                 <div className="w-20 h-20 rounded-full border-2 border-white/10 bg-white/[0.03] flex flex-col items-center justify-center">
                   <Gauge className="w-4 h-4 text-white/40 mb-0.5" />
                   <p className="text-xs font-bold text-white leading-none">
-                    {telemetry.odometer >= 1000
+                    {telemetry.odometer === null ? "N/A" : telemetry.odometer >= 1000
                       ? `${(telemetry.odometer / 1000).toFixed(1)}k`
                       : telemetry.odometer}
                   </p>
                 </div>
-                <p className="text-[11px] text-white/35 font-medium">Odometer</p>
+                <p className="text-[11px] text-white/35 font-medium">Odometer (mi)</p>
               </div>
 
               <GaugeRing value={telemetry.fuelPercent} label="Fuel" icon={Droplets} color="#f59e0b" />
@@ -423,7 +277,7 @@ function VehicleCard({ vehicle, onUnlink }: { vehicle: Vehicle; onUnlink: (id: s
                 <Clock className="w-3 h-3 text-white/20" />
               )}
               <p className="text-[10px] text-white/20">
-                {refreshing ? "Syncing…" : `Last synced ${new Date(telemetry.lastSync).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`}
+                {refreshing ? "Syncing…" : telemetry.lastSync ? `Provider data: ${new Date(telemetry.lastSync).toLocaleString()}` : "Vehicle data not yet available. Refresh after Smartcar receives an update."}
               </p>
             </div>
           )}
@@ -439,7 +293,7 @@ function VehicleCard({ vehicle, onUnlink }: { vehicle: Vehicle; onUnlink: (id: s
               <div>
                 <p className="text-sm font-semibold text-red-300">Service Required</p>
                 <p className="text-xs text-red-400/60 mt-0.5">
-                  Odometer reads <span className="text-red-300 font-mono">{telemetry.odometer.toLocaleString()} mi</span> — exceeds 50,000 mi service threshold.
+                  Odometer reads <span className="text-red-300 font-mono">{telemetry.odometer?.toLocaleString() ?? "N/A"} mi</span>.
                 </p>
               </div>
             </div>
@@ -471,13 +325,22 @@ export default function Garage() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
   const [connectModal, setConnectModal] = useState(false);
+  const [error, setError] = useState("");
+  const [notice] = useState(() => {
+    const result = new URLSearchParams(window.location.search).get("smartcar");
+    return result === "connected" ? "Smartcar confirmed your vehicle connection."
+      : result === "cancelled" ? "Vehicle connection was cancelled or not approved. You can try again."
+      : result === "pending" ? "No vehicle connection was confirmed yet. Refresh shortly or try connecting again." : "";
+  });
 
   const fetchVehicles = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/garage/vehicles");
-      const data = await res.json();
+      setError("");
+      const data = await garageApi<{ vehicles: Vehicle[] }>("/vehicles");
       setVehicles(data.vehicles ?? []);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to load your garage.");
     } finally {
       setLoading(false);
     }
@@ -486,12 +349,11 @@ export default function Garage() {
   useEffect(() => { fetchVehicles(); }, [fetchVehicles]);
 
   const handleUnlink = async (id: string) => {
-    await fetch(`/api/garage/vehicles/${id}`, { method: "DELETE" });
-    setVehicles((prev) => prev.filter((v) => v.id !== id));
-  };
-
-  const handleConnected = (vehicle: Vehicle) => {
-    setVehicles((prev) => [...prev, vehicle]);
+    if (!window.confirm("Disconnect this vehicle from 3C ONYX? This revokes this Smartcar connection. You can reconnect later.")) return;
+    try {
+      await garageApi(`/vehicles/${encodeURIComponent(id)}`, { method: "DELETE" });
+      setVehicles((prev) => prev.filter((v) => v.id !== id));
+    } catch (err) { setError(err instanceof Error ? err.message : "Unable to disconnect vehicle."); }
   };
 
   return (
@@ -513,6 +375,9 @@ export default function Garage() {
         }
       />
       <div className="p-6">
+      {notice && <p role="status" className="mb-4 text-sm text-amber-200">{notice}</p>}
+      {error && <p role="alert" className="mb-4 text-sm text-red-300">{error}</p>}
+      <button onClick={fetchVehicles} disabled={loading} className="mb-4 text-sm text-white/70 underline disabled:opacity-40">Refresh garage</button>
 
       {/* Vehicle grid */}
       {loading ? (
@@ -554,7 +419,7 @@ export default function Garage() {
       )}
 
       {connectModal && (
-        <ConnectModal onClose={() => setConnectModal(false)} onConnected={handleConnected} />
+        <SmartcarConnectModal onClose={() => setConnectModal(false)} />
       )}
       </div>
     </div>

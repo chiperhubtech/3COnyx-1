@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import React, { useEffect, useRef } from "react";
 import {
   Platform,
+  Linking,
+  Alert,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -21,11 +23,12 @@ type GarageVehicle = {
   model: string;
   year: number;
   vin: string;
-  odometer: number;
+  odometer: number | null;
   fuelPercent: number | null;
   batteryPercent: number | null;
   fuelType: "gasoline" | "electric" | "hybrid";
-  lastSync: string;
+  lastSync: string | null;
+  mode?: "live" | "simulated";
   color: string;
 };
 
@@ -34,7 +37,8 @@ function maskVin(vin: string) {
   return "•••••••••••" + vin.slice(-4);
 }
 
-function formatLastSync(isoString: string): string {
+function formatLastSync(isoString: string | null): string {
+  if (!isoString) return "not available";
   try {
     const d = new Date(isoString);
     const diff = Math.floor((Date.now() - d.getTime()) / 60000);
@@ -46,13 +50,13 @@ function formatLastSync(isoString: string): string {
   }
 }
 
-function GaugeCircle({ value, max, color, label, unit }: { value: number; max: number; color: string; label: string; unit?: string }) {
+function GaugeCircle({ value, max, color, label, unit }: { value: number | null; max: number; color: string; label: string; unit?: string }) {
   const SIZE = 80;
   const RADIUS = 32;
   const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
-  const pct = Math.min(1, Math.max(0, value / max));
+  const pct = Math.min(1, Math.max(0, (value ?? 0) / max));
   const dashOffset = CIRCUMFERENCE * (1 - pct);
-  const displayValue = value > 999 ? `${(value / 1000).toFixed(1)}k` : `${Math.round(value)}${unit ?? ""}`;
+  const displayValue = value == null ? "N/A" : value > 999 ? `${(value / 1000).toFixed(1)}k` : `${Math.round(value)}${unit ?? ""}`;
 
   return (
     <View style={{ alignItems: "center", gap: 6 }}>
@@ -80,9 +84,14 @@ function GaugeCircle({ value, max, color, label, unit }: { value: number; max: n
   );
 }
 
-function VehicleCard({ vehicle }: { vehicle: GarageVehicle }) {
+function VehicleCard({ vehicle: summary }: { vehicle: GarageVehicle }) {
   const { t } = useTranslation();
-  const needsService = vehicle.odometer > 50000;
+  const { data, error } = useQuery({
+    queryKey: ["garage-telemetry", summary.id],
+    queryFn: () => apiFetch<Partial<GarageVehicle>>(`/garage/vehicles/${encodeURIComponent(summary.id)}/telemetry`),
+  });
+  const vehicle = { ...summary, ...data };
+  const needsService = false;
   const isElectric = vehicle.fuelType === "electric";
 
   return (
@@ -102,11 +111,12 @@ function VehicleCard({ vehicle }: { vehicle: GarageVehicle }) {
         </View>
         <View style={styles.livePill}>
           <View style={styles.liveDot} />
-          <Text style={styles.liveText}>{t("garage.live")}</Text>
+          <Text style={styles.liveText}>{vehicle.mode === "simulated" ? "Simulated" : "Connected"}</Text>
         </View>
       </View>
 
       {/* Gauges */}
+      {error && <Text style={styles.syncText}>Vehicle data is unavailable. Try again later.</Text>}
       <View style={styles.gaugesRow}>
         <GaugeCircle
           value={vehicle.odometer}
@@ -146,7 +156,7 @@ function VehicleCard({ vehicle }: { vehicle: GarageVehicle }) {
           <View style={styles.alertBox}>
             <MaterialCommunityIcons name="alert" size={14} color={COLORS.red} />
             <Text style={styles.alertText}>
-              {t("garage.serviceAlert", { count: vehicle.odometer.toLocaleString() })}
+              {t("garage.serviceAlert", { count: vehicle.odometer?.toLocaleString() ?? "N/A" })}
             </Text>
           </View>
           <Pressable style={styles.specialistBtn}>
@@ -166,7 +176,7 @@ export default function GarageScreen() {
   const topPad = isWeb ? 67 : insets.top;
   const bottomPad = isWeb ? 34 : insets.bottom;
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["garage"],
     queryFn: () => apiFetch<{ vehicles: GarageVehicle[] }>("/garage/vehicles"),
   });
@@ -181,12 +191,23 @@ export default function GarageScreen() {
           <MaterialCommunityIcons name="garage-open" size={20} color={COLORS.emerald} />
           <Text style={styles.title}>{t("garage.title")}</Text>
         </View>
-        <Pressable style={styles.connectBtn}>
+        <Pressable style={styles.connectBtn} onPress={() => {
+          if (Platform.OS === "web") {
+            void Linking.openURL("https://3conyx.ai/garage");
+            return;
+          }
+          Alert.alert("Connect in the web garage", "Sign in to 3C ONYX in your browser to securely authorize your vehicle with Smartcar. Return here and refresh when finished.", [
+            { text: "Cancel", style: "cancel" },
+            { text: "Open garage", onPress: () => { Linking.openURL("https://3conyx.ai/garage").catch(() => Alert.alert("Unable to open browser", "Visit https://3conyx.ai/garage to connect your vehicle.")); } },
+          ]);
+        }}>
           <Feather name="plus" size={13} color={COLORS.black} />
           <Text style={styles.connectBtnText}>{t("garage.addVehicle")}</Text>
         </Pressable>
       </View>
       <Text style={styles.subtitle}>{t("garage.subtitle")}</Text>
+      <Pressable onPress={() => refetch()}><Text style={styles.syncText}>Refresh garage</Text></Pressable>
+      {error && <Text style={styles.syncText}>{error instanceof Error ? error.message : "Unable to load garage."}</Text>}
 
       <ScrollView
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: bottomPad + 90, gap: 14, paddingTop: 14 }}
@@ -200,15 +221,15 @@ export default function GarageScreen() {
             </View>
           ))
         ) : (
-          vehicles.map((v) => <VehicleCard key={v.id} vehicle={v} />)
+          vehicles.length ? vehicles.map((v) => <VehicleCard key={v.id} vehicle={v} />) : <Text style={styles.syncText}>No vehicles connected. Connect through the web garage to get started.</Text>
         )}
 
         {/* Smartcar Banner */}
         <View style={styles.smartcarBanner}>
           <MaterialCommunityIcons name="shield-link-variant" size={18} color={COLORS.gold} />
           <View style={{ flex: 1 }}>
-            <Text style={styles.bannerTitle}>{t("garage.smartcarConnected")}</Text>
-            <Text style={styles.bannerSub}>{t("garage.endToEnd")}</Text>
+            <Text style={styles.bannerTitle}>Smartcar vehicle data</Text>
+            <Text style={styles.bannerSub}>Available readings depend on your vehicle and approved permissions.</Text>
           </View>
           <Feather name="chevron-right" size={16} color={COLORS.whiteDim} />
         </View>
