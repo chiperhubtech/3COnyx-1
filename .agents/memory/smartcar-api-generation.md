@@ -14,3 +14,9 @@ Keep this garage integration read-only unless vehicle-control features are expli
 **Why:** Smartcar v3 tokens authorize the whole application, so the backend must independently scope every vehicle operation to the authenticated owner. Provider-persisted connections avoid losing linked vehicles on an app restart.
 
 **How to apply:** Preserve the stable mapping secret across deployments. Rotating the encryption key changes derived owner IDs; plan a mapping migration or explicit reconnection rather than silently hiding existing vehicles. Preview and production must use separately configured, allowlisted redirect URIs.
+
+The user's target for remote engine start/stop is “all compatible vehicles in the USA,” not one selected brand.
+
+**Why:** The user specified cross-brand U.S. coverage when asked which brands to research. This is a coverage goal, not a claim that Smartcar supports engine commands or authorization to execute commands on real vehicles.
+
+**How to apply:** Verify approved third-party command access and vehicle-level U.S. eligibility before promising coverage. Distinguish engine remote-start cancellation from immobilization, EV charging, and climate control.
