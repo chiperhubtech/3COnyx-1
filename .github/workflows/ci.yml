@@ -44,7 +44,7 @@ jobs:
         run: pnpm --filter @workspace/3c-onyx run build
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: api-dist
           path: artifacts/api-server/dist
