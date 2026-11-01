@@ -21,7 +21,7 @@
     "@aws-sdk/client-location": "^3.1019.0",
     "@aws-sdk/client-rekognition": "^3.1019.0",
     "@aws-sdk/client-secrets-manager": "^3.1019.0",
-    "@google/genai": "^1.46.0",
+    "@google/genai": "^1.52.0",
     "@modelcontextprotocol/sdk": "^1.27.1",
     "@opensearch-project/opensearch": "^3.5.1",
     "@types/multer": "^2.1.0",
