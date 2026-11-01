@@ -39,7 +39,7 @@ jobs:
           cat audit-report.json | head -100
 
       - name: Upload audit report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: security-audit-${{ github.run_number }}
           path: artifacts/api-server/audit-report.json
@@ -81,7 +81,7 @@ jobs:
           npx --yes @cyclonedx/cyclonedx-npm --output-file sbom.json || echo "SBOM generation skipped"
 
       - name: Upload SBOM
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: sbom-${{ github.run_number }}
